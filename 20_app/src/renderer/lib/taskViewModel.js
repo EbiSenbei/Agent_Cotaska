@@ -19,6 +19,14 @@ function dueDatePart(due_date) {
   return match ? match[1] : null;
 }
 
+function dueDateSortValue(due_date) {
+  if (!due_date) return null;
+  const raw = String(due_date).trim();
+  const match = raw.match(/^(\d{4}-\d{2}-\d{2})(?:[T\s](\d{2}:\d{2}))?/);
+  if (!match) return null;
+  return `${match[1]}T${match[2] || "00:00"}`;
+}
+
 function normalizeProgressStatusValue(progressStatus, status = "todo") {
   const value = String(progressStatus || "").trim();
   if (value === "未着手") return "未着";
@@ -217,8 +225,8 @@ function sortDisplayTasks(arr, sortState) {
   return [...arr].sort((a, b) => {
     let result = 0;
     if (key === "date") {
-      const aDate = dueDatePart(a.due_date);
-      const bDate = dueDatePart(b.due_date);
+      const aDate = dueDateSortValue(a.due_date);
+      const bDate = dueDateSortValue(b.due_date);
       if (!aDate && !bDate) result = 0;
       else if (!aDate) result = 1;
       else if (!bDate) result = -1;
@@ -309,6 +317,7 @@ export {
   MAX_TASK_TREE_DEPTH,
   formatDue,
   dueDatePart,
+  dueDateSortValue,
   normalizeProgressStatusValue,
   isOnHoldTask,
   isActiveDateTask,
