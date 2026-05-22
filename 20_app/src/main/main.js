@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Menu, dialog, globalShortcut, shell } = require("electron");
+const { app, BrowserWindow, ipcMain, Menu, dialog, globalShortcut, shell, clipboard } = require("electron");
 const path = require("path");
 const crypto = require("crypto");
 const { spawn } = require("child_process");
@@ -1457,6 +1457,25 @@ ipcMain.handle("shell:openTaskFile", async (_e, taskId) => {
   } catch (err) {
     logger.error("shell:openTaskFile failed", err);
     return { ok: false, error: err.message || "タスクファイルを開けませんでした。" };
+  }
+});
+
+ipcMain.handle("shell:copyTaskFilePath", async (_e, taskId) => {
+  await servicesReady;
+
+  try {
+    const filePath = taskService.getTaskFilePath(taskId);
+    if (!fs.existsSync(filePath)) {
+      logger.warn("shell:copyTaskFilePath target not found", { taskId, path: filePath });
+      return { ok: false, error: "対象ファイルが見つかりません。" };
+    }
+
+    clipboard.writeText(filePath);
+    logger.info("shell:copyTaskFilePath success", { taskId, path: filePath });
+    return { ok: true, path: filePath };
+  } catch (err) {
+    logger.error("shell:copyTaskFilePath failed", err);
+    return { ok: false, error: err.message || "タスクファイルのパスをコピーできませんでした。" };
   }
 });
 

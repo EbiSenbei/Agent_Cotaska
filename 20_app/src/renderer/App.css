@@ -2306,6 +2306,7 @@ body.is-resizing-detail-sections * {
   justify-content: flex-end;
   border-top: 1px solid #eee;
   flex-shrink: 0;
+  cursor: context-menu;
 }
 
 .d-task-id {
@@ -2314,6 +2315,36 @@ body.is-resizing-detail-sections * {
   font-family: "Consolas", "Courier New", monospace;
   letter-spacing: 0.04em;
   user-select: text;
+}
+
+.detail-open-error--success {
+  color: #2f7d32;
+  background: #edf8ee;
+  border-color: #c9e8cb;
+}
+
+.detail-footer-context-menu {
+  min-width: 150px;
+}
+
+.copy-toast {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 10020;
+  padding: 8px 12px;
+  border: 1px solid #c9e8cb;
+  border-radius: 6px;
+  background: #edf8ee;
+  color: #2f7d32;
+  font-size: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.copy-toast--error {
+  border-color: #f1c8c8;
+  background: #fff1f1;
+  color: #b04848;
 }
 
 

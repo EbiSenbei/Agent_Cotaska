@@ -126,6 +126,7 @@ function MainPane({
   const [localSearch, setLocalSearch] = useState("");
   const [contextMenu, setContextMenu] = useState(null);
   const [contextMenuPos, setContextMenuPos] = useState(null);
+  const [pathCopyNotice, setPathCopyNotice] = useState(null);
   const [inlineInput, setInlineInput] = useState(null); // { parentId, value }
   const [expanded, setExpanded] = useState({});
   const [completedSectionExpanded, setCompletedSectionExpanded] = useState(true);
@@ -289,6 +290,27 @@ function MainPane({
       setContextMenuPos({ top, left });
     }
   }, [contextMenu]);
+
+  useEffect(() => {
+    if (!pathCopyNotice) return undefined;
+    const timer = window.setTimeout(() => setPathCopyNotice(null), 2400);
+    return () => window.clearTimeout(timer);
+  }, [pathCopyNotice]);
+
+  const handleCopyTaskFilePath = async (task) => {
+    if (!task || task.is_invalid) return;
+    try {
+      const result = await window.cotaskaAPI?.shell?.copyTaskFilePath?.(task.id);
+      setPathCopyNotice({
+        type: result?.ok ? "success" : "error",
+        message: result?.ok ? "パスをコピーしました。" : (result?.error || "パスをコピーできませんでした。"),
+      });
+    } catch (error) {
+      setPathCopyNotice({ type: "error", message: error?.message || "パスをコピーできませんでした。" });
+    } finally {
+      setContextMenu(null);
+    }
+  };
 
   useEffect(() => {
     if (!inlineInput) return;
@@ -891,6 +913,14 @@ function MainPane({
             📋 複製する
           </button>
 
+          {/* パスのコピー */}
+          <button
+            className="ctx-item"
+            onClick={() => handleCopyTaskFilePath(contextMenu.task)}
+          >
+            📄 パスのコピー
+          </button>
+
           {/* ごみ箱に移動 */}
           <button
             className="ctx-item ctx-item--danger"
@@ -901,6 +931,11 @@ function MainPane({
           >
             🗑️ ごみ箱に移動
           </button>
+        </div>
+      )}
+      {pathCopyNotice && (
+        <div className={`copy-toast${pathCopyNotice.type === "error" ? " copy-toast--error" : ""}`} role="status" aria-live="polite">
+          {pathCopyNotice.message}
         </div>
       )}
 

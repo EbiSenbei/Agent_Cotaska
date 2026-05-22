@@ -90,6 +90,7 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
     openPath: (targetPath) => ipcRenderer.invoke("shell:openPath", targetPath),
     openTarget: (target, baseDir) => ipcRenderer.invoke("shell:openTarget", target, baseDir),
     openTaskFile: (taskId) => ipcRenderer.invoke("shell:openTaskFile", taskId),
+    copyTaskFilePath: (taskId) => ipcRenderer.invoke("shell:copyTaskFilePath", taskId),
     openTaskTarget: (taskId, target) => ipcRenderer.invoke("shell:openTaskTarget", taskId, target),
   },
 

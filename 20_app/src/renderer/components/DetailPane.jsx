@@ -109,7 +109,11 @@ function DetailPaneBody({
   const subtaskResizeRef = useRef(null);
   const detailPaneRef = useRef(null);
   const markdownHighlightRef = useRef(null);
+  const footerContextMenuRef = useRef(null);
   const [openExternalError, setOpenExternalError] = useState("");
+  const [footerContextMenu, setFooterContextMenu] = useState(null);
+  const [footerContextMenuPos, setFooterContextMenuPos] = useState(null);
+  const [pathCopyMessage, setPathCopyMessage] = useState("");
 
   const parentTask = tasks.find((candidate) =>
     candidate.id === task.parent && !candidate.is_invalid
@@ -176,6 +180,55 @@ function DetailPaneBody({
   useEffect(() => () => {
     clearTimeout(fontSizeIndicatorTimerRef.current);
   }, []);
+
+  useEffect(() => {
+    setFooterContextMenu(null);
+    setPathCopyMessage("");
+  }, [task.id]);
+
+  useEffect(() => {
+    if (!footerContextMenu) return undefined;
+    setFooterContextMenuPos({ top: footerContextMenu.y, left: footerContextMenu.x });
+    const close = (event) => {
+      if (footerContextMenuRef.current?.contains(event.target)) return;
+      setFooterContextMenu(null);
+      setFooterContextMenuPos(null);
+    };
+    window.addEventListener("click", close);
+    window.addEventListener("contextmenu", close);
+    return () => {
+      window.removeEventListener("click", close);
+      window.removeEventListener("contextmenu", close);
+    };
+  }, [footerContextMenu]);
+
+  useEffect(() => {
+    if (!footerContextMenu || !footerContextMenuRef.current) return;
+    const MARGIN = 8;
+    const rect = footerContextMenuRef.current.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    let top = footerContextMenu.y;
+    let left = footerContextMenu.x;
+
+    if (rect.bottom > viewportHeight - MARGIN) {
+      top = Math.max(MARGIN, top - (rect.bottom - (viewportHeight - MARGIN)));
+    }
+    if (rect.right > viewportWidth - MARGIN) {
+      left = Math.max(MARGIN, left - (rect.right - (viewportWidth - MARGIN)));
+    }
+
+    if (top !== footerContextMenu.y || left !== footerContextMenu.x) {
+      setFooterContextMenuPos({ top, left });
+    }
+  }, [footerContextMenu]);
+
+  useEffect(() => {
+    if (!pathCopyMessage) return undefined;
+    const timer = window.setTimeout(() => setPathCopyMessage(""), 2400);
+    return () => window.clearTimeout(timer);
+  }, [pathCopyMessage]);
 
   useEffect(() => {
     const handleResizeMove = (event) => {
@@ -489,6 +542,32 @@ function DetailPaneBody({
     }
   };
 
+  const handleDetailFooterContextMenu = (event) => {
+    if (isInvalid) return;
+    event.preventDefault();
+    event.stopPropagation();
+    setOpenExternalError("");
+    setFooterContextMenu({ x: event.clientX, y: event.clientY });
+  };
+
+  const handleCopyTaskFilePath = async () => {
+    if (isInvalid) return;
+    setOpenExternalError("");
+    try {
+      const result = await window.cotaskaAPI?.shell?.copyTaskFilePath?.(task.id);
+      if (result?.ok) {
+        setPathCopyMessage("パスをコピーしました。");
+      } else {
+        setOpenExternalError(result?.error || "パスをコピーできませんでした。");
+      }
+    } catch (error) {
+      setOpenExternalError(error?.message || "パスをコピーできませんでした。");
+    } finally {
+      setFooterContextMenu(null);
+      setFooterContextMenuPos(null);
+    }
+  };
+
   const handlePreviewLinkClick = async (event) => {
     if (isInvalid) return;
     const anchor = event.target?.closest?.("a");
@@ -579,7 +658,11 @@ function DetailPaneBody({
           </button>
         </div>
       </div>
-      {openExternalError && <div className="detail-open-error">{openExternalError}</div>}
+      {(openExternalError || pathCopyMessage) && (
+        <div className={`detail-open-error${pathCopyMessage && !openExternalError ? " detail-open-error--success" : ""}`}>
+          {openExternalError || pathCopyMessage}
+        </div>
+      )}
       {hierarchyWarning && (
         <div className="detail-validation-error detail-validation-error--warning">
           <div className="detail-validation-title">
@@ -816,7 +899,11 @@ function DetailPaneBody({
       )}
 
       {/* === detail-footer: 登録日時・完了日時・ID === */}
-      <div className="detail-footer">
+      <div
+        className="detail-footer"
+        onContextMenu={handleDetailFooterContextMenu}
+        title={isInvalid ? undefined : "右クリックでパスをコピー"}
+      >
         {task.created_at && (
           <span className="d-task-id" style={{ marginRight: "auto" }}>登録日時：{formatDatetime(task.created_at)}</span>
         )}
@@ -825,6 +912,22 @@ function DetailPaneBody({
         )}
         <span className="d-task-id">ID: {task.id}</span>
       </div>
+      {footerContextMenu && (
+        <div
+          ref={footerContextMenuRef}
+          className="context-menu detail-footer-context-menu"
+          style={{ top: footerContextMenuPos?.top ?? footerContextMenu.y, left: footerContextMenuPos?.left ?? footerContextMenu.x }}
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <button
+            className="ctx-item"
+            onClick={handleCopyTaskFilePath}
+          >
+            📄 パスのコピー
+          </button>
+        </div>
+      )}
     </div>
   );
 }
