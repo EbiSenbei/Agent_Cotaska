@@ -17,6 +17,7 @@ Thumbs.db
 # Runtime artifacts
 20_app/db/
 20_app/backup/
+20_app/config/r2-upload.local.json
 *.log
 /data/
 

@@ -239,6 +239,41 @@ body.is-resizing-detail-sections * {
   background: rgba(255, 255, 255, 0.16);
 }
 
+.sidebar .sb-icon--update-alert {
+  position: relative;
+  border: 1px solid rgba(255, 199, 96, 0.52);
+  background: #f2a93b;
+  color: #181c22;
+  font-size: 20px;
+  font-weight: 800;
+  opacity: 1;
+  box-shadow: 0 0 0 0 rgba(242, 169, 59, 0.42);
+  animation: update-alert-pulse 1.8s ease-out infinite;
+}
+
+.sidebar .sb-icon--update-alert:hover {
+  background: #ffc65d;
+  opacity: 1;
+}
+
+.sidebar .sb-icon--update-alert::after {
+  content: "";
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #d93025;
+  box-shadow: 0 0 0 2px #1c1c1c;
+}
+
+@keyframes update-alert-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(242, 169, 59, 0.42); }
+  70% { box-shadow: 0 0 0 9px rgba(242, 169, 59, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(242, 169, 59, 0); }
+}
+
 .sidebar .sb-spacer { flex: 1; }
 
 .sidebar .sb-bottom {

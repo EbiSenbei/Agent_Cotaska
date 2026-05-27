@@ -2637,7 +2637,7 @@ tasks:
   - id: T-0247
     title: CHG-076-03 ユーザー確認：Portable版のみのリリース運用
     list: 仕様変更
-    status: doing
+    status: done
     priority: normal
     sort_order: 247
     tags:
@@ -2645,8 +2645,19 @@ tasks:
       - ユーザー確認
       - リリース
       - Portable
-    due_date: null
-    updated_at: '2026-05-16T23:07:38+09:00'
+    due_date: '2026-05-20'
+    updated_at: '2026-05-20T12:46:35.851Z'
+  - id: T-0258
+    title: 仕様変更：アップデートアラート
+    list: null
+    status: done
+    priority: normal
+    sort_order: 248
+    tags:
+      - CHG-079
+      - 自動更新
+    due_date: '2026-05-20'
+    updated_at: '2026-05-20T15:00:00+09:00'
   - id: T-0249
     title: CHG-077 ロード画面追加
     list: 仕様変更
@@ -2698,6 +2709,17 @@ tasks:
       - ロード画面
     due_date: null
     updated_at: '2026-05-19T22:06:27+09:00'
+  - id: T-0262
+    title: 仕様変更：パスコピー
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 252
+    tags:
+      - CHG-080
+      - パスコピー
+    due_date: null
+    updated_at: '2026-05-22T03:39:44.020Z'
   - id: T-0263
     title: BUG-20260522-01 日付の並び替えで時刻が考慮されていない
     list: 不具合修正
@@ -2765,7 +2787,113 @@ tasks:
       - 遅延
     due_date: null
     updated_at: '2026-05-20T10:42:12+09:00'
+  - id: T-0259
+    title: CHG-079-01 設計：起動時更新アラート仕様反映
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 259
+    tags:
+      - CHG-079
+      - 設定画面
+      - 自動更新
+    due_date: '2026-05-20'
+    updated_at: '2026-05-20T15:00:00+09:00'
+  - id: T-0260
+    title: CHG-079-02 実装：起動時更新確認と通知アイコン導線
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 260
+    tags:
+      - CHG-079
+      - 設定画面
+      - 自動更新
+    due_date: '2026-05-20'
+    updated_at: '2026-05-20T15:00:00+09:00'
+  - id: T-0270
+    title: 不具合：明日のタスクが表示されない
+    list: null
+    status: done
+    priority: normal
+    sort_order: 260
+    tags:
+      - BUG-20260527-01
+    due_date: '2026-05-28'
+    updated_at: '2026-05-27T01:18:30.849Z'
+  - id: T-0261
+    title: CHG-079-03 ユーザー確認：起動時更新アラート表示確認
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 261
+    tags:
+      - CHG-079
+      - ユーザー確認
+      - 自動更新
+    due_date: '2026-05-20'
+    updated_at: '2026-05-20T12:46:22.956Z'
+  - id: T-0264
+    title: CHG-080-01 設計：タスクファイルパスコピー仕様反映
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 264
+    tags:
+      - CHG-080
+      - 設計
+      - パスコピー
+    due_date: '2026-05-22'
+    updated_at: '2026-05-22T12:35:50+09:00'
+  - id: T-0265
+    title: CHG-080-02 実装：タスク一覧と詳細ペインのパスコピー導線
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 265
+    tags:
+      - CHG-080
+      - 実装
+      - パスコピー
+    due_date: '2026-05-22'
+    updated_at: '2026-05-22T12:35:50+09:00'
+  - id: T-0266
+    title: CHG-080-03 ユーザー確認：パスコピー動作確認
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 266
+    tags:
+      - CHG-080
+      - ユーザー確認
+      - パスコピー
+    due_date: null
+    updated_at: '2026-05-22T12:24:00+09:00'
+  - id: T-0268
+    title: AI秘書のテンプレートを作成し、Boothに登録する
+    list: 販売戦略
+    status: todo
+    priority: normal
+    sort_order: 268
+    tags:
+      - AI秘書
+      - テンプレート
+      - Booth
+    due_date: null
+    updated_at: '2026-05-24T00:10:00+09:00'
+  - id: T-0269
+    title: AI秘書のnote記事を書く
+    list: 販売戦略
+    status: todo
+    priority: normal
+    sort_order: 269
+    tags:
+      - AI秘書
+      - note
+      - 活用事例
+    due_date: null
+    updated_at: '2026-05-24T00:00:00+09:00'
 task_file_roots:
   - .
-next_task_id: 264
-last_updated: '2026-05-22T12:17:02+09:00'
+next_task_id: 271
+last_updated: '2026-05-27T01:18:31.210Z'

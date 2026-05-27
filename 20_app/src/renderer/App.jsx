@@ -74,6 +74,12 @@ function App() {
   const [listSort, setListSort] = useState({ key: "order", direction: "asc" });
   const [tags, setTags] = useState([]);
   const [trashConfirm, setTrashConfirm] = useState(null);
+  const [updateAlert, setUpdateAlert] = useState({
+    hasUpdate: false,
+    message: "",
+    latestVersion: "",
+  });
+  const startupUpdateCheckRef = useRef(false);
 
   // CHG-032: ペイン幅リサイズ
   const [navWidth,    setNavWidth]    = useState(240);
@@ -240,6 +246,44 @@ function App() {
       setTags(Array.isArray(tagRows) ? tagRows : []);
     })();
   }, [loadTasks]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const applyUpdateStatus = (status) => {
+      if (!status || cancelled) return;
+      setUpdateAlert({
+        hasUpdate: Boolean(status.hasUpdate),
+        message: status.message || "",
+        latestVersion: status.latestVersion || status.version || "",
+      });
+    };
+
+    window.cotaskaAPI?.updates?.getStatus?.().then(applyUpdateStatus);
+    const unsubscribe = window.cotaskaAPI?.updates?.onStatus?.(applyUpdateStatus);
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (initialLoading || startupUpdateCheckRef.current) return;
+    startupUpdateCheckRef.current = true;
+    (async () => {
+      try {
+        const result = await window.cotaskaAPI?.updates?.check?.();
+        if (result?.hasUpdate) {
+          setUpdateAlert({
+            hasUpdate: true,
+            message: result.message || "新しいバージョンがあります。",
+            latestVersion: result.latestVersion || result.version || "",
+          });
+        }
+      } catch (err) {
+        console.warn("[updates] startup check failed", err);
+      }
+    })();
+  }, [initialLoading]);
 
   // T-005-03: クイック追加
   // BUG-20260317-01 修正: 「今日」「次の7日間」ビューでは due_date=null のタスクが
@@ -565,6 +609,7 @@ function App() {
       listSort
     );
     const onHoldTasks = getOnHoldTasksForDateView(tasks, activeNav, listSort);
+    visibleSections = dateTasks.length > 0 ? [{ label: "📅 明日", tasks: dateTasks }] : [];
     visibleTasks = [...dateTasks, ...onHoldTasks];
   } else if (activeNav === "今日" || activeNav === "次の7日間") {
     visibleSections = buildSections(tasks, activeNav);
@@ -640,6 +685,7 @@ function App() {
     if (merged.length > 0) progressSections.push({ label: "未着・仕掛", tasks: merged });
     if (onHold.length > 0) progressSections.push({ label: "保留", tasks: onHold });
     if (completedProg.length > 0) progressSections.push({ label: "完了", tasks: completedProg });
+    if (progressSections.length === 0) progressSections = null;
   }
 
   if (initialLoading) {
@@ -669,6 +715,7 @@ function App() {
       <Sidebar
         activeIcon={activeIcon}
         onIconClick={setActiveIcon}
+        updateAlert={updateAlert}
       />
       {isSettingsMode ? (
         <SettingsPane />

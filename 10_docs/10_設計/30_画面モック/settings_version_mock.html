@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cotaska - 設定画面モック CHG-057</title>
+  <title>Cotaska - 設定画面モック CHG-079</title>
   <style>
     :root {
       --dark-0: #15181d;
@@ -61,6 +61,36 @@
       opacity: 1;
       background: #343b47;
       color: #fff;
+    }
+    .update-alert-btn {
+      position: relative;
+      border: 1px solid rgba(255, 199, 96, .52);
+      background: #f2a93b;
+      color: #181c22;
+      font-size: 20px;
+      font-weight: 800;
+      opacity: 1;
+      box-shadow: 0 0 0 0 rgba(242, 169, 59, .42);
+      animation: update-alert-pulse 1.8s ease-out infinite;
+    }
+    .update-alert-btn:hover {
+      background: #ffc65d;
+    }
+    .update-alert-btn::after {
+      content: "";
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #d93025;
+      box-shadow: 0 0 0 2px #20242b;
+    }
+    @keyframes update-alert-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(242, 169, 59, .42); }
+      70% { box-shadow: 0 0 0 9px rgba(242, 169, 59, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(242, 169, 59, 0); }
     }
     .spacer { flex: 1; }
 
@@ -304,6 +334,10 @@
       font-size: 12px;
       font-weight: 700;
     }
+    .status-chip.warn {
+      background: #fff4df;
+      color: #946200;
+    }
     .path-input,
     .text-input,
     .number-input,
@@ -435,6 +469,16 @@
       margin-bottom: 3px;
       font-size: 13px;
     }
+    .mock-note {
+      margin: 0 0 16px;
+      padding: 12px 14px;
+      border: 1px solid #f1d09a;
+      border-radius: 8px;
+      background: #fff8e9;
+      color: #73510f;
+      font-size: 12px;
+      line-height: 1.6;
+    }
     .empty-state {
       padding: 44px 18px;
       text-align: center;
@@ -491,6 +535,9 @@
   <div class="app">
     <aside class="sidebar" aria-label="サイドバー">
       <div class="avatar">C</div>
+      <button class="icon-btn update-alert-btn" title="新しいバージョンがあります: 0.2.6" aria-label="新しいバージョンがあります">
+        ↻
+      </button>
       <button class="icon-btn" title="タスク">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
       </button>
@@ -530,6 +577,10 @@
           <button class="close-btn" title="閉じる">×</button>
         </div>
 
+        <div class="mock-note">
+          起動時更新確認で最新版が見つかった状態。左サイドバー上部の通知アイコンから、このアプリ情報画面へ誘導する。
+        </div>
+
         <div class="section">
           <div class="section-head">
             <h3 class="section-title">バージョン</h3>
@@ -539,17 +590,17 @@
             <div class="logo">C</div>
             <div>
               <p class="product-name">Cotaska</p>
-                  <div class="version">Cotaska 0.1.1</div>
+                  <div class="version">Cotaska 0.2.5</div>
               <div class="source">source: package.json / version</div>
             </div>
             <button class="primary-btn">更新を確認</button>
           </div>
           <div class="update-box">
             <div>
-                  <div class="update-title">最新版です: Cotaska 0.1.1</div>
-              <div class="update-text">自動更新は行わず、確認後にダウンロードページを開きます。</div>
+                  <div class="update-title">新しいバージョンがあります: Cotaska 0.2.6</div>
+              <div class="update-text">起動時に更新を検知しました。更新ファイルをダウンロードし、再起動時に適用できます。</div>
             </div>
-            <button class="secondary-btn">ダウンロードページを開く</button>
+            <button class="primary-btn">更新をダウンロード</button>
           </div>
         </div>
 
