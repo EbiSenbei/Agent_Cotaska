@@ -545,9 +545,34 @@ body.is-resizing-detail-sections * {
   align-items: center;
 }
 
+.settings-task-loading-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.settings-compact-unit-field {
+  grid-template-columns: auto 76px auto;
+  gap: 6px;
+}
+
 .settings-number-input {
   width: 100%;
   text-align: right;
+}
+
+.settings-compact-number-input {
+  width: 76px;
+  text-align: left;
+}
+
+.settings-inline-label {
+  color: #516073;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .settings-unit-label {
@@ -887,6 +912,30 @@ body.is-resizing-detail-sections * {
 .task-list {
   flex: 1;
   overflow-y: auto;
+}
+
+.task-virtual-spacer {
+  flex: 0 0 auto;
+  pointer-events: none;
+}
+
+.task-load-more {
+  padding: 12px 20px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.task-load-more-btn {
+  border: 1px solid #d5dbe7;
+  background: #fff;
+  color: #345;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.task-load-more-btn:hover {
+  background: #f6f8fb;
 }
 
 .section-header {

@@ -2944,7 +2944,130 @@ tasks:
       - 活用事例
     due_date: null
     updated_at: '2026-05-24T00:00:00+09:00'
+  - id: T-0275
+    title: 仕様変更：タスク表示性能改善
+    list: 仕様変更
+    status: doing
+    priority: high
+    sort_order: 275
+    tags:
+      - CHG-082
+      - 性能改善
+    due_date: null
+    updated_at: '2026-05-27T12:00:00+09:00'
+  - id: T-0276
+    title: CHG-082-01 設計：性能改善方針の反映
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 276
+    tags:
+      - CHG-082
+      - 設計
+    due_date: null
+    updated_at: '2026-05-27T12:00:00+09:00'
+  - id: T-0277
+    title: CHG-082-02 実装：差分更新と_index.yaml batch化
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 277
+    tags:
+      - CHG-082
+      - 実装
+    due_date: null
+    updated_at: '2026-05-27T12:00:00+09:00'
+  - id: T-0278
+    title: CHG-082-03 実装：表示仮想化と検索軽量化
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 278
+    tags:
+      - CHG-082
+      - 実装
+    due_date: null
+    updated_at: '2026-05-27T12:00:00+09:00'
+  - id: T-0279
+    title: CHG-082-04 確認：性能改善の動作確認
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 279
+    tags:
+      - CHG-082
+      - 確認
+    due_date: null
+    updated_at: '2026-05-27T12:00:00+09:00'
+  - id: T-0280
+    title: 仕様変更：完了タスク遅延読み込み
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 280
+    tags:
+      - CHG-083
+      - 性能改善
+      - 遅延読み込み
+    due_date: null
+    updated_at: '2026-05-27T22:00:00+09:00'
+  - id: T-0281
+    title: CHG-083-01 設計：完了タスク遅延読み込み方針の反映
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 281
+    tags:
+      - CHG-083
+      - 設計
+    due_date: null
+    updated_at: '2026-05-27T22:00:00+09:00'
+  - id: T-0282
+    title: CHG-083-02 実装：初期読み込み対象の絞り込み
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 282
+    tags:
+      - CHG-083
+      - 実装
+    due_date: null
+    updated_at: '2026-05-27T22:00:00+09:00'
+  - id: T-0283
+    title: CHG-083-03 実装：古い完了タスクの追加読み込み
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 283
+    tags:
+      - CHG-083
+      - 実装
+    due_date: null
+    updated_at: '2026-05-27T22:00:00+09:00'
+  - id: T-0284
+    title: CHG-083-04 実装：検索対象範囲と全履歴検索導線
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 284
+    tags:
+      - CHG-083
+      - 実装
+      - 検索
+    due_date: null
+    updated_at: '2026-05-27T22:00:00+09:00'
+  - id: T-0285
+    title: CHG-083-05 確認：完了タスク遅延読み込みの仕様確認
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 285
+    tags:
+      - CHG-083
+      - 確認
+    due_date: null
+    updated_at: '2026-05-27T22:00:00+09:00'
 task_file_roots:
   - .
-next_task_id: 275
-last_updated: '2026-05-27T03:28:14.308Z'
+next_task_id: 286
+last_updated: '2026-05-27T13:04:24.451Z'

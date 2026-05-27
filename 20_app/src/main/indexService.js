@@ -57,9 +57,10 @@ function deriveRootsFromTasks(taskList) {
  */
 function rebuildIndex(taskCache, taskFileRoots = ['.']) {
   try {
+    const cacheValues = Array.isArray(taskCache) ? taskCache : Object.values(taskCache);
     // キャッシュからタスク一覧を生成（delete_flag = 0 のみ）
-    const taskList = Object.values(taskCache)
-      .filter(t => t.delete_flag === 0)
+    const taskList = cacheValues
+      .filter(t => t.delete_flag !== 1)
       .map(t => ({
         id: t.id,
         title: t.title,
@@ -75,13 +76,13 @@ function rebuildIndex(taskCache, taskFileRoots = ['.']) {
 
     const normalizedRoots = Array.isArray(taskFileRoots) && taskFileRoots.length
       ? Array.from(new Set(taskFileRoots.map((root) => normalizeRootPath(root || '.')).filter(Boolean))).sort()
-      : deriveRootsFromTasks(Object.values(taskCache));
+      : deriveRootsFromTasks(cacheValues);
 
     // インデックスデータ作成
     const indexData = {
       tasks: taskList,
       task_file_roots: normalizedRoots,
-      next_task_id: Math.max(...Object.values(taskCache).map(t => {
+      next_task_id: Math.max(...cacheValues.map(t => {
         const match = t.id.match(/T-(\d+)/);
         return match ? parseInt(match[1], 10) : 0;
       }), 0) + 1,

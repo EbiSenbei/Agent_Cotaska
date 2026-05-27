@@ -9,6 +9,10 @@ const DEFAULT_SETTINGS = {
     minutesBefore: 5,
   },
   detailTextSize: 14,
+  taskLoading: {
+    completedInitialLimit: 100,
+    completedLoadMoreLimit: 100,
+  },
   update: {
     latestVersionUrl: "https://pub-d671fdad660b43a8a4b99ede58b7c092.r2.dev/latest/version.json",
     downloadPageUrl: "https://csho10051.github.io/cotaska-site/download.html",
@@ -54,6 +58,12 @@ function mergeSettings(raw) {
       minutesBefore: clampNumber(source.notification?.minutesBefore, 0, 1440, DEFAULT_SETTINGS.notification.minutesBefore),
     },
     detailTextSize: clampNumber(source.detailTextSize, 10, 28, DEFAULT_SETTINGS.detailTextSize),
+    taskLoading: {
+      ...DEFAULT_SETTINGS.taskLoading,
+      ...(source.taskLoading || {}),
+      completedInitialLimit: clampNumber(source.taskLoading?.completedInitialLimit, 0, 1000, DEFAULT_SETTINGS.taskLoading.completedInitialLimit),
+      completedLoadMoreLimit: clampNumber(source.taskLoading?.completedLoadMoreLimit, 1, 1000, DEFAULT_SETTINGS.taskLoading.completedLoadMoreLimit),
+    },
     update: {
       ...DEFAULT_SETTINGS.update,
       ...sourceUpdate,
@@ -88,6 +98,13 @@ function renderSettingsYaml(settings) {
     "",
     "# タスク詳細本文の文字サイズ(px)",
     `detailTextSize: ${normalized.detailTextSize}`,
+    "",
+    "taskLoading:",
+    "  # 起動時に読み込む完了タスク件数",
+    `  completedInitialLimit: ${normalized.taskLoading.completedInitialLimit}`,
+    "",
+    "  # 完了ビューで次を読み込む1回あたりの件数",
+    `  completedLoadMoreLimit: ${normalized.taskLoading.completedLoadMoreLimit}`,
     "",
     "update:",
     "  # 最新版確認に使うURL。Cloudflare R2 の version.json または GitHub Releases latest API 互換JSONを想定します",
@@ -136,6 +153,10 @@ function updateSettings(patch) {
     notification: {
       ...current.notification,
       ...((patch || {}).notification || {}),
+    },
+    taskLoading: {
+      ...current.taskLoading,
+      ...((patch || {}).taskLoading || {}),
     },
     update: {
       ...current.update,

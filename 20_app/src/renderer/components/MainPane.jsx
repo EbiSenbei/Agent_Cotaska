@@ -8,6 +8,9 @@ const PRIORITY = {
   medium: { label: "!",  cls: "priority-medium" },
 };
 const MAX_TASK_TREE_DEPTH = 5;
+const VIRTUALIZE_THRESHOLD = 120;
+const VIRTUAL_ROW_HEIGHT = 41;
+const VIRTUAL_OVERSCAN = 10;
 
 function formatLocalDate(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
@@ -109,6 +112,7 @@ function normalizeListName(list) {
  */
 function MainPane({
   viewTitle, tasks, sections, progressSections, completedSectionTasks = [], selectedTaskId, isTrashed, isCompleted,
+  completedHasMore = false, onLoadMoreCompleted,
   isSearchMode, onSearchChange, searchSort = { key: "id", direction: "asc" }, onSearchSortChange,
   listSort = { key: "order", direction: "asc" }, onListSortChange, showListSort = false,
   onTaskClick, onAddTask, onAddSubtask, onToggleComplete,
@@ -121,6 +125,7 @@ function MainPane({
   const inputRef    = useRef(null);
   const inlineInputRef = useRef(null);
   const contextMenuRef = useRef(null);
+  const taskListRef = useRef(null);
   const searchTimer = useRef(null);
   const dragHandleTaskIdRef = useRef(null);
   const [localSearch, setLocalSearch] = useState("");
@@ -138,6 +143,8 @@ function MainPane({
   const [quickAddValue, setQuickAddValue] = useState("");
   const [quickAddList, setQuickAddList] = useState(null);
   const [quickAddListIndex, setQuickAddListIndex] = useState(0);
+  const [taskListScrollTop, setTaskListScrollTop] = useState(0);
+  const [taskListViewportHeight, setTaskListViewportHeight] = useState(0);
   const dragEnabled = Boolean(onReorderTask) && !isTrashed && !isCompleted && !isSearchMode;
   const listNames = useMemo(
     () => Array.from(new Set((lists || []).map(normalizeListName).filter(Boolean))),
@@ -262,6 +269,30 @@ function MainPane({
   };
 
   useEffect(() => {
+    const el = taskListRef.current;
+    if (!el) return undefined;
+
+    const updateViewport = () => setTaskListViewportHeight(el.clientHeight || 0);
+    updateViewport();
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", updateViewport);
+      return () => window.removeEventListener("resize", updateViewport);
+    }
+
+    const observer = new ResizeObserver(updateViewport);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const el = taskListRef.current;
+    if (!el) return;
+    el.scrollTop = 0;
+    setTaskListScrollTop(0);
+  }, [viewTitle, isSearchMode, searchSort.key, searchSort.direction, listSort.key, listSort.direction]);
+
+  useEffect(() => {
     if (!contextMenu) return;
     const close = () => setContextMenu(null);
     setContextMenuPos({ top: contextMenu.y, left: contextMenu.x });
@@ -320,7 +351,7 @@ function MainPane({
   const renderInlineInput = (parentTask, depth = 1) => {
     if (!inlineInput || inlineInput.parentId !== parentTask.id) return null;
     return (
-      <div className="inline-add-row" style={{ "--task-depth": depth }}>
+      <div key={`inline-${parentTask.id}`} className="inline-add-row" style={{ "--task-depth": depth }}>
         <span className="subtask-indent" />
         <input
           ref={inlineInputRef}
@@ -525,7 +556,24 @@ function MainPane({
     );
   };
 
-  const renderTaskTree = (list, sectionMeta = null) => {
+  const renderVirtualizedItems = (items) => {
+    if (items.length <= VIRTUALIZE_THRESHOLD || draggingTaskId) return items;
+
+    const viewportHeight = taskListViewportHeight || VIRTUAL_ROW_HEIGHT * 20;
+    const startIndex = Math.max(0, Math.floor(taskListScrollTop / VIRTUAL_ROW_HEIGHT) - VIRTUAL_OVERSCAN);
+    const visibleCount = Math.ceil(viewportHeight / VIRTUAL_ROW_HEIGHT) + VIRTUAL_OVERSCAN * 2;
+    const endIndex = Math.min(items.length, startIndex + visibleCount);
+    const topHeight = startIndex * VIRTUAL_ROW_HEIGHT;
+    const bottomHeight = Math.max(0, (items.length - endIndex) * VIRTUAL_ROW_HEIGHT);
+
+    return [
+      topHeight > 0 ? <div key="virtual-top-spacer" className="task-virtual-spacer" style={{ height: topHeight }} /> : null,
+      ...items.slice(startIndex, endIndex),
+      bottomHeight > 0 ? <div key="virtual-bottom-spacer" className="task-virtual-spacer" style={{ height: bottomHeight }} /> : null,
+    ].filter(Boolean);
+  };
+
+  const renderTaskTree = (list, sectionMeta = null, options = {}) => {
     const { roots, byParent } = buildTaskTree(list);
     const items = [];
 
@@ -545,7 +593,7 @@ function MainPane({
       pushNode(parent, 1, idx < roots.length - 1);
     });
 
-    return items;
+    return options.virtualize ? renderVirtualizedItems(items) : items;
   };
 
   // フラットリスト（ゴミ箱・完了・リスト・受信トレイ・検索）
@@ -566,7 +614,14 @@ function MainPane({
       {isTrashed && tasks.length > 0 && (
         <div className="section-header">🗑️ ゴミ箱</div>
       )}
-      {renderTaskTree(tasks, { type: "flat", label: viewTitle })}
+      {renderTaskTree(tasks, { type: "flat", label: viewTitle }, { virtualize: true })}
+      {isCompleted && completedHasMore && (
+        <div className="task-load-more">
+          <button type="button" className="task-load-more-btn" onClick={() => onLoadMoreCompleted?.()}>
+            次を読み込む
+          </button>
+        </div>
+      )}
     </>
   );
 
@@ -802,7 +857,11 @@ function MainPane({
       )}
 
       {/* タスクリスト */}
-      <div className="task-list">
+      <div
+        ref={taskListRef}
+        className="task-list"
+        onScroll={(e) => setTaskListScrollTop(e.currentTarget.scrollTop)}
+      >
         {sections ? (
           <>
             {renderSections()}

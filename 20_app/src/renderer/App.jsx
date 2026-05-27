@@ -21,7 +21,6 @@ import {
   isActiveDateTask,
   sortByTaskOrder,
   sortDisplayTasks,
-  taskMatchesSearch,
   toFileTaskPayload,
 } from "./lib/taskViewModel";
 
@@ -69,7 +68,10 @@ function App() {
   const [lists,         setLists]         = useState([]);
   const [trashedTasks,   setTrashedTasks]   = useState([]);
   const [completedTasks, setCompletedTasks] = useState([]);
+  const [completedLimit, setCompletedLimit] = useState(100);
+  const [completedHasMore, setCompletedHasMore] = useState(false);
   const [searchKeyword,  setSearchKeyword]  = useState("");
+  const [searchResults, setSearchResults] = useState([]);
   const [searchSort, setSearchSort] = useState({ key: "id", direction: "asc" });
   const [listSort, setListSort] = useState({ key: "order", direction: "asc" });
   const [tags, setTags] = useState([]);
@@ -158,6 +160,9 @@ function App() {
         label: "タスク一覧を取得しています...",
         detail: "初回表示用のタスクデータを受け取っています。",
       });
+      const settingsResult = await window.cotaskaAPI?.settings?.get?.();
+      const initialCompletedLimit = Number(settingsResult?.settings?.taskLoading?.completedInitialLimit);
+      if (Number.isFinite(initialCompletedLimit)) setCompletedLimit(initialCompletedLimit);
       let rows   = await window.cotaskaAPI?.tasks?.getAll() ?? [];
       setStartupProgress({
         percent: 96,
@@ -537,16 +542,46 @@ function App() {
   useEffect(() => {
     if (activeNav !== "完了") return;
     (async () => {
-      const rows = await window.cotaskaAPI?.tasks?.getCompleted() ?? [];
-      setCompletedTasks(enrichTaskHierarchy(rows.map(mapFileTask)));
+      const settingsResult = await window.cotaskaAPI?.settings?.get?.();
+      const initialCompletedLimit = Number(settingsResult?.settings?.taskLoading?.completedInitialLimit);
+      if (Number.isFinite(initialCompletedLimit)) setCompletedLimit(initialCompletedLimit);
     })();
-  }, [activeNav, tasks]); // tasks 変化時も再取得
+  }, [activeNav]);
+
+  useEffect(() => {
+    if (activeNav !== "完了") return;
+    (async () => {
+      const result = await window.cotaskaAPI?.tasks?.getCompletedPage?.({ limit: completedLimit });
+      const rows = Array.isArray(result) ? result : (result?.tasks || []);
+      setCompletedTasks(enrichTaskHierarchy(rows.map(mapFileTask)));
+      setCompletedHasMore(Boolean(result?.hasMore));
+    })();
+  }, [activeNav, tasks, completedLimit]); // tasks 変化時も再取得
+
+  const handleLoadMoreCompleted = useCallback(async () => {
+    const settingsResult = await window.cotaskaAPI?.settings?.get?.();
+    const increment = Number(settingsResult?.settings?.taskLoading?.completedLoadMoreLimit);
+    setCompletedLimit((current) => current + (Number.isFinite(increment) ? increment : 100));
+  }, []);
 
   // T-007-04: 検索モードを離れたときにキーワードをリセット
   const isSearchMode = activeIcon === "検索";
   useEffect(() => {
     if (!isSearchMode) setSearchKeyword("");
   }, [isSearchMode]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!isSearchMode || !searchKeyword.trim()) {
+      setSearchResults([]);
+      return () => { cancelled = true; };
+    }
+    (async () => {
+      const rows = await window.cotaskaAPI?.tasks?.search?.(searchKeyword) ?? [];
+      if (!cancelled) setSearchResults(enrichTaskHierarchy(rows.map(mapFileTask)));
+    })();
+    return () => { cancelled = true; };
+  }, [isSearchMode, searchKeyword]);
 
   // T-005-06: 復元
   const handleRestoreTask = useCallback(async (task) => {
@@ -586,7 +621,7 @@ function App() {
       visibleTasks = [];
     } else {
       visibleTasks = sortDisplayTasks(
-        tasks.filter((t) => taskMatchesSearch(t, searchKeyword)),
+        searchResults,
         searchSort
       );
     }
@@ -776,6 +811,8 @@ function App() {
           tags={tags}
           isTrashed={activeNav === "ゴミ箱"}
           isCompleted={activeNav === "完了"}
+          completedHasMore={completedHasMore}
+          onLoadMoreCompleted={handleLoadMoreCompleted}
           isSearchMode={isSearchMode}
           searchKeyword={searchKeyword}
           onSearchChange={setSearchKeyword}

@@ -1260,6 +1260,35 @@ ipcMain.handle("tasks:getCompleted", async () => {
   }
 });
 
+ipcMain.handle("tasks:getCompletedPage", async (_e, options) => {
+  await servicesReady;
+  logger.debug("IPC: tasks:getCompletedPage called", options);
+  try {
+    const result = taskService.getCompletedTaskPage(options || {});
+    logger.info("getCompletedPage success", {
+      count: result.tasks.length,
+      hasMore: result.hasMore,
+    });
+    return result;
+  } catch (err) {
+    logger.error("tasks:getCompletedPage failed", err);
+    return { tasks: [], loadedCount: 0, hasMore: false, nextLimit: 0 };
+  }
+});
+
+ipcMain.handle("tasks:search", async (_e, keyword) => {
+  await servicesReady;
+  logger.debug("IPC: tasks:search called");
+  try {
+    const rows = taskService.searchTasks(keyword);
+    logger.info("tasks:search success", { count: rows.length });
+    return rows;
+  } catch (err) {
+    logger.error("tasks:search failed", err);
+    return [];
+  }
+});
+
 ipcMain.handle("lists:getAll", async () => {
   await servicesReady;
   logger.debug("IPC: lists:getAll called");

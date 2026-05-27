@@ -21,6 +21,10 @@ const DEFAULT_SETTINGS = {
     minutesBefore: 5,
   },
   detailTextSize: 14,
+  taskLoading: {
+    completedInitialLimit: 100,
+    completedLoadMoreLimit: 100,
+  },
 };
 
 function normalizeSettings(settings) {
@@ -30,6 +34,10 @@ function normalizeSettings(settings) {
     notification: {
       ...DEFAULT_SETTINGS.notification,
       ...((settings || {}).notification || {}),
+    },
+    taskLoading: {
+      ...DEFAULT_SETTINGS.taskLoading,
+      ...((settings || {}).taskLoading || {}),
     },
   };
 }
@@ -116,6 +124,10 @@ function SettingsPane() {
       notification: {
         ...current.notification,
         ...(patch.notification || {}),
+      },
+      taskLoading: {
+        ...current.taskLoading,
+        ...(patch.taskLoading || {}),
       },
     }));
   };
@@ -411,6 +423,41 @@ function SettingsPane() {
                         <span className="settings-unit-label">px</span>
                       </div>
                       <div className="settings-help-text">タスク詳細の文字サイズ。ショートカット操作でも同じ設定値を更新します。</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>完了タスク読込</th>
+                    <td>
+                      <div className="settings-task-loading-row">
+                        <div className="settings-unit-field settings-compact-unit-field">
+                          <span className="settings-inline-label">起動時</span>
+                          <input
+                            className="settings-number-input settings-compact-number-input"
+                            type="number"
+                            value={settings.taskLoading.completedInitialLimit}
+                            min="0"
+                            max="1000"
+                            step="10"
+                            aria-label="起動時に読み込む完了タスク件数"
+                            onChange={(e) => updateSettingState({ taskLoading: { completedInitialLimit: e.target.value } })}
+                          />
+                          <span className="settings-unit-label">件</span>
+                        </div>
+                        <div className="settings-unit-field settings-compact-unit-field">
+                          <span className="settings-inline-label">追加読込</span>
+                          <input
+                            className="settings-number-input settings-compact-number-input"
+                            type="number"
+                            value={settings.taskLoading.completedLoadMoreLimit}
+                            min="1"
+                            max="1000"
+                            step="10"
+                            aria-label="次を読み込む件数"
+                            onChange={(e) => updateSettingState({ taskLoading: { completedLoadMoreLimit: e.target.value } })}
+                          />
+                          <span className="settings-unit-label">件</span>
+                        </div>
+                      </div>
                     </td>
                   </tr>
                   <tr>

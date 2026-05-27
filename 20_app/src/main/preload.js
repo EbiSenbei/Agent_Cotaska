@@ -51,6 +51,7 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
   // タスク操作（ファイルベース）
   tasks: {
     getAll:           ()                                => ipcRenderer.invoke("tasks:getAll"),
+    search:           (keyword)                         => ipcRenderer.invoke("tasks:search", keyword),
     add:              (task)                            => ipcRenderer.invoke("tasks:add",               task),
     update:           (updates)                         => ipcRenderer.invoke("tasks:update",            updates),
     reorder:          (payload)                         => ipcRenderer.invoke("tasks:reorder",           payload),
@@ -63,6 +64,7 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
     duplicateTask:    (id)                              => ipcRenderer.invoke("tasks:duplicateTask",     id),
     getTrashed:       ()                                => ipcRenderer.invoke("tasks:getTrashed"),
     getCompleted:     ()                                => ipcRenderer.invoke("tasks:getCompleted"),
+    getCompletedPage: (options)                         => ipcRenderer.invoke("tasks:getCompletedPage", options),
   },
 
   // リスト操作（YAML ベース）

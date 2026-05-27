@@ -46,7 +46,7 @@ function isActiveDateTask(task) {
 function mapFileTask(taskData) {
   const today = localDateString();
   const progressStatus = normalizeProgressStatusValue(taskData.progress_status, taskData.status);
-  return {
+  const task = {
     id:        taskData.id,
     title:     taskData.title,
     content:   taskData.content || "",
@@ -69,6 +69,9 @@ function mapFileTask(taskData) {
     validation_error_column: taskData.validation_error_column ?? null,
     validation_file_path: taskData.validation_file_path || null,
   };
+
+  task.searchText = buildSearchText(task);
+  return task;
 }
 
 function calcParentProgress(parent, subtasks) {
@@ -261,14 +264,16 @@ function buildSearchableValues(task) {
   ].map(normalizeSearchInput).filter(Boolean);
 }
 
+function buildSearchText(task) {
+  return buildSearchableValues(task).join("\n");
+}
+
 function taskMatchesSearch(task, keyword) {
   const keywords = normalizeSearchInput(keyword).split(/\s+/).filter(Boolean);
   if (keywords.length === 0) return false;
 
-  const searchable = [
-    ...buildSearchableValues(task),
-  ];
-  return keywords.every((kw) => searchable.some((value) => value.includes(kw)));
+  const searchable = task.searchText || buildSearchText(task);
+  return keywords.every((kw) => searchable.includes(kw));
 }
 
 const FIXED_VIEWS = new Set(["すべて", "今日", "明日", "次の7日間", "仕掛", "保留", "完了", "ゴミ箱", "受信トレイ", "リストなし"]);

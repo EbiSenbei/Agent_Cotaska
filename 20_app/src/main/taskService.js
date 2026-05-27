@@ -8,6 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const matter = require('gray-matter');
 const YAML = require('js-yaml');
+const settingsService = require('./settingsService');
 
 const TASKS_DIR = path.join(process.cwd(), '../data/tasks');
 const INDEX_PATH = path.join(TASKS_DIR, '_index.yaml');
@@ -18,6 +19,8 @@ const MAX_TASK_TREE_DEPTH = 5;
 let taskCache = {};  // メモリキャッシュ
 let nextTaskId = 1;
 let taskFileRoots = [...DEFAULT_TASK_FILE_ROOTS];
+let unloadedTaskSummaries = {};
+let knownTaskFilePaths = {};
 
 function normalizeRelativePath(relPath) {
   return String(relPath || '')
@@ -142,7 +145,7 @@ function ensureParentDir(filePath) {
 
 function readIndexData() {
   if (!fs.existsSync(INDEX_PATH)) {
-    return { next_task_id: 1, task_file_roots: [...DEFAULT_TASK_FILE_ROOTS] };
+    return { next_task_id: 1, tasks: [], task_file_roots: [...DEFAULT_TASK_FILE_ROOTS] };
   }
 
   try {
@@ -150,13 +153,14 @@ function readIndexData() {
     const indexData = YAML.load(indexContent) || {};
     return {
       next_task_id: indexData.next_task_id || 1,
+      tasks: Array.isArray(indexData.tasks) ? indexData.tasks : [],
       task_file_roots: Array.isArray(indexData.task_file_roots) && indexData.task_file_roots.length
         ? Array.from(new Set(indexData.task_file_roots.map((root) => normalizeRootPath(root || '.')).filter(Boolean)))
         : [...DEFAULT_TASK_FILE_ROOTS]
     };
   } catch (error) {
     console.warn('[TaskService] Failed to parse _index.yaml, fallback to default roots:', error.message);
-    return { next_task_id: 1, task_file_roots: [...DEFAULT_TASK_FILE_ROOTS] };
+    return { next_task_id: 1, tasks: [], task_file_roots: [...DEFAULT_TASK_FILE_ROOTS] };
   }
 }
 
@@ -248,7 +252,7 @@ function sanitizeTaskForRenderer(task) {
 
 function refreshNextTaskIdFromCache() {
   const maxTaskNo = Math.max(
-    ...Object.values(taskCache).map((task) => {
+    ...getIndexTasksForRebuild().map((task) => {
       const match = String(task.id || '').match(/T-(\d+)/);
       return match ? parseInt(match[1], 10) : 0;
     }),
@@ -257,13 +261,102 @@ function refreshNextTaskIdFromCache() {
   nextTaskId = Math.max(nextTaskId, maxTaskNo + 1);
 }
 
+function getTaskLoadingSettings() {
+  const settings = settingsService.getSettings().settings || {};
+  return {
+    completedInitialLimit: Number(settings.taskLoading?.completedInitialLimit ?? 100),
+    completedLoadMoreLimit: Number(settings.taskLoading?.completedLoadMoreLimit ?? 100),
+  };
+}
+
+function getTaskIdFromFilePath(filePath) {
+  const match = path.basename(filePath, '.md').match(/^T-\d+$/);
+  return match ? match[0] : null;
+}
+
+function compareSummaryUpdatedDesc(a, b) {
+  const aValue = Date.parse(a?.updated_at || '') || 0;
+  const bValue = Date.parse(b?.updated_at || '') || 0;
+  return bValue - aValue || String(b?.id || '').localeCompare(String(a?.id || ''), 'ja', { numeric: true });
+}
+
+function sortCompletedSummaries(summaries) {
+  return [...summaries].sort(compareSummaryUpdatedDesc);
+}
+
+function getUnloadedIndexTasks() {
+  return Object.values(unloadedTaskSummaries);
+}
+
+function getIndexTasksForRebuild() {
+  return [
+    ...getUnloadedIndexTasks(),
+    ...Object.values(taskCache),
+  ];
+}
+
+function removeTaskCacheEntriesByFilePath(filePath) {
+  const targetPath = toIndexAbsolutePath(filePath);
+  let removed = 0;
+
+  Object.entries(knownTaskFilePaths).forEach(([taskId, knownPath]) => {
+    if (toIndexAbsolutePath(knownPath) === targetPath) {
+      delete knownTaskFilePaths[taskId];
+    }
+  });
+
+  Object.entries(taskCache).forEach(([taskId, task]) => {
+    const taskFilePath = task._filePath || resolveTaskFilePath(null, task.id);
+    if (toIndexAbsolutePath(taskFilePath) === targetPath) {
+      delete taskCache[taskId];
+      removed += 1;
+    }
+  });
+
+  return removed;
+}
+
+function loadTaskFileIntoCache(filePath) {
+  removeTaskCacheEntriesByFilePath(filePath);
+
+  const task = loadTaskFromFile(filePath);
+  if (!task.id) return { changed: false };
+  knownTaskFilePaths[task.id] = filePath;
+  delete unloadedTaskSummaries[task.id];
+
+  const existing = taskCache[task.id];
+  if (existing) {
+    const existingPath = existing._filePath || resolveTaskFilePath(null, existing.id);
+    if (toIndexAbsolutePath(existingPath) !== toIndexAbsolutePath(filePath)) {
+      const duplicate = createInvalidTask(
+        filePath,
+        null,
+        `Task ID is duplicated: ${task.id}`
+      );
+      taskCache[duplicate.id] = duplicate;
+      return { changed: true, taskId: duplicate.id };
+    }
+  }
+
+  taskCache[task.id] = task;
+
+  if (!task.is_invalid && task._needsLegacyPathCleanup) {
+    writeTaskFile(task);
+  }
+
+  return { changed: true, taskId: task.id };
+}
+
 function loadAllTasksAndMigratePath() {
   const taskFiles = collectTaskFilesFromRoots(taskFileRoots);
   taskCache = {};
+  unloadedTaskSummaries = {};
+  knownTaskFilePaths = {};
 
   taskFiles.forEach((filePath) => {
     const task = loadTaskFromFile(filePath);
     if (!task.id) return;
+    knownTaskFilePaths[task.id] = filePath;
 
     if (taskCache[task.id]) {
       const duplicate = createInvalidTask(
@@ -287,6 +380,133 @@ function loadAllTasksAndMigratePath() {
 
   refreshNextTaskIdFromCache();
   taskFileRoots = deriveTaskFileRootsFromCache(taskCache);
+}
+
+function loadInitialTasksFromIndex(indexTasks) {
+  if (!Array.isArray(indexTasks) || indexTasks.length === 0) {
+    loadInitialTasksFromIndex(indexData.tasks);
+    return;
+  }
+
+  const taskFiles = collectTaskFilesFromRoots(taskFileRoots);
+  taskCache = {};
+  unloadedTaskSummaries = {};
+  knownTaskFilePaths = {};
+
+  const fileById = new Map();
+  taskFiles.forEach((filePath) => {
+    const id = getTaskIdFromFilePath(filePath);
+    if (id && !fileById.has(id)) {
+      fileById.set(id, filePath);
+      knownTaskFilePaths[id] = filePath;
+    }
+  });
+
+  const { completedInitialLimit } = getTaskLoadingSettings();
+  const summariesById = new Map(indexTasks.map((task) => [task.id, task]));
+  const activeIds = indexTasks
+    .filter((task) => task.status !== 'done')
+    .map((task) => task.id);
+  const initialCompletedIds = sortCompletedSummaries(indexTasks.filter((task) => task.status === 'done'))
+    .slice(0, Math.max(0, completedInitialLimit))
+    .map((task) => task.id);
+  const selectedIds = new Set([...activeIds, ...initialCompletedIds]);
+  const loadedFilePaths = new Set();
+
+  selectedIds.forEach((taskId) => {
+    const filePath = fileById.get(taskId);
+    if (!filePath) return;
+    loadTaskFileIntoCache(filePath);
+    loadedFilePaths.add(toIndexAbsolutePath(filePath));
+  });
+
+  taskFiles.forEach((filePath) => {
+    if (loadedFilePaths.has(toIndexAbsolutePath(filePath))) return;
+    const taskId = getTaskIdFromFilePath(filePath);
+    if (taskId && summariesById.has(taskId)) return;
+    loadTaskFileIntoCache(filePath);
+  });
+
+  indexTasks.forEach((summary) => {
+    if (!summary?.id || taskCache[summary.id]) return;
+    unloadedTaskSummaries[summary.id] = { ...summary };
+  });
+
+  refreshNextTaskIdFromCache();
+  taskFileRoots = deriveTaskFileRootsFromCache(getIndexTasksForRebuild());
+}
+
+function applyFileChange(action, filePath) {
+  try {
+    if (path.basename(filePath) === '_index.yaml' || path.extname(filePath).toLowerCase() !== '.md') {
+      return { success: true, changed: false, ignored: true };
+    }
+
+    let result = { changed: false };
+    if (action === 'unlink') {
+      result = { changed: removeTaskCacheEntriesByFilePath(filePath) > 0 };
+      const taskId = getTaskIdFromFilePath(filePath);
+      if (taskId && unloadedTaskSummaries[taskId]) {
+        delete unloadedTaskSummaries[taskId];
+        result.changed = true;
+      }
+    } else {
+      result = loadTaskFileIntoCache(filePath);
+    }
+
+    refreshNextTaskIdFromCache();
+    taskFileRoots = deriveTaskFileRootsFromCache(getIndexTasksForRebuild());
+
+    return {
+      success: true,
+      changed: result.changed,
+      taskId: result.taskId || null,
+      taskCount: Object.keys(taskCache).length
+    };
+  } catch (error) {
+    console.error('[TaskService] Error applying file change:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+function getFilePathForTaskId(taskId) {
+  const loaded = taskCache[taskId];
+  if (loaded) return loaded._filePath || resolveTaskFilePath(null, taskId);
+  if (knownTaskFilePaths[taskId]) return knownTaskFilePaths[taskId];
+  if (unloadedTaskSummaries[taskId]) return resolveTaskFilePath(null, taskId);
+  return resolveTaskFilePath(null, taskId);
+}
+
+function loadTaskById(taskId) {
+  if (taskCache[taskId]) return taskCache[taskId];
+  const filePath = getFilePathForTaskId(taskId);
+  const result = loadTaskFileIntoCache(filePath);
+  return result.changed ? taskCache[result.taskId] : null;
+}
+
+function getLoadedCompletedTasksSorted() {
+  return Object.values(taskCache)
+    .filter((t) => t.status === 'done' && t.delete_flag === 0)
+    .sort((a, b) => compareSummaryUpdatedDesc(a, b));
+}
+
+function getCompletedTaskSummariesSorted() {
+  return sortCompletedSummaries([
+    ...getLoadedCompletedTasksSorted(),
+    ...Object.values(unloadedTaskSummaries).filter((task) => task.status === 'done'),
+  ]);
+}
+
+function ensureCompletedTasksLoaded(limit) {
+  const target = Math.max(0, Number(limit) || 0);
+  if (target === 0) return;
+
+  const summaries = getCompletedTaskSummariesSorted();
+  for (const summary of summaries) {
+    if (getLoadedCompletedTasksSorted().length >= target) break;
+    if (!summary?.id || taskCache[summary.id]) continue;
+    loadTaskById(summary.id);
+  }
 }
 
 function normalizeProgressStatus(task) {
@@ -371,7 +591,7 @@ async function openTaskService() {
 
     // _index.yaml を最新スキーマで再生成
     const indexService = require('./indexService');
-    indexService.rebuildIndex(taskCache, taskFileRoots);
+    indexService.rebuildIndex(getIndexTasksForRebuild(), taskFileRoots);
 
     console.log(`[TaskService] Loaded ${Object.keys(taskCache).length} tasks from disk`);
     return { success: true, taskCount: Object.keys(taskCache).length };
@@ -393,11 +613,76 @@ function getAllTasks() {
 /**
  * status = done のタスクを返す
  */
-function getCompletedTasks() {
-  return Object.values(taskCache)
-    .filter(t => t.status === 'done' && t.delete_flag === 0)
-    .sort((a, b) => new Date(b.completed_at) - new Date(a.completed_at))
-    .map((t) => sanitizeTaskForRenderer(t));
+function getCompletedTasks(options = {}) {
+  const settings = getTaskLoadingSettings();
+  const limit = Math.max(0, Number(options.limit ?? settings.completedInitialLimit) || 0);
+  ensureCompletedTasksLoaded(limit);
+  const tasks = getLoadedCompletedTasksSorted();
+  return tasks.slice(0, limit).map((t) => sanitizeTaskForRenderer(t));
+}
+
+function getCompletedTaskPage(options = {}) {
+  const settings = getTaskLoadingSettings();
+  const limit = Math.max(0, Number(options.limit ?? settings.completedInitialLimit) || 0);
+  ensureCompletedTasksLoaded(limit);
+  const loaded = getLoadedCompletedTasksSorted();
+  const allSummaries = getCompletedTaskSummariesSorted();
+  return {
+    tasks: loaded.slice(0, limit).map((t) => sanitizeTaskForRenderer(t)),
+    loadedCount: Math.min(loaded.length, limit),
+    hasMore: allSummaries.length > limit,
+    nextLimit: limit + Math.max(1, settings.completedLoadMoreLimit),
+  };
+}
+
+function normalizeSearchText(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function getSearchableValues(task) {
+  const tags = task.tags || [];
+  return [
+    task.id,
+    task.title,
+    task.content,
+    task.list,
+    task.priority,
+    task.progress_status,
+    task.due_date,
+    ...(Array.isArray(tags) ? tags : []),
+    ...(Array.isArray(tags) ? tags.map((tag) => `#${tag}`) : []),
+  ].map(normalizeSearchText).filter(Boolean);
+}
+
+function taskMatchesKeyword(task, keywords) {
+  if (!keywords.length) return false;
+  const haystack = getSearchableValues(task).join('\n');
+  return keywords.every((keyword) => haystack.includes(keyword));
+}
+
+function searchTasks(keyword) {
+  const keywords = normalizeSearchText(keyword).split(/\s+/).filter(Boolean);
+  if (!keywords.length) return [];
+
+  const matchedById = new Map();
+  Object.values(taskCache).forEach((task) => {
+    if (task.delete_flag === 0 && taskMatchesKeyword(task, keywords)) {
+      matchedById.set(task.id, task);
+    }
+  });
+
+  Object.values(unloadedTaskSummaries).forEach((summary) => {
+    if (!summary?.id || summary.delete_flag === 1 || matchedById.has(summary.id)) return;
+    const filePath = getFilePathForTaskId(summary.id);
+    const task = filePath ? loadTaskFromFile(filePath) : null;
+    if (task && !task.is_invalid && task.delete_flag === 0 && taskMatchesKeyword(task, keywords)) {
+      taskCache[task.id] = task;
+      delete unloadedTaskSummaries[task.id];
+      matchedById.set(task.id, task);
+    }
+  });
+
+  return Array.from(matchedById.values()).map((task) => sanitizeTaskForRenderer(task));
 }
 
 /**
@@ -977,10 +1262,12 @@ module.exports = {
   openTaskService,
   getAllTasks,
   getCompletedTasks,
+  getCompletedTaskPage,
   getTrashedTasks,
   getTaskById,
   getTasksByList,
   getTasksByParent,
+  searchTasks,
   addTask,
   updateTask,
   updateTaskContent,
@@ -992,8 +1279,10 @@ module.exports = {
   deleteTask,
   duplicateTask,
   reorderTasks,
+  applyFileChange,
   rebuildCache,
   getCache,
+  getIndexTasksForRebuild,
   getTaskFileRoots,
   getTaskSearchRoots,
   getTaskFilePath,
