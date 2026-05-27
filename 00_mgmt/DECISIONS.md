@@ -309,5 +309,6 @@
 
 - Portable版の既定更新元は Cloudflare R2 の `latest/version.json` と `Cotaska-Portable.zip` に変更する。
 - 旧GitHub既定URLが設定ファイルに残っている場合は利用者カスタムではなく旧既定値とみなし、Cloudflare R2 既定URLへ移行する。
+- 設定画面の「ダウンロードを開く」は直接zipではなく Cotaska サイトのダウンロードページを開く。
 - 既存設定や将来の切り戻しに備え、GitHub Releases latest API 形式のメタデータ解析は互換対応として残す。
 - Cloudflare R2 形式では `version` と `files.portable` / `files.sha256` から更新zipとSHA-256ファイルのURLを解決する。

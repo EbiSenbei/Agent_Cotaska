@@ -35,7 +35,7 @@ Cotaska の Portable版更新確認・ダウンロード元を、GitHub Releases
 ## 完了条件
 
 - [x] 既定の最新版確認URLが Cloudflare R2 の `latest/version.json` を指す
-- [x] 既定のダウンロード先URLが Cloudflare R2 の `Cotaska-Portable.zip` を指す
+- [x] 既定の手動ダウンロードページURLが Cotaska サイトのダウンロードページを指す
 - [x] 旧GitHub既定URLが保存済みの場合は Cloudflare R2 既定URLへ移行する
 - [x] `latest/version.json` の `version` と `files.portable` / `files.sha256` から更新情報を組み立てられる
 - [x] 既存の GitHub Releases latest API 形式も互換的に読み取れる
@@ -46,6 +46,7 @@ Cotaska の Portable版更新確認・ダウンロード元を、GitHub Releases
 - [x] Cloudflare R2 形式の `version.json` から zip と sha256 のURLを解決できる
 - [x] GitHub Releases latest API 形式の asset URL 解決が壊れていない
 - [x] `npm run build` が成功する
+- [x] 「ダウンロードを開く」の既定URLが Cotaska サイトのダウンロードページになる
 - [ ] 設定画面の「更新を確認」で Cloudflare R2 の最新版情報を取得できる
 - [ ] 更新あり状態で「更新をダウンロード」から Cloudflare R2 の zip を取得できる
 

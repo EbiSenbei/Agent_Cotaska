@@ -11,13 +11,17 @@ const DEFAULT_SETTINGS = {
   detailTextSize: 14,
   update: {
     latestVersionUrl: "https://pub-d671fdad660b43a8a4b99ede58b7c092.r2.dev/latest/version.json",
-    downloadPageUrl: "https://pub-d671fdad660b43a8a4b99ede58b7c092.r2.dev/latest/Cotaska-Portable.zip",
+    downloadPageUrl: "https://csho10051.github.io/cotaska-site/download.html",
   },
 };
 
 const LEGACY_DEFAULT_UPDATE = {
   latestVersionUrl: "https://api.github.com/repos/csho10051/Agent_Cotaska/releases/latest",
   downloadPageUrl: "https://github.com/csho10051/Agent_Cotaska/releases",
+};
+
+const PREVIOUS_DEFAULT_UPDATE = {
+  downloadPageUrl: "https://pub-d671fdad660b43a8a4b99ede58b7c092.r2.dev/latest/Cotaska-Portable.zip",
 };
 
 function clampNumber(value, min, max, fallback) {
@@ -57,6 +61,7 @@ function mergeSettings(raw) {
         ? DEFAULT_SETTINGS.update.latestVersionUrl
         : latestVersionUrl,
       downloadPageUrl: downloadPageUrl === LEGACY_DEFAULT_UPDATE.downloadPageUrl
+        || downloadPageUrl === PREVIOUS_DEFAULT_UPDATE.downloadPageUrl
         ? DEFAULT_SETTINGS.update.downloadPageUrl
         : downloadPageUrl,
     },
