@@ -2833,6 +2833,44 @@ tasks:
       - 自動更新
     due_date: '2026-05-20'
     updated_at: '2026-05-20T12:46:22.956Z'
+  - id: T-0271
+    title: 仕様変更：最新版のダウンロード先の変更
+    list: 仕様変更
+    status: doing
+    priority: normal
+    sort_order: 261
+    tags:
+      - CHG-081
+      - 自動更新
+      - Cloudflare
+    due_date: null
+    updated_at: '2026-05-27T10:27:07+09:00'
+  - id: T-0272
+    title: CHG-081-01 設計：最新版ダウンロード先Cloudflare化の仕様反映
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 262
+    tags:
+      - CHG-081
+      - 設計
+      - 自動更新
+      - Cloudflare
+    due_date: null
+    updated_at: '2026-05-27T10:27:07+09:00'
+  - id: T-0273
+    title: CHG-081-02 実装：Cloudflare R2更新メタデータ対応
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 263
+    tags:
+      - CHG-081
+      - 実装
+      - 自動更新
+      - Cloudflare
+    due_date: null
+    updated_at: '2026-05-27T10:27:07+09:00'
   - id: T-0264
     title: CHG-080-01 設計：タスクファイルパスコピー仕様反映
     list: 仕様変更
@@ -2845,6 +2883,19 @@ tasks:
       - パスコピー
     due_date: '2026-05-22'
     updated_at: '2026-05-22T12:35:50+09:00'
+  - id: T-0274
+    title: CHG-081-03 ユーザー確認：Cloudflare更新確認・ダウンロード確認
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 264
+    tags:
+      - CHG-081
+      - ユーザー確認
+      - 自動更新
+      - Cloudflare
+    due_date: null
+    updated_at: '2026-05-27T10:27:07+09:00'
   - id: T-0265
     title: CHG-080-02 実装：タスク一覧と詳細ペインのパスコピー導線
     list: 仕様変更
@@ -2895,5 +2946,5 @@ tasks:
     updated_at: '2026-05-24T00:00:00+09:00'
 task_file_roots:
   - .
-next_task_id: 271
-last_updated: '2026-05-27T01:18:31.210Z'
+next_task_id: 275
+last_updated: '2026-05-27T01:33:14.703Z'

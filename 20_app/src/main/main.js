@@ -165,6 +165,71 @@ function findReleaseAsset(release, assetName) {
   return assets.find((asset) => String(asset.name || "").toLowerCase() === assetName.toLowerCase()) || null;
 }
 
+function resolveUpdateUrl(baseUrl, value) {
+  const raw = String(value || "").trim();
+  if (!raw) return null;
+  if (/^https?:\/\//i.test(raw)) return raw;
+  return new URL(raw.replace(/^\/+/, ""), baseUrl).toString();
+}
+
+function normalizeCloudflareFileEntry(entry, baseUrl) {
+  if (!entry) return null;
+  if (typeof entry === "string") {
+    return {
+      name: path.posix.basename(entry),
+      url: resolveUpdateUrl(baseUrl, entry),
+      size: null,
+    };
+  }
+  const name = String(entry.name || entry.file || entry.path || "").trim();
+  const url = resolveUpdateUrl(baseUrl, entry.url || entry.href || entry.downloadUrl || name);
+  if (!url) return null;
+  return {
+    name: name || path.posix.basename(new URL(url).pathname),
+    url,
+    size: Number.isFinite(Number(entry.size)) ? Number(entry.size) : null,
+  };
+}
+
+function normalizeUpdateMetadata(data, settings, sourceUrl) {
+  const latestVersion = normalizeVersion(data?.tag_name || data?.version || data?.name || "");
+  if (!latestVersion) {
+    throw new Error("更新情報にバージョンが含まれていません。");
+  }
+
+  const githubAsset = findReleaseAsset(data, "Cotaska-Portable.zip");
+  if (githubAsset?.browser_download_url) {
+    const checksumAsset = findReleaseAsset(data, "Cotaska-Portable.zip.sha256");
+    return {
+      latestVersion,
+      releaseUrl: data.html_url || settings.downloadPageUrl || null,
+      assetName: githubAsset.name || "Cotaska-Portable.zip",
+      assetUrl: githubAsset.browser_download_url,
+      assetSize: githubAsset.size || null,
+      checksumAssetUrl: checksumAsset?.browser_download_url || null,
+    };
+  }
+
+  const baseUrl = new URL(".", sourceUrl).toString();
+  const files = data?.files || {};
+  const portableEntry = files.portable || data?.portable || data?.asset || "Cotaska-Portable.zip";
+  const checksumEntry = files.sha256 || files.checksum || data?.sha256 || data?.checksum || "Cotaska-Portable.zip.sha256";
+  const portable = normalizeCloudflareFileEntry(portableEntry, baseUrl);
+  if (!portable?.url) {
+    throw new Error("更新情報に Cotaska-Portable.zip のダウンロード先が含まれていません。");
+  }
+  const checksum = normalizeCloudflareFileEntry(checksumEntry, baseUrl);
+
+  return {
+    latestVersion,
+    releaseUrl: data.releaseUrl || data.downloadPageUrl || settings.downloadPageUrl || baseUrl,
+    assetName: portable.name || "Cotaska-Portable.zip",
+    assetUrl: portable.url,
+    assetSize: portable.size,
+    checksumAssetUrl: checksum?.url || null,
+  };
+}
+
 function getPortableUpdateWorkDir(version) {
   const safeVersion = normalizeVersion(version || "unknown").replace(/[^0-9A-Za-z._-]/g, "_") || "unknown";
   return path.join(app.getPath("temp"), "Cotaska-updates", safeVersion);
@@ -189,12 +254,12 @@ function sha256File(filePath) {
 async function fetchJson(url) {
   const response = await fetch(url, {
     headers: {
-      Accept: "application/vnd.github+json, application/json",
+      Accept: "application/json, application/vnd.github+json",
       "User-Agent": "Cotaska",
     },
   });
   if (!response.ok) {
-    throw new Error(`GitHub Releases API の取得に失敗しました。HTTP ${response.status}`);
+    throw new Error(`更新情報の取得に失敗しました。HTTP ${response.status}`);
   }
   return response.json();
 }
@@ -464,20 +529,12 @@ async function checkPortableUpdate() {
   try {
     publishUpdaterState({
       status: "checking",
-      message: "GitHub Releases の Portable版更新を確認しています...",
+      message: "Portable版更新を確認しています...",
       progress: null,
       downloaded: false,
     });
-    const release = await fetchJson(latestVersionUrl);
-    const latestVersion = normalizeVersion(release.tag_name || release.name || "");
-    if (!latestVersion) {
-      throw new Error("最新リリースのバージョンを取得できませんでした。");
-    }
-    const asset = findReleaseAsset(release, "Cotaska-Portable.zip");
-    if (!asset?.browser_download_url) {
-      throw new Error("最新リリースに Cotaska-Portable.zip が見つかりません。");
-    }
-    const checksumAsset = findReleaseAsset(release, "Cotaska-Portable.zip.sha256");
+    const metadata = normalizeUpdateMetadata(await fetchJson(latestVersionUrl), settings, latestVersionUrl);
+    const latestVersion = metadata.latestVersion;
     const hasUpdate = compareVersions(latestVersion, packageInfo.version) > 0;
     return publishUpdaterState({
       status: hasUpdate ? "available" : "not-available",
@@ -488,11 +545,11 @@ async function checkPortableUpdate() {
       downloaded: false,
       progress: null,
       version: latestVersion,
-      releaseUrl: release.html_url || settings.downloadPageUrl || null,
-      assetName: asset.name,
-      assetUrl: asset.browser_download_url,
-      assetSize: asset.size || null,
-      checksumAssetUrl: checksumAsset?.browser_download_url || null,
+      releaseUrl: metadata.releaseUrl,
+      assetName: metadata.assetName,
+      assetUrl: metadata.assetUrl,
+      assetSize: metadata.assetSize,
+      checksumAssetUrl: metadata.checksumAssetUrl,
       downloadPath: null,
       checksum: null,
     });
@@ -749,27 +806,15 @@ async function checkForUpdates() {
   }
 
   try {
-    const response = await fetch(latestVersionUrl, {
-      headers: {
-        Accept: "application/vnd.github+json, application/json",
-        "User-Agent": "Cotaska",
-      },
-    });
-    if (!response.ok) {
-      return { ok: false, currentVersion: pkg.version, error: `更新情報を取得できませんでした。HTTP ${response.status}` };
-    }
-    const data = await response.json();
-    const latestVersion = normalizeVersion(data.tag_name || data.version || data.name || "");
-    if (!latestVersion) {
-      return { ok: false, currentVersion: pkg.version, error: "更新情報にバージョンが含まれていません。" };
-    }
+    const metadata = normalizeUpdateMetadata(await fetchJson(latestVersionUrl), settings.update, latestVersionUrl);
+    const latestVersion = metadata.latestVersion;
     const hasUpdate = compareVersions(latestVersion, pkg.version) > 0;
     return {
       ok: true,
       currentVersion: pkg.version,
       latestVersion,
       hasUpdate,
-      downloadPageUrl: data.html_url || settings.update.downloadPageUrl,
+      downloadPageUrl: metadata.releaseUrl || settings.update.downloadPageUrl,
       message: hasUpdate ? "新しいバージョンがあります。" : "現在のバージョンは最新です。",
     };
   } catch (err) {

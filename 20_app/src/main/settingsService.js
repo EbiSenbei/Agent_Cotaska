@@ -10,9 +10,14 @@ const DEFAULT_SETTINGS = {
   },
   detailTextSize: 14,
   update: {
-    latestVersionUrl: "https://api.github.com/repos/csho10051/Agent_Cotaska/releases/latest",
-    downloadPageUrl: "https://github.com/csho10051/Agent_Cotaska/releases",
+    latestVersionUrl: "https://pub-d671fdad660b43a8a4b99ede58b7c092.r2.dev/latest/version.json",
+    downloadPageUrl: "https://pub-d671fdad660b43a8a4b99ede58b7c092.r2.dev/latest/Cotaska-Portable.zip",
   },
+};
+
+const LEGACY_DEFAULT_UPDATE = {
+  latestVersionUrl: "https://api.github.com/repos/csho10051/Agent_Cotaska/releases/latest",
+  downloadPageUrl: "https://github.com/csho10051/Agent_Cotaska/releases",
 };
 
 function clampNumber(value, min, max, fallback) {
@@ -31,6 +36,9 @@ function getSettingsPath() {
 
 function mergeSettings(raw) {
   const source = raw && typeof raw === "object" ? raw : {};
+  const sourceUpdate = source.update || {};
+  const latestVersionUrl = String(sourceUpdate.latestVersionUrl || DEFAULT_SETTINGS.update.latestVersionUrl);
+  const downloadPageUrl = String(sourceUpdate.downloadPageUrl || DEFAULT_SETTINGS.update.downloadPageUrl);
   return {
     ...DEFAULT_SETTINGS,
     ...source,
@@ -44,9 +52,13 @@ function mergeSettings(raw) {
     detailTextSize: clampNumber(source.detailTextSize, 10, 28, DEFAULT_SETTINGS.detailTextSize),
     update: {
       ...DEFAULT_SETTINGS.update,
-      ...(source.update || {}),
-      latestVersionUrl: String(source.update?.latestVersionUrl || DEFAULT_SETTINGS.update.latestVersionUrl),
-      downloadPageUrl: String(source.update?.downloadPageUrl || DEFAULT_SETTINGS.update.downloadPageUrl),
+      ...sourceUpdate,
+      latestVersionUrl: latestVersionUrl === LEGACY_DEFAULT_UPDATE.latestVersionUrl
+        ? DEFAULT_SETTINGS.update.latestVersionUrl
+        : latestVersionUrl,
+      downloadPageUrl: downloadPageUrl === LEGACY_DEFAULT_UPDATE.downloadPageUrl
+        ? DEFAULT_SETTINGS.update.downloadPageUrl
+        : downloadPageUrl,
     },
   };
 }
@@ -73,10 +85,10 @@ function renderSettingsYaml(settings) {
     `detailTextSize: ${normalized.detailTextSize}`,
     "",
     "update:",
-    "  # 最新版確認に使うURL。GitHub Releases latest API互換のJSONを想定します",
+    "  # 最新版確認に使うURL。Cloudflare R2 の version.json または GitHub Releases latest API 互換JSONを想定します",
     `  latestVersionUrl: ${escaped(normalized.update.latestVersionUrl)}`,
     "",
-    "  # ダウンロードページ: 利用者確認後に開くURL",
+    "  # ダウンロード先: 利用者確認後に開くURL",
     `  downloadPageUrl: ${escaped(normalized.update.downloadPageUrl)}`,
     "",
   ].join("\n");

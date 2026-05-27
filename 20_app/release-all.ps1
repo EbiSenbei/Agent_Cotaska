@@ -11,7 +11,7 @@
 #          .\release-all.ps1 -Version "0.2.0"
 
 param(
-    [string]$Version = "0.1.1"
+    [string]$Version = "0.2.6"
 )
 
 $ErrorActionPreference = "Stop"

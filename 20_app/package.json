@@ -1,6 +1,6 @@
 {
   "name": "cotaska",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Cotaska - ローカルタスク管理システム",
   "main": "src/main/main.js",
   "scripts": {

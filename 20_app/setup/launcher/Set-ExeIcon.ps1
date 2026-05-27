@@ -15,7 +15,7 @@ param(
 
 	[string]$CompanyName = "EbiSenbei",
 
-	[string]$Version = "0.1.1"
+	[string]$Version = "0.2.6"
 )
 
 $ErrorActionPreference = "Stop"
