@@ -1,5 +1,11 @@
 # DECISIONS
 
+## 2026-05-28 GitHub接続先のEbiSenbei移管
+
+- Cotaska 本体の GitHub remote は `https://github.com/EbiSenbei/Agent_Cotaska.git` を正とする。
+- cotaska-site の GitHub remote は `https://github.com/EbiSenbei/cotaska-site.git` を正とする。
+- 公開サイトURLは `https://ebisenbei.github.io/cotaska-site/` を正とし、README、設定既定値、関連資料の旧アカウント参照を更新する。
+
 ## 2026-05-28 CHG-084 編集モードURLリンク化
 
 - タスク詳細本文の編集モードでも URL を視認できるよう、保存データは変更せず表示上の装飾として青文字化する仕様変更を起票する。

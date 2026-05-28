@@ -43,7 +43,7 @@
     "publish": [
       {
         "provider": "github",
-        "owner": "csho10051",
+        "owner": "EbiSenbei",
         "repo": "Agent_Cotaska",
         "releaseType": "release"
       }

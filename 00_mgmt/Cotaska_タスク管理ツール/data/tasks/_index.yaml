@@ -3067,7 +3067,64 @@ tasks:
       - 確認
     due_date: null
     updated_at: '2026-05-27T22:00:00+09:00'
+  - id: T-0286
+    title: GitをEbiSenbeiアカウントへ引っ越し
+    list: Cotaska
+    status: done
+    priority: normal
+    sort_order: 286
+    tags: []
+    due_date: null
+    updated_at: '2026-05-28T22:23:32+09:00'
+  - id: T-0287
+    title: 仕様変更：編集モードURLリンク化
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 287
+    tags:
+      - CHG-084
+      - URL
+      - 編集モード
+    due_date: null
+    updated_at: '2026-05-28T21:27:22+09:00'
+  - id: T-0288
+    title: CHG-084-01 設計：編集モードURLリンク化の仕様反映
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 288
+    tags:
+      - CHG-084
+      - 設計
+      - URL
+    due_date: null
+    updated_at: '2026-05-28T20:59:27+09:00'
+  - id: T-0289
+    title: CHG-084-02 実装：編集モードURLの青文字表示とリンク起動
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 289
+    tags:
+      - CHG-084
+      - 実装
+      - URL
+    due_date: null
+    updated_at: '2026-05-28T20:59:27+09:00'
+  - id: T-0290
+    title: CHG-084-03 確認：編集モードURLリンク化の動作確認
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 290
+    tags:
+      - CHG-084
+      - 確認
+      - URL
+    due_date: null
+    updated_at: '2026-05-28T21:27:22+09:00'
 task_file_roots:
   - .
-next_task_id: 286
-last_updated: '2026-05-27T13:04:24.451Z'
+next_task_id: 291
+last_updated: '2026-05-28T13:29:10.174Z'

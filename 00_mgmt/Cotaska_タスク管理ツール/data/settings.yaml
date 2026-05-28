@@ -17,7 +17,7 @@ detailTextSize: 14
 
 update:
   # 最新版確認に使うURL。GitHub Releases latest API互換のJSONを想定します
-  latestVersionUrl: "https://api.github.com/repos/csho10051/Agent_Cotaska/releases/latest"
+  latestVersionUrl: "https://api.github.com/repos/EbiSenbei/Agent_Cotaska/releases/latest"
 
   # ダウンロードページ: 利用者確認後に開くURL
-  downloadPageUrl: "https://github.com/csho10051/Agent_Cotaska/releases"
+  downloadPageUrl: "https://github.com/EbiSenbei/Agent_Cotaska/releases"

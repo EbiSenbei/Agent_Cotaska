@@ -5,7 +5,7 @@ Cotaska は、個人または小規模チーム向けのローカル完結型タ
 タスクの正本を Markdown ファイルとして保存し、UI からの編集と AI エージェントによるファイル編集の両方を扱いやすくすることを目的にしています。TickTick のような一覧性と操作性を参考にしつつ、ローカル PC 上で完結する軽量な運用を重視しています。
 
 製品紹介ページ:
-https://csho10051.github.io/cotaska-site/
+https://ebisenbei.github.io/cotaska-site/
 
 ## 特徴
 
@@ -142,7 +142,7 @@ cd 20_app
 このプロジェクトは GitHub の次のリポジトリと連携しています。
 
 ```text
-https://github.com/csho10051/Agent_Cotaska.git
+https://github.com/EbiSenbei/Agent_Cotaska.git
 ```
 
 配布物や生成物はコミットしない方針です。特に次のようなディレクトリは履歴に含めないでください。

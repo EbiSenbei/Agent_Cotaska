@@ -15,13 +15,13 @@ const DEFAULT_SETTINGS = {
   },
   update: {
     latestVersionUrl: "https://pub-d671fdad660b43a8a4b99ede58b7c092.r2.dev/latest/version.json",
-    downloadPageUrl: "https://csho10051.github.io/cotaska-site/download.html",
+    downloadPageUrl: "https://ebisenbei.github.io/cotaska-site/download.html",
   },
 };
 
 const LEGACY_DEFAULT_UPDATE = {
-  latestVersionUrl: "https://api.github.com/repos/csho10051/Agent_Cotaska/releases/latest",
-  downloadPageUrl: "https://github.com/csho10051/Agent_Cotaska/releases",
+  latestVersionUrl: "https://api.github.com/repos/EbiSenbei/Agent_Cotaska/releases/latest",
+  downloadPageUrl: "https://github.com/EbiSenbei/Agent_Cotaska/releases",
 };
 
 const PREVIOUS_DEFAULT_UPDATE = {
