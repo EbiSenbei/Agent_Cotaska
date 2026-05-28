@@ -1644,6 +1644,10 @@ body.is-resizing-detail-sections * {
   color: transparent;
 }
 
+.markdown-editor-input--link-hover {
+  cursor: pointer;
+}
+
 .markdown-editor-line {
   min-height: calc(var(--detail-content-font-size, 14px) * 1.5);
 }
@@ -1693,6 +1697,11 @@ body.is-resizing-detail-sections * {
 
 .md-token-link {
   color: #1f6fbc;
+}
+
+.md-token-url {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .md-token-code {

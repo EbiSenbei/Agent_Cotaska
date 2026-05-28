@@ -10,22 +10,57 @@ const escapeHtml = (value) =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 
+const RAW_URL_PATTERN = /https?:\/\/[^\s<>"']+/gi;
+const TRAILING_URL_PUNCTUATION = /[.,;:!?、。)）\]］}｝]+$/;
+
+function trimRawUrlMatch(match) {
+  return String(match || "").replace(TRAILING_URL_PUNCTUATION, "");
+}
+
+function findUrlAtIndex(value, index) {
+  const source = String(value || "");
+  const targetIndex = Number(index);
+  if (!Number.isFinite(targetIndex) || targetIndex < 0) return null;
+
+  RAW_URL_PATTERN.lastIndex = 0;
+  let match;
+  while ((match = RAW_URL_PATTERN.exec(source))) {
+    const raw = match[0];
+    const url = trimRawUrlMatch(raw);
+    if (!url) continue;
+
+    const start = match.index;
+    const end = start + url.length;
+    if (targetIndex >= start && targetIndex <= end) {
+      return { url, start, end };
+    }
+  }
+
+  return null;
+}
+
 function highlightInlineMarkdown(value) {
   const source = String(value || "");
-  const tokenPattern = /(`[^`]+`|\*\*[^*\n]+?\*\*|\*[^*\s][^*\n]*?\*|\[[^\]\n]+\]\([^)]+\))/g;
+  const tokenPattern = /(`[^`]+`|\*\*[^*\n]+?\*\*|\*[^*\s][^*\n]*?\*|\[[^\]\n]+\]\([^)]+\)|https?:\/\/[^\s<>"']+)/gi;
   let cursor = 0;
   let html = "";
 
   source.replace(tokenPattern, (match, _token, offset) => {
     html += escapeHtml(source.slice(cursor, offset));
+    const url = /^https?:\/\//i.test(match) ? trimRawUrlMatch(match) : "";
+    const trailingText = url ? match.slice(url.length) : "";
     const className = match.startsWith("`")
       ? "md-token-code"
       : match.startsWith("**")
         ? "md-token-strong"
-        : match.startsWith("[")
+        : match.startsWith("[") || url
           ? "md-token-link"
           : "md-token-em";
-    html += `<span class="${className}">${escapeHtml(match)}</span>`;
+    if (url) {
+      html += `<span class="${className} md-token-url">${escapeHtml(url)}</span>${escapeHtml(trailingText)}`;
+    } else {
+      html += `<span class="${className}">${escapeHtml(match)}</span>`;
+    }
     cursor = offset + match.length;
     return match;
   });
@@ -87,6 +122,7 @@ function formatDatetime(value) {
 const formatCompletedAt = formatDatetime;
 
 export {
+  findUrlAtIndex,
   formatCompletedAt,
   formatDatetime,
   markdown,

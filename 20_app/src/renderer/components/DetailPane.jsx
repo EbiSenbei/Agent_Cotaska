@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import DueDatePopover from "./DueDatePopover";
 import { useDebounce } from "../hooks/useDebounce";
-import { formatCompletedAt, formatDatetime, markdown, renderMarkdownEditorHtml } from "../lib/markdownEditor";
+import { findUrlAtIndex, formatCompletedAt, formatDatetime, markdown, renderMarkdownEditorHtml } from "../lib/markdownEditor";
 
 const PRIORITY_LABEL = { normal: "低", medium: "中", high: "高" };
 const PRIORITY_COLOR = { normal: "#aaa", medium: "#f39c12", high: "#e74c3c" };
@@ -13,8 +13,47 @@ const DETAIL_CONTENT_FONT_MIN = 10;
 const DETAIL_CONTENT_FONT_MAX = 28;
 const DETAIL_CONTENT_FONT_DEFAULT = 14;
 const DETAIL_CONTENT_FONT_STORAGE_KEY = "cotaska.detailContentFontSize";
+const EDITOR_LINK_TOOLTIP = "リンク先を表示(Ctrl＋クリック)";
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+function getTextareaIndexFromPoint(textarea, clientX, clientY) {
+  if (!textarea) return null;
+
+  const rect = textarea.getBoundingClientRect();
+  const style = window.getComputedStyle(textarea);
+  const lineHeight = Number.parseFloat(style.lineHeight) || Number.parseFloat(style.fontSize) * 1.5 || 21;
+  const paddingLeft = Number.parseFloat(style.paddingLeft) || 0;
+  const paddingTop = Number.parseFloat(style.paddingTop) || 0;
+  const x = clientX - rect.left + textarea.scrollLeft - paddingLeft;
+  const y = clientY - rect.top + textarea.scrollTop - paddingTop;
+  if (x < 0 || y < 0) return null;
+
+  const lines = String(textarea.value || "").split("\n");
+  const lineIndex = Math.max(0, Math.min(lines.length - 1, Math.floor(y / lineHeight)));
+  let index = 0;
+  for (let i = 0; i < lineIndex; i += 1) {
+    index += lines[i].length + 1;
+  }
+
+  const line = lines[lineIndex] || "";
+  const canvas = getTextareaIndexFromPoint.canvas || document.createElement("canvas");
+  getTextareaIndexFromPoint.canvas = canvas;
+  const context = canvas.getContext("2d");
+  context.font = `${style.fontStyle} ${style.fontVariant} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+
+  let charIndex = 0;
+  for (let i = 1; i <= line.length; i += 1) {
+    const width = context.measureText(line.slice(0, i)).width;
+    if (width >= x) {
+      const previousWidth = context.measureText(line.slice(0, i - 1)).width;
+      charIndex = x - previousWidth > width - x ? i : i - 1;
+      return index + charIndex;
+    }
+  }
+
+  return index + line.length;
+}
 
 function DetailPane({
   task,
@@ -114,6 +153,7 @@ function DetailPaneBody({
   const [footerContextMenu, setFooterContextMenu] = useState(null);
   const [footerContextMenuPos, setFooterContextMenuPos] = useState(null);
   const [pathCopyMessage, setPathCopyMessage] = useState("");
+  const [hoveredEditorUrl, setHoveredEditorUrl] = useState(null);
 
   const parentTask = tasks.find((candidate) =>
     candidate.id === task.parent && !candidate.is_invalid
@@ -590,6 +630,41 @@ function DetailPaneBody({
     }
   };
 
+  const openTaskTarget = async (target) => {
+    const href = String(target || "").trim();
+    if (!href) return;
+
+    setOpenExternalError("");
+    try {
+      const result = await window.cotaskaAPI?.shell?.openTaskTarget?.(task.id, href);
+      if (!result?.ok) {
+        setOpenExternalError(result?.error || "リンク先を開けませんでした。");
+      }
+    } catch (error) {
+      setOpenExternalError(error?.message || "リンク先の起動に失敗しました。");
+    }
+  };
+
+  const handleEditorMouseMove = (event) => {
+    if (isInvalid) return;
+    const index = getTextareaIndexFromPoint(event.currentTarget, event.clientX, event.clientY);
+    const match = findUrlAtIndex(contentText, index);
+    setHoveredEditorUrl(match?.url || null);
+  };
+
+  const handleEditorClick = async (event) => {
+    if (isInvalid || !event.ctrlKey) return;
+
+    const target = event.currentTarget;
+    const match = findUrlAtIndex(contentText, target.selectionStart);
+    const url = match?.url || hoveredEditorUrl;
+    if (!url) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    await openTaskTarget(url);
+  };
+
   const highlightedContentHtml = renderMarkdownEditorHtml(contentText);
   const detailContentFontStyle = { fontSize: `${detailContentFontSize}px` };
   const handleEditorScroll = (event) => {
@@ -848,13 +923,17 @@ function DetailPaneBody({
               dangerouslySetInnerHTML={{ __html: highlightedContentHtml }}
             />
             <textarea
-              className="detail-content markdown-editor-input"
+              className={`detail-content markdown-editor-input${hoveredEditorUrl ? " markdown-editor-input--link-hover" : ""}`}
               style={detailContentFontStyle}
               value={contentText}
               placeholder="メモを入力..."
               readOnly={isInvalid}
               spellCheck={false}
+              title={hoveredEditorUrl ? EDITOR_LINK_TOOLTIP : ""}
               onScroll={handleEditorScroll}
+              onMouseMove={handleEditorMouseMove}
+              onMouseLeave={() => setHoveredEditorUrl(null)}
+              onClick={handleEditorClick}
               onChange={(e) => {
                 if (isInvalid) return;
                 const nextContent = e.target.value;
