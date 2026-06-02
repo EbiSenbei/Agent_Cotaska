@@ -125,7 +125,7 @@ function DetailPaneBody({
   const [taskTags, setTaskTags] = useState(task.tags || []);
   const [newTagName, setNewTagName] = useState("");
   const [previewMode, setPreviewMode] = useState(false);
-  const [dueEditorOpen, setDueEditorOpen] = useState(false);
+  const [dueEditorOpen, setDueEditorOpen] = useState(null);
   const [completedAt, setCompletedAt] = useState(task.completed_at || null);
   const [metaOpen, setMetaOpen] = useState(true);
   const [subtasksOpen, setSubtasksOpen] = useState(true);
@@ -476,6 +476,7 @@ function DetailPaneBody({
       parent: task.parent ?? null,
       tags: taskTags,
       due_date: task.due_date || null,
+      deadline_date: task.deadline_date || null,
       ...patch,
     });
     onSaved?.();
@@ -537,7 +538,13 @@ function DetailPaneBody({
     } else {
       await persist({ due_date: nextDue || null });
     }
-    setDueEditorOpen(false);
+    setDueEditorOpen(null);
+  };
+
+  const handleDeadlineDateChange = async (nextDeadline) => {
+    if (isInvalid) return;
+    await persist({ deadline_date: nextDeadline || null });
+    setDueEditorOpen(null);
   };
 
   const handleListChange = async (e) => {
@@ -773,7 +780,7 @@ function DetailPaneBody({
 
         {metaOpen && (
           <>
-            {/* Row 1: 進捗 + 日付 + 優先度 */}
+            {/* Row 1: 進捗 + 日付 + 期限 + 優先度 */}
             <div className="meta-row">
               <div className="meta-item">
                 <span className="meta-item-label">進捗:</span>
@@ -785,23 +792,43 @@ function DetailPaneBody({
                   <option value="完了">完了</option>
                 </select>
               </div>
-              <span className="meta-due-anchor" onClick={(e) => e.stopPropagation()}>
+              <span className="meta-due-anchor meta-due-anchor--compact" onClick={(e) => e.stopPropagation()}>
                 <span className="meta-item-label">日付:</span>
                 <span
                   className={`meta-due${task.overdue ? " overdue" : ""}`}
                   onClick={() => {
-                    if (!isInvalid) setDueEditorOpen(true);
+                    if (!isInvalid) setDueEditorOpen("date");
                   }}
                 >
                   {task.due || "未設定"}
                 </span>
-                {dueEditorOpen && (
+                {dueEditorOpen === "date" && (
                   <DueDatePopover
                     className="due-dialog--detail"
                     value={task.due_date}
                     onChange={handleDueDateChange}
                     onClear={() => handleDueDateChange(null)}
-                    onClose={() => setDueEditorOpen(false)}
+                    onClose={() => setDueEditorOpen(null)}
+                  />
+                )}
+              </span>
+              <span className="meta-due-anchor meta-due-anchor--compact" onClick={(e) => e.stopPropagation()}>
+                <span className="meta-item-label">期限:</span>
+                <span
+                  className={`meta-due${task.deadlineOverdue ? " overdue" : ""}`}
+                  onClick={() => {
+                    if (!isInvalid) setDueEditorOpen("deadline");
+                  }}
+                >
+                  {task.deadline || "未設定"}
+                </span>
+                {dueEditorOpen === "deadline" && (
+                  <DueDatePopover
+                    className="due-dialog--detail"
+                    value={task.deadline_date}
+                    onChange={handleDeadlineDateChange}
+                    onClear={() => handleDeadlineDateChange(null)}
+                    onClose={() => setDueEditorOpen(null)}
                   />
                 )}
               </span>

@@ -188,15 +188,25 @@ function DueDatePopover({ value, onChange, onClear, onClose, className = "", pla
     setInputError("");
   };
 
+  const commitDueValue = (datePart, nextTimeEnabled = timeEnabled, nextTimePart = timePart) => {
+    if (!datePart) return;
+    onChange?.(toDueValue(datePart, nextTimeEnabled ? nextTimePart : ""));
+  };
+
   const applyShortcut = (type) => {
     let nextDate = selectedDate || today;
     if (type === "today") nextDate = today;
     if (type === "tomorrow") nextDate = addDays(today, 1);
     if (type === "week") nextDate = addDays(today, 7);
-    if (type === "date-only") setTimeEnabled(false);
-    setSelectedDatePart(formatDatePart(nextDate));
+    const nextDatePart = formatDatePart(nextDate);
+    const nextTimeEnabled = type === "date-only" ? false : timeEnabled;
+    setTimeEnabled(nextTimeEnabled);
+    setSelectedDatePart(nextDatePart);
     setViewMonth(new Date(nextDate.getFullYear(), nextDate.getMonth(), 1));
     setInputError("");
+    if (type === "today" || type === "tomorrow" || type === "week" || type === "date-only") {
+      commitDueValue(nextDatePart, nextTimeEnabled, timePart);
+    }
   };
 
   const handleInputChange = (nextValue) => {

@@ -69,6 +69,7 @@ function createInvalidTask(filePath, error, reason = null) {
     priority: 'high',
     progress_status: '要確認',
     due_date: null,
+    deadline_date: null,
     list: null,
     parent: null,
     tags: ['破損タスク'],
@@ -649,6 +650,7 @@ function getSearchableValues(task) {
     task.priority,
     task.progress_status,
     task.due_date,
+    task.deadline_date,
     ...(Array.isArray(tags) ? tags : []),
     ...(Array.isArray(tags) ? tags.map((tag) => `#${tag}`) : []),
   ].map(normalizeSearchText).filter(Boolean);
@@ -742,6 +744,7 @@ function addTask(taskData) {
     priority: taskData.priority || 'medium',
     progress_status: '未着',
     due_date: taskData.due_date || null,
+    deadline_date: taskData.deadline_date || null,
     list: taskData.list || null,
     parent: taskData.parent || null,
     tags: taskData.tags || [],
@@ -1094,6 +1097,7 @@ function duplicateTask(id) {
     title: original.title + '（コピー）',
     priority: original.priority,
     due_date: original.due_date,
+    deadline_date: original.deadline_date,
     list: original.list,
     parent: original.parent,
     tags: [...(original.tags || [])]

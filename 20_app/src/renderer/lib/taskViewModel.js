@@ -61,7 +61,10 @@ function mapFileTask(taskData) {
     completed_at: taskData.completed_at || null,
     due_date:  taskData.due_date || null,
     due:       formatDue(taskData.due_date),
+    deadline_date: taskData.deadline_date || null,
+    deadline:  formatDue(taskData.deadline_date),
     overdue:   taskData.due_date ? dueDatePart(taskData.due_date) < today && taskData.status !== "done" : false,
+    deadlineOverdue: taskData.deadline_date ? dueDatePart(taskData.deadline_date) < today && taskData.status !== "done" : false,
     is_invalid: Boolean(taskData.is_invalid),
     validation_error: taskData.validation_error || "",
     validation_error_name: taskData.validation_error_name || "",
@@ -97,6 +100,7 @@ function toFileTaskPayload(task, patch = {}) {
     list: task.list ?? null,             // list_idではなくlist（文字列）
     tags: task.tags || [],
     due_date: task.due_date || null,
+    deadline_date: task.deadline_date || null,
     ...patch,
   };
 }

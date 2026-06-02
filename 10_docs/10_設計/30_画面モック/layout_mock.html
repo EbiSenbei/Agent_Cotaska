@@ -438,6 +438,15 @@
       white-space: nowrap;
       min-width: 42px;
     }
+    .meta-item.compact-date {
+      gap: 4px;
+    }
+    .meta-item.compact-date + .meta-item.compact-date {
+      margin-left: -4px;
+    }
+    .meta-item.compact-date .meta-item-label {
+      min-width: auto;
+    }
     .meta-select,
     .meta-tag-select,
     .meta-tag-input {
@@ -449,6 +458,14 @@
       color: #444;
     }
     .meta-select { min-width: 66px; }
+    .meta-date-value {
+      min-width: 38px;
+      font-size: 12px;
+      color: #666;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .meta-date-value.unset { color: #999; }
     .meta-tag-select { min-width: 80px; font-size: 11px; padding: 2px 6px; }
     .meta-tag-input { flex: 1; min-width: 50px; font-size: 11px; padding: 2px 6px; }
     .meta-tag-add-btn {
@@ -791,7 +808,7 @@
       <!-- detail-meta: メタ情報集約 -->
       <div class="detail-meta">
         <div class="meta-section-header">▼ メタ情報</div>
-        <!-- Row 1: 進捗 + 期限 + 優先度 -->
+        <!-- Row 1: 進捗 + 日付 + 期限 + 優先度（CHG-085確認案） -->
         <div class="meta-row">
           <div class="meta-item">
             <span class="meta-item-label">進捗:</span>
@@ -801,9 +818,13 @@
               <option>完了</option>
             </select>
           </div>
-          <div class="meta-item">
+          <div class="meta-item compact-date">
+            <span class="meta-item-label">日付:</span>
+            <span class="meta-date-value">3/24</span>
+          </div>
+          <div class="meta-item compact-date">
             <span class="meta-item-label">期限:</span>
-            <span style="font-size:12px;color:#999;cursor:pointer;">3/24</span>
+            <span class="meta-date-value unset">未設定</span>
           </div>
           <div class="meta-item">
             <span class="meta-item-label">優先度:</span>
