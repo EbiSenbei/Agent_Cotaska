@@ -2712,14 +2712,14 @@ tasks:
   - id: T-0262
     title: 仕様変更：パスコピー
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 252
     tags:
       - CHG-080
       - パスコピー
-    due_date: null
-    updated_at: '2026-05-22T03:39:44.020Z'
+    due_date: '2026-05-29'
+    updated_at: '2026-05-29T12:53:25.940Z'
   - id: T-0263
     title: BUG-20260522-01 日付の並び替えで時刻が考慮されていない
     list: 不具合修正
@@ -2820,7 +2820,7 @@ tasks:
     tags:
       - BUG-20260527-01
     due_date: '2026-05-28'
-    updated_at: '2026-05-27T01:18:30.849Z'
+    updated_at: '2026-05-28T12:26:22.597Z'
   - id: T-0261
     title: CHG-079-03 ユーザー確認：起動時更新アラート表示確認
     list: 仕様変更
@@ -2836,15 +2836,15 @@ tasks:
   - id: T-0271
     title: 仕様変更：最新版のダウンロード先の変更
     list: 仕様変更
-    status: doing
+    status: done
     priority: normal
     sort_order: 261
     tags:
       - CHG-081
       - 自動更新
       - Cloudflare
-    due_date: null
-    updated_at: '2026-05-27T10:27:07+09:00'
+    due_date: '2026-05-29'
+    updated_at: '2026-05-29T12:53:21.324Z'
   - id: T-0272
     title: CHG-081-01 設計：最新版ダウンロード先Cloudflare化の仕様反映
     list: 仕様変更
@@ -2886,7 +2886,7 @@ tasks:
   - id: T-0274
     title: CHG-081-03 ユーザー確認：Cloudflare更新確認・ダウンロード確認
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 264
     tags:
@@ -2894,8 +2894,8 @@ tasks:
       - ユーザー確認
       - 自動更新
       - Cloudflare
-    due_date: null
-    updated_at: '2026-05-27T10:27:07+09:00'
+    due_date: '2026-05-29'
+    updated_at: '2026-05-29T12:53:15.949Z'
   - id: T-0265
     title: CHG-080-02 実装：タスク一覧と詳細ペインのパスコピー導線
     list: 仕様変更
@@ -2911,15 +2911,15 @@ tasks:
   - id: T-0266
     title: CHG-080-03 ユーザー確認：パスコピー動作確認
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 266
     tags:
       - CHG-080
       - ユーザー確認
       - パスコピー
-    due_date: null
-    updated_at: '2026-05-22T12:24:00+09:00'
+    due_date: '2026-05-29'
+    updated_at: '2026-05-29T12:53:25.140Z'
   - id: T-0268
     title: AI秘書のテンプレートを作成し、Boothに登録する
     list: 販売戦略
@@ -2947,14 +2947,14 @@ tasks:
   - id: T-0275
     title: 仕様変更：タスク表示性能改善
     list: 仕様変更
-    status: doing
+    status: done
     priority: high
     sort_order: 275
     tags:
       - CHG-082
       - 性能改善
-    due_date: null
-    updated_at: '2026-05-27T12:00:00+09:00'
+    due_date: '2026-05-29'
+    updated_at: '2026-05-29T12:53:34.856Z'
   - id: T-0276
     title: CHG-082-01 設計：性能改善方針の反映
     list: 仕様変更
@@ -2991,14 +2991,14 @@ tasks:
   - id: T-0279
     title: CHG-082-04 確認：性能改善の動作確認
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 279
     tags:
       - CHG-082
       - 確認
-    due_date: null
-    updated_at: '2026-05-27T12:00:00+09:00'
+    due_date: '2026-05-29'
+    updated_at: '2026-05-29T12:53:34.180Z'
   - id: T-0280
     title: 仕様変更：完了タスク遅延読み込み
     list: 仕様変更
@@ -3022,6 +3022,15 @@ tasks:
       - 設計
     due_date: null
     updated_at: '2026-05-27T22:00:00+09:00'
+  - id: T-0291
+    title: Cotaskaの知名度を上げたい
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 281
+    tags: []
+    due_date: null
+    updated_at: '2026-05-29T22:05:11.675+09:00'
   - id: T-0282
     title: CHG-083-02 実装：初期読み込み対象の絞り込み
     list: 仕様変更
@@ -3124,7 +3133,207 @@ tasks:
       - URL
     due_date: null
     updated_at: '2026-05-28T21:27:22+09:00'
+  - id: T-0300
+    title: 仕様変更：期限項目の追加
+    list: null
+    status: done
+    priority: normal
+    sort_order: 290
+    tags:
+      - CHG-085
+    due_date: '2026-06-02'
+    updated_at: '2026-06-02T14:02:40.600Z'
+  - id: T-0292
+    title: Cotaska認知向上：価値提案と想定ユーザーを整理する
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 292
+    tags:
+      - Cotaska
+      - 知名度向上
+      - ロードマップ
+    due_date: null
+    updated_at: '2026-05-29T22:00:27.285+09:00'
+  - id: T-0293
+    title: Cotaska認知向上：紹介文とキャッチコピーを作る
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 293
+    tags:
+      - Cotaska
+      - 知名度向上
+      - コピー
+    due_date: null
+    updated_at: '2026-05-29T22:00:27.285+09:00'
+  - id: T-0294
+    title: Cotaska認知向上：スクリーンショットと短い操作動画を用意する
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 294
+    tags:
+      - Cotaska
+      - 知名度向上
+      - 素材
+    due_date: null
+    updated_at: '2026-05-29T22:00:27.285+09:00'
+  - id: T-0295
+    title: Cotaska認知向上：公開・ダウンロード導線を整える
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 295
+    tags:
+      - Cotaska
+      - 知名度向上
+      - 配布
+    due_date: null
+    updated_at: '2026-05-29T22:29:04.121+09:00'
+  - id: T-0305
+    title: 仕様変更：期限サブ画面の仕様変更
+    list: null
+    status: done
+    priority: normal
+    sort_order: 295
+    tags:
+      - CHG-086
+    due_date: '2026-06-02'
+    updated_at: '2026-06-02T14:02:52.650Z'
+  - id: T-0296
+    title: Cotaska認知向上：noteとSNSの発信計画を作る
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 296
+    tags:
+      - Cotaska
+      - 知名度向上
+      - 発信
+    due_date: null
+    updated_at: '2026-05-29T22:05:11.675+09:00'
+  - id: T-0297
+    title: Cotaska認知向上：ユーザー反応と改善要望の受け皿を作る
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 297
+    tags:
+      - Cotaska
+      - 知名度向上
+      - フィードバック
+    due_date: null
+    updated_at: '2026-05-29T22:00:27.285+09:00'
+  - id: T-0298
+    title: Cotaska認知向上：流入と反応の確認指標を決める
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 298
+    tags:
+      - Cotaska
+      - 知名度向上
+      - 効果測定
+    due_date: null
+    updated_at: '2026-05-29T22:00:27.285+09:00'
+  - id: T-0299
+    title: Cotaska認知向上：初回公開キャンペーンを実施する
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 299
+    tags:
+      - Cotaska
+      - 知名度向上
+      - 初回公開
+    due_date: null
+    updated_at: '2026-05-29T22:05:11.675+09:00'
+  - id: T-0301
+    title: CHG-085-01 設計：詳細メタ情報の期限項目追加を画面モックへ反映
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 301
+    tags:
+      - CHG-085
+      - 設計
+      - 画面モック
+    due_date: '2026-06-02'
+    updated_at: '2026-06-02T14:14:30+09:00'
+  - id: T-0302
+    title: CHG-085-02 ユーザー確認：期限項目追加の画面モック認識合わせ
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 302
+    tags:
+      - CHG-085
+      - ユーザー確認
+      - 画面モック
+    due_date: '2026-06-02'
+    updated_at: '2026-06-02T16:10:59+09:00'
+  - id: T-0303
+    title: CHG-085-03 実装：詳細メタ情報に期限項目を追加
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 303
+    tags:
+      - CHG-085
+      - 実装
+      - 詳細ペイン
+    due_date: '2026-06-02'
+    updated_at: '2026-06-02T16:10:59+09:00'
+  - id: T-0304
+    title: CHG-085-04 確認：期限項目追加の動作確認
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 304
+    tags:
+      - CHG-085
+      - 確認
+      - 詳細ペイン
+    due_date: '2026-06-02'
+    updated_at: '2026-06-02T22:58:18+09:00'
+  - id: T-0306
+    title: CHG-086-01 設計：日付ショートカット即時確定を設計へ反映
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 306
+    tags:
+      - CHG-086
+      - 設計
+      - 日付
+    due_date: '2026-06-02'
+    updated_at: '2026-06-02T21:20:13+09:00'
+  - id: T-0307
+    title: CHG-086-02 実装：日付ショートカットを即時確定にする
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 307
+    tags:
+      - CHG-086
+      - 実装
+      - 日付
+    due_date: '2026-06-02'
+    updated_at: '2026-06-02T23:01:03+09:00'
+  - id: T-0308
+    title: CHG-086-03 確認：日付ショートカット即時確定の動作確認
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 308
+    tags:
+      - CHG-086
+      - 確認
+      - 日付
+    due_date: '2026-06-02'
+    updated_at: '2026-06-02T14:02:51.346Z'
 task_file_roots:
   - .
-next_task_id: 291
-last_updated: '2026-05-28T13:29:10.174Z'
+next_task_id: 309
+last_updated: '2026-06-02T14:02:53.143Z'

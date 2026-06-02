@@ -15,9 +15,16 @@ notification:
 # タスク詳細本文の文字サイズ(px)
 detailTextSize: 14
 
-update:
-  # 最新版確認に使うURL。GitHub Releases latest API互換のJSONを想定します
-  latestVersionUrl: "https://api.github.com/repos/EbiSenbei/Agent_Cotaska/releases/latest"
+taskLoading:
+  # 起動時に読み込む完了タスク件数
+  completedInitialLimit: 100
 
-  # ダウンロードページ: 利用者確認後に開くURL
-  downloadPageUrl: "https://github.com/EbiSenbei/Agent_Cotaska/releases"
+  # 完了ビューで次を読み込む1回あたりの件数
+  completedLoadMoreLimit: 100
+
+update:
+  # 最新版確認に使うURL。Cloudflare R2 の version.json または GitHub Releases latest API 互換JSONを想定します
+  latestVersionUrl: "https://pub-d671fdad660b43a8a4b99ede58b7c092.r2.dev/latest/version.json"
+
+  # ダウンロード先: 利用者確認後に開くURL
+  downloadPageUrl: "https://ebisenbei.github.io/cotaska-site/download.html"
