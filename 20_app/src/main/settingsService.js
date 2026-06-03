@@ -20,8 +20,14 @@ const DEFAULT_SETTINGS = {
 };
 
 const LEGACY_DEFAULT_UPDATE = {
-  latestVersionUrl: "https://api.github.com/repos/EbiSenbei/Agent_Cotaska/releases/latest",
-  downloadPageUrl: "https://github.com/EbiSenbei/Agent_Cotaska/releases",
+  latestVersionUrls: [
+    "https://api.github.com/repos/EbiSenbei/Agent_Cotaska/releases/latest",
+    "https://api.github.com/repos/csho10051/Agent_Cotaska/releases/latest",
+  ],
+  downloadPageUrls: [
+    "https://github.com/EbiSenbei/Agent_Cotaska/releases",
+    "https://github.com/csho10051/Agent_Cotaska/releases",
+  ],
 };
 
 const PREVIOUS_DEFAULT_UPDATE = {
@@ -67,10 +73,10 @@ function mergeSettings(raw) {
     update: {
       ...DEFAULT_SETTINGS.update,
       ...sourceUpdate,
-      latestVersionUrl: latestVersionUrl === LEGACY_DEFAULT_UPDATE.latestVersionUrl
+      latestVersionUrl: LEGACY_DEFAULT_UPDATE.latestVersionUrls.includes(latestVersionUrl)
         ? DEFAULT_SETTINGS.update.latestVersionUrl
         : latestVersionUrl,
-      downloadPageUrl: downloadPageUrl === LEGACY_DEFAULT_UPDATE.downloadPageUrl
+      downloadPageUrl: LEGACY_DEFAULT_UPDATE.downloadPageUrls.includes(downloadPageUrl)
         || downloadPageUrl === PREVIOUS_DEFAULT_UPDATE.downloadPageUrl
         ? DEFAULT_SETTINGS.update.downloadPageUrl
         : downloadPageUrl,

@@ -1,5 +1,11 @@
 # DECISIONS
 
+## 2026-06-03 BUG-20260603-01 更新確認 fetch failed 対応方針
+
+- 更新確認で Node `fetch` が `ECONNRESET` となる環境差（Windows通信スタックでは成功）を確認したため、`checkForUpdates` の更新メタデータ取得は Node `fetch` 失敗時に `electron.net` へフォールバックする。
+- 失敗時ログは `error` だけでなく `url` / `code` / `cause` を記録し、社内ネットワーク制限・TLS 切断の切り分けを容易にする。
+- 利用者向けメッセージは `fetch failed` をそのまま表示せず、`ECONNRESET` / `ENOTFOUND` / `ETIMEDOUT` を日本語で説明し、確認対象URLを併記する。
+
 ## 2026-05-28 GitHub接続先のEbiSenbei移管
 
 - Cotaska 本体の GitHub remote は `https://github.com/EbiSenbei/Agent_Cotaska.git` を正とする。

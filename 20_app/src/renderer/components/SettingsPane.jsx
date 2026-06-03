@@ -161,21 +161,29 @@ function SettingsPane() {
     setCheckingUpdate(true);
     setUpdateStatus("");
     setErrorMessage("");
+    let autoUpdateResult = null;
     try {
       if (window.cotaskaAPI?.updates?.check) {
         const result = await window.cotaskaAPI.updates.check();
         if (result) {
+          autoUpdateResult = result;
           setUpdaterStatus((current) => ({ ...current, ...result }));
-          setUpdateStatus(result.message || "更新確認が完了しました。");
-          return;
+          if (result.status && result.status !== "unsupported") {
+            setUpdateStatus(result.message || "更新確認が完了しました。");
+            return;
+          }
         }
       }
 
       const result = await window.cotaskaAPI?.app?.checkForUpdates?.();
       if (result?.downloadPageUrl) setUpdateUrl(result.downloadPageUrl);
-      setUpdateStatus(result?.ok
-        ? (result.message || "更新確認が完了しました。")
-        : (result?.error || "更新確認に失敗しました。"));
+      if (result?.ok && result?.hasUpdate && autoUpdateResult?.status === "unsupported") {
+        setUpdateStatus("新しいバージョンがあります。この実行形態では自動ダウンロードに対応していません。下の「ダウンロードページを開く」から更新してください。");
+      } else {
+        setUpdateStatus(result?.ok
+          ? (result.message || "更新確認が完了しました。")
+          : (result?.error || "更新確認に失敗しました。"));
+      }
     } finally {
       setCheckingUpdate(false);
     }

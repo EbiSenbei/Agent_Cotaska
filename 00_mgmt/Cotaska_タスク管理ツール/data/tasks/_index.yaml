@@ -3333,7 +3333,19 @@ tasks:
       - 日付
     due_date: '2026-06-02'
     updated_at: '2026-06-02T14:02:51.346Z'
+  - id: T-0309
+    title: BUG-20260603-01 設定 > アプリ情報 > 更新確認で fetch failed になる
+    list: 不具合対応
+    status: done
+    priority: normal
+    sort_order: 309
+    tags:
+      - BUG-20260603-01
+      - 更新確認
+      - ネットワーク
+    due_date: '2026-06-03'
+    updated_at: '2026-06-03T15:30:00+09:00'
 task_file_roots:
   - .
-next_task_id: 309
-last_updated: '2026-06-02T14:02:53.143Z'
+next_task_id: 310
+last_updated: '2026-06-03T15:30:00+09:00'

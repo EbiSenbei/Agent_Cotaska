@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Menu, dialog, globalShortcut, shell, clipboard } = require("electron");
+const { app, BrowserWindow, ipcMain, Menu, dialog, globalShortcut, shell, clipboard, net } = require("electron");
 const path = require("path");
 const crypto = require("crypto");
 const { spawn } = require("child_process");
@@ -244,6 +244,78 @@ function parseSha256Text(text) {
   return match ? match[0].toLowerCase() : null;
 }
 
+function getNetworkErrorCode(error) {
+  return String(error?.cause?.code || error?.code || "").toUpperCase();
+}
+
+function isLikelyFetchNetworkError(error) {
+  const code = getNetworkErrorCode(error);
+  const message = String(error?.message || "").toLowerCase();
+  if (message.includes("fetch failed")) return true;
+  return ["ECONNRESET", "ENOTFOUND", "ECONNREFUSED", "ETIMEDOUT", "EHOSTUNREACH", "CERT_"]
+    .some((token) => code.includes(token));
+}
+
+function buildUpdateCheckErrorMessage(error, url) {
+  const code = getNetworkErrorCode(error);
+  const causeMessage = String(error?.cause?.message || "").trim();
+  const fallback = String(error?.message || "更新確認に失敗しました。");
+
+  if (code === "ECONNRESET") {
+    return [
+      "更新確認先への TLS 接続が途中で切断されました (ECONNRESET)。",
+      "社内ネットワークのプロキシ/SSL 検査の影響の可能性があります。",
+      "ネットワーク管理者へ URL の許可状況をご確認ください。",
+      `URL: ${url}`,
+    ].join(" ");
+  }
+  if (code === "ENOTFOUND") {
+    return [
+      "更新確認先の名前解決に失敗しました (ENOTFOUND)。",
+      "DNS 制限またはネットワーク未接続の可能性があります。",
+      `URL: ${url}`,
+    ].join(" ");
+  }
+  if (code === "ETIMEDOUT") {
+    return [
+      "更新確認先への接続がタイムアウトしました (ETIMEDOUT)。",
+      "社内ネットワーク制限または一時的な通信不安定の可能性があります。",
+      `URL: ${url}`,
+    ].join(" ");
+  }
+  if (causeMessage) {
+    return `${fallback} (${causeMessage}) URL: ${url}`;
+  }
+  return `${fallback} URL: ${url}`;
+}
+
+function fetchTextWithElectronNet(url, acceptHeader) {
+  return new Promise((resolve, reject) => {
+    const request = net.request({
+      method: "GET",
+      url,
+      redirect: "follow",
+    });
+    request.setHeader("Accept", acceptHeader);
+    request.setHeader("User-Agent", "Cotaska");
+
+    request.on("response", (response) => {
+      const chunks = [];
+      response.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
+      response.on("end", () => {
+        resolve({
+          statusCode: Number(response.statusCode || 0),
+          body: Buffer.concat(chunks).toString("utf8"),
+        });
+      });
+      response.on("error", reject);
+    });
+
+    request.on("error", reject);
+    request.end();
+  });
+}
+
 function sha256File(filePath) {
   const hash = crypto.createHash("sha256");
   const data = fs.readFileSync(filePath);
@@ -252,58 +324,102 @@ function sha256File(filePath) {
 }
 
 async function fetchJson(url) {
-  const response = await fetch(url, {
-    headers: {
-      Accept: "application/json, application/vnd.github+json",
-      "User-Agent": "Cotaska",
-    },
-  });
-  if (!response.ok) {
-    throw new Error(`更新情報の取得に失敗しました。HTTP ${response.status}`);
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Accept: "application/json, application/vnd.github+json",
+        "User-Agent": "Cotaska",
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`更新情報の取得に失敗しました。HTTP ${response.status}`);
+    }
+    return response.json();
+  } catch (error) {
+    if (!isLikelyFetchNetworkError(error)) {
+      throw error;
+    }
+    logger.warn("fetchJson failed on fetch; fallback to electron.net", {
+      url,
+      code: getNetworkErrorCode(error) || null,
+      error: error?.message || String(error),
+      cause: error?.cause?.message || null,
+    });
+
+    const fallback = await fetchTextWithElectronNet(url, "application/json, application/vnd.github+json");
+    if (fallback.statusCode < 200 || fallback.statusCode >= 300) {
+      throw new Error(`更新情報の取得に失敗しました。HTTP ${fallback.statusCode}`);
+    }
+    return JSON.parse(fallback.body);
   }
-  return response.json();
 }
 
 async function fetchText(url) {
-  const response = await fetch(url, {
-    headers: {
-      Accept: "application/octet-stream, text/plain, */*",
-      "User-Agent": "Cotaska",
-    },
-  });
-  if (!response.ok) {
-    throw new Error(`チェックサムの取得に失敗しました。HTTP ${response.status}`);
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Accept: "application/octet-stream, text/plain, */*",
+        "User-Agent": "Cotaska",
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`チェックサムの取得に失敗しました。HTTP ${response.status}`);
+    }
+    return response.text();
+  } catch (error) {
+    if (!isLikelyFetchNetworkError(error)) {
+      throw error;
+    }
+    logger.warn("fetchText failed on fetch; fallback to electron.net", {
+      url,
+      code: getNetworkErrorCode(error) || null,
+      error: error?.message || String(error),
+    });
+    const fallback = await fetchTextWithElectronNet(url, "application/octet-stream, text/plain, */*");
+    if (fallback.statusCode < 200 || fallback.statusCode >= 300) {
+      throw new Error(`チェックサムの取得に失敗しました。HTTP ${fallback.statusCode}`);
+    }
+    return fallback.body;
   }
-  return response.text();
+}
+
+function downloadFileWithElectronNet(url, destinationPath, expectedSize, onProgress) {
+  return new Promise((resolve, reject) => {
+    const request = net.request({ method: "GET", url, redirect: "follow" });
+    request.setHeader("Accept", "application/octet-stream");
+    request.setHeader("User-Agent", "Cotaska");
+    request.on("response", (response) => {
+      const statusCode = Number(response.statusCode || 0);
+      if (statusCode < 200 || statusCode >= 300) {
+        reject(new Error(`更新ファイルのダウンロードに失敗しました。HTTP ${statusCode}`));
+        return;
+      }
+      const total = Number(response.headers["content-length"] || expectedSize || 0);
+      const chunks = [];
+      let transferred = 0;
+      response.on("data", (chunk) => {
+        const buf = Buffer.from(chunk);
+        chunks.push(buf);
+        transferred += buf.length;
+        if (onProgress) onProgress({ transferred, total });
+      });
+      response.on("end", () => {
+        try {
+          fs.writeFileSync(destinationPath, Buffer.concat(chunks));
+          resolve({ transferred, total });
+        } catch (e) {
+          reject(e);
+        }
+      });
+      response.on("error", reject);
+    });
+    request.on("error", reject);
+    request.end();
+  });
 }
 
 async function downloadFile(url, destinationPath, expectedSize = null) {
-  const response = await fetch(url, {
-    headers: {
-      Accept: "application/octet-stream",
-      "User-Agent": "Cotaska",
-    },
-  });
-  if (!response.ok) {
-    throw new Error(`更新ファイルのダウンロードに失敗しました。HTTP ${response.status}`);
-  }
-
-  const total = Number(response.headers.get("content-length") || expectedSize || 0);
-  const chunks = [];
-  let transferred = 0;
-  const reader = response.body?.getReader?.();
-  if (!reader) {
-    const buffer = Buffer.from(await response.arrayBuffer());
-    fs.writeFileSync(destinationPath, buffer);
-    return { transferred: buffer.length, total: buffer.length };
-  }
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    const chunk = Buffer.from(value);
-    chunks.push(chunk);
-    transferred += chunk.length;
+  const onProgress = ({ transferred, total }) => {
     publishUpdaterState({
       status: "downloading",
       message: `更新ファイルをダウンロードしています... ${total ? Math.round((transferred / total) * 100) : ""}%`,
@@ -313,9 +429,50 @@ async function downloadFile(url, destinationPath, expectedSize = null) {
         total,
       },
     });
+  };
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Accept: "application/octet-stream",
+        "User-Agent": "Cotaska",
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`更新ファイルのダウンロードに失敗しました。HTTP ${response.status}`);
+    }
+
+    const total = Number(response.headers.get("content-length") || expectedSize || 0);
+    const chunks = [];
+    let transferred = 0;
+    const reader = response.body?.getReader?.();
+    if (!reader) {
+      const buffer = Buffer.from(await response.arrayBuffer());
+      fs.writeFileSync(destinationPath, buffer);
+      return { transferred: buffer.length, total: buffer.length };
+    }
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = Buffer.from(value);
+      chunks.push(chunk);
+      transferred += chunk.length;
+      onProgress({ transferred, total });
+    }
+    fs.writeFileSync(destinationPath, Buffer.concat(chunks));
+    return { transferred, total };
+  } catch (error) {
+    if (!isLikelyFetchNetworkError(error)) {
+      throw error;
+    }
+    logger.warn("downloadFile failed on fetch; fallback to electron.net", {
+      url,
+      code: getNetworkErrorCode(error) || null,
+      error: error?.message || String(error),
+    });
+    return downloadFileWithElectronNet(url, destinationPath, expectedSize, onProgress);
   }
-  fs.writeFileSync(destinationPath, Buffer.concat(chunks));
-  return { transferred, total };
 }
 
 function verifyPortableZip(zipPath) {
@@ -818,8 +975,17 @@ async function checkForUpdates() {
       message: hasUpdate ? "新しいバージョンがあります。" : "現在のバージョンは最新です。",
     };
   } catch (err) {
-    logger.warn("app:checkForUpdates failed", { error: err.message });
-    return { ok: false, currentVersion: pkg.version, error: err.message || "更新確認に失敗しました。" };
+    logger.warn("app:checkForUpdates failed", {
+      url: latestVersionUrl,
+      error: err?.message || String(err),
+      code: getNetworkErrorCode(err) || null,
+      cause: err?.cause?.message || null,
+    });
+    return {
+      ok: false,
+      currentVersion: pkg.version,
+      error: buildUpdateCheckErrorMessage(err, latestVersionUrl),
+    };
   }
 }
 
