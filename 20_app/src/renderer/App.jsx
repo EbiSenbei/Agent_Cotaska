@@ -109,18 +109,6 @@ function App() {
     };
   }, []);
 
-  useEffect(() => {
-    const handleTasksChanged = (data) => {
-      console.log('[App] tasks:changed event received', data);
-      loadTasks();
-    };
-    window.cotaskaAPI?.onTasksChanged?.(handleTasksChanged);
-    return () => {
-      // アンマウント時にリスナーを削除
-      window.cotaskaAPI?.removeTasksChangedListener?.();
-    };
-  }, []);
-
   // CHG-032: ペイン幅ドラッグリサイズ
   useEffect(() => {
     const onMove = (e) => {
@@ -150,25 +138,31 @@ function App() {
     if (!selectedTask) setDetailPaneExpanded(false);
   }, [selectedTask]);
 
-  const loadTasks = useCallback(async () => {
-    setLoading(true);
+  const loadTasks = useCallback(async (options = {}) => {
+    const shouldShowLoading = Boolean(options.showLoading);
+    const providedRows = Array.isArray(options.rows) ? options.rows : null;
+    if (shouldShowLoading) setLoading(true);
     setStartupError(null);
     let loaded = false;
     try {
-      setStartupProgress({
-        percent: 90,
-        label: "タスク一覧を取得しています...",
-        detail: "初回表示用のタスクデータを受け取っています。",
-      });
+      if (shouldShowLoading) {
+        setStartupProgress({
+          percent: 90,
+          label: "タスク一覧を取得しています...",
+          detail: "初回表示用のタスクデータを受け取っています。",
+        });
+      }
       const settingsResult = await window.cotaskaAPI?.settings?.get?.();
       const initialCompletedLimit = Number(settingsResult?.settings?.taskLoading?.completedInitialLimit);
       if (Number.isFinite(initialCompletedLimit)) setCompletedLimit(initialCompletedLimit);
-      let rows   = await window.cotaskaAPI?.tasks?.getAll() ?? [];
-      setStartupProgress({
-        percent: 96,
-        label: "画面を組み立てています...",
-        detail: "タスクの階層と件数を計算しています。",
-      });
+      let rows = providedRows ?? await window.cotaskaAPI?.tasks?.getAll() ?? [];
+      if (shouldShowLoading) {
+        setStartupProgress({
+          percent: 96,
+          label: "画面を組み立てています...",
+          detail: "タスクの階層と件数を計算しています。",
+        });
+      }
       let mapped = enrichTaskHierarchy(rows.map(mapFileTask));
 
       // T-015-03: 親が未着の場合だけ、子タスク状態から進捗を自動開始する。
@@ -220,19 +214,33 @@ function App() {
         prev ? (mapped.find(t => t.id === prev.id) ?? null) : null
       );
       loaded = true;
-      setStartupProgress({
-        percent: 100,
-        label: "準備ができました",
-        detail: "Cotaska を表示します。",
-      });
+      if (shouldShowLoading) {
+        setStartupProgress({
+          percent: 100,
+          label: "準備ができました",
+          detail: "Cotaska を表示します。",
+        });
+      }
     } catch (err) {
       console.error("[loadTasks]", err);
       setStartupError("タスクの読み込みに失敗しました。アプリを再起動してください。");
     } finally {
-      setLoading(false);
+      if (shouldShowLoading) setLoading(false);
       if (loaded) setInitialLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    const handleTasksChanged = (data) => {
+      console.log('[App] tasks:changed event received', data);
+      loadTasks({ rows: data?.tasks });
+    };
+    window.cotaskaAPI?.onTasksChanged?.(handleTasksChanged);
+    return () => {
+      // アンマウント時にリスナーを削除
+      window.cotaskaAPI?.removeTasksChangedListener?.();
+    };
+  }, [loadTasks]);
 
   const loadTags = useCallback(async () => {
     const rows = await window.cotaskaAPI?.tags?.getAll() ?? [];
@@ -242,7 +250,7 @@ function App() {
   useEffect(() => {
     // IPC 疎通確認
     window.cotaskaAPI?.ping().then(res => console.log("[IPC] ping →", res));
-    loadTasks(); // ← 他の useEffect に移動しました
+    loadTasks({ showLoading: true }); // ← 他の useEffect に移動しました
     // リスト一覧を起動時に取得
     (async () => {
       const rows = await window.cotaskaAPI?.lists?.getAll() ?? [];
@@ -700,7 +708,7 @@ function App() {
     }
   }
 
-  const useProgressSections = !isSearchMode && activeNav !== "ゴミ箱";
+  const useProgressSections = !isSearchMode && activeNav !== "ゴミ箱" && activeNav !== "完了";
 
   if (useProgressSections) {
     const isDateView = DATE_VIEWS_WITH_ON_HOLD_SECTION.has(activeNav);

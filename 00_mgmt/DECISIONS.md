@@ -1,5 +1,10 @@
 # DECISIONS
 
+## 2026-06-25 BUG-20260625-01 タスク更新時のちらつき対策
+
+- タスク更新時の再読込では初回ロード用の `loading` 表示を使わず、既存タスクリストを保持したまま最新データへ差し替える。
+- watcher の `tasks:changed` が最新 `tasks` payload を持つ場合は renderer 側でそれを直接反映し、追加の `tasks:getAll` 呼び出しを避ける。
+
 ## 2026-06-03 BUG-20260603-01 更新確認 fetch failed 対応方針
 
 - 更新確認で Node `fetch` が `ECONNRESET` となる環境差（Windows通信スタックでは成功）を確認したため、`checkForUpdates` の更新メタデータ取得は Node `fetch` 失敗時に `electron.net` へフォールバックする。

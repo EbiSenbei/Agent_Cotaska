@@ -3249,6 +3249,16 @@ tasks:
       - 初回公開
     due_date: null
     updated_at: '2026-05-29T22:05:11.675+09:00'
+  - id: T-0310
+    title: 不具合：タスク更新時に画面がちらちらする
+    list: 不具合修正
+    status: done
+    priority: normal
+    sort_order: 300
+    tags:
+      - BUG-20260625-01
+    due_date: '2026-06-25'
+    updated_at: '2026-06-25T22:03:18+09:00'
   - id: T-0301
     title: CHG-085-01 設計：詳細メタ情報の期限項目追加を画面モックへ反映
     list: 仕様変更
@@ -3261,6 +3271,16 @@ tasks:
       - 画面モック
     due_date: '2026-06-02'
     updated_at: '2026-06-02T14:14:30+09:00'
+  - id: T-0311
+    title: BUG-20260625-02 不具合：タスクが100件以上あると古いファイルが読み込めない
+    list: 不具合修正
+    status: done
+    priority: normal
+    sort_order: 301
+    tags:
+      - BUG-20260625-02
+    due_date: '2026-06-25'
+    updated_at: '2026-06-25T22:05:36+09:00'
   - id: T-0302
     title: CHG-085-02 ユーザー確認：期限項目追加の画面モック認識合わせ
     list: 仕様変更
@@ -3347,5 +3367,5 @@ tasks:
     updated_at: '2026-06-03T15:30:00+09:00'
 task_file_roots:
   - .
-next_task_id: 310
-last_updated: '2026-06-03T15:30:00+09:00'
+next_task_id: 312
+last_updated: '2026-06-25T13:05:36.000Z'
