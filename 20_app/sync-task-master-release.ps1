@@ -1,4 +1,4 @@
-# sync-task-master-release.ps1
+﻿# sync-task-master-release.ps1
 # release\Cotaska-Portable に作成された最新リリース成果物を、
 # 00_mgmt 配下のタスクマスター用配布フォルダへ反映する同期スクリプト。
 # 既存の配布フォルダはタイムスタンプ付きでバックアップしてから置き換える。
@@ -155,9 +155,9 @@ function Remove-PathWithLockHint {
             }
 
             if ($lockers.Count -gt 0) {
-                Write-Host "[LOCK] app.asar is still in use:" -ForegroundColor Yellow
+                Write-Host "[ロック] app.asar はまだ使用中です:" -ForegroundColor Yellow
                 $lockers | Format-Table -AutoSize | Out-String | Write-Host
-                throw "Failed to replace _app because app.asar is locked. Close the listed process(es) and retry."
+                throw "_app を置き換えられませんでした。app.asar が使用中です。表示されたプロセスを閉じてから再実行してください。"
             }
 
             throw
@@ -177,7 +177,7 @@ function Compress-BackupAndRemoveFolder {
     $backupDirFullPath = [System.IO.Path]::GetFullPath($resolvedBackupDir)
 
     if (-not $backupRootFullPath.StartsWith($backupDirFullPath + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) {
-        throw "Refusing to remove backup folder outside backup directory: $backupRootFullPath"
+        throw "バックアップディレクトリ外のフォルダ削除は拒否しました: $backupRootFullPath"
     }
 
     $backupZip = "$backupRootFullPath.zip"
@@ -188,7 +188,7 @@ function Compress-BackupAndRemoveFolder {
     Compress-Archive -LiteralPath $backupRootFullPath -DestinationPath $backupZip -CompressionLevel Optimal -Force
 
     if (-not (Test-Path -LiteralPath $backupZip)) {
-        throw "Backup zip was not created: $backupZip"
+        throw "バックアップZIPが作成されていません: $backupZip"
     }
 
     Remove-Item -LiteralPath $backupRootFullPath -Recurse -Force
@@ -201,7 +201,7 @@ function Assert-PathExists {
         [Parameter(Mandatory = $true)][string]$Label
     )
     if (-not (Test-Path -LiteralPath $Path)) {
-        throw "$Label not found: $Path"
+        throw "$Label が見つかりません: $Path"
     }
 }
 
@@ -217,7 +217,7 @@ $taskMasterRootItem = Get-ChildItem -LiteralPath (Join-Path $repoRoot "00_mgmt")
     } |
     Select-Object -First 1
 if ($null -eq $taskMasterRootItem) {
-    throw "Task-master root not found under: $(Join-Path $repoRoot "00_mgmt")"
+    throw "タスクマスターのルートフォルダが見つかりません: $(Join-Path $repoRoot '00_mgmt')"
 }
 $taskMasterRoot = $taskMasterRootItem.FullName
 
@@ -228,7 +228,7 @@ $srcTools = Join-Path $releaseRoot "tools"
 $srcAiAgentRuleItem = Get-ChildItem -LiteralPath $releaseRoot -Filter "Cotaska_AI*.md" -File |
     Select-Object -First 1
 if ($null -eq $srcAiAgentRuleItem) {
-    throw "Release AI agent rule not found: $releaseRoot\Cotaska_AI*.md"
+    throw "リリース側のAIエージェント運用ルールが見つかりません: $releaseRoot\Cotaska_AI*.md"
 }
 $aiAgentRuleFileName = $srcAiAgentRuleItem.Name
 $srcAiAgentRule = $srcAiAgentRuleItem.FullName
@@ -246,43 +246,43 @@ $backupRoot = Join-Path $backupDir "Cotaska-0.1.0-dist_$timestamp"
 
 if ($StopRunningCotaska) {
     # 実行中の Cotaska 関連プロセスがあると _app\resources\app.asar を置換できないため停止する。
-    Write-Host "[1/6] Stopping related processes..."
+    Write-Host "[1/6] 関連プロセスを停止しています..."
     Get-Process -Name "Cotaska", "CotaskaCore", "electron", "crashpad_handler" -ErrorAction SilentlyContinue |
         Stop-Process -Force -ErrorAction SilentlyContinue
     Start-Sleep -Milliseconds 500
 }
 
-Write-Host "[2/6] Validating source/target paths..."
+Write-Host "[2/6] コピー元/コピー先のパスを検証しています..."
 # コピー元とコピー先に必要なファイル・フォルダが揃っていることを先に検証する。
-Assert-PathExists -Path $releaseRoot -Label "Release root"
-Assert-PathExists -Path $taskMasterRoot -Label "Task-master root"
-Assert-PathExists -Path $srcExe -Label "Release Cotaska.exe"
-Assert-PathExists -Path $srcApp -Label "Release _app folder"
-Assert-PathExists -Path (Join-Path $srcTools "validate-tasks.ps1") -Label "Release validate-tasks.ps1"
-Assert-PathExists -Path (Join-Path $srcTools "CotaskaUpdater.exe") -Label "Release CotaskaUpdater.exe"
-Assert-PathExists -Path $srcAiAgentRule -Label "Release AI agent rule"
+Assert-PathExists -Path $releaseRoot -Label "リリースルート"
+Assert-PathExists -Path $taskMasterRoot -Label "タスクマスタールート"
+Assert-PathExists -Path $srcExe -Label "リリース版 Cotaska.exe"
+Assert-PathExists -Path $srcApp -Label "リリース版 _app フォルダ"
+Assert-PathExists -Path (Join-Path $srcTools "validate-tasks.ps1") -Label "リリース版 validate-tasks.ps1"
+Assert-PathExists -Path (Join-Path $srcTools "CotaskaUpdater.exe") -Label "リリース版 CotaskaUpdater.exe"
+Assert-PathExists -Path $srcAiAgentRule -Label "リリース版 AIエージェント運用ルール"
 
-Write-Host "[3/6] Creating backup: $backupRoot"
+Write-Host "[3/6] バックアップを作成しています: $backupRoot"
 # 失敗時に戻せるよう、現在のタスクマスター配布フォルダを丸ごとバックアップする。
 Copy-Item -LiteralPath $taskMasterRoot -Destination $backupRoot -Recurse -Force
 
-Write-Host "[4/6] Compressing backup and removing backup folder"
+Write-Host "[4/6] バックアップをZIP化し、一時フォルダを削除しています..."
 # 退避フォルダは zip にまとめ、圧縮成功後はフォルダを削除して backup 配下を軽く保つ。
 $backupZip = Compress-BackupAndRemoveFolder -BackupRoot $backupRoot -BackupDir $backupDir
 
-Write-Host "[5/6] Replacing Cotaska.exe"
+Write-Host "[5/6] Cotaska.exe とAIエージェント運用ルールを置き換えています..."
 # 実行ファイルとAIエージェント運用ルールを最新リリースから上書きする。
 Copy-Item -LiteralPath $srcExe -Destination $dstExe -Force
 Copy-Item -LiteralPath $srcAiAgentRule -Destination $dstAiAgentRule -Force
 
-Write-Host "[6/6] Replacing _app folder"
+Write-Host "[6/6] _app フォルダを置き換えています..."
 # Electron アプリ本体はフォルダ単位で差し替える。
 if (Test-Path -LiteralPath $dstApp) {
     Remove-PathWithLockHint -Path $dstApp
 }
 Copy-Item -LiteralPath $srcApp -Destination $dstApp -Recurse -Force
 
-Write-Host "      Syncing tools folder"
+Write-Host "      tools フォルダを同期しています..."
 # 検証スクリプトなどの補助ツールもリリース成果物に合わせて同期する。
 if (Test-Path -LiteralPath $dstTools) {
     Remove-Item -LiteralPath $dstTools -Recurse -Force
@@ -290,6 +290,6 @@ if (Test-Path -LiteralPath $dstTools) {
 Copy-Item -LiteralPath $srcTools -Destination $dstTools -Recurse -Force
 
 Write-Host ""
-Write-Host "Done"
-Write-Host "Backup: $backupZip"
-Write-Host "Updated: $taskMasterRoot"
+Write-Host "完了しました"
+Write-Host "バックアップ: $backupZip"
+Write-Host "更新先: $taskMasterRoot"

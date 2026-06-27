@@ -616,7 +616,7 @@ function App() {
 
   // T-007-03: 完了ビュー
   useEffect(() => {
-    if (activeNav !== "完了") return;
+    if (activeNav !== "完了" && activeNav !== "すべて") return;
     (async () => {
       const settingsResult = await window.cotaskaAPI?.settings?.get?.();
       const initialCompletedLimit = Number(settingsResult?.settings?.taskLoading?.completedInitialLimit);
@@ -625,7 +625,7 @@ function App() {
   }, [activeNav]);
 
   useEffect(() => {
-    if (activeNav !== "完了") return;
+    if (activeNav !== "完了" && activeNav !== "すべて") return;
     (async () => {
       const result = await window.cotaskaAPI?.tasks?.getCompletedPage?.({ limit: completedLimit });
       const rows = Array.isArray(result) ? result : (result?.tasks || []);
@@ -754,7 +754,7 @@ function App() {
   if (!isSearchMode && activeNav !== "ゴミ箱" && activeNav !== "完了" && !loading) {
     const today = localDateString();
     if (activeNav === "すべて") {
-      completedSectionTasks = tasks.filter((t) => t.status === "done");
+      completedSectionTasks = completedTasks;
     } else if (activeNav === "仕掛" || activeNav === "保留") {
       completedSectionTasks = [];
     } else if (activeNav === "今日") {
@@ -889,6 +889,7 @@ function App() {
           isTrashed={activeNav === "ゴミ箱"}
           isCompleted={activeNav === "完了"}
           completedHasMore={completedHasMore}
+          completedSectionHasMore={activeNav === "すべて" && completedHasMore}
           onLoadMoreCompleted={handleLoadMoreCompleted}
           isSearchMode={isSearchMode}
           searchKeyword={searchKeyword}

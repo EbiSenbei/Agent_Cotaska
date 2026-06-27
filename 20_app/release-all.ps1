@@ -11,7 +11,7 @@
 #          .\release-all.ps1 -Version "0.2.0"
 
 param(
-    [string]$Version = "0.2.7"
+    [string]$Version = "0.2.8"
 )
 
 $ErrorActionPreference = "Stop"
@@ -63,101 +63,101 @@ function Remove-PathWithRetry {
 
 Write-Host ""
 Write-Host "=======================================" -ForegroundColor Green
-Write-Host " Cotaska Release All  v$Version" -ForegroundColor Green
+Write-Host " Cotaska リリース一括作成  v$Version" -ForegroundColor Green
 Write-Host "=======================================" -ForegroundColor Green
 
 if (Test-Path -LiteralPath $legacyDistRoot) {
-    Write-Host "Removing legacy portable folder: $legacyDistRoot" -ForegroundColor Yellow
+    Write-Host "旧ポータブルフォルダを削除しています: $legacyDistRoot" -ForegroundColor Yellow
     Remove-PathWithRetry -Path $legacyDistRoot
 }
 if (Test-Path -LiteralPath $legacyDistZip) {
-    Write-Host "Removing legacy portable zip: $legacyDistZip" -ForegroundColor Yellow
+    Write-Host "旧ポータブルZIPを削除しています: $legacyDistZip" -ForegroundColor Yellow
     Remove-Item -LiteralPath $legacyDistZip -Force
 }
 
 # -------------------------------------------------------
 # ステップ 1: レンダラービルド + Electron パッケージング
 # -------------------------------------------------------
-Write-Host "`n[Step 1] npm run dist:dir ..." -ForegroundColor Cyan
+Write-Host "`n[ステップ 1] npm run dist:dir を実行しています..." -ForegroundColor Cyan
 Set-Location $scriptDir
 npm run dist:dir
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "[FAILED] npm run dist:dir" -ForegroundColor Red
+    Write-Host "[失敗] npm run dist:dir" -ForegroundColor Red
     exit 1
 }
 $winUnpackedCore = Join-Path $scriptDir "release\win-unpacked\CotaskaCore.exe"
 if (-not (Test-Path $winUnpackedCore)) {
-    Write-Host "[FAILED] win-unpacked\CotaskaCore.exe not found" -ForegroundColor Red
+    Write-Host "[失敗] win-unpacked\CotaskaCore.exe が見つかりません" -ForegroundColor Red
     exit 1
 }
-Write-Host "  OK: Electron パッケージング完了" -ForegroundColor Green
+Write-Host "  完了: Electron パッケージング完了" -ForegroundColor Green
 
 # -------------------------------------------------------
 # ステップ 2: C# ランチャービルド
 # -------------------------------------------------------
-Write-Host "`n[Step 2] Building C# launcher ..." -ForegroundColor Cyan
+Write-Host "`n[ステップ 2] C# ランチャーをビルドしています..." -ForegroundColor Cyan
 $buildPs1 = Join-Path $launcherDir "build.ps1"
 if (-not (Test-Path $buildPs1)) {
-    Write-Host "  [WARN] $buildPs1 not found. Skipping launcher build." -ForegroundColor Yellow
+    Write-Host "  [警告] $buildPs1 が見つかりません。ランチャービルドをスキップします。" -ForegroundColor Yellow
 } else {
     & powershell -ExecutionPolicy Bypass -File $buildPs1
     $launcherBuildExitCode = $LASTEXITCODE
     if ($launcherBuildExitCode -ne 0) {
-        Write-Host "  [WARN] Launcher build failed. Using existing launcher if available." -ForegroundColor Yellow
+        Write-Host "  [警告] ランチャービルドに失敗しました。既存ランチャーがあれば使用します。" -ForegroundColor Yellow
         $global:LASTEXITCODE = 0
     }
     else {
-        Write-Host "  OK: ランチャービルド完了" -ForegroundColor Green
+        Write-Host "  完了: ランチャービルド完了" -ForegroundColor Green
     }
 }
 
 # -------------------------------------------------------
 # ステップ 2.5: updater ビルド
 # -------------------------------------------------------
-Write-Host "`n[Step 2.5] Building updater ..." -ForegroundColor Cyan
+Write-Host "`n[ステップ 2.5] アップデーターをビルドしています..." -ForegroundColor Cyan
 $updaterBuildPs1 = Join-Path $updaterDir "build.ps1"
 if (-not (Test-Path $updaterBuildPs1)) {
-    Write-Host "  [WARN] $updaterBuildPs1 not found. Skipping updater build." -ForegroundColor Yellow
+    Write-Host "  [警告] $updaterBuildPs1 が見つかりません。アップデータービルドをスキップします。" -ForegroundColor Yellow
 } else {
     & powershell -ExecutionPolicy Bypass -File $updaterBuildPs1
     $updaterBuildExitCode = $LASTEXITCODE
     if ($updaterBuildExitCode -ne 0) {
-        Write-Host "  [WARN] Updater build failed. PowerShell updater fallback remains available." -ForegroundColor Yellow
+        Write-Host "  [警告] アップデータービルドに失敗しました。PowerShell版アップデーターは引き続き利用できます。" -ForegroundColor Yellow
         $global:LASTEXITCODE = 0
     }
     elseif (Test-Path -LiteralPath $sourceUpdaterExe) {
-        Write-Host "  OK: updater build complete" -ForegroundColor Green
+        Write-Host "  完了: アップデータービルド完了" -ForegroundColor Green
     }
     else {
-        Write-Host "  [WARN] Updater was not built. PowerShell updater fallback remains available." -ForegroundColor Yellow
+        Write-Host "  [警告] アップデーターが生成されませんでした。PowerShell版アップデーターは引き続き利用できます。" -ForegroundColor Yellow
     }
 }
 
 # -------------------------------------------------------
 # ステップ 3: 配布フォルダの再構成
 # -------------------------------------------------------
-Write-Host "`n[Step 3] Organizing release folder ..." -ForegroundColor Cyan
+Write-Host "`n[ステップ 3] リリースフォルダを整理しています..." -ForegroundColor Cyan
 Set-Location $scriptDir
 & ".\organize-release.ps1" -Version $Version
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "[FAILED] organize-release.ps1 failed" -ForegroundColor Red
+    Write-Host "[失敗] organize-release.ps1 の実行に失敗しました" -ForegroundColor Red
     exit 1
 }
-Write-Host "  OK: リリースフォルダ整理完了" -ForegroundColor Green
+Write-Host "  完了: リリースフォルダ整理完了" -ForegroundColor Green
 
 if (Test-Path $sourceDataDir) {
-    Write-Host "  Syncing data/ to dist root ..." -ForegroundColor Cyan
+    Write-Host "  data/ を配布ルートへ同期しています..." -ForegroundColor Cyan
     if (Test-Path $distDataDir) {
         Remove-Item $distDataDir -Recurse -Force
     }
     Copy-Item $sourceDataDir -Destination $distDataDir -Recurse -Force
-    Write-Host "  OK: data/ synced" -ForegroundColor Green
+    Write-Host "  完了: data/ 同期完了" -ForegroundColor Green
 }
 else {
-    Write-Host "  [WARN] Source data folder not found: $sourceDataDir" -ForegroundColor Yellow
+    Write-Host "  [警告] 元の data フォルダが見つかりません: $sourceDataDir" -ForegroundColor Yellow
 }
 
-Write-Host "  Syncing tools/ to dist root ..." -ForegroundColor Cyan
+Write-Host "  tools/ を配布ルートへ同期しています..." -ForegroundColor Cyan
 if (Test-Path $distToolsDir) {
     Remove-Item $distToolsDir -Recurse -Force
 }
@@ -166,53 +166,53 @@ $toolScripts = Get-ChildItem -LiteralPath $sourceToolsDir -File -ErrorAction Sil
     Where-Object { $_.Extension -in @(".ps1", ".cmd", ".bat") -or $_.Name -eq "CotaskaUpdater.exe" }
 if ($toolScripts.Count -gt 0) {
     $toolScripts | Copy-Item -Destination $distToolsDir -Force
-    Write-Host "  OK: tools/ synced ($($toolScripts.Count) script(s))" -ForegroundColor Green
+    Write-Host "  完了: tools/ 同期完了（$($toolScripts.Count) 件）" -ForegroundColor Green
 }
 else {
-    Write-Host "  [WARN] No tool scripts found: $sourceToolsDir" -ForegroundColor Yellow
+    Write-Host "  [警告] ツールスクリプトが見つかりません: $sourceToolsDir" -ForegroundColor Yellow
 }
 
 # -------------------------------------------------------
 # ステップ 4: ランチャー EXE を配布ルートへコピー
 # -------------------------------------------------------
-Write-Host "`n[Step 4] Copying launcher to dist root ..." -ForegroundColor Cyan
+Write-Host "`n[ステップ 4] ランチャーを配布ルートへコピーしています..." -ForegroundColor Cyan
 $launcherExe  = Join-Path $launcherDir "Cotaska.exe"
 $distLauncher = Join-Path $distRoot    "Cotaska.exe"
 if (Test-Path $launcherExe) {
     Copy-Item $launcherExe -Destination $distLauncher -Force
     $sizeKB = [math]::Round((Get-Item $distLauncher).Length / 1KB, 1)
-    Write-Host "  OK: Launcher copied -> $distLauncher ($sizeKB KB)" -ForegroundColor Green
+    Write-Host "  完了: ランチャーをコピーしました -> $distLauncher ($sizeKB KB)" -ForegroundColor Green
 } else {
-    Write-Host "  [WARN] $launcherExe not found. Using existing launcher." -ForegroundColor Yellow
+    Write-Host "  [警告] $launcherExe が見つかりません。既存ランチャーを使用します。" -ForegroundColor Yellow
 }
 
 if (-not (Test-Path -LiteralPath $sourceAiAgentRule)) {
-    Write-Host "  [FAILED] AI agent rule not found: $sourceAiAgentRule" -ForegroundColor Red
+    Write-Host "  [失敗] AIエージェント運用ルールが見つかりません: $sourceAiAgentRule" -ForegroundColor Red
     exit 1
 }
 Copy-Item -LiteralPath $sourceAiAgentRule -Destination $distAiAgentRule -Force
-Write-Host "  OK: AI agent rule copied -> $distAiAgentRule" -ForegroundColor Green
+Write-Host "  完了: AIエージェント運用ルールをコピーしました -> $distAiAgentRule" -ForegroundColor Green
 
 if (-not (Test-Path -LiteralPath $sourceReadme)) {
-    Write-Host "  [FAILED] README not found: $sourceReadme" -ForegroundColor Red
+    Write-Host "  [失敗] README が見つかりません: $sourceReadme" -ForegroundColor Red
     exit 1
 }
 Copy-Item -LiteralPath $sourceReadme -Destination $distReadme -Force
-Write-Host "  OK: README copied -> $distReadme" -ForegroundColor Green
+Write-Host "  完了: README をコピーしました -> $distReadme" -ForegroundColor Green
 
 if ((Test-Path $distCoreExe) -and (Test-Path $launcherIcon)) {
-    Write-Host "  Updating CotaskaCore.exe icon and metadata ..." -ForegroundColor Cyan
+    Write-Host "  CotaskaCore.exe のアイコンとメタデータを更新しています..." -ForegroundColor Cyan
     $setIconPs1 = Join-Path $launcherDir "Set-ExeIcon.ps1"
     & powershell -ExecutionPolicy Bypass -File $setIconPs1 -ExePath $distCoreExe -IconPath $launcherIcon -Version $Version
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "[FAILED] CotaskaCore.exe icon/metadata update failed" -ForegroundColor Red
+        Write-Host "[失敗] CotaskaCore.exe のアイコン/メタデータ更新に失敗しました" -ForegroundColor Red
         exit 1
     }
-    Write-Host "  OK: CotaskaCore.exe icon and metadata updated" -ForegroundColor Green
+    Write-Host "  完了: CotaskaCore.exe のアイコンとメタデータを更新しました" -ForegroundColor Green
 }
 
 if ((Test-Path $distLauncher) -and (Test-Path $launcherIcon)) {
-    Write-Host "  Updating Cotaska.exe icon and metadata ..." -ForegroundColor Cyan
+    Write-Host "  Cotaska.exe のアイコンとメタデータを更新しています..." -ForegroundColor Cyan
     $setIconPs1 = Join-Path $launcherDir "Set-ExeIcon.ps1"
     & powershell -ExecutionPolicy Bypass -File $setIconPs1 `
         -ExePath $distLauncher `
@@ -223,10 +223,10 @@ if ((Test-Path $distLauncher) -and (Test-Path $launcherIcon)) {
         -InternalFilename "Cotaska" `
         -Version $Version
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "[FAILED] Cotaska.exe icon/metadata update failed" -ForegroundColor Red
+        Write-Host "[失敗] Cotaska.exe のアイコン/メタデータ更新に失敗しました" -ForegroundColor Red
         exit 1
     }
-    Write-Host "  OK: Cotaska.exe icon and metadata updated" -ForegroundColor Green
+    Write-Host "  完了: Cotaska.exe のアイコンとメタデータを更新しました" -ForegroundColor Green
 }
 
 function Get-AssociatedIconHash {
@@ -291,13 +291,13 @@ function Test-ExeVersionInfo {
 
 function Restore-CoreExeIfMissing {
     if ((-not (Test-Path -LiteralPath $distCoreExe)) -and (Test-Path -LiteralPath $winUnpackedCore)) {
-        Write-Host "  Restoring CotaskaCore.exe to dist _app ..." -ForegroundColor Yellow
+        Write-Host "  CotaskaCore.exe を配布用 _app へ復元しています..." -ForegroundColor Yellow
         Copy-Item -LiteralPath $winUnpackedCore -Destination $distCoreExe -Force
         if (Test-Path $launcherIcon) {
             $setIconPs1 = Join-Path $launcherDir "Set-ExeIcon.ps1"
             & powershell -ExecutionPolicy Bypass -File $setIconPs1 -ExePath $distCoreExe -IconPath $launcherIcon -Version $Version
             if ($LASTEXITCODE -ne 0) {
-                Write-Host "[FAILED] Restored CotaskaCore.exe metadata update failed" -ForegroundColor Red
+                Write-Host "[失敗] 復元した CotaskaCore.exe のメタデータ更新に失敗しました" -ForegroundColor Red
                 exit 1
             }
         }
@@ -307,11 +307,11 @@ function Restore-CoreExeIfMissing {
 # -------------------------------------------------------
 # ステップ 5: 出荷前検証
 # -------------------------------------------------------
-Write-Host "`n[Step 5] Pre-ship verification ..." -ForegroundColor Cyan
+Write-Host "`n[ステップ 5] 出荷前検証を実行しています..." -ForegroundColor Cyan
 
 $checks = @(
-    @{ Path = $distRoot;                                       Label = "dist root" },
-    @{ Path = (Join-Path $distRoot "Cotaska.exe");             Label = "Cotaska.exe (launcher)" },
+    @{ Path = $distRoot;                                       Label = "配布ルート" },
+    @{ Path = (Join-Path $distRoot "Cotaska.exe");             Label = "Cotaska.exe（ランチャー）" },
     @{ Path = (Join-Path $distRoot "_app");                    Label = "_app/" },
     @{ Path = (Join-Path $distRoot "_app\resources\app.asar"); Label = "_app/resources/app.asar" },
     @{ Path = (Join-Path $distRoot "data");                    Label = "data/" },
@@ -326,9 +326,9 @@ $checks = @(
 $allOk = $true
 foreach ($c in $checks) {
     if (Test-Path $c.Path) {
-        Write-Host ("  OK  " + $c.Label) -ForegroundColor Green
+        Write-Host ("  正常  " + $c.Label) -ForegroundColor Green
     } else {
-        Write-Host ("  NG  " + $c.Label) -ForegroundColor Red
+        Write-Host ("  異常  " + $c.Label) -ForegroundColor Red
         $allOk = $false
     }
 }
@@ -339,41 +339,41 @@ if ((Test-Path $launcherIcon) -and (Test-Path (Join-Path $distRoot "Cotaska.exe"
     $coreIconHash = Get-AssociatedIconHash -Path $distCoreExe
 
     if ($launcherIconHash -eq $expectedIconHash) {
-        Write-Host "  OK  Cotaska.exe icon" -ForegroundColor Green
+        Write-Host "  正常  Cotaska.exe のアイコン" -ForegroundColor Green
     } else {
-        Write-Host "  NG  Cotaska.exe icon" -ForegroundColor Red
+        Write-Host "  異常  Cotaska.exe のアイコン" -ForegroundColor Red
         $allOk = $false
     }
 
     if ($coreIconHash -eq $expectedIconHash) {
-        Write-Host "  OK  CotaskaCore.exe icon" -ForegroundColor Green
+        Write-Host "  正常  CotaskaCore.exe のアイコン" -ForegroundColor Green
     } else {
-        Write-Host "  NG  CotaskaCore.exe icon" -ForegroundColor Red
+        Write-Host "  異常  CotaskaCore.exe のアイコン" -ForegroundColor Red
         $allOk = $false
     }
 
     $distLauncher = Join-Path $distRoot "Cotaska.exe"
     if (Test-ExeVersionInfo -Path $distLauncher -ExpectedProductName "Cotaska" -ExpectedFileDescription "Cotaska Launcher" -ExpectedOriginalFilename "Cotaska.exe") {
-        Write-Host "  OK  Cotaska.exe metadata" -ForegroundColor Green
+        Write-Host "  正常  Cotaska.exe のメタデータ" -ForegroundColor Green
     } else {
         $launcherVersionInfo = (Get-Item -LiteralPath $distLauncher).VersionInfo
-        Write-Host "  NG  Cotaska.exe metadata" -ForegroundColor Red
-        Write-Host "      FileDescription=$($launcherVersionInfo.FileDescription)" -ForegroundColor Red
-        Write-Host "      ProductName=$($launcherVersionInfo.ProductName)" -ForegroundColor Red
-        Write-Host "      OriginalFilename=$($launcherVersionInfo.OriginalFilename)" -ForegroundColor Red
-        Write-Host "      InternalName=$($launcherVersionInfo.InternalName)" -ForegroundColor Red
+        Write-Host "  異常  Cotaska.exe のメタデータ" -ForegroundColor Red
+        Write-Host "      ファイル説明=$($launcherVersionInfo.FileDescription)" -ForegroundColor Red
+        Write-Host "      製品名=$($launcherVersionInfo.ProductName)" -ForegroundColor Red
+        Write-Host "      元のファイル名=$($launcherVersionInfo.OriginalFilename)" -ForegroundColor Red
+        Write-Host "      内部名=$($launcherVersionInfo.InternalName)" -ForegroundColor Red
         $allOk = $false
     }
 
     if (Test-ExeVersionInfo -Path $distCoreExe -ExpectedProductName "CotaskaCore" -ExpectedFileDescription "CotaskaCore" -ExpectedOriginalFilename "CotaskaCore.exe") {
-        Write-Host "  OK  CotaskaCore.exe metadata" -ForegroundColor Green
+        Write-Host "  正常  CotaskaCore.exe のメタデータ" -ForegroundColor Green
     } else {
         $coreVersionInfo = (Get-Item -LiteralPath $distCoreExe).VersionInfo
-        Write-Host "  NG  CotaskaCore.exe metadata" -ForegroundColor Red
-        Write-Host "      FileDescription=$($coreVersionInfo.FileDescription)" -ForegroundColor Red
-        Write-Host "      ProductName=$($coreVersionInfo.ProductName)" -ForegroundColor Red
-        Write-Host "      OriginalFilename=$($coreVersionInfo.OriginalFilename)" -ForegroundColor Red
-        Write-Host "      InternalName=$($coreVersionInfo.InternalName)" -ForegroundColor Red
+        Write-Host "  異常  CotaskaCore.exe のメタデータ" -ForegroundColor Red
+        Write-Host "      ファイル説明=$($coreVersionInfo.FileDescription)" -ForegroundColor Red
+        Write-Host "      製品名=$($coreVersionInfo.ProductName)" -ForegroundColor Red
+        Write-Host "      元のファイル名=$($coreVersionInfo.OriginalFilename)" -ForegroundColor Red
+        Write-Host "      内部名=$($coreVersionInfo.InternalName)" -ForegroundColor Red
         $allOk = $false
     }
 }
@@ -383,9 +383,9 @@ if ($allOk) {
     # -------------------------------------------------------
     # ステップ 6: GitHub Releases 添付用 zip 作成
     # -------------------------------------------------------
-    Write-Host "`n[Step 6] Creating release zip ..." -ForegroundColor Cyan
+    Write-Host "`n[ステップ 6] リリースZIPを作成しています..." -ForegroundColor Cyan
     if (-not (Test-Path -LiteralPath $distRoot)) {
-        Write-Host "[FAILED] Dist folder not found: $distRoot" -ForegroundColor Red
+        Write-Host "[失敗] 配布フォルダが見つかりません: $distRoot" -ForegroundColor Red
         exit 1
     }
     if (Test-Path -LiteralPath $distZip) {
@@ -396,7 +396,7 @@ if ($allOk) {
     }
     Restore-CoreExeIfMissing
     if (-not (Test-Path -LiteralPath $distCoreExe)) {
-        Write-Host "[FAILED] CotaskaCore.exe missing before zip creation" -ForegroundColor Red
+        Write-Host "[失敗] ZIP作成前の配布フォルダに CotaskaCore.exe がありません" -ForegroundColor Red
         exit 1
     }
     $distName = Split-Path -Leaf $distRoot
@@ -408,14 +408,14 @@ if ($allOk) {
     New-Item -ItemType Directory -Path $zipStagingRoot -Force | Out-Null
     Copy-Item -LiteralPath $distRoot -Destination $zipStagingRoot -Recurse -Force
     if (-not (Test-Path -LiteralPath (Join-Path $zipStagingDist "_app\CotaskaCore.exe"))) {
-        Write-Host "[FAILED] CotaskaCore.exe missing from zip staging folder" -ForegroundColor Red
+        Write-Host "[失敗] ZIP作成用一時フォルダに CotaskaCore.exe がありません" -ForegroundColor Red
         exit 1
     }
     Push-Location $zipStagingRoot
     try {
         tar.exe -a -cf $distZip $distName
         if ($LASTEXITCODE -ne 0) {
-            Write-Host "[FAILED] Release zip creation failed" -ForegroundColor Red
+            Write-Host "[失敗] リリースZIPの作成に失敗しました" -ForegroundColor Red
             exit 1
         }
     }
@@ -424,7 +424,7 @@ if ($allOk) {
         Remove-PathWithRetry -Path $zipStagingRoot
     }
     if (-not (Test-Path -LiteralPath $distZip)) {
-        Write-Host "[FAILED] Release zip was not created: $distZip" -ForegroundColor Red
+        Write-Host "[失敗] リリースZIPが作成されていません: $distZip" -ForegroundColor Red
         exit 1
     }
     $zipListing = tar.exe -tf $distZip
@@ -435,30 +435,30 @@ if ($allOk) {
     )
     foreach ($entry in $requiredZipEntries) {
         if ($zipListing -notcontains $entry) {
-            Write-Host "[FAILED] Release zip missing required entry: $entry" -ForegroundColor Red
+            Write-Host "[失敗] リリースZIPに必須ファイルが含まれていません: $entry" -ForegroundColor Red
             exit 1
         }
     }
     Restore-CoreExeIfMissing
     if (-not (Test-Path -LiteralPath $distCoreExe)) {
-        Write-Host "[FAILED] CotaskaCore.exe missing from dist after zip creation" -ForegroundColor Red
+        Write-Host "[失敗] ZIP作成後の配布フォルダに CotaskaCore.exe がありません" -ForegroundColor Red
         exit 1
     }
     $zipSizeMB = [math]::Round((Get-Item -LiteralPath $distZip).Length / 1MB, 1)
-    Write-Host "  OK: Release zip created -> $distZip ($zipSizeMB MB)" -ForegroundColor Green
+    Write-Host "  完了: リリースZIPを作成しました -> $distZip ($zipSizeMB MB)" -ForegroundColor Green
     $zipHash = (Get-FileHash -LiteralPath $distZip -Algorithm SHA256).Hash.ToLowerInvariant()
     Set-Content -LiteralPath $distZipSha256 -Value "$zipHash  Cotaska-Portable.zip" -Encoding ASCII
-    Write-Host "  OK: Release zip SHA-256 created -> $distZipSha256" -ForegroundColor Green
+    Write-Host "  完了: リリースZIPのSHA-256を作成しました -> $distZipSha256" -ForegroundColor Green
 
     Write-Host "=======================================" -ForegroundColor Green
-    Write-Host " Release v$Version Complete!" -ForegroundColor Green
+    Write-Host " リリース v$Version が完了しました" -ForegroundColor Green
     Write-Host "=======================================" -ForegroundColor Green
-    Write-Host "  Dist: $distRoot" -ForegroundColor Cyan
-    Write-Host "  Zip : $distZip" -ForegroundColor Cyan
-    Write-Host "  Next: Launch $distRoot\Cotaska.exe and verify." -ForegroundColor Cyan
+    Write-Host "  配布フォルダ: $distRoot" -ForegroundColor Cyan
+    Write-Host "  ZIP        : $distZip" -ForegroundColor Cyan
+    Write-Host "  次の作業   : $distRoot\Cotaska.exe を起動して確認してください。" -ForegroundColor Cyan
 } else {
     Write-Host "=======================================" -ForegroundColor Red
-    Write-Host " Release v$Version INCOMPLETE" -ForegroundColor Red
+    Write-Host " リリース v$Version は未完了です" -ForegroundColor Red
     Write-Host "=======================================" -ForegroundColor Red
     exit 1
 }

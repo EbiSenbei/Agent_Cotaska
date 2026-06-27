@@ -6,7 +6,7 @@
 
 param(
   [string]$BuildDir = "release",
-  [string]$Version = "0.2.7"
+  [string]$Version = "0.2.8"
 )
 
 $distDir = Join-Path $BuildDir "Cotaska-Portable"

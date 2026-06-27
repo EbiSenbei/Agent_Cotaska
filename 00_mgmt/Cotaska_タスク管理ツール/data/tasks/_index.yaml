@@ -3366,6 +3366,30 @@ tasks:
       - ネットワーク
     due_date: '2026-06-03'
     updated_at: '2026-06-03T15:30:00+09:00'
+  - id: T-0312
+    title: CHG-087-01 実装：すべてビュー完了セクションの追加読み込み
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 312
+    tags:
+      - CHG-087
+      - 実装
+      - 完了タスク
+    due_date: '2026-06-25'
+    updated_at: '2026-06-25T22:25:21+09:00'
+  - id: T-0313
+    title: CHG-087-02 確認：すべてビュー完了タスク追加読み込み
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 313
+    tags:
+      - CHG-087
+      - 確認
+      - 完了タスク
+    due_date: '2026-06-25'
+    updated_at: '2026-06-25T22:25:21+09:00'
   - id: T-0314
     title: CHG-088-01 設計：ドラッグ親子紐づけ仕様を具体化
     list: 仕様変更

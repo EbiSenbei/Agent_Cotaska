@@ -112,7 +112,7 @@ function normalizeListName(list) {
  */
 function MainPane({
   viewTitle, tasks, sections, progressSections, completedSectionTasks = [], selectedTaskId, isTrashed, isCompleted,
-  completedHasMore = false, onLoadMoreCompleted,
+  completedHasMore = false, completedSectionHasMore = false, onLoadMoreCompleted,
   isSearchMode, onSearchChange, searchSort = { key: "id", direction: "asc" }, onSearchSortChange,
   listSort = { key: "order", direction: "asc" }, onListSortChange, showListSort = false,
   onTaskClick, onAddTask, onAddSubtask, onToggleComplete,
@@ -907,7 +907,18 @@ function MainPane({
             >
               {completedSectionExpanded ? "▾" : "▸"} ✅ 完了 ({completedSectionTasks.length})
             </div>
-            {completedSectionExpanded && renderTaskTree(completedSectionTasks, { type: "completed", label: "完了" })}
+            {completedSectionExpanded && (
+              <>
+                {renderTaskTree(completedSectionTasks, { type: "completed", label: "完了" })}
+                {completedSectionHasMore && (
+                  <div className="task-load-more">
+                    <button type="button" className="task-load-more-btn" onClick={() => onLoadMoreCompleted?.()}>
+                      次を読み込む
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
           </>
         )}
       </div>
