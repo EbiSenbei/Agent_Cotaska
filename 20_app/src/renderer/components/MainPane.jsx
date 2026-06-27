@@ -118,6 +118,7 @@ function MainPane({
   onTaskClick, onAddTask, onAddSubtask, onToggleComplete,
   onTrashTask, onRestoreTask, onDeleteTask, onDuplicateTask, onSetTaskList, onSetTaskDue,
   onReorderTask,
+  canNestTask,
   lists,
   tags = [],
   onSetTaskTags,
@@ -138,7 +139,7 @@ function MainPane({
   const [sectionCollapsed, setSectionCollapsed] = useState({});
   const [dueEditorTaskId, setDueEditorTaskId] = useState(null);
   const [draggingTaskId, setDraggingTaskId] = useState(null);
-  const [dropTargetTaskId, setDropTargetTaskId] = useState(null);
+  const [dropTarget, setDropTarget] = useState(null);
   const [hoveredSectionKey, setHoveredSectionKey] = useState(null);
   const [quickAddValue, setQuickAddValue] = useState("");
   const [quickAddList, setQuickAddList] = useState(null);
@@ -380,27 +381,52 @@ function MainPane({
     );
   };
 
+  const resetDragState = () => {
+    setDraggingTaskId(null);
+    setDropTarget(null);
+    setHoveredSectionKey(null);
+    dragHandleTaskIdRef.current = null;
+  };
+
+  const getRowDropModeByPoint = (clientY, targetTask, draggedTaskId = draggingTaskId, rowElement = null) => {
+    const rect = rowElement?.getBoundingClientRect?.() || { top: 0, height: 0 };
+    const y = clientY - rect.top;
+    const ratio = rect.height > 0 ? y / rect.height : 0;
+    if (ratio >= 0.3 && ratio <= 0.7) {
+      const allowed = canNestTask?.(draggedTaskId, targetTask.id) ?? true;
+      return allowed ? "child" : "invalid-child";
+    }
+    return ratio < 0.3 ? "before" : "after";
+  };
+
   // タスク行を描画する関数
   const renderTaskRow = (task, showSep, depth = 1, childCount = 0, sectionMeta = null) => {
     const isInvalid = Boolean(task.is_invalid);
     const isSubtask = depth > 1;
     const isHierarchyWarning = Boolean(task.hierarchyWarning);
+    const canDragTask = dragEnabled && !task.hierarchyOverLimit && !task.hierarchyCycle && task.status !== "done" && !isInvalid;
     const rowClassName = [
       "task-row",
       selectedTaskId === task.id ? "selected" : "",
       task.status === "done" ? "task-row--done" : "",
       isSubtask ? "task-row--subtask" : "",
+      canDragTask ? "task-row--draggable" : "",
       draggingTaskId === task.id ? "task-row--dragging" : "",
-      dropTargetTaskId === task.id && draggingTaskId !== task.id ? "task-row--drop-before" : "",
+      dropTarget?.taskId === task.id && dropTarget.mode === "before" && draggingTaskId !== task.id ? "task-row--drop-before" : "",
+      dropTarget?.taskId === task.id && dropTarget.mode === "after" && draggingTaskId !== task.id ? "task-row--drop-after" : "",
+      dropTarget?.taskId === task.id && dropTarget.mode === "child" && draggingTaskId !== task.id ? "task-row--drop-child" : "",
+      dropTarget?.taskId === task.id && dropTarget.mode === "invalid-child" && draggingTaskId !== task.id ? "task-row--drop-invalid" : "",
       isInvalid ? "task-row--invalid" : "",
       isHierarchyWarning ? "task-row--hierarchy-warning" : "",
     ].filter(Boolean).join(" ");
-    const canDragTask = dragEnabled && !isSubtask && !task.hierarchyOverLimit && task.status !== "done" && !isInvalid;
 
     return (
     <React.Fragment key={task.id}>
       <div
         className={rowClassName}
+        data-task-id={task.id}
+        data-section-type={sectionMeta?.type || ""}
+        data-section-label={sectionMeta?.label || ""}
         style={{ "--task-depth": depth }}
         onClick={() => onTaskClick?.(task)}
         draggable={canDragTask}
@@ -414,43 +440,41 @@ function MainPane({
           setDraggingTaskId(task.id);
         }}
         onDragEnd={() => {
-          setDraggingTaskId(null);
-          setDropTargetTaskId(null);
-          dragHandleTaskIdRef.current = null;
+          resetDragState();
         }}
         onDragOver={(e) => {
           if (isInvalid || !dragEnabled || !draggingTaskId || draggingTaskId === task.id) return;
           e.preventDefault();
           e.stopPropagation();
           e.dataTransfer.dropEffect = "move";
-          setDropTargetTaskId(task.id);
+          setHoveredSectionKey(null);
+          setDropTarget({ taskId: task.id, mode: getRowDropModeByPoint(e.clientY, task, draggingTaskId, e.currentTarget) });
         }}
         onDragLeave={(e) => {
           if (e.currentTarget.contains(e.relatedTarget)) return;
-          if (dropTargetTaskId === task.id) setDropTargetTaskId(null);
+          if (dropTarget?.taskId === task.id) setDropTarget(null);
         }}
-        onDrop={(e) => {
+        onDrop={async (e) => {
           if (isInvalid || !dragEnabled) return;
           e.preventDefault();
           e.stopPropagation();
           const draggedTaskId = e.dataTransfer.getData("text/plain") || draggingTaskId;
-          if (!draggedTaskId || draggedTaskId === task.id) {
-            setDraggingTaskId(null);
-            setDropTargetTaskId(null);
-            dragHandleTaskIdRef.current = null;
-            setHoveredSectionKey(null);
+          const mode = getRowDropModeByPoint(e.clientY, task, draggedTaskId, e.currentTarget);
+          if (!draggedTaskId || draggedTaskId === task.id || mode === "invalid-child") {
+            resetDragState();
             return;
           }
-          onReorderTask?.({
+          await onReorderTask?.({
             draggedTaskId,
             targetTaskId: task.id,
             toSectionType: sectionMeta?.type || null,
             toSectionLabel: sectionMeta?.label || null,
+            mode,
           });
-          setDraggingTaskId(null);
-          setDropTargetTaskId(null);
-          dragHandleTaskIdRef.current = null;
-          setHoveredSectionKey(null);
+          if (mode === "child") {
+            setExpanded((prev) => ({ ...prev, [task.id]: true }));
+          }
+          resetDragState();
         }}
         onContextMenu={(e) => {
           if (!isInvalid && !isTrashed && !isCompleted && !isSearchMode) {
@@ -479,8 +503,8 @@ function MainPane({
             if (canDragTask) dragHandleTaskIdRef.current = task.id;
           }}
           onClick={(e) => e.stopPropagation()}
-          title="ドラッグして並び替え"
-          aria-label="ドラッグして並び替え"
+          title="ドラッグして並び替え・親子変更"
+          aria-label="ドラッグして並び替え・親子変更"
         >
           ⠇
         </span>
@@ -534,6 +558,12 @@ function MainPane({
               />
             )}
           </span>
+        )}
+        {dropTarget?.taskId === task.id && dropTarget.mode === "child" && (
+          <span className="drop-child-hint">子にする</span>
+        )}
+        {dropTarget?.taskId === task.id && dropTarget.mode === "invalid-child" && (
+          <span className="drop-child-hint drop-child-hint--invalid">不可</span>
         )}
         {/* ゴミ箱ビュー: 復元・完全削除ボタン */}
         {isTrashed && (
@@ -636,12 +666,14 @@ function MainPane({
           <div
             key={section.label}
             className={`drop-section${hoveredSectionKey === `progress:${section.label}` ? " drop-section--hover" : ""}`}
+            data-drop-section-type="progress"
+            data-drop-section-label={section.label}
             onDragOver={(e) => {
               if (!dragEnabled || !draggingTaskId) return;
               e.preventDefault();
               e.dataTransfer.dropEffect = "move";
               setHoveredSectionKey(`progress:${section.label}`);
-              setDropTargetTaskId(null);
+              setDropTarget(null);
             }}
             onDragLeave={() => {
               if (hoveredSectionKey === `progress:${section.label}`) setHoveredSectionKey(null);
@@ -657,9 +689,7 @@ function MainPane({
                 toSectionType: "progress",
                 toSectionLabel: section.label,
               });
-              setDraggingTaskId(null);
-              setDropTargetTaskId(null);
-              setHoveredSectionKey(null);
+              resetDragState();
             }}
           >
             <div
@@ -687,12 +717,14 @@ function MainPane({
           <div
             key={section.label}
             className={`drop-section${hoveredSectionKey === `date:${section.label}` ? " drop-section--hover" : ""}`}
+            data-drop-section-type="date"
+            data-drop-section-label={section.label}
             onDragOver={(e) => {
               if (!dragEnabled || !draggingTaskId) return;
               e.preventDefault();
               e.dataTransfer.dropEffect = "move";
               setHoveredSectionKey(`date:${section.label}`);
-              setDropTargetTaskId(null);
+              setDropTarget(null);
             }}
             onDragLeave={() => {
               if (hoveredSectionKey === `date:${section.label}`) setHoveredSectionKey(null);
@@ -708,9 +740,7 @@ function MainPane({
                 toSectionType: "date",
                 toSectionLabel: section.label,
               });
-              setDraggingTaskId(null);
-              setDropTargetTaskId(null);
-              setHoveredSectionKey(null);
+              resetDragState();
             }}
           >
             <div

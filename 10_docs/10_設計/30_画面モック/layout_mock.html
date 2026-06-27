@@ -289,7 +289,33 @@
     .task-row--subtask {
       padding-left: calc(20px + (var(--task-depth, 2) - 1) * var(--task-indent-step));
     }
-
+    .task-row--drop-child {
+      background: rgba(71, 114, 250, 0.08);
+      outline: 2px solid rgba(71, 114, 250, 0.45);
+      outline-offset: -2px;
+    }
+    .task-row--drop-before::before,
+    .task-row--drop-after::after {
+      content: "";
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      height: 2px;
+      background: #4772fa;
+      border-radius: 999px;
+      box-shadow: 0 0 0 2px rgba(71, 114, 250, 0.14);
+    }
+    .task-row--drop-before::before { top: 0; }
+    .task-row--drop-after::after { bottom: 0; }
+    .drop-child-hint {
+      flex-shrink: 0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #4772fa;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+    }
     .expand-btn {
       width: 16px;
       border: none;
@@ -766,7 +792,15 @@
         <div class="task-separator"></div>
 
         <div class="section-header today">☀️ 今日</div>
-        <div class="task-row selected">
+        <div class="task-row task-row--drop-after">
+          <button class="expand-btn">▸</button>
+          <span class="drag-handle">⠇</span>
+          <input type="checkbox" />
+          <span class="task-title">議事録の整理</span>
+          <span class="progress-status-badge not-started">未着</span>
+          <span class="task-due">期限未設定</span>
+        </div>
+        <div class="task-row selected task-row--drop-child">
           <button class="expand-btn">▾</button>
           <span class="drag-handle">⠇</span>
           <input type="checkbox" />
@@ -774,6 +808,7 @@
           <span class="progress-status-badge in-progress">仕掛</span>
           <span class="priority-icon priority-medium">!</span>
           <span class="task-due">3/24</span>
+          <span class="drop-child-hint">子にする</span>
         </div>
         <div class="task-row task-row--subtask" style="--task-depth:2;">
           <span class="drag-handle">⠇</span>

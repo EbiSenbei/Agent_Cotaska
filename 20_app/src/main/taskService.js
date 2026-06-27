@@ -522,6 +522,48 @@ function getTaskDepth(taskId, seen = new Set()) {
   return getTaskDepth(task.parent, seen) + 1;
 }
 
+function getTaskSubtreeDepth(taskId, seen = new Set()) {
+  if (!taskId || seen.has(taskId)) return MAX_TASK_TREE_DEPTH + 1;
+  const task = taskCache[taskId];
+  if (!task || task.delete_flag === 1 || task.is_invalid) return 1;
+  const nextSeen = new Set(seen);
+  nextSeen.add(taskId);
+  const children = Object.values(taskCache)
+    .filter((child) => child.parent === taskId && child.delete_flag === 0 && !child.is_invalid);
+  if (children.length === 0) return 1;
+  return 1 + Math.max(...children.map((child) => getTaskSubtreeDepth(child.id, nextSeen)));
+}
+
+function validateParentUpdate(taskId, nextParentId) {
+  if (!nextParentId) return;
+  if (taskId === nextParentId) {
+    throw new Error('自分自身を親タスクにはできません。');
+  }
+
+  const parent = taskCache[nextParentId];
+  if (!parent || parent.delete_flag === 1 || parent.is_invalid) {
+    throw new Error('指定された親タスクが見つかりません。');
+  }
+
+  let currentParentId = nextParentId;
+  const seen = new Set();
+  while (currentParentId) {
+    if (currentParentId === taskId) {
+      throw new Error('子孫タスクを親にすると循環参照になります。');
+    }
+    if (seen.has(currentParentId)) {
+      throw new Error('親子関係に循環参照があります。');
+    }
+    seen.add(currentParentId);
+    currentParentId = taskCache[currentParentId]?.parent || null;
+  }
+
+  const nextMaxDepth = getTaskDepth(nextParentId) + getTaskSubtreeDepth(taskId);
+  if (nextMaxDepth > MAX_TASK_TREE_DEPTH) {
+    throw new Error('タスク階層は最大5階層までです。');
+  }
+}
+
 function collectDescendantTasks(parentId, maxDepth = MAX_TASK_TREE_DEPTH) {
   const descendants = [];
   const walk = (currentParentId, depth, seen = new Set()) => {
@@ -781,6 +823,7 @@ function updateTask(id, updates) {
   const oldFilePath = task._filePath || resolveTaskFilePath(null, id);
   const prevStatus = task.status;
   const prevProgressStatus = task.progress_status;
+  const prevParent = task.parent || null;
   const now = new Date().toISOString();
 
   // 廃止済みフィールドは入力されても無視する
@@ -792,6 +835,14 @@ function updateTask(id, updates) {
   }
   if (Object.prototype.hasOwnProperty.call(updates, 'progress')) {
     delete updates.progress;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(updates, 'parent')) {
+    const currentParent = task.parent || null;
+    const nextParent = updates.parent || null;
+    if (currentParent !== nextParent) {
+      validateParentUpdate(id, nextParent);
+    }
   }
 
   // 全フィールドを更新（content を含む）
@@ -881,6 +932,7 @@ function updateTask(id, updates) {
   }
 
   // CHG-012: 子タスク更新時に親タスクの progress_status / status を再推定
+  if (prevParent && prevParent !== task.parent) recomputeParentFromChildren(prevParent, now);
   if (task.parent) recomputeParentFromChildren(task.parent, now);
 
   // キャッシュ更新
@@ -1110,7 +1162,7 @@ function duplicateTask(id) {
  * タスク並び順一括更新（CHG-021）
  * payload: {
  *   ordered_ids: string[],
- *   field_updates?: { [taskId]: { due_date?, progress_status? } }
+ *   field_updates?: { [taskId]: { due_date?, progress_status?, parent?, list? } }
  * }
  */
 function reorderTasks(payload = {}) {
@@ -1142,6 +1194,7 @@ function reorderTasks(payload = {}) {
     assertMutableTask(task);
 
     const nextPatch = { ...patch };
+    const prevParent = task.parent || null;
 
     if (task.status === 'done' && nextPatch.progress_status && nextPatch.progress_status !== '完了') {
       throw new Error(`Task ${taskId} is done and cannot change progress_status`);
@@ -1152,6 +1205,18 @@ function reorderTasks(payload = {}) {
     }
     if (Object.prototype.hasOwnProperty.call(nextPatch, 'progress_status')) {
       task.progress_status = nextPatch.progress_status;
+    }
+    if (Object.prototype.hasOwnProperty.call(nextPatch, 'parent')) {
+      const nextParent = nextPatch.parent || null;
+      if (prevParent !== nextParent) {
+        validateParentUpdate(taskId, nextParent);
+        task.parent = nextParent;
+        if (prevParent) touchedParentIds.add(prevParent);
+        if (nextParent) touchedParentIds.add(nextParent);
+      }
+    }
+    if (Object.prototype.hasOwnProperty.call(nextPatch, 'list')) {
+      task.list = nextPatch.list || null;
     }
 
     if (task.status === 'done') {
@@ -1168,6 +1233,7 @@ function reorderTasks(payload = {}) {
     writeTaskFile(task);
     changedIds.add(taskId);
     if (task.parent) touchedParentIds.add(task.parent);
+    if (prevParent) touchedParentIds.add(prevParent);
   });
 
   finalIds.forEach((taskId, idx) => {

@@ -14,9 +14,10 @@ tasks:
     status: todo
     priority: normal
     sort_order: 2
-    tags: []
+    tags:
+      - CHG-088
     due_date: null
-    updated_at: '2026-05-10T11:59:31.686Z'
+    updated_at: '2026-06-25T22:45:00+09:00'
   - id: T-0028
     title: 仕様変更：バックアップ機能の実装
     list: 仕様変更
@@ -3365,7 +3366,98 @@ tasks:
       - ネットワーク
     due_date: '2026-06-03'
     updated_at: '2026-06-03T15:30:00+09:00'
+  - id: T-0314
+    title: CHG-088-01 設計：ドラッグ親子紐づけ仕様を具体化
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 314
+    tags:
+      - CHG-088
+      - 設計
+      - 親子タスク
+      - ドラッグ
+    due_date: '2026-06-25'
+    updated_at: '2026-06-25T23:13:30+09:00'
+  - id: T-0315
+    title: CHG-088-02 実装：ドラッグによる親子紐づけ保存
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 315
+    tags:
+      - CHG-088
+      - 実装
+      - 親子タスク
+      - ドラッグ
+    due_date: '2026-06-25'
+    updated_at: '2026-06-27T00:20:00+09:00'
+  - id: T-0316
+    title: CHG-088-03 ユーザー確認：ドラッグ親子紐づけ操作
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 316
+    tags:
+      - CHG-088
+      - ユーザー確認
+      - 親子タスク
+      - ドラッグ
+    due_date: null
+    updated_at: '2026-06-27T13:40:00+09:00'
+  - id: T-0317
+    title: CHG-088-04 設計再整理：ドロップ位置で親子関係を決める
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 317
+    tags:
+      - CHG-088
+      - 設計
+      - 親子タスク
+      - ドラッグ
+    due_date: null
+    updated_at: '2026-06-27T12:15:00+09:00'
+  - id: T-0318
+    title: CHG-088-05 実装修正：ドロップ位置による親子解除・付け替え
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 318
+    tags:
+      - CHG-088
+      - 実装
+      - 親子タスク
+      - ドラッグ
+    due_date: null
+    updated_at: '2026-06-27T12:15:00+09:00'
+  - id: T-0319
+    title: CHG-088-06 ユーザー確認：ドロップ位置による親子変更
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 319
+    tags:
+      - CHG-088
+      - ユーザー確認
+      - 親子タスク
+      - ドラッグ
+    due_date: null
+    updated_at: '2026-06-27T13:40:00+09:00'
+  - id: T-0320
+    title: BUG-20260627-01 CHG-088ドラッグが2回必要になる退行を修正
+    list: 不具合対応
+    status: done
+    priority: high
+    sort_order: 320
+    tags:
+      - BUG-20260627-01
+      - CHG-088
+      - 親子タスク
+      - ドラッグ
+    due_date: null
+    updated_at: '2026-06-27T13:40:00+09:00'
 task_file_roots:
   - .
-next_task_id: 312
-last_updated: '2026-06-25T13:05:36.000Z'
+next_task_id: 321
+last_updated: '2026-06-27T04:40:00.000Z'

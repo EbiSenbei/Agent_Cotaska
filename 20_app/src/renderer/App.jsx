@@ -406,7 +406,38 @@ function App() {
     await loadTasks();
   }, [loadTasks]);
 
-  const handleReorderTask = useCallback(async ({ draggedTaskId, targetTaskId = null, toSectionType = null, toSectionLabel = null }) => {
+  const getSubtreeDepth = useCallback((taskId, seen = new Set()) => {
+    if (!taskId || seen.has(taskId)) return 0;
+    const nextSeen = new Set(seen);
+    nextSeen.add(taskId);
+    const children = tasks.filter((task) => task.parent === taskId && !task.is_invalid);
+    if (children.length === 0) return 1;
+    return 1 + Math.max(...children.map((child) => getSubtreeDepth(child.id, nextSeen)));
+  }, [tasks]);
+
+  const canNestTask = useCallback((draggedTaskId, targetTaskId) => {
+    if (!draggedTaskId || !targetTaskId || draggedTaskId === targetTaskId) return false;
+    const dragged = tasks.find((task) => task.id === draggedTaskId);
+    const target = tasks.find((task) => task.id === targetTaskId);
+    if (!dragged || !target) return false;
+    if (dragged.is_invalid || target.is_invalid) return false;
+    if (dragged.status === "done" || target.status === "done") return false;
+    if (dragged.hierarchyOverLimit || dragged.hierarchyCycle) return false;
+    if (target.hierarchyOverLimit || target.hierarchyCycle) return false;
+    if (collectDescendantTasks(tasks, draggedTaskId).some((child) => child.id === targetTaskId)) return false;
+
+    const targetDepth = target.hierarchyDepth || 1;
+    const subtreeDepth = getSubtreeDepth(draggedTaskId);
+    return targetDepth + subtreeDepth <= MAX_TASK_TREE_DEPTH;
+  }, [getSubtreeDepth, tasks]);
+
+  const handleReorderTask = useCallback(async ({
+    draggedTaskId,
+    targetTaskId = null,
+    toSectionType = null,
+    toSectionLabel = null,
+    mode = "after",
+  }) => {
     const dragged = tasks.find((t) => t.id === draggedTaskId);
     if (!dragged) return;
     if (dragged.status === "done") return;
@@ -414,6 +445,11 @@ function App() {
     const today = localDateString();
     const tomorrow = addDays(today, 1);
     const fieldUpdates = {};
+    const target = targetTaskId ? tasks.find((t) => t.id === targetTaskId) : null;
+
+    const logReorderDebug = (message, context = {}) => {
+      window.cotaskaAPI?.debug?.log?.(`task-reorder:${message}`, context).catch?.(() => {});
+    };
 
     if (toSectionType === "date") {
       if (String(toSectionLabel || "").includes("明日") && dueDatePart(dragged.due_date) !== tomorrow) {
@@ -432,27 +468,59 @@ function App() {
       // 「未着・仕掛」セクションへのドラッグは progress_status を変更しない
     }
 
+    if (mode === "child") {
+      if (!target || !canNestTask(draggedTaskId, targetTaskId)) return;
+      fieldUpdates[dragged.id] = {
+        ...(fieldUpdates[dragged.id] || {}),
+        parent: targetTaskId,
+        list: target.list ?? dragged.list ?? null,
+      };
+    } else if (mode === "root") {
+      fieldUpdates[dragged.id] = {
+        ...(fieldUpdates[dragged.id] || {}),
+        parent: null,
+      };
+    } else if (target) {
+      const descendants = collectDescendantTasks(tasks, draggedTaskId);
+      if (descendants.some((child) => child.id === targetTaskId || child.id === target.parent)) return;
+      fieldUpdates[dragged.id] = {
+        ...(fieldUpdates[dragged.id] || {}),
+        parent: target.parent ?? null,
+        list: target.list ?? dragged.list ?? null,
+      };
+    }
+
     const reorderable = tasks
       .filter((t) => t.status !== "done")
       .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0) || String(a.id).localeCompare(String(b.id)));
 
     const ids = reorderable.map((t) => t.id).filter((id) => id !== draggedTaskId);
     if (targetTaskId && ids.includes(targetTaskId)) {
-      const target = tasks.find((t) => t.id === targetTaskId);
-      if (target && dragged.parent !== target.parent) return;
-
-      const insertAt = ids.indexOf(targetTaskId);
+      const targetIndex = ids.indexOf(targetTaskId);
+      const insertAt = mode === "before" ? targetIndex : targetIndex + 1;
       ids.splice(insertAt, 0, draggedTaskId);
     } else {
       ids.push(draggedTaskId);
     }
 
-    await window.cotaskaAPI?.tasks?.reorder({
+    logReorderDebug("save-start", {
+      draggedTaskId,
+      targetTaskId,
+      mode,
+      field_updates: fieldUpdates,
+    });
+    const result = await window.cotaskaAPI?.tasks?.reorder({
       ordered_ids: ids,
       field_updates: fieldUpdates,
     });
+    logReorderDebug("save-result", {
+      draggedTaskId,
+      targetTaskId,
+      mode,
+      result,
+    });
     await loadTasks();
-  }, [loadTasks, tasks]);
+  }, [canNestTask, loadTasks, tasks]);
 
   // T-006: リスト操作
   const loadLists = useCallback(async () => {
@@ -814,6 +882,7 @@ function App() {
           onSetTaskList={!isSearchMode && activeNav !== "ゴミ箱" && activeNav !== "完了" ? handleSetTaskList : null}
           onSetTaskDue={!isSearchMode && activeNav !== "ゴミ箱" ? handleSetTaskDue : null}
           onReorderTask={!isSearchMode && activeNav !== "ゴミ箱" && activeNav !== "完了" && listSort.key === "order" ? handleReorderTask : null}
+          canNestTask={canNestTask}
           onSetTaskTags={!isSearchMode && activeNav !== "ゴミ箱" ? handleSetTaskTags : null}
           lists={lists}
           tags={tags}
