@@ -587,9 +587,6 @@ function estimateParentState(parent, children) {
   if (statuses.some((status) => status === '仕掛' || status === '完了')) {
     return { progress_status: '仕掛', status: 'todo' };
   }
-  if (statuses.some((status) => status === '保留')) {
-    return { progress_status: '保留', status: 'todo' };
-  }
   return null;
 }
 

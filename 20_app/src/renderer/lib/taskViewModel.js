@@ -83,7 +83,6 @@ function calcParentProgress(parent, subtasks) {
 
   const statuses = subtasks.map((t) => normalizeProgressStatusValue(t.progressStatus, t.status));
   if (statuses.some((status) => status === "仕掛" || status === "完了")) return "仕掛";
-  if (statuses.some((status) => status === "保留")) return "保留";
   return null;
 }
 
