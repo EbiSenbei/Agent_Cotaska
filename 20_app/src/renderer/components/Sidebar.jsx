@@ -26,25 +26,29 @@ function Sidebar({ activeIcon, onIconClick, updateAlert }) {
       )}
 
       {primaryIcons.map(({ title, emoji }) => (
-        <div
+        <button
+          type="button"
           key={title}
           className={`sb-icon${activeIcon === title ? " active" : ""}`}
           title={title}
+          aria-label={title}
           onClick={() => onIconClick?.(title)}
         >
           {emoji}
-        </div>
+        </button>
       ))}
 
       <div className="sb-spacer" />
       <div className="sb-bottom">
-        <div
+        <button
+          type="button"
           className={`sb-icon sb-icon--settings${activeIcon === "設定" ? " active" : ""}`}
           title="設定"
+          aria-label="設定"
           onClick={() => onIconClick?.("設定")}
         >
           ⚙
-        </div>
+        </button>
       </div>
     </div>
   );

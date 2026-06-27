@@ -675,6 +675,13 @@ function App() {
   const isSettingsMode = activeIcon === "設定";
   const navVisible = activeIcon === "リスト";
 
+  const handleSidebarIconClick = useCallback((icon) => {
+    setActiveIcon(icon);
+    if (icon === "リスト" || icon === "検索") {
+      setDetailPaneExpanded(false);
+    }
+  }, []);
+
   const tagCounts = useMemo(() => {
     const counts = {};
     tasks.forEach((task) => {
@@ -825,7 +832,7 @@ function App() {
     <div className="app-container">
       <Sidebar
         activeIcon={activeIcon}
-        onIconClick={setActiveIcon}
+        onIconClick={handleSidebarIconClick}
         updateAlert={updateAlert}
       />
       {isSettingsMode ? (

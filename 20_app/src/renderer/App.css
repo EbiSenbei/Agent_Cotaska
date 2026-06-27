@@ -191,6 +191,8 @@ body.is-resizing-detail-sections * {
   padding: 12px 0;
   gap: 4px;
   flex-shrink: 0;
+  position: relative;
+  z-index: 30;
 }
 
 .sidebar .avatar {
@@ -210,6 +212,9 @@ body.is-resizing-detail-sections * {
 .sidebar .sb-icon {
   width: 40px;
   height: 40px;
+  border: none;
+  background: transparent;
+  color: inherit;
   display: flex;
   align-items: center;
   justify-content: center;
