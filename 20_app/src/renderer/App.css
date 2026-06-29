@@ -1678,6 +1678,11 @@ body.is-resizing-detail-sections * {
   color: #7e8998;
 }
 
+.ai-compose--drag-over {
+  border-color: #2d78b7;
+  box-shadow: 0 0 0 3px rgba(45, 120, 183, .16), 0 8px 22px rgba(30, 40, 54, .07);
+}
+
 .ai-compose-attachments {
   display: flex;
   flex-wrap: wrap;

@@ -48,6 +48,18 @@ function ensurePathInside(baseDir, targetPath) {
   return target;
 }
 
+function resolveReferenceFilePath(workdir, referencePath) {
+  if (!referencePath) return null;
+  if (path.isAbsolute(referencePath)) return path.resolve(referencePath);
+  return ensurePathInside(workdir, referencePath);
+}
+
+function formatReferencePath(workdir, filePath) {
+  const relative = path.relative(path.resolve(workdir), filePath);
+  if (relative && !relative.startsWith("..") && !path.isAbsolute(relative)) return relative;
+  return filePath;
+}
+
 function buildReferenceContext(threadId, workdir, settings) {
   const maxFiles = Number(settings.maxReferenceFiles || 10);
   const maxChars = Number(settings.maxReferenceChars || 100000);
@@ -60,7 +72,7 @@ function buildReferenceContext(threadId, workdir, settings) {
   const skipped = [];
 
   refs.forEach((ref) => {
-    const filePath = ensurePathInside(workdir, ref.file_path);
+    const filePath = resolveReferenceFilePath(workdir, ref.file_path);
     if (!filePath || !fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
       skipped.push(ref.label || ref.file_path);
       return;
@@ -75,7 +87,7 @@ function buildReferenceContext(threadId, workdir, settings) {
     totalChars += sliced.length;
     chunks.push([
       `### ${ref.label || path.basename(filePath)}`,
-      `path: ${path.relative(workdir, filePath)}`,
+      `path: ${formatReferencePath(workdir, filePath)}`,
       "```",
       sliced,
       "```",

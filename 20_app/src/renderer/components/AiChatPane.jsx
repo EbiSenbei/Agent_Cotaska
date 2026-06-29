@@ -98,6 +98,7 @@ function AiChatPane({ tasks = [], onOpenTask }) {
   const [sandboxMode, setSandboxMode] = useState("read-only");
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   const [workdirContextMenu, setWorkdirContextMenu] = useState(null);
+  const [isComposeDragOver, setIsComposeDragOver] = useState(false);
   const [runtimeState, setRuntimeState] = useState({
     ready: false,
     status: "unavailable",
@@ -205,7 +206,8 @@ function AiChatPane({ tasks = [], onOpenTask }) {
   const scrollMessagesToBottom = (behavior = "smooth") => {
     const element = messageScrollRef.current;
     if (!element) return;
-    element.scrollTo({ top: element.scrollHeight, behavior });
+    const scrollBehavior = typeof behavior === "string" ? behavior : "smooth";
+    element.scrollTo({ top: element.scrollHeight, behavior: scrollBehavior });
     setShowScrollBottom(false);
   };
 
@@ -379,8 +381,8 @@ function AiChatPane({ tasks = [], onOpenTask }) {
     return mapped;
   };
 
-  const handleAddReferenceFiles = async () => {
-    if (!aiChatApi?.chooseReferenceFiles || !aiChatApi?.addReference) {
+  const addReferenceFiles = async (result) => {
+    if (!aiChatApi?.addReference) {
       setRuntimeState({
         ready: false,
         status: "error",
@@ -389,7 +391,6 @@ function AiChatPane({ tasks = [], onOpenTask }) {
       return;
     }
     try {
-      const result = await aiChatApi.chooseReferenceFiles();
       if (!result?.ok) {
         if (!result?.canceled) {
           setRuntimeState({
@@ -428,6 +429,27 @@ function AiChatPane({ tasks = [], onOpenTask }) {
           ? `参照ファイルを${files.length}件追加しました。${skippedText}`
           : `選択した参照ファイルはすでに追加済みです。${skippedText}`,
       }));
+    } catch (error) {
+      setRuntimeState({
+        ready: false,
+        status: "error",
+        message: error?.message || "参照ファイルの追加に失敗しました。",
+      });
+    }
+  };
+
+  const handleAddReferenceFiles = async () => {
+    if (!aiChatApi?.chooseReferenceFiles || !aiChatApi?.addReference) {
+      setRuntimeState({
+        ready: false,
+        status: "error",
+        message: "参照ファイル追加APIが利用できません。",
+      });
+      return;
+    }
+    try {
+      const result = await aiChatApi.chooseReferenceFiles();
+      await addReferenceFiles(result);
     } catch (error) {
       setRuntimeState({
         ready: false,
@@ -498,6 +520,66 @@ function AiChatPane({ tasks = [], onOpenTask }) {
       x: event.clientX,
       y: event.clientY,
     });
+  };
+
+  const handleWorkdirTreeDragStart = (event, entry) => {
+    if (entry?.type !== "file" || !entry.file_path) {
+      event.preventDefault();
+      return;
+    }
+    event.dataTransfer.effectAllowed = "copy";
+    event.dataTransfer.setData("application/x-cotaska-workdir-file", JSON.stringify({
+      file_path: entry.file_path,
+      label: entry.label || entry.file_path,
+      type: entry.type,
+    }));
+    event.dataTransfer.setData("text/plain", entry.file_path);
+  };
+
+  const handleComposeDragOver = (event) => {
+    const hasWorkdirFile = event.dataTransfer.types.includes("application/x-cotaska-workdir-file");
+    const hasExternalFile = event.dataTransfer.types.includes("Files");
+    if (!hasWorkdirFile && !hasExternalFile) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+    setIsComposeDragOver(true);
+  };
+
+  const handleComposeDragLeave = (event) => {
+    if (event.currentTarget.contains(event.relatedTarget)) return;
+    setIsComposeDragOver(false);
+  };
+
+  const handleComposeDrop = async (event) => {
+    const raw = event.dataTransfer.getData("application/x-cotaska-workdir-file");
+    const droppedFiles = Array.from(event.dataTransfer.files || []);
+    if (!raw && droppedFiles.length === 0) return;
+    event.preventDefault();
+    setIsComposeDragOver(false);
+    try {
+      if (raw) {
+        const entry = JSON.parse(raw);
+        await handleAddReferenceFromTree(entry);
+        return;
+      }
+      if (!aiChatApi?.normalizeReferenceFiles) {
+        throw new Error("外部ファイルの参照追加APIが利用できません。");
+      }
+      const filePaths = aiChatApi.getDroppedFilePaths
+        ? aiChatApi.getDroppedFilePaths(droppedFiles)
+        : droppedFiles.map((file) => file.path).filter(Boolean);
+      if (filePaths.length === 0) {
+        throw new Error("ドラッグしたファイルのパスを取得できませんでした。");
+      }
+      const result = await aiChatApi.normalizeReferenceFiles(filePaths);
+      await addReferenceFiles(result);
+    } catch (error) {
+      setRuntimeState({
+        ready: false,
+        status: "error",
+        message: error?.message || "ドラッグしたファイルを参照ファイルに追加できませんでした。",
+      });
+    }
   };
 
   const runWorkdirEntryAction = async (action) => {
@@ -741,6 +823,8 @@ function AiChatPane({ tasks = [], onOpenTask }) {
                       title={entry.file_path || entry.label}
                       onClick={() => handleWorkdirTreeEntryClick(entry)}
                       onContextMenu={(event) => handleWorkdirTreeContextMenu(event, entry)}
+                      draggable={entry.type === "file"}
+                      onDragStart={(event) => handleWorkdirTreeDragStart(event, entry)}
                       aria-expanded={isDirectory ? isExpanded : undefined}
                     >
                       <span className="ai-file-toggle" aria-hidden="true" />
@@ -838,7 +922,7 @@ function AiChatPane({ tasks = [], onOpenTask }) {
           <button
             type="button"
             className="ai-scroll-bottom-button"
-            onClick={scrollMessagesToBottom}
+            onClick={() => scrollMessagesToBottom()}
             title="一番下までスクロール"
             aria-label="一番下までスクロール"
           >
@@ -846,7 +930,12 @@ function AiChatPane({ tasks = [], onOpenTask }) {
           </button>
         )}
 
-        <footer className={`ai-compose${isSending ? " ai-compose--sending" : ""}`}>
+        <footer
+          className={`ai-compose${isSending ? " ai-compose--sending" : ""}${isComposeDragOver ? " ai-compose--drag-over" : ""}`}
+          onDragOver={handleComposeDragOver}
+          onDragLeave={handleComposeDragLeave}
+          onDrop={handleComposeDrop}
+        >
           <textarea
             value={draft}
             disabled={isSending}

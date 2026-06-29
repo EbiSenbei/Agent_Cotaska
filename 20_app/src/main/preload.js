@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require("electron");
+const { contextBridge, ipcRenderer, webUtils } = require("electron");
 
 // Renderer プロセスに公開する API を最小限に制限する
 // ホワイトリスト方式: ipcRenderer を直接渡さず、呼べるチャンネルを限定する
@@ -63,6 +63,10 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
     revealWorkdirPath: (filePath) => ipcRenderer.invoke("aiChat:revealWorkdirPath", filePath),
     deleteWorkdirPath: (filePath) => ipcRenderer.invoke("aiChat:deleteWorkdirPath", filePath),
     chooseReferenceFiles: () => ipcRenderer.invoke("aiChat:chooseReferenceFiles"),
+    getDroppedFilePaths: (files) => Array.from(files || [])
+      .map((file) => webUtils.getPathForFile(file))
+      .filter(Boolean),
+    normalizeReferenceFiles: (filePaths) => ipcRenderer.invoke("aiChat:normalizeReferenceFiles", filePaths),
     addReference: (input) => ipcRenderer.invoke("aiChat:addReference", input),
     removeReference: (referenceId) => ipcRenderer.invoke("aiChat:removeReference", referenceId),
     listProposals: (threadId) => ipcRenderer.invoke("aiChat:listProposals", threadId),

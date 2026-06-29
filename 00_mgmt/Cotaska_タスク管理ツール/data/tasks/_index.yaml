@@ -3666,21 +3666,21 @@ tasks:
   - id: T-0340
     title: 仕様変更：ファイルツリーからドラッグ
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 330
     tags: []
-    due_date: null
-    updated_at: '2026-06-28T14:52:00.632Z'
+    due_date: '2026-06-30'
+    updated_at: '2026-06-30T00:40:09+09:00'
   - id: T-0341
     title: 仕様変更：外部からファイルのドラッグ対応
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 331
     tags: []
-    due_date: null
-    updated_at: '2026-06-28T14:53:36.281Z'
+    due_date: '2026-06-30'
+    updated_at: '2026-06-30T01:05:30+09:00'
   - id: T-0342
     title: 仕様変更：添付ファイル対応
     list: 仕様変更
@@ -3699,7 +3699,34 @@ tasks:
     tags: []
     due_date: null
     updated_at: '2026-06-29T15:08:09.836Z'
+  - id: T-0344
+    title: 仕様変更：ファイルツリーのファイルクリック処理をなくす
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 334
+    tags: []
+    due_date: null
+    updated_at: '2026-06-29T15:42:44.538Z'
+  - id: T-0345
+    title: 不具合：検索が利かない
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 335
+    tags: []
+    due_date: null
+    updated_at: '2026-06-29T15:44:23.963Z'
+  - id: T-0346
+    title: 不具合：下にいかない
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 336
+    tags: []
+    due_date: '2026-06-30'
+    updated_at: '2026-06-29T16:07:15.375Z'
 task_file_roots:
   - .
-next_task_id: 344
-last_updated: '2026-06-29T15:31:29.368Z'
+next_task_id: 347
+last_updated: '2026-06-29T16:07:15.974Z'

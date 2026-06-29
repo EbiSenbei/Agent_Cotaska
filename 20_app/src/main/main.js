@@ -1417,6 +1417,32 @@ function resolveWorkdirPath(relativePath) {
   return { workdir, targetPath, relative };
 }
 
+function normalizeReferenceFileEntries(filePaths) {
+  const workdir = getAiWorkdir();
+  const inputPaths = Array.isArray(filePaths) ? filePaths : [];
+  const files = inputPaths
+    .map((filePath) => {
+      if (!filePath) return null;
+      const absolutePath = path.resolve(String(filePath));
+      if (!fs.existsSync(absolutePath) || !fs.statSync(absolutePath).isFile()) return null;
+      const relativePath = path.relative(workdir, absolutePath);
+      const isInsideWorkdir = relativePath && !relativePath.startsWith("..") && !path.isAbsolute(relativePath);
+      return {
+        file_path: isInsideWorkdir ? relativePath : absolutePath,
+        label: path.basename(absolutePath),
+        absolute_path: absolutePath,
+        is_external: !isInsideWorkdir,
+      };
+    })
+    .filter(Boolean);
+
+  return {
+    ok: files.length > 0,
+    files,
+    skippedCount: inputPaths.length - files.length,
+  };
+}
+
 ipcMain.handle("aiChat:listWorkdirTree", async () => {
   await servicesReady;
   try {
@@ -1480,8 +1506,7 @@ ipcMain.handle("aiChat:deleteWorkdirPath", async (_e, filePath) => {
 ipcMain.handle("aiChat:chooseReferenceFiles", async () => {
   await servicesReady;
   try {
-    const aiSettings = settingsService.getSettings().settings.aiChat || {};
-    const workdir = path.resolve(aiSettings.workdir || path.resolve(process.cwd(), ".."));
+    const workdir = getAiWorkdir();
     const result = await dialog.showOpenDialog({
       title: "参照ファイルを選択",
       defaultPath: workdir,
@@ -1495,25 +1520,27 @@ ipcMain.handle("aiChat:chooseReferenceFiles", async () => {
       return { ok: false, canceled: true };
     }
 
-    const files = result.filePaths
-      .map((filePath) => {
-        const absolutePath = path.resolve(filePath);
-        const relativePath = path.relative(workdir, absolutePath);
-        if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) return null;
-        return {
-          file_path: relativePath,
-          label: path.basename(absolutePath),
-          absolute_path: absolutePath,
-        };
-      })
-      .filter(Boolean);
-
-    if (files.length === 0) {
-      return { ok: false, error: "作業フォルダ外のファイルは参照ファイルに追加できません。" };
+    const normalized = normalizeReferenceFileEntries(result.filePaths);
+    if (!normalized.ok) {
+      return { ok: false, error: "存在しないファイル、またはフォルダは参照ファイルに追加できません。" };
     }
-    return { ok: true, files, skippedCount: result.filePaths.length - files.length };
+    return normalized;
   } catch (err) {
     logger.error("aiChat:chooseReferenceFiles failed", err);
+    return { ok: false, error: err.message || String(err) };
+  }
+});
+
+ipcMain.handle("aiChat:normalizeReferenceFiles", async (_e, filePaths) => {
+  await servicesReady;
+  try {
+    const normalized = normalizeReferenceFileEntries(filePaths);
+    if (!normalized.ok) {
+      return { ok: false, error: "存在しないファイル、またはフォルダは参照ファイルに追加できません。" };
+    }
+    return normalized;
+  } catch (err) {
+    logger.error("aiChat:normalizeReferenceFiles failed", err);
     return { ok: false, error: err.message || String(err) };
   }
 });
