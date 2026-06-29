@@ -2,6 +2,9 @@ const fs = require("fs");
 const path = require("path");
 const yaml = require("js-yaml");
 
+const COTASKA_ROOT_DIR = path.resolve(__dirname, "../../..");
+const COTASKA_DATA_DIR = path.join(COTASKA_ROOT_DIR, "data");
+
 const DEFAULT_SETTINGS = {
   displayName: "Cotaska",
   externalEditorPath: "",
@@ -12,6 +15,13 @@ const DEFAULT_SETTINGS = {
   taskLoading: {
     completedInitialLimit: 100,
     completedLoadMoreLimit: 100,
+  },
+  aiChat: {
+    workdir: COTASKA_ROOT_DIR,
+    sandboxMode: "read-only",
+    retentionDays: 90,
+    maxReferenceFiles: 10,
+    maxReferenceChars: 100000,
   },
   update: {
     latestVersionUrl: "https://pub-d671fdad660b43a8a4b99ede58b7c092.r2.dev/latest/version.json",
@@ -40,8 +50,13 @@ function clampNumber(value, min, max, fallback) {
   return Math.max(min, Math.min(max, Math.round(numeric)));
 }
 
+function normalizeSandboxMode(value, fallback = DEFAULT_SETTINGS.aiChat.sandboxMode) {
+  const mode = String(value || fallback).trim();
+  return ["read-only", "workspace-write", "danger-full-access"].includes(mode) ? mode : fallback;
+}
+
 function getDataDir() {
-  return path.resolve(process.cwd(), "../data");
+  return COTASKA_DATA_DIR;
 }
 
 function getSettingsPath() {
@@ -69,6 +84,15 @@ function mergeSettings(raw) {
       ...(source.taskLoading || {}),
       completedInitialLimit: clampNumber(source.taskLoading?.completedInitialLimit, 0, 1000, DEFAULT_SETTINGS.taskLoading.completedInitialLimit),
       completedLoadMoreLimit: clampNumber(source.taskLoading?.completedLoadMoreLimit, 1, 1000, DEFAULT_SETTINGS.taskLoading.completedLoadMoreLimit),
+    },
+    aiChat: {
+      ...DEFAULT_SETTINGS.aiChat,
+      ...(source.aiChat || {}),
+      workdir: String(source.aiChat?.workdir || DEFAULT_SETTINGS.aiChat.workdir),
+      sandboxMode: normalizeSandboxMode(source.aiChat?.sandboxMode),
+      retentionDays: clampNumber(source.aiChat?.retentionDays, 1, 3650, DEFAULT_SETTINGS.aiChat.retentionDays),
+      maxReferenceFiles: clampNumber(source.aiChat?.maxReferenceFiles, 1, 100, DEFAULT_SETTINGS.aiChat.maxReferenceFiles),
+      maxReferenceChars: clampNumber(source.aiChat?.maxReferenceChars, 1000, 1000000, DEFAULT_SETTINGS.aiChat.maxReferenceChars),
     },
     update: {
       ...DEFAULT_SETTINGS.update,
@@ -111,6 +135,22 @@ function renderSettingsYaml(settings) {
     "",
     "  # 完了ビューで次を読み込む1回あたりの件数",
     `  completedLoadMoreLimit: ${normalized.taskLoading.completedLoadMoreLimit}`,
+    "",
+    "aiChat:",
+    "  # Working directory passed to Codex SDK.",
+    `  workdir: ${escaped(normalized.aiChat.workdir)}`,
+    "",
+    "  # Codex SDK sandbox mode: read-only / workspace-write / danger-full-access.",
+    `  sandboxMode: ${escaped(normalized.aiChat.sandboxMode)}`,
+    "",
+    "  # Days to keep archived AI data before cleanup.",
+    `  retentionDays: ${normalized.aiChat.retentionDays}`,
+    "",
+    "  # Maximum reference files attached to one Codex turn.",
+    `  maxReferenceFiles: ${normalized.aiChat.maxReferenceFiles}`,
+    "",
+    "  # Maximum total reference characters attached to one Codex turn.",
+    `  maxReferenceChars: ${normalized.aiChat.maxReferenceChars}`,
     "",
     "update:",
     "  # 最新版確認に使うURL。Cloudflare R2 の version.json または GitHub Releases latest API 互換JSONを想定します",
@@ -163,6 +203,10 @@ function updateSettings(patch) {
     taskLoading: {
       ...current.taskLoading,
       ...((patch || {}).taskLoading || {}),
+    },
+    aiChat: {
+      ...current.aiChat,
+      ...((patch || {}).aiChat || {}),
     },
     update: {
       ...current.update,

@@ -5,6 +5,7 @@ import NavPanel   from "./components/NavPanel";
 import MainPane   from "./components/MainPane";
 import DetailPane from "./components/DetailPane";
 import SettingsPane from "./components/SettingsPane";
+import AiChatPane from "./components/AiChatPane";
 import {
   MAX_TASK_TREE_DEPTH,
   addDays,
@@ -673,14 +674,30 @@ function App() {
 
   // T-004-05: サイドバーアイコンに応じてナビパネルの表示を制御
   const isSettingsMode = activeIcon === "設定";
+  const isAiMode = activeIcon === "AI";
   const navVisible = activeIcon === "リスト";
 
   const handleSidebarIconClick = useCallback((icon) => {
     setActiveIcon(icon);
-    if (icon === "リスト" || icon === "検索") {
+    if (icon === "リスト" || icon === "検索" || icon === "AI") {
       setDetailPaneExpanded(false);
     }
   }, []);
+
+  const handleOpenTaskFromAi = useCallback((taskId) => {
+    const task = tasks.find((item) => item.id === taskId);
+    if (!task) return;
+    setActiveIcon("リスト");
+    setDetailPaneExpanded(false);
+    setSelectedTask(task);
+    if (task.status === "done") {
+      setActiveNav("完了");
+    } else if (task.list === null || task.list === undefined) {
+      setActiveNav("リストなし");
+    } else {
+      setActiveNav(task.list);
+    }
+  }, [tasks]);
 
   const tagCounts = useMemo(() => {
     const counts = {};
@@ -837,6 +854,8 @@ function App() {
       />
       {isSettingsMode ? (
         <SettingsPane />
+      ) : isAiMode ? (
+        <AiChatPane tasks={tasks} onOpenTask={handleOpenTaskFromAi} />
       ) : (
       <>
       {navVisible && !detailPaneExpanded && (

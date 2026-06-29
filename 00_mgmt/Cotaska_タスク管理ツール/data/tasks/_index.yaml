@@ -1442,7 +1442,7 @@ tasks:
     due_date: '2026-05-16'
     updated_at: '2026-05-16T03:09:30.070Z'
   - id: T-0154
-    title: CHG-058 ローカルAI CLIチャット連携
+    title: CHG-058 Codex SDKチャット連携
     list: 仕様変更
     status: todo
     priority: high
@@ -1451,9 +1451,9 @@ tasks:
       - CHG-058
       - 仕様変更
       - AI連携
-      - CLI連携
+      - Codex SDK
     due_date: null
-    updated_at: '2026-05-14T11:10:00+09:00'
+    updated_at: '2026-06-28T18:08:59+09:00'
   - id: T-0151
     title: CHG-057-02 実装：現在バージョン取得と表示
     list: 仕様変更
@@ -1466,17 +1466,17 @@ tasks:
     due_date: '2026-05-16'
     updated_at: '2026-05-16T03:09:31.570Z'
   - id: T-0155
-    title: 'CHG-058-01 設計反映: ローカルAI CLIチャット連携'
+    title: 'CHG-058-01 設計反映: Codex SDKチャット連携'
     list: 仕様変更
-    status: todo
+    status: done
     priority: high
     sort_order: 141
     tags:
-      - CHG-057
+      - CHG-058
       - 設計
       - AI連携
     due_date: null
-    updated_at: '2026-05-14T11:10:00+09:00'
+    updated_at: '2026-06-28T18:08:59+09:00'
   - id: T-0152
     title: CHG-057-03 ユーザー確認：バージョン情報表示
     list: 仕様変更
@@ -1489,18 +1489,18 @@ tasks:
     due_date: '2026-05-16'
     updated_at: '2026-05-16T03:10:12.865Z'
   - id: T-0156
-    title: 'CHG-058-02 実装: 共通CLI基盤とCodex CLI初期対応'
+    title: 'CHG-058-02 実装: Codex SDKチャット連携基盤'
     list: 仕様変更
-    status: todo
+    status: done
     priority: high
     sort_order: 142
     tags:
-      - CHG-057
+      - CHG-058
       - 実装
       - Codex
       - AI連携
     due_date: null
-    updated_at: '2026-05-15T01:44:38.122Z'
+    updated_at: '2026-06-28T18:08:59+09:00'
   - id: T-0153
     title: タスク１
     list: null
@@ -1521,7 +1521,7 @@ tasks:
       - ユーザー確認
       - AI連携
     due_date: null
-    updated_at: '2026-05-15T01:44:42.946Z'
+    updated_at: '2026-06-28T09:45:41.437Z'
   - id: T-0158
     title: 'CHG-058-04 実装: GitHub Copilot CLIプロバイダ追加'
     list: 仕様変更
@@ -1536,18 +1536,18 @@ tasks:
     due_date: null
     updated_at: '2026-05-15T01:44:49.189Z'
   - id: T-0159
-    title: 'CHG-058-05 実装: Claude Codeプロバイダ追加'
+    title: 'CHG-058-05 調査・設計: Claude連携を見据えたAIプロバイダ拡張'
     list: 仕様変更
     status: todo
     priority: normal
     sort_order: 145
     tags:
-      - CHG-057
-      - 実装
-      - Claude Code
+      - CHG-058
+      - 設計
+      - Claude
       - AI連携
     due_date: null
-    updated_at: '2026-05-15T01:44:53.613Z'
+    updated_at: '2026-06-28T21:46:05+09:00'
   - id: T-0160
     title: 'CHG-058-06 実装: Gemini CLIプロバイダ追加'
     list: 仕様変更
@@ -3025,13 +3025,13 @@ tasks:
     updated_at: '2026-05-27T22:00:00+09:00'
   - id: T-0291
     title: Cotaskaの知名度を上げたい
-    list: null
+    list: 販売戦略
     status: todo
     priority: normal
     sort_order: 281
     tags: []
     due_date: null
-    updated_at: '2026-05-29T22:05:11.675+09:00'
+    updated_at: '2026-06-28T13:01:33.340Z'
   - id: T-0282
     title: CHG-083-02 実装：初期読み込み対象の絞り込み
     list: 仕様変更
@@ -3146,7 +3146,7 @@ tasks:
     updated_at: '2026-06-02T14:02:40.600Z'
   - id: T-0292
     title: Cotaska認知向上：価値提案と想定ユーザーを整理する
-    list: null
+    list: 販売戦略
     status: todo
     priority: normal
     sort_order: 292
@@ -3155,10 +3155,10 @@ tasks:
       - 知名度向上
       - ロードマップ
     due_date: null
-    updated_at: '2026-05-29T22:00:27.285+09:00'
+    updated_at: '2026-06-28T13:01:41.257Z'
   - id: T-0293
     title: Cotaska認知向上：紹介文とキャッチコピーを作る
-    list: null
+    list: 販売戦略
     status: todo
     priority: normal
     sort_order: 293
@@ -3167,10 +3167,10 @@ tasks:
       - 知名度向上
       - コピー
     due_date: null
-    updated_at: '2026-05-29T22:00:27.285+09:00'
+    updated_at: '2026-06-28T13:01:44.620Z'
   - id: T-0294
     title: Cotaska認知向上：スクリーンショットと短い操作動画を用意する
-    list: null
+    list: 販売戦略
     status: todo
     priority: normal
     sort_order: 294
@@ -3179,10 +3179,10 @@ tasks:
       - 知名度向上
       - 素材
     due_date: null
-    updated_at: '2026-05-29T22:00:27.285+09:00'
+    updated_at: '2026-06-28T13:01:48.061Z'
   - id: T-0295
     title: Cotaska認知向上：公開・ダウンロード導線を整える
-    list: null
+    list: 販売戦略
     status: todo
     priority: normal
     sort_order: 295
@@ -3191,7 +3191,7 @@ tasks:
       - 知名度向上
       - 配布
     due_date: null
-    updated_at: '2026-05-29T22:29:04.121+09:00'
+    updated_at: '2026-06-28T13:01:52.328Z'
   - id: T-0305
     title: 仕様変更：期限サブ画面の仕様変更
     list: null
@@ -3204,7 +3204,7 @@ tasks:
     updated_at: '2026-06-02T14:02:52.650Z'
   - id: T-0296
     title: Cotaska認知向上：noteとSNSの発信計画を作る
-    list: null
+    list: 販売戦略
     status: todo
     priority: normal
     sort_order: 296
@@ -3213,10 +3213,10 @@ tasks:
       - 知名度向上
       - 発信
     due_date: null
-    updated_at: '2026-05-29T22:05:11.675+09:00'
+    updated_at: '2026-06-28T13:01:55.153Z'
   - id: T-0297
     title: Cotaska認知向上：ユーザー反応と改善要望の受け皿を作る
-    list: null
+    list: 販売戦略
     status: todo
     priority: normal
     sort_order: 297
@@ -3225,10 +3225,10 @@ tasks:
       - 知名度向上
       - フィードバック
     due_date: null
-    updated_at: '2026-05-29T22:00:27.285+09:00'
+    updated_at: '2026-06-28T13:01:57.823Z'
   - id: T-0298
     title: Cotaska認知向上：流入と反応の確認指標を決める
-    list: null
+    list: 販売戦略
     status: todo
     priority: normal
     sort_order: 298
@@ -3237,10 +3237,10 @@ tasks:
       - 知名度向上
       - 効果測定
     due_date: null
-    updated_at: '2026-05-29T22:00:27.285+09:00'
+    updated_at: '2026-06-28T13:02:00.104Z'
   - id: T-0299
     title: Cotaska認知向上：初回公開キャンペーンを実施する
-    list: null
+    list: 販売戦略
     status: todo
     priority: normal
     sort_order: 299
@@ -3249,7 +3249,7 @@ tasks:
       - 知名度向上
       - 初回公開
     due_date: null
-    updated_at: '2026-05-29T22:05:11.675+09:00'
+    updated_at: '2026-06-28T13:02:02.425Z'
   - id: T-0310
     title: 不具合：タスク更新時に画面がちらちらする
     list: 不具合修正
@@ -3281,7 +3281,7 @@ tasks:
     tags:
       - BUG-20260625-02
     due_date: '2026-06-25'
-    updated_at: '2026-06-25T22:05:36+09:00'
+    updated_at: '2026-06-28T13:04:58.280Z'
   - id: T-0302
     title: CHG-085-02 ユーザー確認：期限項目追加の画面モック認識合わせ
     list: 仕様変更
@@ -3378,6 +3378,17 @@ tasks:
       - 完了タスク
     due_date: '2026-06-25'
     updated_at: '2026-06-25T22:25:21+09:00'
+  - id: T-0322
+    title: 仕様変更：タスク最大化した時の戻り方
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 312
+    tags:
+      - CHG-089
+      - 詳細ペイン
+    due_date: null
+    updated_at: '2026-06-27T17:48:07+09:00'
   - id: T-0313
     title: CHG-087-02 確認：すべてビュー完了タスク追加読み込み
     list: 仕様変更
@@ -3402,7 +3413,7 @@ tasks:
       - 親子タスク
       - ドラッグ
     due_date: '2026-06-25'
-    updated_at: '2026-06-25T23:13:30+09:00'
+    updated_at: '2026-06-25T23:05:34+09:00'
   - id: T-0315
     title: CHG-088-02 実装：ドラッグによる親子紐づけ保存
     list: 仕様変更
@@ -3455,6 +3466,15 @@ tasks:
       - ドラッグ
     due_date: null
     updated_at: '2026-06-27T12:15:00+09:00'
+  - id: T-0328
+    title: 不具合：AI初期画面
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 318
+    tags: []
+    due_date: '2026-06-28'
+    updated_at: '2026-06-28T13:04:40.059Z'
   - id: T-0319
     title: CHG-088-06 ユーザー確認：ドロップ位置による親子変更
     list: 仕様変更
@@ -3468,6 +3488,15 @@ tasks:
       - ドラッグ
     due_date: null
     updated_at: '2026-06-27T13:40:00+09:00'
+  - id: T-0329
+    title: 不具合：チャットの表示をマークダウンに
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 319
+    tags: []
+    due_date: '2026-06-28'
+    updated_at: '2026-06-28T13:04:46.339Z'
   - id: T-0320
     title: BUG-20260627-01 CHG-088ドラッグが2回必要になる退行を修正
     list: 不具合対応
@@ -3481,7 +3510,196 @@ tasks:
       - ドラッグ
     due_date: null
     updated_at: '2026-06-27T13:40:00+09:00'
+  - id: T-0330
+    title: 不具合：投稿してから返事が来るまで無反応
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 320
+    tags: []
+    due_date: '2026-06-28'
+    updated_at: '2026-06-28T13:04:19.933Z'
+  - id: T-0321
+    title: BUG-20260627-02 子タスク保留で親タスクも保留になる問題を修正
+    list: 不具合対応
+    status: done
+    priority: high
+    sort_order: 321
+    tags:
+      - BUG-20260627-02
+      - 親子タスク
+      - 保留
+    due_date: null
+    updated_at: '2026-06-27T16:23:56+09:00'
+  - id: T-0331
+    title: 不具合：検索画面でタスク修正しても反映されない
+    list: 不具合修正
+    status: todo
+    priority: normal
+    sort_order: 321
+    tags: []
+    due_date: null
+    updated_at: '2026-06-29T15:08:18.243Z'
+  - id: T-0332
+    title: 不具合：権限設定の項目がない
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 322
+    tags: []
+    due_date: '2026-06-28'
+    updated_at: '2026-06-28T14:09:58.596Z'
+  - id: T-0323
+    title: CHG-089-01 設計：タスク詳細拡大解除導線を設計へ反映
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 323
+    tags:
+      - CHG-089
+      - 設計
+      - 詳細ペイン
+    due_date: null
+    updated_at: '2026-06-27T17:04:24+09:00'
+  - id: T-0333
+    title: 不具合：添付ファイルがつけられない
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 323
+    tags: []
+    due_date: '2026-06-28'
+    updated_at: '2026-06-28T23:20:43+09:00'
+  - id: T-0324
+    title: CHG-089-02 実装：サイドバーアイコン押下で詳細拡大を解除
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 324
+    tags:
+      - CHG-089
+      - 実装
+      - 詳細ペイン
+    due_date: null
+    updated_at: '2026-06-27T17:16:00+09:00'
+  - id: T-0334
+    title: 仕様変更：タスク詳細に「AIへチャット」を追加
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 324
+    tags: []
+    due_date: null
+    updated_at: '2026-06-28T13:16:39.750Z'
+  - id: T-0325
+    title: CHG-089-03 確認：詳細拡大解除導線の動作確認
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 325
+    tags:
+      - CHG-089
+      - ユーザー確認
+      - 詳細ペイン
+    due_date: null
+    updated_at: '2026-06-27T17:48:07+09:00'
+  - id: T-0335
+    title: 不具合：画面左が作業フォルダ⇒ファイルになっている
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 325
+    tags: []
+    due_date: '2026-06-30'
+    updated_at: '2026-06-29T15:31:28.769Z'
+  - id: T-0326
+    title: 'CHG-058-03 実装: Codex応答からアクション提案を自動抽出する'
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 326
+    tags:
+      - CHG-058
+      - Codex SDK
+      - AIチャット
+    due_date: null
+    updated_at: '2026-06-28T18:24:56+09:00'
+  - id: T-0327
+    title: 'CHG-058-04 実装: Codex SDKチャットのストリーミング表示に対応する'
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 327
+    tags:
+      - CHG-058
+      - Codex SDK
+      - AIチャット
+    due_date: null
+    updated_at: '2026-06-28T18:24:56+09:00'
+  - id: T-0337
+    title: 仕様変更：チャット投稿直後は一番下に移動してほしい
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 327
+    tags: []
+    due_date: '2026-06-28'
+    updated_at: '2026-06-28T23:28:39+09:00'
+  - id: T-0338
+    title: 仕様変更：CodexSDKからの処理待ちの時間表示を追加
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 328
+    tags: []
+    due_date: '2026-06-28'
+    updated_at: '2026-06-28T23:30:36+09:00'
+  - id: T-0339
+    title: 仕様変更：画面右のコンテキストパネル
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 329
+    tags: []
+    due_date: null
+    updated_at: '2026-06-28T14:51:02.698Z'
+  - id: T-0340
+    title: 仕様変更：ファイルツリーからドラッグ
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 330
+    tags: []
+    due_date: null
+    updated_at: '2026-06-28T14:52:00.632Z'
+  - id: T-0341
+    title: 仕様変更：外部からファイルのドラッグ対応
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 331
+    tags: []
+    due_date: null
+    updated_at: '2026-06-28T14:53:36.281Z'
+  - id: T-0342
+    title: 仕様変更：添付ファイル対応
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 332
+    tags: []
+    due_date: null
+    updated_at: '2026-06-29T15:08:12.380Z'
+  - id: T-0343
+    title: 仕様変更：起動時に「すべて」「今日」
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 333
+    tags: []
+    due_date: null
+    updated_at: '2026-06-29T15:08:09.836Z'
 task_file_roots:
   - .
-next_task_id: 321
-last_updated: '2026-06-27T04:40:00.000Z'
+next_task_id: 344
+last_updated: '2026-06-29T15:31:29.368Z'

@@ -39,6 +39,7 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
     get: () => ipcRenderer.invoke("settings:get"),
     update: (patch) => ipcRenderer.invoke("settings:update", patch),
     chooseExternalEditor: () => ipcRenderer.invoke("settings:chooseExternalEditor"),
+    chooseAiWorkdir: () => ipcRenderer.invoke("settings:chooseAiWorkdir"),
   },
 
   backup: {
@@ -46,6 +47,31 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
     chooseRestoreDirectory: () => ipcRenderer.invoke("backup:chooseRestoreDirectory"),
     create: (targetDir) => ipcRenderer.invoke("backup:create", targetDir),
     restore: (sourceDir) => ipcRenderer.invoke("backup:restore", sourceDir),
+  },
+
+  aiChat: {
+    getDbInfo: () => ipcRenderer.invoke("aiChat:getDbInfo"),
+    listThreads: (options) => ipcRenderer.invoke("aiChat:listThreads", options),
+    createThread: (input) => ipcRenderer.invoke("aiChat:createThread", input),
+    updateThread: (threadId, updates) => ipcRenderer.invoke("aiChat:updateThread", threadId, updates),
+    archiveThread: (threadId) => ipcRenderer.invoke("aiChat:archiveThread", threadId),
+    listMessages: (threadId) => ipcRenderer.invoke("aiChat:listMessages", threadId),
+    addMessage: (input) => ipcRenderer.invoke("aiChat:addMessage", input),
+    listReferences: (threadId) => ipcRenderer.invoke("aiChat:listReferences", threadId),
+    listWorkdirTree: () => ipcRenderer.invoke("aiChat:listWorkdirTree"),
+    copyWorkdirPath: (filePath) => ipcRenderer.invoke("aiChat:copyWorkdirPath", filePath),
+    revealWorkdirPath: (filePath) => ipcRenderer.invoke("aiChat:revealWorkdirPath", filePath),
+    deleteWorkdirPath: (filePath) => ipcRenderer.invoke("aiChat:deleteWorkdirPath", filePath),
+    chooseReferenceFiles: () => ipcRenderer.invoke("aiChat:chooseReferenceFiles"),
+    addReference: (input) => ipcRenderer.invoke("aiChat:addReference", input),
+    removeReference: (referenceId) => ipcRenderer.invoke("aiChat:removeReference", referenceId),
+    listProposals: (threadId) => ipcRenderer.invoke("aiChat:listProposals", threadId),
+    createProposal: (input) => ipcRenderer.invoke("aiChat:createProposal", input),
+    updateProposal: (proposalId, updates) => ipcRenderer.invoke("aiChat:updateProposal", proposalId, updates),
+    applyProposal: (proposalId) => ipcRenderer.invoke("aiChat:applyProposal", proposalId),
+    listRuns: (threadId) => ipcRenderer.invoke("aiChat:listRuns", threadId),
+    purgeOldData: (days) => ipcRenderer.invoke("aiChat:purgeOldData", days),
+    sendMessage: (input) => ipcRenderer.invoke("aiChat:sendMessage", input),
   },
 
   // タスク操作（ファイルベース）

@@ -9,6 +9,8 @@ const listService = require("./listService");
 const watcher = require("./watcher");
 const reminderService = require("./reminderService");
 const settingsService = require("./settingsService");
+const aiService = require("./aiService");
+const codexSdkService = require("./codexSdkService");
 const logger     = require("./logger");
 const appLogger  = require("./appLogger");
 const { createBackupService } = require("./backupService");
@@ -1132,12 +1134,15 @@ let viteProcess = null;
 // Vite dev サーバーを子プロセスとして起動し、ready になるまで待つ
 function startVite() {
   return new Promise((resolve) => {
-    const npmCmd = process.platform === "win32" ? "npx.cmd" : "npx";
-    viteProcess = spawn(npmCmd, ["vite"], {
-      cwd: path.join(__dirname, "../.."),
+    const appRoot = path.join(__dirname, "../..");
+    const viteCliPath = path.join(appRoot, "node_modules", "vite", "bin", "vite.js");
+    const nodeExe = process.execPath;
+
+    viteProcess = spawn(nodeExe, [viteCliPath], {
+      cwd: appRoot,
       env: { ...process.env, NODE_TLS_REJECT_UNAUTHORIZED: "0" },
       stdio: ["ignore", "pipe", "pipe"],
-      shell: process.platform === "win32" ? true : false,
+      shell: false,
     });
 
     viteProcess.stdout.on("data", (data) => {
@@ -1208,6 +1213,18 @@ ipcMain.handle("settings:chooseExternalEditor", async () => {
   return { ok: true, path: result.filePaths[0] };
 });
 
+ipcMain.handle("settings:chooseAiWorkdir", async () => {
+  const result = await dialog.showOpenDialog({
+    title: "作業フォルダを選択",
+    defaultPath: settingsService.getSettings().settings.aiChat?.workdir || path.resolve(process.cwd(), ".."),
+    properties: ["openDirectory", "createDirectory"],
+  });
+  if (result.canceled || !result.filePaths?.[0]) {
+    return { ok: false, canceled: true };
+  }
+  return { ok: true, path: result.filePaths[0] };
+});
+
 ipcMain.handle("backup:chooseDirectory", async () => {
   const result = await dialog.showOpenDialog({
     title: "バックアップ保存先を選択",
@@ -1251,6 +1268,394 @@ ipcMain.handle("backup:restore", async (_e, sourceDir) => {
   } catch (err) {
     logger.error("backup:restore failed", err);
     return { ok: false, error: err.message || "バックアップ復元に失敗しました。" };
+  }
+});
+
+ipcMain.handle("aiChat:getDbInfo", async () => {
+  await servicesReady;
+  try {
+    return aiService.getDbInfo();
+  } catch (err) {
+    logger.error("aiChat:getDbInfo failed", err);
+    return { ok: false, error: err.message || String(err) };
+  }
+});
+
+ipcMain.handle("aiChat:listThreads", async (_e, options) => {
+  await servicesReady;
+  try {
+    return aiService.listThreads(options || {});
+  } catch (err) {
+    logger.error("aiChat:listThreads failed", err);
+    return [];
+  }
+});
+
+ipcMain.handle("aiChat:createThread", async (_e, input) => {
+  await servicesReady;
+  try {
+    return { ok: true, thread: aiService.createThread(input || {}) };
+  } catch (err) {
+    logger.error("aiChat:createThread failed", err);
+    return { ok: false, error: err.message || String(err) };
+  }
+});
+
+ipcMain.handle("aiChat:updateThread", async (_e, threadId, updates) => {
+  await servicesReady;
+  try {
+    return { ok: true, thread: aiService.updateThread(threadId, updates || {}) };
+  } catch (err) {
+    logger.error("aiChat:updateThread failed", err);
+    return { ok: false, error: err.message || String(err) };
+  }
+});
+
+ipcMain.handle("aiChat:archiveThread", async (_e, threadId) => {
+  await servicesReady;
+  try {
+    return { ok: true, thread: aiService.archiveThread(threadId) };
+  } catch (err) {
+    logger.error("aiChat:archiveThread failed", err);
+    return { ok: false, error: err.message || String(err) };
+  }
+});
+
+ipcMain.handle("aiChat:listMessages", async (_e, threadId) => {
+  await servicesReady;
+  try {
+    return aiService.listMessages(threadId);
+  } catch (err) {
+    logger.error("aiChat:listMessages failed", err);
+    return [];
+  }
+});
+
+ipcMain.handle("aiChat:addMessage", async (_e, input) => {
+  await servicesReady;
+  try {
+    return { ok: true, message: aiService.addMessage(input || {}) };
+  } catch (err) {
+    logger.error("aiChat:addMessage failed", err);
+    return { ok: false, error: err.message || String(err) };
+  }
+});
+
+ipcMain.handle("aiChat:listReferences", async (_e, threadId) => {
+  await servicesReady;
+  try {
+    return aiService.listReferences(threadId);
+  } catch (err) {
+    logger.error("aiChat:listReferences failed", err);
+    return [];
+  }
+});
+
+const AI_TREE_EXCLUDED_NAMES = new Set([
+  ".git",
+  "node_modules",
+  "dist",
+  "release",
+  "temp",
+  ".vite",
+  ".cache",
+]);
+
+function listWorkdirTree(rootDir, options = {}) {
+  const root = path.resolve(rootDir);
+  const maxDepth = Number(options.maxDepth || Number.POSITIVE_INFINITY);
+  const rows = [];
+
+  function walk(dir, level) {
+    if (level > maxDepth) return;
+    let entries = [];
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    entries
+      .filter((entry) => !AI_TREE_EXCLUDED_NAMES.has(entry.name))
+      .sort((a, b) => {
+        if (a.isDirectory() !== b.isDirectory()) return a.isDirectory() ? -1 : 1;
+        return a.name.localeCompare(b.name, "ja");
+      })
+      .forEach((entry) => {
+        const absolutePath = path.join(dir, entry.name);
+        const relativePath = path.relative(root, absolutePath);
+        rows.push({
+          id: relativePath || entry.name,
+          label: entry.name,
+          file_path: relativePath,
+          type: entry.isDirectory() ? "directory" : "file",
+          level,
+        });
+        if (entry.isDirectory()) walk(absolutePath, level + 1);
+      });
+  }
+
+  walk(root, 0);
+  return {
+    root,
+    rows,
+    truncated: false,
+  };
+}
+
+function getAiWorkdir() {
+  const aiSettings = settingsService.getSettings().settings.aiChat || {};
+  return path.resolve(aiSettings.workdir || settingsService.DEFAULT_SETTINGS.aiChat.workdir);
+}
+
+function resolveWorkdirPath(relativePath) {
+  const workdir = getAiWorkdir();
+  const targetPath = path.resolve(workdir, String(relativePath || ""));
+  const relative = path.relative(workdir, targetPath);
+  if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) {
+    throw new Error("作業フォルダ外のパスは操作できません。");
+  }
+  return { workdir, targetPath, relative };
+}
+
+ipcMain.handle("aiChat:listWorkdirTree", async () => {
+  await servicesReady;
+  try {
+    const workdir = getAiWorkdir();
+    return { ok: true, ...listWorkdirTree(workdir) };
+  } catch (err) {
+    logger.error("aiChat:listWorkdirTree failed", err);
+    return { ok: false, error: err.message || String(err), rows: [] };
+  }
+});
+
+ipcMain.handle("aiChat:copyWorkdirPath", async (_e, filePath) => {
+  await servicesReady;
+  try {
+    const { targetPath } = resolveWorkdirPath(filePath);
+    clipboard.writeText(targetPath);
+    return { ok: true, path: targetPath };
+  } catch (err) {
+    logger.error("aiChat:copyWorkdirPath failed", err);
+    return { ok: false, error: err.message || String(err) };
+  }
+});
+
+ipcMain.handle("aiChat:revealWorkdirPath", async (_e, filePath) => {
+  await servicesReady;
+  try {
+    const { targetPath } = resolveWorkdirPath(filePath);
+    if (!fs.existsSync(targetPath)) throw new Error("対象のファイルまたはフォルダが見つかりません。");
+    shell.showItemInFolder(targetPath);
+    return { ok: true, path: targetPath };
+  } catch (err) {
+    logger.error("aiChat:revealWorkdirPath failed", err);
+    return { ok: false, error: err.message || String(err) };
+  }
+});
+
+ipcMain.handle("aiChat:deleteWorkdirPath", async (_e, filePath) => {
+  await servicesReady;
+  try {
+    const { targetPath } = resolveWorkdirPath(filePath);
+    if (!fs.existsSync(targetPath)) throw new Error("対象のファイルまたはフォルダが見つかりません。");
+    const stat = fs.statSync(targetPath);
+    const result = await dialog.showMessageBox(mainWindow, {
+      type: "warning",
+      buttons: ["削除", "キャンセル"],
+      defaultId: 1,
+      cancelId: 1,
+      title: "削除の確認",
+      message: `${stat.isDirectory() ? "フォルダ" : "ファイル"}を削除しますか？`,
+      detail: targetPath,
+    });
+    if (result.response !== 0) return { ok: false, canceled: true };
+    fs.rmSync(targetPath, { recursive: stat.isDirectory(), force: false });
+    return { ok: true, path: targetPath };
+  } catch (err) {
+    logger.error("aiChat:deleteWorkdirPath failed", err);
+    return { ok: false, error: err.message || String(err) };
+  }
+});
+
+ipcMain.handle("aiChat:chooseReferenceFiles", async () => {
+  await servicesReady;
+  try {
+    const aiSettings = settingsService.getSettings().settings.aiChat || {};
+    const workdir = path.resolve(aiSettings.workdir || path.resolve(process.cwd(), ".."));
+    const result = await dialog.showOpenDialog({
+      title: "参照ファイルを選択",
+      defaultPath: workdir,
+      properties: ["openFile", "multiSelections"],
+      filters: [
+        { name: "参照ファイル", extensions: ["md", "txt", "js", "jsx", "ts", "tsx", "json", "yaml", "yml", "css", "html", "py", "ps1", "sql"] },
+        { name: "すべてのファイル", extensions: ["*"] },
+      ],
+    });
+    if (result.canceled || !result.filePaths?.length) {
+      return { ok: false, canceled: true };
+    }
+
+    const files = result.filePaths
+      .map((filePath) => {
+        const absolutePath = path.resolve(filePath);
+        const relativePath = path.relative(workdir, absolutePath);
+        if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) return null;
+        return {
+          file_path: relativePath,
+          label: path.basename(absolutePath),
+          absolute_path: absolutePath,
+        };
+      })
+      .filter(Boolean);
+
+    if (files.length === 0) {
+      return { ok: false, error: "作業フォルダ外のファイルは参照ファイルに追加できません。" };
+    }
+    return { ok: true, files, skippedCount: result.filePaths.length - files.length };
+  } catch (err) {
+    logger.error("aiChat:chooseReferenceFiles failed", err);
+    return { ok: false, error: err.message || String(err) };
+  }
+});
+
+ipcMain.handle("aiChat:addReference", async (_e, input) => {
+  await servicesReady;
+  try {
+    return { ok: true, reference: aiService.addReference(input || {}) };
+  } catch (err) {
+    logger.error("aiChat:addReference failed", err);
+    return { ok: false, error: err.message || String(err) };
+  }
+});
+
+ipcMain.handle("aiChat:removeReference", async (_e, referenceId) => {
+  await servicesReady;
+  try {
+    return aiService.removeReference(referenceId);
+  } catch (err) {
+    logger.error("aiChat:removeReference failed", err);
+    return { ok: false, error: err.message || String(err) };
+  }
+});
+
+ipcMain.handle("aiChat:listProposals", async (_e, threadId) => {
+  await servicesReady;
+  try {
+    return aiService.listProposals(threadId);
+  } catch (err) {
+    logger.error("aiChat:listProposals failed", err);
+    return [];
+  }
+});
+
+ipcMain.handle("aiChat:createProposal", async (_e, input) => {
+  await servicesReady;
+  try {
+    return { ok: true, proposal: aiService.createProposal(input || {}) };
+  } catch (err) {
+    logger.error("aiChat:createProposal failed", err);
+    return { ok: false, error: err.message || String(err) };
+  }
+});
+
+ipcMain.handle("aiChat:updateProposal", async (_e, proposalId, updates) => {
+  await servicesReady;
+  try {
+    return { ok: true, proposal: aiService.updateProposal(proposalId, updates || {}) };
+  } catch (err) {
+    logger.error("aiChat:updateProposal failed", err);
+    return { ok: false, error: err.message || String(err) };
+  }
+});
+
+function ensurePathInside(baseDir, targetPath) {
+  const base = path.resolve(baseDir);
+  const target = path.resolve(base, targetPath || "");
+  const relative = path.relative(base, target);
+  if (relative.startsWith("..") || path.isAbsolute(relative)) {
+    throw new Error("作業フォルダ外のファイルは更新できません。");
+  }
+  return target;
+}
+
+function applyAiProposal(proposalId) {
+  const proposal = aiService.getProposal(proposalId);
+  if (!proposal) throw new Error(`AI proposal not found: ${proposalId}`);
+  if (!["pending", "approved"].includes(proposal.proposal_status)) {
+    throw new Error(`この提案は反映できない状態です: ${proposal.proposal_status}`);
+  }
+
+  const payload = proposal.payload || {};
+  let result;
+  if (proposal.action_type === "update_task") {
+    const taskId = proposal.target_id || payload.id;
+    if (!taskId) throw new Error("更新対象タスクIDがありません。");
+    const updates = { ...payload, id: taskId };
+    result = taskService.updateTask(taskId, updates);
+  } else if (proposal.action_type === "create_task") {
+    result = taskService.addTask(payload);
+  } else if (proposal.action_type === "update_file") {
+    const settings = settingsService.getSettings().settings.aiChat || {};
+    const filePath = ensurePathInside(settings.workdir || path.resolve(process.cwd(), ".."), payload.file_path || payload.path || proposal.target_id);
+    if (typeof payload.content !== "string") {
+      throw new Error("update_file には content が必要です。");
+    }
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    fs.writeFileSync(filePath, payload.content, "utf8");
+    result = { success: true, filePath };
+  } else {
+    throw new Error(`未対応の提案種別です: ${proposal.action_type}`);
+  }
+
+  const applied = aiService.updateProposal(proposalId, { proposal_status: "applied" });
+  return { ok: true, proposal: applied, result };
+}
+
+ipcMain.handle("aiChat:applyProposal", async (_e, proposalId) => {
+  await servicesReady;
+  try {
+    return applyAiProposal(proposalId);
+  } catch (err) {
+    logger.error("aiChat:applyProposal failed", err);
+    try {
+      aiService.updateProposal(proposalId, {
+        proposal_status: "failed",
+        error_message: err.message || String(err),
+      });
+    } catch (_updateErr) {
+      // keep the original error as the user-facing failure
+    }
+    return { ok: false, error: err.message || String(err) };
+  }
+});
+
+ipcMain.handle("aiChat:listRuns", async (_e, threadId) => {
+  await servicesReady;
+  try {
+    return aiService.listRuns(threadId);
+  } catch (err) {
+    logger.error("aiChat:listRuns failed", err);
+    return [];
+  }
+});
+
+ipcMain.handle("aiChat:purgeOldData", async (_e, days) => {
+  await servicesReady;
+  try {
+    return aiService.purgeOldData(days);
+  } catch (err) {
+    logger.error("aiChat:purgeOldData failed", err);
+    return { ok: false, error: err.message || String(err) };
+  }
+});
+
+ipcMain.handle("aiChat:sendMessage", async (_e, input) => {
+  await servicesReady;
+  try {
+    return await codexSdkService.sendMessage(input || {});
+  } catch (err) {
+    logger.error("aiChat:sendMessage failed", err);
+    return { ok: false, error: err.message || String(err) };
   }
 });
 
@@ -1985,6 +2390,7 @@ async function initializeServicesAfterWindowReady() {
     detail: "リストとタグの設定を読み込んでいます。",
   });
   await listService.openListService();
+  await aiService.openAiService();
 
   const svcDuration = Date.now() - svcStartTime;
   logger.info("Services initialized");

@@ -389,3 +389,15 @@
 - 詳細ペイン拡大中は、右上の「元のサイズに戻す」だけでなく、左サイドバーの「リスト」アイコン押下でも通常表示へ戻す。
 - 実装は `App.jsx` のサイドバーアイコンクリック処理に限定し、「リスト」「検索」選択時に `detailPaneExpanded` を解除する。設定アイコンの既存挙動は変更しない。
 - サイドバーアイコンは `button` 要素として扱い、拡大中もクリックできるようサイドバーを詳細ペインより前面に表示する。
+
+## 2026-06-28 CHG-058 Codex SDKチャット連携
+
+- CHG-058 のAIチャット連携対象は Codex SDK のみに限定し、GitHub Copilot CLI / Claude Code / Gemini CLI などの複数AI CLIプロバイダ方式は対象外とする。
+- AIスレッド、チャット履歴、Codex SDK側 `threadId`、参照ファイル、実行ログ、タスク更新提案、承認/却下/反映履歴は `data/ai.sqlite` に保存する。
+- タスク正本は引き続き `data/tasks/*.md` とし、AI提案は `update_task` / `create_task` / `update_file` の構造化アクションとして検証し、利用者承認後に Cotaska 側で反映する。
+- OpenAI APIキー、Codex access token、ChatGPTログイン情報、`~/.codex/auth.json` の内容は Cotaska に保存・表示・複製しない。
+
+## 2026-06-28 タスク運用ルール
+
+- 期限未設定タスクを完了にする場合は、完了日として今日のローカル日付を `due_date` に設定する。
+- 不具合対応タスクはAIが修正・確認を終えてもユーザー動作確認までは完了にせず、`status: todo` / `progress_status: 仕掛` のユーザー確認待ちで止める。

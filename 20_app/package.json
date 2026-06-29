@@ -62,12 +62,14 @@
     }
   },
   "dependencies": {
+    "@openai/codex-sdk": "^0.142.3",
     "adm-zip": "^0.5.17",
     "chokidar": "^3.6.0",
     "gray-matter": "^4.0.3",
     "js-yaml": "^4.1.1",
     "markdown-it": "^14.1.1",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "sql.js": "^1.14.1"
   }
 }

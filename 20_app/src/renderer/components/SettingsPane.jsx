@@ -25,6 +25,13 @@ const DEFAULT_SETTINGS = {
     completedInitialLimit: 100,
     completedLoadMoreLimit: 100,
   },
+  aiChat: {
+    workdir: "",
+    sandboxMode: "read-only",
+    retentionDays: 90,
+    maxReferenceFiles: 10,
+    maxReferenceChars: 100000,
+  },
 };
 
 function normalizeSettings(settings) {
@@ -38,6 +45,10 @@ function normalizeSettings(settings) {
     taskLoading: {
       ...DEFAULT_SETTINGS.taskLoading,
       ...((settings || {}).taskLoading || {}),
+    },
+    aiChat: {
+      ...DEFAULT_SETTINGS.aiChat,
+      ...((settings || {}).aiChat || {}),
     },
   };
 }
@@ -66,6 +77,8 @@ function SettingsPane() {
   const [restoreDir, setRestoreDir] = useState("");
   const [restoreStatus, setRestoreStatus] = useState("");
   const [restoreError, setRestoreError] = useState("");
+  const [aiCleanupStatus, setAiCleanupStatus] = useState("");
+  const [aiCleanupError, setAiCleanupError] = useState("");
 
   const refreshAppInfo = async () => {
     const info = await window.cotaskaAPI?.app?.getInfo?.();
@@ -129,6 +142,10 @@ function SettingsPane() {
         ...current.taskLoading,
         ...(patch.taskLoading || {}),
       },
+      aiChat: {
+        ...current.aiChat,
+        ...(patch.aiChat || {}),
+      },
     }));
   };
 
@@ -146,6 +163,7 @@ function SettingsPane() {
     setSettingsPath(result.path || settingsPath);
     window.localStorage?.setItem("cotaska.detailContentFontSize", String(normalized.detailTextSize));
     window.dispatchEvent(new CustomEvent("cotaska:detailTextSizeChanged", { detail: normalized.detailTextSize }));
+    window.dispatchEvent(new CustomEvent("cotaska:aiChatSettingsChanged", { detail: normalized.aiChat }));
     setStatusMessage("設定を保存しました。");
     await refreshAppInfo();
   };
@@ -155,6 +173,26 @@ function SettingsPane() {
     if (result?.ok && result.path) {
       updateSettingState({ externalEditorPath: result.path });
     }
+  };
+
+  const chooseAiWorkdir = async () => {
+    const result = await window.cotaskaAPI?.settings?.chooseAiWorkdir?.();
+    if (result?.ok && result.path) {
+      updateSettingState({ aiChat: { workdir: result.path } });
+    }
+  };
+
+  const purgeOldAiData = async () => {
+    setAiCleanupStatus("");
+    setAiCleanupError("");
+    const days = Number(settings.aiChat.retentionDays || 90);
+    if (!window.confirm(`${days}日以前のアーカイブ済みAIデータを完全削除します。タスク本体は削除されません。続行しますか？`)) return;
+    const result = await window.cotaskaAPI?.aiChat?.purgeOldData?.(days);
+    if (!result?.ok) {
+      setAiCleanupError(result?.error || "AIデータ削除に失敗しました。");
+      return;
+    }
+    setAiCleanupStatus(`AIデータを削除しました。削除スレッド数: ${result.deletedThreads ?? 0}`);
   };
 
   const checkForUpdates = async () => {
@@ -469,12 +507,101 @@ function SettingsPane() {
                     </td>
                   </tr>
                   <tr>
-                    <th>外部AIAgent</th>
+                    <th>作業フォルダ</th>
                     <td>
-                      <select className="settings-select-input" disabled aria-label="外部AIAgent">
-                        <option>(未実装) ローカルCLI</option>
+                      <div className="settings-field-row">
+                        <input
+                          className="settings-text-input settings-path-input"
+                          type="text"
+                          value={settings.aiChat.workdir}
+                          aria-label="作業フォルダ"
+                          onChange={(e) => updateSettingState({ aiChat: { workdir: e.target.value } })}
+                        />
+                        <button type="button" className="settings-secondary-btn" onClick={chooseAiWorkdir}>参照</button>
+                      </div>
+                      <div className="settings-help-text">ファイルツリー表示とAI実行時の作業フォルダ。APIキーはCotaskaに保存しません。</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>権限</th>
+                    <td>
+                      <select
+                        className="settings-select-input"
+                        value={settings.aiChat.sandboxMode}
+                        aria-label="AI実行権限"
+                        onChange={(e) => updateSettingState({ aiChat: { sandboxMode: e.target.value } })}
+                      >
+                        <option value="read-only">読み取り専用</option>
+                        <option value="workspace-write">作業フォルダへ書き込み可</option>
+                        <option value="danger-full-access">フルアクセス</option>
                       </select>
-                      <div className="settings-help-text">ローカル CLI 連携は未実装。</div>
+                      <div className="settings-help-text">Codex SDK実行時の既定権限。チャット入力欄でも送信前に一時変更できます。</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>AI参照上限</th>
+                    <td>
+                      <div className="settings-task-loading-row">
+                        <div className="settings-unit-field settings-compact-unit-field">
+                          <span className="settings-inline-label">ファイル</span>
+                          <input
+                            className="settings-number-input settings-compact-number-input"
+                            type="number"
+                            value={settings.aiChat.maxReferenceFiles}
+                            min="1"
+                            max="100"
+                            step="1"
+                            aria-label="AI参照ファイル最大件数"
+                            onChange={(e) => updateSettingState({ aiChat: { maxReferenceFiles: e.target.value } })}
+                          />
+                          <span className="settings-unit-label">件</span>
+                        </div>
+                        <div className="settings-unit-field settings-compact-unit-field">
+                          <span className="settings-inline-label">合計</span>
+                          <input
+                            className="settings-number-input settings-compact-number-input"
+                            type="number"
+                            value={settings.aiChat.maxReferenceChars}
+                            min="1000"
+                            max="1000000"
+                            step="1000"
+                            aria-label="AI参照ファイル合計文字数"
+                            onChange={(e) => updateSettingState({ aiChat: { maxReferenceChars: e.target.value } })}
+                          />
+                          <span className="settings-unit-label">文字</span>
+                        </div>
+                      </div>
+                      <div className="settings-help-text">Codexへ渡す参照ファイルの上限。初期値は10件、100,000文字。</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>AIデータ削除</th>
+                    <td>
+                      <div className="settings-task-loading-row">
+                        <div className="settings-unit-field settings-compact-unit-field">
+                          <span className="settings-inline-label">保持</span>
+                          <input
+                            className="settings-number-input settings-compact-number-input"
+                            type="number"
+                            value={settings.aiChat.retentionDays}
+                            min="1"
+                            max="3650"
+                            step="1"
+                            aria-label="AIデータ保持日数"
+                            onChange={(e) => updateSettingState({ aiChat: { retentionDays: e.target.value } })}
+                          />
+                          <span className="settings-unit-label">日</span>
+                        </div>
+                        <button type="button" className="settings-secondary-btn" onClick={purgeOldAiData}>
+                          古いAIデータを削除
+                        </button>
+                      </div>
+                      <div className="settings-help-text">指定日数以前のアーカイブ済みAIスレッドと関連履歴を削除します。タスク本体は削除しません。</div>
+                      {(aiCleanupStatus || aiCleanupError) && (
+                        <div className={`settings-message ${aiCleanupError ? "settings-message--error" : "settings-message--success"}`}>
+                          {aiCleanupError || aiCleanupStatus}
+                        </div>
+                      )}
                     </td>
                   </tr>
                 </tbody>

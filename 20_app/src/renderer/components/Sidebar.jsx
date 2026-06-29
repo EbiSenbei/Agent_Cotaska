@@ -4,6 +4,7 @@ function Sidebar({ activeIcon, onIconClick, updateAlert }) {
   const primaryIcons = [
     { title: "リスト", emoji: "📋" },
     { title: "検索", emoji: "🔍" },
+    { title: "AI", emoji: "AI", className: "sb-icon--ai" },
   ];
   const hasUpdate = Boolean(updateAlert?.hasUpdate);
   const updateTitle = updateAlert?.latestVersion
@@ -25,11 +26,11 @@ function Sidebar({ activeIcon, onIconClick, updateAlert }) {
         </button>
       )}
 
-      {primaryIcons.map(({ title, emoji }) => (
+      {primaryIcons.map(({ title, emoji, className }) => (
         <button
           type="button"
           key={title}
-          className={`sb-icon${activeIcon === title ? " active" : ""}`}
+          className={`sb-icon${className ? ` ${className}` : ""}${activeIcon === title ? " active" : ""}`}
           title={title}
           aria-label={title}
           onClick={() => onIconClick?.(title)}

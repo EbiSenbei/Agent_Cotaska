@@ -33,16 +33,33 @@ function Stop-CotaskaDebugProcesses {
 }
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$nodeDir = (Resolve-Path (Join-Path $scriptDir "..\..\v22.14.0")).Path
-$nodeExe = Join-Path $nodeDir "node.exe"
 $electronCli = Join-Path $scriptDir "node_modules\electron\cli.js"
-$npxCmd = Join-Path $nodeDir "npx.cmd"
 
-if (-not (Test-Path -LiteralPath $nodeExe)) {
-    throw "Bundled node.exe was not found: $nodeExe"
+$nodeCandidates = @(
+    (Join-Path $scriptDir "..\..\v22.14.0\node.exe"),
+    (Join-Path $env:USERPROFILE ".cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe"),
+    "node.exe"
+)
+
+$nodeExe = $null
+foreach ($candidate in $nodeCandidates) {
+    try {
+        $resolved = (Resolve-Path $candidate -ErrorAction Stop).Path
+        if (Test-Path -LiteralPath $resolved) {
+            $nodeExe = $resolved
+            break
+        }
+    } catch {
+        $command = Get-Command $candidate -ErrorAction SilentlyContinue
+        if ($command) {
+            $nodeExe = $command.Source
+            break
+        }
+    }
 }
-if (-not (Test-Path -LiteralPath $npxCmd)) {
-    throw "Bundled npx.cmd was not found: $npxCmd"
+
+if ([string]::IsNullOrWhiteSpace($nodeExe) -or -not (Test-Path -LiteralPath $nodeExe)) {
+    throw "Node.js was not found. Install Node.js or provide bundled node.exe."
 }
 if (-not (Test-Path -LiteralPath $electronCli)) {
     throw "Electron CLI was not found. Run npm install first: $electronCli"
@@ -56,7 +73,8 @@ if ($StopExisting) {
     Start-Sleep -Milliseconds 800
 }
 
-$env:Path = "$nodeDir;$env:Path"
+$nodeDir = Split-Path -Parent $nodeExe
+$env:Path = "$nodeDir;$scriptDir\node_modules\.bin;$env:Path"
 $env:NODE_ENV = "development"
 $env:VITE_PORT = [string]$Port
 $env:NODE_TLS_REJECT_UNAUTHORIZED = "0"
