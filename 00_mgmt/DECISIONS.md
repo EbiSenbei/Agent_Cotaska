@@ -401,3 +401,15 @@
 
 - 期限未設定タスクを完了にする場合は、完了日として今日のローカル日付を `due_date` に設定する。
 - 不具合対応タスクはAIが修正・確認を終えてもユーザー動作確認までは完了にせず、`status: todo` / `progress_status: 仕掛` のユーザー確認待ちで止める。
+
+## 2026-06-30 CHG-058 AIチャット処理中断
+
+- AIチャットの中断は renderer の表示停止だけではなく、Electron main process 側で `request_id` ごとに `AbortController` を管理し、Codex SDK の `run(input, { signal })` へ `AbortSignal` を渡して実行中ターンへ中断要求を伝える。
+- 中断された run は `ai_runs.run_status = canceled` とし、チャット履歴には「AI処理を中断しました。」を残す。
+- 中断後に古い応答が遅れて返っても、renderer 側では `request_id` が現在の送信と一致しない結果を画面に反映しない。
+
+## 2026-06-30 CHG-058 AIチャット途中表示
+
+- AIチャットの処理中表示は Codex SDK の `runStreamed()` を利用し、main process から renderer へ `request_id` 付きの途中イベントを通知する。
+- 初期実装では途中イベント全文をDB保存せず、待ち時間の体感改善のためのリアルタイム表示として扱う。会話履歴として保存するのは、完了時の最終AI応答のみとする。
+- `command_execution` の出力など大きくなりやすいイベントは、renderer へ送る前に main process 側で丸める。

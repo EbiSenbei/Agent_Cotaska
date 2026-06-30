@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import MarkdownIt from "markdown-it";
+import DetailPane from "./DetailPane";
 
 const markdown = new MarkdownIt({
   html: false,
@@ -79,13 +80,27 @@ function MarkdownPreview({ content, error, onOpenTask }) {
   );
 }
 
-function AiChatPane({ tasks = [], onOpenTask }) {
+function AiChatPane({
+  tasks = [],
+  onOpenTask,
+  taskChatRequest = null,
+  lists = [],
+  tags = [],
+  onTaskUpdated,
+  onToggleComplete,
+  onSetTaskDue,
+  onSetTaskTags,
+  onAddTag,
+}) {
   const messageScrollRef = useRef(null);
   const pendingAutoScrollRef = useRef(false);
+  const activeSendRequestRef = useRef(null);
   const [sideTab, setSideTab] = useState("threads");
-  const [rightTab, setRightTab] = useState("task");
+  const [contextPanel, setContextPanel] = useState(null);
   const [selectedThreadId, setSelectedThreadId] = useState(null);
   const [draft, setDraft] = useState("");
+  const [sideSearchQuery, setSideSearchQuery] = useState("");
+  const [filePreviewMode, setFilePreviewMode] = useState(false);
   const [threads, setThreads] = useState([]);
   const [messages, setMessages] = useState([]);
   const [references, setReferences] = useState([]);
@@ -94,6 +109,7 @@ function AiChatPane({ tasks = [], onOpenTask }) {
   const [expandedWorkdirPaths, setExpandedWorkdirPaths] = useState(() => new Set());
   const [proposals, setProposals] = useState([]);
   const [isSending, setIsSending] = useState(false);
+  const [streamEvents, setStreamEvents] = useState([]);
   const [waitingSeconds, setWaitingSeconds] = useState(0);
   const [sandboxMode, setSandboxMode] = useState("read-only");
   const [showScrollBottom, setShowScrollBottom] = useState(false);
@@ -104,6 +120,7 @@ function AiChatPane({ tasks = [], onOpenTask }) {
     status: "unavailable",
     message: "cotaskaAPI.aiChat はまだ接続されていません。",
   });
+  const lastTaskChatRequestRef = useRef(null);
 
   const aiChatApi = useMemo(() => getAiChatApi(), []);
   const selectedThread = threads.find((thread) => thread.id === selectedThreadId) || null;
@@ -139,9 +156,84 @@ function AiChatPane({ tasks = [], onOpenTask }) {
     filePath: reference.file_path || "",
   });
 
+  const summarizeStreamEvent = (payload) => {
+    const event = payload?.event;
+    const item = event?.item;
+    if (!event) return null;
+    const id = item?.id || `${event.type}-${Date.now()}`;
+    const status = item?.status || event.type;
+    if (event.type === "turn.started") {
+      return { id: "turn-started", title: "処理を開始しました", detail: "", status: "in_progress" };
+    }
+    if (event.type === "turn.completed") {
+      return { id: "turn-completed", title: "応答をまとめています", detail: "", status: "completed" };
+    }
+    if (event.type === "turn.failed") {
+      return { id: "turn-failed", title: "処理に失敗しました", detail: event.error?.message || "", status: "failed" };
+    }
+    if (event.type === "error") {
+      return { id: "stream-error", title: "エラーが発生しました", detail: event.message || "", status: "failed" };
+    }
+    if (!item) return null;
+    if (item.type === "agent_message") {
+      return { id, title: "応答を生成しています", detail: item.text || "", status };
+    }
+    if (item.type === "reasoning") {
+      return { id, title: "考えを整理しています", detail: item.text || "", status };
+    }
+    if (item.type === "command_execution") {
+      const command = item.command ? `$ ${item.command}` : "コマンド実行";
+      return {
+        id,
+        title: item.status === "completed" ? "コマンド実行が完了しました" : "コマンドを実行しています",
+        detail: [command, item.aggregated_output].filter(Boolean).join("\n"),
+        status: item.status || status,
+      };
+    }
+    if (item.type === "file_change") {
+      const changes = Array.isArray(item.changes)
+        ? item.changes.map((change) => `${change.kind}: ${change.path}`).join("\n")
+        : "";
+      return {
+        id,
+        title: item.status === "completed" ? "ファイル変更が完了しました" : "ファイルを変更しています",
+        detail: changes,
+        status: item.status || status,
+      };
+    }
+    if (item.type === "mcp_tool_call") {
+      return {
+        id,
+        title: item.status === "completed" ? "ツール実行が完了しました" : "ツールを実行しています",
+        detail: [item.server, item.tool].filter(Boolean).join(" / "),
+        status: item.status || status,
+      };
+    }
+    if (item.type === "todo_list") {
+      const todoText = Array.isArray(item.items)
+        ? item.items.map((todo) => `${todo.completed ? "[x]" : "[ ]"} ${todo.text}`).join("\n")
+        : "";
+      return { id, title: "作業リストを更新しました", detail: todoText, status };
+    }
+    if (item.type === "web_search") {
+      return { id, title: "Web検索を実行しています", detail: item.query || "", status };
+    }
+    if (item.type === "error") {
+      return { id, title: "エラーが発生しました", detail: item.message || "", status: "failed" };
+    }
+    return { id, title: item.type || event.type, detail: "", status };
+  };
+
+  const mergeStreamEvent = (current, nextEvent) => {
+    if (!nextEvent) return current;
+    const withoutSame = current.filter((event) => event.id !== nextEvent.id);
+    return [...withoutSame, nextEvent].slice(-8);
+  };
+
   const getWorkdirEntryPath = (entry) => String(entry?.file_path || entry?.id || "");
 
   const isWorkdirEntryVisible = (entry) => {
+    if (sideSearchQuery.trim()) return true;
     const entryPath = getWorkdirEntryPath(entry);
     if (!entryPath || Number(entry.level || 0) === 0) return true;
     const parts = entryPath.split(/[\\/]/).filter(Boolean);
@@ -153,9 +245,99 @@ function AiChatPane({ tasks = [], onOpenTask }) {
     return true;
   };
 
-  const visibleWorkdirRows = workdirTree.rows.filter(isWorkdirEntryVisible);
+  const normalizeSearchValue = (value) => String(value || "").trim().toLowerCase();
+  const sideSearchText = normalizeSearchValue(sideSearchQuery);
+  const filteredThreads = sideSearchText
+    ? threads.filter((thread) => [
+      thread.title,
+      thread.subtitle,
+      thread.id,
+      ...(thread.badges || []),
+    ].some((value) => normalizeSearchValue(value).includes(sideSearchText)))
+    : threads;
+  const filteredWorkdirRows = useMemo(() => {
+    if (!sideSearchText) return workdirTree.rows;
+    const matchingPaths = new Set();
+    workdirTree.rows.forEach((entry) => {
+      const label = normalizeSearchValue(entry.label);
+      const filePath = normalizeSearchValue(entry.file_path);
+      if (!label.includes(sideSearchText) && !filePath.includes(sideSearchText)) return;
+      const parts = getWorkdirEntryPath(entry).split(/[\\/]/).filter(Boolean);
+      let currentPath = "";
+      parts.forEach((part) => {
+        currentPath = currentPath ? `${currentPath}\\${part}` : part;
+        matchingPaths.add(currentPath);
+      });
+    });
+    return workdirTree.rows.filter((entry) => matchingPaths.has(getWorkdirEntryPath(entry)));
+  }, [sideSearchText, workdirTree.rows]);
+  const visibleWorkdirRows = filteredWorkdirRows.filter(isWorkdirEntryVisible);
 
   const closeWorkdirContextMenu = () => setWorkdirContextMenu(null);
+
+  const findTask = (taskId) => tasks.find((task) => task.id === taskId) || null;
+
+  const openTaskContext = (taskId) => {
+    const task = findTask(taskId);
+    setContextPanel({
+      type: "task",
+      title: task?.title || taskId,
+      subtitle: taskId,
+      taskId,
+      task,
+    });
+  };
+
+  const getTaskIdFromPath = (filePath) => {
+    const name = String(filePath || "").split(/[\\/]/).pop() || "";
+    const match = name.match(/^(T-\d{4})\.md$/i);
+    return match?.[1] || null;
+  };
+
+  const isMarkdownFile = (file) => {
+    const extension = String(file?.extension || "").toLowerCase();
+    const label = String(file?.label || file?.path || "");
+    return extension === ".md" || extension === ".markdown" || /\.(md|markdown)$/i.test(label);
+  };
+
+  const openFileContext = async (entry) => {
+    if (!entry || entry.type !== "file" || !entry.file_path) return;
+    const taskId = getTaskIdFromPath(entry.file_path);
+    if (taskId) {
+      openTaskContext(taskId);
+      return;
+    }
+    setContextPanel({
+      type: "file",
+      title: entry.label || entry.file_path,
+      subtitle: entry.file_path,
+      status: "loading",
+      file: null,
+    });
+    setFilePreviewMode(false);
+    try {
+      if (!aiChatApi?.previewFile) {
+        throw new Error("ファイルプレビューAPIが利用できません。");
+      }
+      const result = await aiChatApi?.previewFile?.(entry.file_path);
+      if (result?.ok === false) throw new Error(result.error || "ファイルを読み込めませんでした。");
+      setContextPanel({
+        type: "file",
+        title: result?.label || entry.label || entry.file_path,
+        subtitle: result?.path || entry.file_path,
+        status: "ready",
+        file: result,
+      });
+    } catch (error) {
+      setContextPanel({
+        type: "file",
+        title: entry.label || entry.file_path,
+        subtitle: entry.file_path,
+        status: "error",
+        error: error?.message || "ファイルを読み込めませんでした。",
+      });
+    }
+  };
 
   const refreshThreads = async () => {
     if (!aiChatApi?.listThreads) return [];
@@ -256,6 +438,18 @@ function AiChatPane({ tasks = [], onOpenTask }) {
   }, [aiChatApi]);
 
   useEffect(() => {
+    if (!aiChatApi?.onRunEvent) return undefined;
+    return aiChatApi.onRunEvent((payload) => {
+      const activeRequest = activeSendRequestRef.current;
+      if (!activeRequest?.id || payload?.request_id !== activeRequest.id || activeRequest.canceled) return;
+      const nextEvent = summarizeStreamEvent(payload);
+      if (!nextEvent) return;
+      setStreamEvents((current) => mergeStreamEvent(current, nextEvent));
+      requestScrollMessagesToBottom();
+    });
+  }, [aiChatApi]);
+
+  useEffect(() => {
     if (sideTab === "files" && workdirTree.rows.length === 0 && !isLoadingWorkdirTree) {
       refreshWorkdirTree();
     }
@@ -343,6 +537,68 @@ function AiChatPane({ tasks = [], onOpenTask }) {
       window.removeEventListener("keydown", closeOnEscape);
     };
   }, [workdirContextMenu]);
+
+  useEffect(() => {
+    if (contextPanel?.type !== "task" || !contextPanel.taskId) return;
+    const latestTask = findTask(contextPanel.taskId);
+    if (!latestTask || latestTask === contextPanel.task) return;
+    setContextPanel((current) => (
+      current?.type === "task" && current.taskId === contextPanel.taskId
+        ? { ...current, title: latestTask.title || current.title, task: latestTask }
+        : current
+    ));
+  }, [tasks, contextPanel?.type, contextPanel?.taskId]);
+
+  useEffect(() => {
+    const requestKey = taskChatRequest
+      ? `${taskChatRequest.taskId}:${taskChatRequest.requestedAt}`
+      : "";
+    if (!requestKey || lastTaskChatRequestRef.current === requestKey) return;
+    lastTaskChatRequestRef.current = requestKey;
+    let cancelled = false;
+    const startTaskChat = async () => {
+      if (!aiChatApi?.createTaskChatThread) {
+        setRuntimeState({
+          ready: false,
+          status: "error",
+          message: "タスク用AIチャット作成APIが利用できません。",
+        });
+        return;
+      }
+      try {
+        const result = await aiChatApi.createTaskChatThread(taskChatRequest.taskId);
+        if (cancelled) return;
+        if (!result?.ok || !result.thread?.thread_id) {
+          throw new Error(result?.error || "タスク用AIチャットを作成できませんでした。");
+        }
+        const mappedThreads = await refreshThreads();
+        if (cancelled) return;
+        const threadId = result.thread.thread_id;
+        setSelectedThreadId(threadId);
+        if (!mappedThreads.some((thread) => thread.id === threadId)) {
+          setThreads((current) => [mapThread(result.thread), ...current]);
+        }
+        await refreshReferences(threadId);
+        if (cancelled) return;
+        setRuntimeState((current) => ({
+          ...current,
+          status: "ready",
+          message: `${taskChatRequest.taskId} を参照ファイルに追加したAIチャットを作成しました。`,
+        }));
+      } catch (error) {
+        if (cancelled) return;
+        setRuntimeState({
+          ready: false,
+          status: "error",
+          message: error?.message || "タスク用AIチャットを作成できませんでした。",
+        });
+      }
+    };
+    startTaskChat();
+    return () => {
+      cancelled = true;
+    };
+  }, [aiChatApi, taskChatRequest]);
 
   const handleNewThread = () => {
     setSelectedThreadId(null);
@@ -509,7 +765,7 @@ function AiChatPane({ tasks = [], onOpenTask }) {
       });
       return;
     }
-    handleAddReferenceFromTree(entry);
+    openFileContext(entry);
   };
 
   const handleWorkdirTreeContextMenu = (event, entry) => {
@@ -582,6 +838,28 @@ function AiChatPane({ tasks = [], onOpenTask }) {
     }
   };
 
+  const handleOpenContextFileExternal = async () => {
+    const filePath = contextPanel?.file?.path || contextPanel?.subtitle;
+    if (!filePath) return;
+    try {
+      const result = await window.cotaskaAPI?.shell?.openPath?.(filePath);
+      if (result?.ok === false) {
+        throw new Error(result.error || "外部アプリで開けませんでした。");
+      }
+      setRuntimeState((current) => ({
+        ...current,
+        status: "ready",
+        message: "外部アプリでファイルを開きました。",
+      }));
+    } catch (error) {
+      setRuntimeState({
+        ready: false,
+        status: "error",
+        message: error?.message || "外部アプリで開けませんでした。",
+      });
+    }
+  };
+
   const runWorkdirEntryAction = async (action) => {
     const entry = workdirContextMenu?.entry;
     closeWorkdirContextMenu();
@@ -648,6 +926,45 @@ function AiChatPane({ tasks = [], onOpenTask }) {
     }
   };
 
+  const handleCancelSend = async () => {
+    const currentRequest = activeSendRequestRef.current;
+    if (!isSending || !currentRequest?.id) return;
+    activeSendRequestRef.current = { ...currentRequest, canceled: true };
+    setIsSending(false);
+    setStreamEvents([]);
+    setRuntimeState((current) => ({
+      ...current,
+      status: "ready",
+      message: "AI処理の中断を要求しました。",
+    }));
+    requestScrollMessagesToBottom();
+    setMessages((current) => [
+      ...current,
+      {
+        id: `cancel-${Date.now()}`,
+        role: "assistant",
+        author: "Codex SDK",
+        body: "AI処理の中断を要求しました。",
+      },
+    ]);
+    try {
+      const result = await aiChatApi?.cancelRun?.(currentRequest.id);
+      if (result?.ok === false) {
+        setRuntimeState((current) => ({
+          ...current,
+          status: "error",
+          message: result.error || "AI処理を中断できませんでした。",
+        }));
+      }
+    } catch (error) {
+      setRuntimeState((current) => ({
+        ...current,
+        status: "error",
+        message: error?.message || "AI処理を中断できませんでした。",
+      }));
+    }
+  };
+
   const handleSend = async () => {
     const text = draft.trim();
     if (!text || isSending) return;
@@ -660,6 +977,8 @@ function AiChatPane({ tasks = [], onOpenTask }) {
       return;
     }
 
+    const requestId = `ai-send-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    activeSendRequestRef.current = { id: requestId, canceled: false };
     const pendingUserMessage = {
       id: `pending-user-${Date.now()}`,
       role: "user",
@@ -670,6 +989,7 @@ function AiChatPane({ tasks = [], onOpenTask }) {
 
     setDraft("");
     setIsSending(true);
+    setStreamEvents([]);
     requestScrollMessagesToBottom();
     setMessages((current) => [...current, pendingUserMessage]);
     setRuntimeState((current) => ({
@@ -685,10 +1005,19 @@ function AiChatPane({ tasks = [], onOpenTask }) {
         content: text,
         title: selectedThread?.title || createDraftThreadTitle(text),
         sandboxMode: effectiveSandboxMode,
+        request_id: requestId,
       });
 
+      const requestState = activeSendRequestRef.current;
+      if (requestState?.id !== requestId || requestState.canceled) return;
       const resultMessages = [result?.userMessage, result?.assistantMessage].filter(Boolean).map(mapMessage);
-      if (result?.ok === false) {
+      if (result?.canceled) {
+        setRuntimeState({
+          ready: true,
+          status: "ready",
+          message: "AI処理を中断しました。",
+        });
+      } else if (result?.ok === false) {
         setRuntimeState({
           ready: false,
           status: "error",
@@ -718,6 +1047,8 @@ function AiChatPane({ tasks = [], onOpenTask }) {
         setProposals(Array.isArray(proposalRows) ? proposalRows.map(mapProposal) : []);
       }
     } catch (error) {
+      const requestState = activeSendRequestRef.current;
+      if (requestState?.id !== requestId || requestState.canceled) return;
       setRuntimeState({
         ready: false,
         status: "error",
@@ -736,12 +1067,16 @@ function AiChatPane({ tasks = [], onOpenTask }) {
         },
       ]);
     } finally {
-      setIsSending(false);
+      if (activeSendRequestRef.current?.id === requestId) {
+        activeSendRequestRef.current = null;
+        setIsSending(false);
+        setStreamEvents([]);
+      }
     }
   };
 
   return (
-    <div className="ai-chat-screen">
+    <div className={`ai-chat-screen${contextPanel ? " ai-chat-screen--with-context" : ""}`}>
       <aside className="ai-side-pane">
         <div className="ai-side-head">
           <div className="ai-side-title-row">
@@ -750,7 +1085,12 @@ function AiChatPane({ tasks = [], onOpenTask }) {
           </div>
           <div className="ai-search-box">
             <span>⌕</span>
-            <input type="text" placeholder="スレッド、ファイルを検索" />
+            <input
+              type="text"
+              value={sideSearchQuery}
+              onChange={(event) => setSideSearchQuery(event.target.value)}
+              placeholder={sideTab === "files" ? "フォルダ、ファイルを検索" : "スレッドを検索"}
+            />
           </div>
           <div className="ai-segmented" role="tablist" aria-label="AI作業サイドペイン">
             <button type="button" className={sideTab === "threads" ? "active" : ""} onClick={() => setSideTab("threads")}>
@@ -765,12 +1105,12 @@ function AiChatPane({ tasks = [], onOpenTask }) {
         {sideTab === "threads" ? (
           <div className="ai-thread-list">
             <div className="ai-section-label">AIスレッド</div>
-            {threads.length === 0 ? (
+            {filteredThreads.length === 0 ? (
               <div className="ai-empty-state">
-                <strong>スレッドはまだありません</strong>
-                <span>中央の入力欄から送信すると、新しいAIスレッドを作成します。</span>
+                <strong>{sideSearchText ? "一致するスレッドはありません" : "スレッドはまだありません"}</strong>
+                <span>{sideSearchText ? "検索条件を変更してください。" : "中央の入力欄から送信すると、新しいAIスレッドを作成します。"}</span>
               </div>
-            ) : threads.map((thread) => (
+            ) : filteredThreads.map((thread) => (
               <button
                 key={thread.id}
                 type="button"
@@ -806,6 +1146,11 @@ function AiChatPane({ tasks = [], onOpenTask }) {
               <div className="ai-empty-state">
                 <strong>作業フォルダは空です</strong>
                 <span>設定画面の作業フォルダを確認してください。</span>
+              </div>
+            ) : visibleWorkdirRows.length === 0 ? (
+              <div className="ai-empty-state">
+                <strong>一致するファイルはありません</strong>
+                <span>検索条件を変更してください。</span>
               </div>
             ) : (
               <div className="ai-folder-tree" aria-label="作業フォルダツリー">
@@ -865,7 +1210,18 @@ function AiChatPane({ tasks = [], onOpenTask }) {
             </div>
           </div>
           <div className="ai-chat-actions">
-            <button className="ai-icon-button" type="button" title="ファイルビューを開く">□</button>
+            <button
+              className="ai-icon-button"
+              type="button"
+              title="コンテキストパネルを開く"
+              onClick={() => setContextPanel((current) => current || {
+                type: "thread",
+                title: selectedThread ? selectedThread.title : "詳細ビュー",
+                subtitle: selectedThread ? selectedThread.subtitle : "スレッド詳細",
+              })}
+            >
+              □
+            </button>
             <button className="ai-icon-button" type="button" title="タスクへ戻る">↩</button>
             <button className="ai-icon-button" type="button" title="メニュー">⋯</button>
           </div>
@@ -881,7 +1237,16 @@ function AiChatPane({ tasks = [], onOpenTask }) {
           {references.length === 0 ? (
             <button type="button" className="muted" onClick={handleAddReferenceFiles}>参照ファイルなし</button>
           ) : references.slice(0, 4).map((reference) => (
-            <button key={reference.id} type="button" title={reference.filePath || reference.label}>
+            <button
+              key={reference.id}
+              type="button"
+              title={reference.filePath || reference.label}
+              onClick={() => openFileContext({
+                type: "file",
+                file_path: reference.filePath,
+                label: reference.label,
+              })}
+            >
               {reference.label}
             </button>
           ))}
@@ -903,7 +1268,7 @@ function AiChatPane({ tasks = [], onOpenTask }) {
           ) : messages.map((message) => (
             <article key={message.id} className={`ai-message ai-message--${message.role}`}>
               <div className="ai-message-author">{message.author}</div>
-              <MarkdownPreview content={message.body} error={message.error} onOpenTask={onOpenTask} />
+              <MarkdownPreview content={message.body} error={message.error} onOpenTask={openTaskContext} />
             </article>
           ))}
           {isSending && (
@@ -911,9 +1276,19 @@ function AiChatPane({ tasks = [], onOpenTask }) {
               <div className="ai-message-author">Codex SDK</div>
               <div className="ai-thinking">
                 <span className="ai-thinking-dot" />
-                <span>処理中です。Codex SDKからの応答を待っています...</span>
+                <span>{streamEvents.length > 0 ? "処理中の内容を受信しています..." : "処理中です。Codex SDKからの応答を待っています..."}</span>
                 <span className="ai-thinking-elapsed">待機 {waitingSeconds}秒</span>
               </div>
+              {streamEvents.length > 0 && (
+                <div className="ai-stream-event-list" aria-label="処理中イベント">
+                  {streamEvents.map((event) => (
+                    <div key={event.id} className={`ai-stream-event ai-stream-event--${event.status || "active"}`}>
+                      <div className="ai-stream-event-title">{event.title}</div>
+                      {event.detail && <pre>{event.detail}</pre>}
+                    </div>
+                  ))}
+                </div>
+              )}
             </article>
           )}
         </section>
@@ -992,10 +1367,10 @@ function AiChatPane({ tasks = [], onOpenTask }) {
             <button
               type="button"
               className={`ai-send-button${isSending ? " is-sending" : ""}`}
-              onClick={handleSend}
-              disabled={isSending || !draft.trim()}
-              title={isSending ? "処理中" : "送信"}
-              aria-label={isSending ? "処理中" : "送信"}
+              onClick={isSending ? handleCancelSend : handleSend}
+              disabled={!isSending && !draft.trim()}
+              title={isSending ? "中断" : "送信"}
+              aria-label={isSending ? "AI処理を中断" : "送信"}
             >
               {isSending ? "■" : "↑"}
             </button>
@@ -1003,36 +1378,100 @@ function AiChatPane({ tasks = [], onOpenTask }) {
         </footer>
       </main>
 
+      {contextPanel && (
       <aside className="ai-right-pane">
         <header className="ai-right-header">
           <div>
-            <div className="ai-right-title">{selectedThread ? selectedThread.title : "詳細ビュー"}</div>
-            <div className="ai-right-subtitle">{selectedThread ? selectedThread.subtitle : "スレッド選択後に詳細を表示"}</div>
+            <div className="ai-right-title">{contextPanel.title || "コンテキスト"}</div>
+            <div className="ai-right-subtitle">{contextPanel.subtitle || ""}</div>
           </div>
+          <button className="ai-icon-button" type="button" title="閉じる" onClick={() => setContextPanel(null)}>×</button>
         </header>
-        <div className="ai-right-tabs">
-          {[
-            ["task", "タスク"],
-            ["file", "ファイル"],
-            ["diff", "差分"],
-          ].map(([key, label]) => (
-            <button key={key} type="button" className={rightTab === key ? "active" : ""} onClick={() => setRightTab(key)}>
-              {label}
-            </button>
-          ))}
-        </div>
         <div className="ai-right-body">
-          {rightTab === "task" && (
+          {contextPanel.type === "task" && (
+            <div className="ai-task-detail-panel">
+              {contextPanel.task ? (
+                <DetailPane
+                  key={contextPanel.task.id}
+                  task={contextPanel.task}
+                  tasks={tasks}
+                  lists={lists}
+                  tags={tags}
+                  onClose={() => setContextPanel(null)}
+                  onSelectTask={(task) => openTaskContext(task?.id)}
+                  onSaved={onTaskUpdated}
+                  onToggleComplete={onToggleComplete}
+                  onSetTaskDue={onSetTaskDue}
+                  onSetTaskTags={onSetTaskTags}
+                  onAddTag={onAddTag}
+                />
+              ) : (
+                <section className="ai-info-card">
+                  <p className="ai-muted-text">タスク情報を読み込めませんでした。</p>
+                  <button type="button" className="ai-panel-action" onClick={() => onOpenTask?.(contextPanel.taskId)}>
+                    リストで開く
+                  </button>
+                </section>
+              )}
+            </div>
+          )}
+          {contextPanel.type === "file" && (
+            <section className="ai-file-view-card">
+              <div className="ai-file-view-head">
+                <h3>ファイルビュー</h3>
+                <div className="ai-file-view-actions">
+                  {isMarkdownFile(contextPanel.file) && (
+                    <button
+                      type="button"
+                      className="icon-action-btn"
+                      onClick={() => setFilePreviewMode((current) => !current)}
+                      title={filePreviewMode ? "テキスト表示へ切替" : "プレビュー表示へ切替"}
+                      aria-label={filePreviewMode ? "テキスト表示へ切替" : "プレビュー表示へ切替"}
+                    >
+                      {filePreviewMode ? "✏" : "🔍"}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className="icon-action-btn external"
+                    onClick={handleOpenContextFileExternal}
+                    disabled={!contextPanel.file?.path}
+                    title="外部アプリで開く"
+                    aria-label="外部アプリで開く"
+                  >
+                    ↗
+                  </button>
+                </div>
+              </div>
+              {contextPanel.status === "loading" && <p>読み込んでいます。</p>}
+              {contextPanel.status === "error" && <p className="ai-muted-text">{contextPanel.error}</p>}
+              {contextPanel.file?.preview_type === "text" && isMarkdownFile(contextPanel.file) && filePreviewMode && (
+                <div className="ai-file-preview-markdown">
+                  <MarkdownPreview content={contextPanel.file.content || ""} onOpenTask={openTaskContext} />
+                </div>
+              )}
+              {contextPanel.file?.preview_type === "text" && (!isMarkdownFile(contextPanel.file) || !filePreviewMode) && (
+                <textarea className="ai-file-preview-editor" value={contextPanel.file.content || ""} readOnly />
+              )}
+              {contextPanel.file?.preview_type === "pdf" && (
+                <iframe className="ai-file-preview-pdf" src={contextPanel.file.url} title={contextPanel.file.label || "PDF"} />
+              )}
+              {contextPanel.file?.preview_type === "unsupported" && (
+                <p className="ai-muted-text">このファイル形式はプレビューに対応していません。</p>
+              )}
+            </section>
+          )}
+          {contextPanel.type === "thread" && (
             <>
               <section className="ai-info-card">
-                <h3>タスク/提案</h3>
+                <h3>スレッド</h3>
                 {selectedThread ? (
                   <dl className="ai-meta-grid">
                     <dt>thread</dt><dd>{selectedThread.id}</dd>
                     <dt>status</dt><dd>{selectedThread.time || "active"}</dd>
                   </dl>
                 ) : (
-                  <p className="ai-muted-text">スレッドを選択すると、関連タスクやAI提案を表示します。</p>
+                  <p className="ai-muted-text">スレッドを選択すると詳細を表示します。</p>
                 )}
               </section>
               <section className="ai-info-card">
@@ -1053,29 +1492,9 @@ function AiChatPane({ tasks = [], onOpenTask }) {
               </section>
             </>
           )}
-          {rightTab === "file" && (
-            <section className="ai-markdown-card">
-              <h3>参照ファイル</h3>
-              {references.length === 0 ? (
-                <p>参照ファイルを選択すると、ここに一覧を表示します。</p>
-              ) : (
-                <div className="ai-reference-detail-list">
-                  {references.map((reference) => (
-                    <div key={reference.id} className="ai-reference-detail-row">
-                      <strong>{reference.label}</strong>
-                      <span>{reference.filePath}</span>
-                      <button type="button" onClick={() => handleRemoveReference(reference.id)}>外す</button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>
-          )}
-          {rightTab === "diff" && (
-            <pre className="ai-diff-card">差分はまだありません。</pre>
-          )}
         </div>
       </aside>
+      )}
     </div>
   );
 }

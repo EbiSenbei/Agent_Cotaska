@@ -82,6 +82,7 @@ function App() {
     message: "",
     latestVersion: "",
   });
+  const [aiTaskChatRequest, setAiTaskChatRequest] = useState(null);
   const startupUpdateCheckRef = useRef(false);
 
   // CHG-032: ペイン幅リサイズ
@@ -699,6 +700,16 @@ function App() {
     }
   }, [tasks]);
 
+  const handleStartTaskAiChat = useCallback((task) => {
+    if (!task?.id) return;
+    setDetailPaneExpanded(false);
+    setActiveIcon("AI");
+    setAiTaskChatRequest({
+      taskId: task.id,
+      requestedAt: Date.now(),
+    });
+  }, []);
+
   const tagCounts = useMemo(() => {
     const counts = {};
     tasks.forEach((task) => {
@@ -855,7 +866,18 @@ function App() {
       {isSettingsMode ? (
         <SettingsPane />
       ) : isAiMode ? (
-        <AiChatPane tasks={tasks} onOpenTask={handleOpenTaskFromAi} />
+        <AiChatPane
+          tasks={tasks}
+          onOpenTask={handleOpenTaskFromAi}
+          taskChatRequest={aiTaskChatRequest}
+          lists={lists}
+          tags={tags}
+          onTaskUpdated={loadTasks}
+          onToggleComplete={handleToggleComplete}
+          onSetTaskDue={handleSetTaskDue}
+          onSetTaskTags={handleSetTaskTags}
+          onAddTag={handleAddTag}
+        />
       ) : (
       <>
       {navVisible && !detailPaneExpanded && (
@@ -957,6 +979,7 @@ function App() {
           tags={tags}
           onSetTaskTags={handleSetTaskTags}
           onAddTag={handleAddTag}
+          onStartAiChat={handleStartTaskAiChat}
           expanded={detailPaneExpanded}
           onToggleExpanded={() => setDetailPaneExpanded((prev) => !prev)}
         />

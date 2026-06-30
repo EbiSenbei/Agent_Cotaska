@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain, Menu, dialog, globalShortcut, shell, clipboard, net } = require("electron");
 const path = require("path");
+const { pathToFileURL } = require("url");
 const crypto = require("crypto");
 const { spawn } = require("child_process");
 const fs = require("fs");
@@ -1443,6 +1444,34 @@ function normalizeReferenceFileEntries(filePaths) {
   };
 }
 
+const AI_TEXT_PREVIEW_EXTENSIONS = new Set([
+  ".md",
+  ".txt",
+  ".js",
+  ".jsx",
+  ".ts",
+  ".tsx",
+  ".json",
+  ".yaml",
+  ".yml",
+  ".css",
+  ".html",
+  ".htm",
+  ".py",
+  ".ps1",
+  ".sql",
+  ".xml",
+  ".csv",
+  ".log",
+]);
+
+function resolveAiPreviewFilePath(filePath) {
+  if (!filePath) throw new Error("ファイルパスが指定されていません。");
+  if (path.isAbsolute(String(filePath))) return path.resolve(String(filePath));
+  const { targetPath } = resolveWorkdirPath(filePath);
+  return targetPath;
+}
+
 ipcMain.handle("aiChat:listWorkdirTree", async () => {
   await servicesReady;
   try {
@@ -1451,6 +1480,41 @@ ipcMain.handle("aiChat:listWorkdirTree", async () => {
   } catch (err) {
     logger.error("aiChat:listWorkdirTree failed", err);
     return { ok: false, error: err.message || String(err), rows: [] };
+  }
+});
+
+ipcMain.handle("aiChat:previewFile", async (_e, filePath) => {
+  await servicesReady;
+  try {
+    const targetPath = resolveAiPreviewFilePath(filePath);
+    if (!fs.existsSync(targetPath)) throw new Error("対象のファイルが見つかりません。");
+    const stat = fs.statSync(targetPath);
+    if (!stat.isFile()) throw new Error("フォルダはプレビューできません。");
+    const extension = path.extname(targetPath).toLowerCase();
+    const result = {
+      ok: true,
+      path: targetPath,
+      label: path.basename(targetPath),
+      extension,
+      size: stat.size,
+      preview_type: "unsupported",
+      content: "",
+      url: "",
+    };
+    if (extension === ".pdf") {
+      result.preview_type = "pdf";
+      result.url = pathToFileURL(targetPath).toString();
+      return result;
+    }
+    if (AI_TEXT_PREVIEW_EXTENSIONS.has(extension) || stat.size <= 1024 * 256) {
+      result.preview_type = "text";
+      result.content = fs.readFileSync(targetPath, "utf8");
+      return result;
+    }
+    return result;
+  } catch (err) {
+    logger.error("aiChat:previewFile failed", err);
+    return { ok: false, error: err.message || String(err) };
   }
 });
 
@@ -1551,6 +1615,35 @@ ipcMain.handle("aiChat:addReference", async (_e, input) => {
     return { ok: true, reference: aiService.addReference(input || {}) };
   } catch (err) {
     logger.error("aiChat:addReference failed", err);
+    return { ok: false, error: err.message || String(err) };
+  }
+});
+
+ipcMain.handle("aiChat:createTaskChatThread", async (_e, taskId) => {
+  await servicesReady;
+  try {
+    const task = taskService.getTaskById(taskId);
+    if (!task) throw new Error(`タスクが見つかりません: ${taskId}`);
+    const taskFilePath = taskService.getTaskFilePath(taskId);
+    if (!fs.existsSync(taskFilePath)) throw new Error(`タスクファイルが見つかりません: ${taskId}`);
+    const workdir = getAiWorkdir();
+    const relativePath = path.relative(workdir, taskFilePath);
+    const isInsideWorkdir = relativePath && !relativePath.startsWith("..") && !path.isAbsolute(relativePath);
+    const filePath = isInsideWorkdir ? relativePath : taskFilePath;
+    const thread = aiService.createThread({
+      title: `${task.id} ${task.title || "タスク相談"}`,
+      primary_task_id: task.id,
+    });
+    const reference = aiService.addReference({
+      thread_id: thread.thread_id,
+      ref_type: "file",
+      ref_id: task.id,
+      file_path: filePath,
+      label: `${task.id}.md`,
+    });
+    return { ok: true, thread: aiService.getThread(thread.thread_id), reference };
+  } catch (err) {
+    logger.error("aiChat:createTaskChatThread failed", err);
     return { ok: false, error: err.message || String(err) };
   }
 });
@@ -1679,9 +1772,26 @@ ipcMain.handle("aiChat:purgeOldData", async (_e, days) => {
 ipcMain.handle("aiChat:sendMessage", async (_e, input) => {
   await servicesReady;
   try {
-    return await codexSdkService.sendMessage(input || {});
+    return await codexSdkService.sendMessage({
+      ...(input || {}),
+      onEvent: (payload) => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send("aiChat:runEvent", payload);
+        }
+      },
+    });
   } catch (err) {
     logger.error("aiChat:sendMessage failed", err);
+    return { ok: false, error: err.message || String(err) };
+  }
+});
+
+ipcMain.handle("aiChat:cancelRun", async (_e, requestId) => {
+  await servicesReady;
+  try {
+    return codexSdkService.cancelRun(requestId);
+  } catch (err) {
+    logger.error("aiChat:cancelRun failed", err);
     return { ok: false, error: err.message || String(err) };
   }
 });

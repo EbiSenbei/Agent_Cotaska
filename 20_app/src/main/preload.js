@@ -59,6 +59,7 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
     addMessage: (input) => ipcRenderer.invoke("aiChat:addMessage", input),
     listReferences: (threadId) => ipcRenderer.invoke("aiChat:listReferences", threadId),
     listWorkdirTree: () => ipcRenderer.invoke("aiChat:listWorkdirTree"),
+    previewFile: (filePath) => ipcRenderer.invoke("aiChat:previewFile", filePath),
     copyWorkdirPath: (filePath) => ipcRenderer.invoke("aiChat:copyWorkdirPath", filePath),
     revealWorkdirPath: (filePath) => ipcRenderer.invoke("aiChat:revealWorkdirPath", filePath),
     deleteWorkdirPath: (filePath) => ipcRenderer.invoke("aiChat:deleteWorkdirPath", filePath),
@@ -68,6 +69,7 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
       .filter(Boolean),
     normalizeReferenceFiles: (filePaths) => ipcRenderer.invoke("aiChat:normalizeReferenceFiles", filePaths),
     addReference: (input) => ipcRenderer.invoke("aiChat:addReference", input),
+    createTaskChatThread: (taskId) => ipcRenderer.invoke("aiChat:createTaskChatThread", taskId),
     removeReference: (referenceId) => ipcRenderer.invoke("aiChat:removeReference", referenceId),
     listProposals: (threadId) => ipcRenderer.invoke("aiChat:listProposals", threadId),
     createProposal: (input) => ipcRenderer.invoke("aiChat:createProposal", input),
@@ -76,6 +78,13 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
     listRuns: (threadId) => ipcRenderer.invoke("aiChat:listRuns", threadId),
     purgeOldData: (days) => ipcRenderer.invoke("aiChat:purgeOldData", days),
     sendMessage: (input) => ipcRenderer.invoke("aiChat:sendMessage", input),
+    cancelRun: (requestId) => ipcRenderer.invoke("aiChat:cancelRun", requestId),
+    onRunEvent: (callback) => {
+      if (typeof callback !== "function") return () => {};
+      const listener = (_event, payload) => callback(payload);
+      ipcRenderer.on("aiChat:runEvent", listener);
+      return () => ipcRenderer.removeListener("aiChat:runEvent", listener);
+    },
   },
 
   // タスク操作（ファイルベース）

@@ -67,6 +67,7 @@ function DetailPane({
   tags = [],
   onSetTaskTags,
   onAddTag,
+  onStartAiChat,
   expanded = false,
   onToggleExpanded,
 }) {
@@ -91,6 +92,7 @@ function DetailPane({
       tags={tags}
       onSetTaskTags={onSetTaskTags}
       onAddTag={onAddTag}
+      onStartAiChat={onStartAiChat}
       expanded={expanded}
       onToggleExpanded={onToggleExpanded}
     />
@@ -108,6 +110,7 @@ function DetailPaneBody({
   tags = [],
   onSetTaskTags,
   onAddTag,
+  onStartAiChat,
   expanded = false,
   onToggleExpanded,
 }) {
@@ -710,6 +713,16 @@ function DetailPaneBody({
         />
 
         <div className="detail-actions">
+          <button
+            type="button"
+            className="icon-action-btn detail-ai-chat-btn"
+            onClick={() => onStartAiChat?.(task)}
+            title="AIへチャット"
+            aria-label="AIへチャット"
+            disabled={isInvalid}
+          >
+            AI
+          </button>
           <button
             type="button"
             className={`icon-action-btn detail-expand-btn${expanded ? " is-active" : ""}`}

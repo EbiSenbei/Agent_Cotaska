@@ -4,6 +4,7 @@ const aiService = require("./aiService");
 const settingsService = require("./settingsService");
 
 const SANDBOX_MODES = new Set(["read-only", "workspace-write", "danger-full-access"]);
+const activeRequests = new Map();
 
 async function loadCodexSdk() {
   try {
@@ -109,6 +110,93 @@ function buildReferenceContext(threadId, workdir, settings) {
   return { promptPrefix, usedCount: chunks.length, totalChars, skipped };
 }
 
+function getRequestId(input = {}) {
+  const value = input.request_id || input.requestId || input.client_request_id || input.clientRequestId;
+  return value ? String(value) : null;
+}
+
+function isAbortError(err) {
+  const name = String(err?.name || "");
+  const message = String(err?.message || err || "");
+  return name === "AbortError" || /aborted|abort|cancel/i.test(message);
+}
+
+function truncateText(value, maxLength = 8000) {
+  const text = String(value || "");
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, maxLength)}\n... truncated ...`;
+}
+
+function sanitizeThreadItem(item) {
+  if (!item || typeof item !== "object") return item;
+  if (item.type === "command_execution") {
+    return {
+      ...item,
+      aggregated_output: truncateText(item.aggregated_output, 12000),
+    };
+  }
+  if (item.type === "mcp_tool_call") {
+    return {
+      id: item.id,
+      type: item.type,
+      server: item.server,
+      tool: item.tool,
+      status: item.status,
+      error: item.error,
+    };
+  }
+  return item;
+}
+
+function sanitizeThreadEvent(event) {
+  if (!event || typeof event !== "object") return event;
+  if (event.item) {
+    return {
+      ...event,
+      item: sanitizeThreadItem(event.item),
+    };
+  }
+  return event;
+}
+
+function emitRunEvent(input, payload) {
+  const callback = typeof input.onEvent === "function" ? input.onEvent : null;
+  if (!callback) return;
+  const requestId = getRequestId(input);
+  try {
+    callback({
+      request_id: requestId,
+      thread_id: payload.thread_id,
+      run_id: payload.run_id,
+      ...payload,
+    });
+  } catch (_err) {
+    // UI更新イベントの失敗でSDK実行本体を止めない。
+  }
+}
+
+function cancelRun(requestId) {
+  const key = requestId ? String(requestId) : "";
+  const active = key ? activeRequests.get(key) : null;
+  if (!active) {
+    return { ok: false, error: "中断対象のAI処理が見つかりませんでした。" };
+  }
+  active.cancelled = true;
+  active.controller.abort();
+  if (active.run_id) {
+    try {
+      aiService.updateRun(active.run_id, {
+        run_status: "canceled",
+        error_code: "USER_CANCELED",
+        error_message: "ユーザーがAI処理を中断しました。",
+      });
+    } catch (_err) {
+      // sendMessage 側の catch/finally で再度状態更新されるため、ここでは握りつぶす。
+    }
+  }
+  return { ok: true, canceled: true };
+}
+
 async function sendMessage(input = {}) {
   await aiService.openAiService();
   const inputThreadId = input.thread_id || input.threadId;
@@ -121,6 +209,16 @@ async function sendMessage(input = {}) {
   const text = String(input.content || input.message || "").trim();
   if (!text) {
     throw new Error("AI message content is required.");
+  }
+  const requestId = getRequestId(input);
+  const abortController = new AbortController();
+  if (requestId) {
+    activeRequests.set(requestId, {
+      controller: abortController,
+      cancelled: false,
+      run_id: null,
+      thread_id: null,
+    });
   }
 
   const settings = settingsService.getSettings().settings.aiChat || {};
@@ -137,6 +235,13 @@ async function sendMessage(input = {}) {
     workdir,
     model: input.model,
   });
+  if (requestId && activeRequests.has(requestId)) {
+    activeRequests.set(requestId, {
+      ...activeRequests.get(requestId),
+      run_id: run.run_id,
+      thread_id: thread.thread_id,
+    });
+  }
   const userMessage = aiService.addMessage({
     thread_id: thread.thread_id,
     role: "user",
@@ -151,7 +256,39 @@ async function sendMessage(input = {}) {
     const codexThread = thread.codex_thread_id
       ? codex.resumeThread(thread.codex_thread_id, threadOptions)
       : codex.startThread(threadOptions);
-    const turn = await codexThread.run(prompt);
+    const streamed = await codexThread.runStreamed(prompt, { signal: abortController.signal });
+    const items = [];
+    let finalResponse = "";
+    let usage = null;
+    let turnFailure = null;
+
+    for await (const rawEvent of streamed.events) {
+      const event = sanitizeThreadEvent(rawEvent);
+      emitRunEvent(input, {
+        type: "event",
+        thread_id: thread.thread_id,
+        run_id: run.run_id,
+        event,
+      });
+      if (event.type === "item.completed") {
+        if (event.item?.type === "agent_message") {
+          finalResponse = event.item.text || "";
+        }
+        items.push(event.item);
+      } else if (event.type === "turn.completed") {
+        usage = event.usage || null;
+      } else if (event.type === "turn.failed") {
+        turnFailure = event.error;
+        break;
+      } else if (event.type === "error") {
+        turnFailure = { message: event.message || "Codex SDK stream failed." };
+        break;
+      }
+    }
+
+    if (turnFailure) {
+      throw new Error(turnFailure.message || "Codex SDK stream failed.");
+    }
     const codexThreadId = codexThread.id || thread.codex_thread_id || null;
 
     if (codexThreadId && codexThreadId !== thread.codex_thread_id) {
@@ -164,9 +301,9 @@ async function sendMessage(input = {}) {
     const assistantMessage = aiService.addMessage({
       thread_id: thread.thread_id,
       role: "assistant",
-      content: turn.finalResponse || "",
+      content: finalResponse || "",
       codex_run_id: run.run_id,
-      token_count: summarizeUsage(turn.usage),
+      token_count: summarizeUsage(usage),
     });
 
     return {
@@ -175,12 +312,35 @@ async function sendMessage(input = {}) {
       run: aiService.updateRun(run.run_id, { run_status: "completed", codex_thread_id: codexThreadId }),
       userMessage,
       assistantMessage,
-      items: turn.items || [],
-      usage: turn.usage || null,
+      items,
+      usage,
       referenceContext,
     };
   } catch (err) {
     const message = err.message || String(err);
+    const active = requestId ? activeRequests.get(requestId) : null;
+    if (abortController.signal.aborted || active?.cancelled || isAbortError(err)) {
+      const canceledRun = aiService.updateRun(run.run_id, {
+        run_status: "canceled",
+        error_code: "USER_CANCELED",
+        error_message: "ユーザーがAI処理を中断しました。",
+      });
+      const canceledMessage = aiService.addMessage({
+        thread_id: thread.thread_id,
+        role: "assistant",
+        content: "AI処理を中断しました。",
+        codex_run_id: run.run_id,
+      });
+      return {
+        ok: false,
+        canceled: true,
+        thread: aiService.getThread(thread.thread_id),
+        run: canceledRun,
+        userMessage,
+        assistantMessage: canceledMessage,
+        error: "AI処理を中断しました。",
+      };
+    }
     const failedRun = aiService.updateRun(run.run_id, {
       run_status: "failed",
       error_code: "CODEX_SDK_ERROR",
@@ -202,9 +362,14 @@ async function sendMessage(input = {}) {
       assistantMessage: errorMessage,
       error: message,
     };
+  } finally {
+    if (requestId) {
+      activeRequests.delete(requestId);
+    }
   }
 }
 
 module.exports = {
+  cancelRun,
   sendMessage,
 };

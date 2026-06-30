@@ -3585,12 +3585,12 @@ tasks:
   - id: T-0334
     title: 仕様変更：タスク詳細に「AIへチャット」を追加
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 324
     tags: []
-    due_date: null
-    updated_at: '2026-06-28T13:16:39.750Z'
+    due_date: '2026-06-30'
+    updated_at: '2026-06-30T14:15:36.100Z'
   - id: T-0325
     title: CHG-089-03 確認：詳細拡大解除導線の動作確認
     list: 仕様変更
@@ -3657,12 +3657,12 @@ tasks:
   - id: T-0339
     title: 仕様変更：画面右のコンテキストパネル
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 329
     tags: []
-    due_date: null
-    updated_at: '2026-06-28T14:51:02.698Z'
+    due_date: '2026-06-30'
+    updated_at: '2026-06-30T14:13:59.897Z'
   - id: T-0340
     title: 仕様変更：ファイルツリーからドラッグ
     list: 仕様変更
@@ -3702,21 +3702,21 @@ tasks:
   - id: T-0344
     title: 仕様変更：ファイルツリーのファイルクリック処理をなくす
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 334
     tags: []
-    due_date: null
-    updated_at: '2026-06-29T15:42:44.538Z'
+    due_date: '2026-06-30'
+    updated_at: '2026-06-30T14:14:12.578Z'
   - id: T-0345
     title: 不具合：検索が利かない
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 335
     tags: []
-    due_date: null
-    updated_at: '2026-06-29T15:44:23.963Z'
+    due_date: '2026-06-30'
+    updated_at: '2026-06-30T13:29:12.642Z'
   - id: T-0346
     title: 不具合：下にいかない
     list: 仕様変更
@@ -3726,7 +3726,52 @@ tasks:
     tags: []
     due_date: '2026-06-30'
     updated_at: '2026-06-29T16:07:15.375Z'
+  - id: T-0347
+    title: 仕様変更：処理中に中断できるようにしてほしい
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 337
+    tags: []
+    due_date: '2026-06-30'
+    updated_at: '2026-06-30T14:26:11.413Z'
+  - id: T-0348
+    title: 仕様変更：画面右のコンテキストパネルの幅を変更できるようにしてほしい
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 338
+    tags: []
+    due_date: null
+    updated_at: '2026-06-30T13:36:55.314Z'
+  - id: T-0349
+    title: 不具合：新しいスレッドでAIチャットができない
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 339
+    tags: []
+    due_date: null
+    updated_at: '2026-06-30T14:03:06.407Z'
+  - id: T-0350
+    title: 仕様変更：処理中のチャットが見れないか？
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 340
+    tags: []
+    due_date: '2026-06-30'
+    updated_at: '2026-06-30T14:41:18.861Z'
+  - id: T-0351
+    title: 不具合：アーカイブボタンを変えたい＋スレッドをアーカイブにできない
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 341
+    tags: []
+    due_date: null
+    updated_at: '2026-06-30T14:41:10.888Z'
 task_file_roots:
   - .
-next_task_id: 347
-last_updated: '2026-06-29T16:07:15.974Z'
+next_task_id: 352
+last_updated: '2026-06-30T14:41:19.358Z'
