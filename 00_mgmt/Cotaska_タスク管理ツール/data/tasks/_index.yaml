@@ -3738,21 +3738,21 @@ tasks:
   - id: T-0348
     title: 仕様変更：画面右のコンテキストパネルの幅を変更できるようにしてほしい
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 338
     tags: []
-    due_date: null
-    updated_at: '2026-06-30T13:36:55.314Z'
+    due_date: '2026-07-01'
+    updated_at: '2026-07-01T03:14:53.403Z'
   - id: T-0349
     title: 不具合：新しいスレッドでAIチャットができない
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 339
     tags: []
-    due_date: null
-    updated_at: '2026-06-30T14:03:06.407Z'
+    due_date: '2026-07-01'
+    updated_at: '2026-07-01T00:56:24.279Z'
   - id: T-0350
     title: 仕様変更：処理中のチャットが見れないか？
     list: 仕様変更
@@ -3765,13 +3765,22 @@ tasks:
   - id: T-0351
     title: 不具合：アーカイブボタンを変えたい＋スレッドをアーカイブにできない
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 341
     tags: []
+    due_date: '2026-07-01'
+    updated_at: '2026-07-01T00:56:32.900Z'
+  - id: T-0352
+    title: 仕様変更：チャット内容にリンクを付けたい
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 342
+    tags: []
     due_date: null
-    updated_at: '2026-06-30T14:41:10.888Z'
+    updated_at: '2026-07-01T04:29:58.211Z'
 task_file_roots:
   - .
-next_task_id: 352
-last_updated: '2026-06-30T14:41:19.358Z'
+next_task_id: 353
+last_updated: '2026-07-01T04:29:58.721Z'

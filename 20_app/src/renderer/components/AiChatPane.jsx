@@ -15,6 +15,10 @@ const SANDBOX_OPTIONS = [
   { value: "danger-full-access", label: "フルアクセス" },
 ];
 const SANDBOX_VALUES = new Set(SANDBOX_OPTIONS.map((option) => option.value));
+const CONTEXT_PANEL_WIDTH_KEY = "cotaska.aiChat.contextPanelWidth";
+const CONTEXT_PANEL_MIN_WIDTH = 320;
+const CONTEXT_PANEL_MAX_WIDTH = 720;
+const CONTEXT_PANEL_DEFAULT_WIDTH = 410;
 
 markdown.core.ruler.after("inline", "cotaska_task_links", (state) => {
   state.tokens.forEach((blockToken) => {
@@ -64,6 +68,50 @@ function normalizeSandboxMode(value) {
   return SANDBOX_VALUES.has(value) ? value : "read-only";
 }
 
+function clampContextPanelWidth(value) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return CONTEXT_PANEL_DEFAULT_WIDTH;
+  return Math.min(CONTEXT_PANEL_MAX_WIDTH, Math.max(CONTEXT_PANEL_MIN_WIDTH, Math.round(numeric)));
+}
+
+function loadContextPanelWidth() {
+  try {
+    return clampContextPanelWidth(window.localStorage?.getItem(CONTEXT_PANEL_WIDTH_KEY));
+  } catch (_error) {
+    return CONTEXT_PANEL_DEFAULT_WIDTH;
+  }
+}
+
+function formatMessageTime(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleTimeString("ja-JP", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
+async function copyTextToClipboard(text) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+
 function MarkdownPreview({ content, error, onOpenTask }) {
   const html = useMemo(() => markdown.render(String(content || "")), [content]);
   return (
@@ -98,6 +146,8 @@ function AiChatPane({
   const [sideTab, setSideTab] = useState("threads");
   const [contextPanel, setContextPanel] = useState(null);
   const [selectedThreadId, setSelectedThreadId] = useState(null);
+  const [contextPanelWidth, setContextPanelWidth] = useState(loadContextPanelWidth);
+  const [isResizingContextPanel, setIsResizingContextPanel] = useState(false);
   const [draft, setDraft] = useState("");
   const [sideSearchQuery, setSideSearchQuery] = useState("");
   const [filePreviewMode, setFilePreviewMode] = useState(false);
@@ -107,7 +157,6 @@ function AiChatPane({
   const [workdirTree, setWorkdirTree] = useState({ rows: [], root: "", truncated: false });
   const [isLoadingWorkdirTree, setIsLoadingWorkdirTree] = useState(false);
   const [expandedWorkdirPaths, setExpandedWorkdirPaths] = useState(() => new Set());
-  const [proposals, setProposals] = useState([]);
   const [isSending, setIsSending] = useState(false);
   const [streamEvents, setStreamEvents] = useState([]);
   const [waitingSeconds, setWaitingSeconds] = useState(0);
@@ -130,8 +179,9 @@ function AiChatPane({
     id: thread.thread_id,
     title: thread.title || "無題のAIチャット",
     subtitle: thread.primary_task_id || thread.change_id || "AIスレッド",
+    status: thread.thread_status || "active",
     time: thread.thread_status === "archived" ? "アーカイブ" : "",
-    badges: [thread.change_id, thread.primary_task_id, thread.thread_status].filter(Boolean).slice(0, 3),
+    badges: [thread.change_id, thread.primary_task_id].filter(Boolean).slice(0, 3),
   });
 
   const mapMessage = (message) => ({
@@ -140,13 +190,8 @@ function AiChatPane({
     author: message.role === "assistant" ? "Codex SDK" : "ユーザー",
     body: message.error_message || message.content || "",
     error: Boolean(message.error_message),
-  });
-
-  const mapProposal = (proposal) => ({
-    id: proposal.proposal_id,
-    title: proposal.action_type || "提案",
-    meta: proposal.target_id || proposal.target_type || "",
-    state: proposal.proposal_status || "",
+    createdAt: message.created_at,
+    time: formatMessageTime(message.created_at),
   });
 
   const mapReference = (reference) => ({
@@ -274,6 +319,35 @@ function AiChatPane({
   const visibleWorkdirRows = filteredWorkdirRows.filter(isWorkdirEntryVisible);
 
   const closeWorkdirContextMenu = () => setWorkdirContextMenu(null);
+
+  const updateContextPanelWidth = (nextWidth) => {
+    const clamped = clampContextPanelWidth(nextWidth);
+    setContextPanelWidth(clamped);
+    try {
+      window.localStorage?.setItem(CONTEXT_PANEL_WIDTH_KEY, String(clamped));
+    } catch (_error) {
+      // 幅の保存に失敗してもドラッグ操作自体は継続する。
+    }
+  };
+
+  const handleContextPanelResizeStart = (event) => {
+    event.preventDefault();
+    setIsResizingContextPanel(true);
+    const startX = event.clientX;
+    const startWidth = contextPanelWidth;
+
+    const handleMove = (moveEvent) => {
+      updateContextPanelWidth(startWidth - (moveEvent.clientX - startX));
+    };
+    const handleUp = () => {
+      setIsResizingContextPanel(false);
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("mouseup", handleUp);
+    };
+
+    window.addEventListener("mousemove", handleMove);
+    window.addEventListener("mouseup", handleUp);
+  };
 
   const findTask = (taskId) => tasks.find((task) => task.id === taskId) || null;
 
@@ -406,17 +480,26 @@ function AiChatPane({
         if (!cancelled && settingsResult?.settings?.aiChat?.sandboxMode) {
           setSandboxMode(normalizeSandboxMode(settingsResult.settings.aiChat.sandboxMode));
         }
+        const isWorkdirConfigured = settingsResult?.configured?.aiChatWorkdir !== false
+          && Boolean(String(settingsResult?.settings?.aiChat?.workdir || "").trim());
         const result = await aiChatApi.getDbInfo?.();
         if (cancelled) return;
         setRuntimeState({
           ready: Boolean(result?.ok ?? true),
-          status: result?.ok === false ? "error" : "ready",
-          message: result?.ok === false
+          status: result?.ok === false ? "error" : (isWorkdirConfigured ? "ready" : "warning"),
+          message: !isWorkdirConfigured
+            ? "設定の作業フォルダが未設定です。設定画面で作業フォルダを選択してください。"
+            : result?.ok === false
             ? (result.error || "AIデータベースの状態確認に失敗しました。")
             : `Codex SDK連携を利用できます。AI DB: ${result?.path || "未確認"}`,
         });
         const mapped = await refreshThreads();
-        await refreshWorkdirTree();
+        if (isWorkdirConfigured) {
+          await refreshWorkdirTree();
+        } else {
+          setWorkdirTree({ rows: [], root: "", truncated: false });
+          setExpandedWorkdirPaths(new Set());
+        }
         if (cancelled) return;
         setSelectedThreadId((current) => {
           if (current && mapped.some((thread) => thread.id === current)) return current;
@@ -471,18 +554,15 @@ function AiChatPane({
       if (!aiChatApi || !selectedThreadId) {
         setMessages([]);
         setReferences([]);
-        setProposals([]);
         return;
       }
       try {
-        const [messageRows, proposalRows, referenceRows] = await Promise.all([
+        const [messageRows, referenceRows] = await Promise.all([
           aiChatApi.listMessages?.(selectedThreadId),
-          aiChatApi.listProposals?.(selectedThreadId),
           aiChatApi.listReferences?.(selectedThreadId),
         ]);
         if (cancelled) return;
         setMessages(Array.isArray(messageRows) ? messageRows.map(mapMessage) : []);
-        setProposals(Array.isArray(proposalRows) ? proposalRows.map(mapProposal) : []);
         setReferences(Array.isArray(referenceRows) ? referenceRows.map(mapReference) : []);
       } catch (error) {
         if (cancelled) return;
@@ -604,8 +684,38 @@ function AiChatPane({
     setSelectedThreadId(null);
     setMessages([]);
     setReferences([]);
-    setProposals([]);
     setDraft("");
+  };
+
+  const handleArchiveThread = async (threadId) => {
+    if (!threadId || !aiChatApi?.archiveThread) return;
+    try {
+      const result = await aiChatApi.archiveThread(threadId);
+      if (result?.ok === false) {
+        throw new Error(result.error || "AIスレッドをアーカイブできませんでした。");
+      }
+      const mappedThreads = await refreshThreads();
+      if (selectedThreadId === threadId) {
+        const nextThreadId = mappedThreads[0]?.id || null;
+        setSelectedThreadId(nextThreadId);
+        if (!nextThreadId) {
+          setMessages([]);
+          setReferences([]);
+          setContextPanel(null);
+        }
+      }
+      setRuntimeState((current) => ({
+        ...current,
+        status: "ready",
+        message: "AIスレッドをアーカイブしました。",
+      }));
+    } catch (error) {
+      setRuntimeState({
+        ready: false,
+        status: "error",
+        message: error?.message || "AIスレッドをアーカイブできませんでした。",
+      });
+    }
   };
 
   const ensureThreadForReferences = async () => {
@@ -654,6 +764,12 @@ function AiChatPane({
             status: "error",
             message: result?.error || "参照ファイルを選択できませんでした。",
           });
+        } else {
+          setRuntimeState((current) => ({
+            ...current,
+            status: "ready",
+            message: "参照ファイルの選択をキャンセルしました。",
+          }));
         }
         return;
       }
@@ -704,6 +820,11 @@ function AiChatPane({
       return;
     }
     try {
+      setRuntimeState((current) => ({
+        ...current,
+        status: "ready",
+        message: "参照ファイルを選択してください。",
+      }));
       const result = await aiChatApi.chooseReferenceFiles();
       await addReferenceFiles(result);
     } catch (error) {
@@ -856,6 +977,23 @@ function AiChatPane({
         ready: false,
         status: "error",
         message: error?.message || "外部アプリで開けませんでした。",
+      });
+    }
+  };
+
+  const handleCopyMessage = async (message) => {
+    try {
+      await copyTextToClipboard(message.body || "");
+      setRuntimeState((current) => ({
+        ...current,
+        status: "ready",
+        message: "チャット内容をコピーしました。",
+      }));
+    } catch (error) {
+      setRuntimeState({
+        ready: false,
+        status: "error",
+        message: error?.message || "チャット内容をコピーできませんでした。",
       });
     }
   };
@@ -1042,10 +1180,6 @@ function AiChatPane({
       const mappedThreads = await refreshThreads();
       const nextThreadId = result?.thread?.thread_id || mappedThreads[0]?.id || selectedThreadId || null;
       setSelectedThreadId(nextThreadId);
-      if (nextThreadId && aiChatApi.listProposals) {
-        const proposalRows = await aiChatApi.listProposals(nextThreadId);
-        setProposals(Array.isArray(proposalRows) ? proposalRows.map(mapProposal) : []);
-      }
     } catch (error) {
       const requestState = activeSendRequestRef.current;
       if (requestState?.id !== requestId || requestState.canceled) return;
@@ -1076,7 +1210,10 @@ function AiChatPane({
   };
 
   return (
-    <div className={`ai-chat-screen${contextPanel ? " ai-chat-screen--with-context" : ""}`}>
+    <div
+      className={`ai-chat-screen${contextPanel ? " ai-chat-screen--with-context" : ""}${isResizingContextPanel ? " ai-chat-screen--resizing-context" : ""}`}
+      style={{ "--ai-context-panel-width": `${contextPanelWidth}px` }}
+    >
       <aside className="ai-side-pane">
         <div className="ai-side-head">
           <div className="ai-side-title-row">
@@ -1111,21 +1248,38 @@ function AiChatPane({
                 <span>{sideSearchText ? "検索条件を変更してください。" : "中央の入力欄から送信すると、新しいAIスレッドを作成します。"}</span>
               </div>
             ) : filteredThreads.map((thread) => (
-              <button
+              <div
                 key={thread.id}
-                type="button"
                 className={`ai-thread-item${selectedThreadId === thread.id ? " active" : ""}`}
                 onClick={() => setSelectedThreadId(thread.id)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setSelectedThreadId(thread.id);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
               >
                 <span className="ai-thread-main">
                   <span className="ai-thread-name">{thread.title}</span>
                   <span className="ai-thread-sub">{thread.subtitle}</span>
                 </span>
-                <span className="ai-thread-time">{thread.time}</span>
+                <span className="ai-thread-actions" onClick={(event) => event.stopPropagation()}>
+                  <button
+                    type="button"
+                    className="ai-thread-action-btn ai-thread-action-btn--archive"
+                    title="チャットをアーカイブ"
+                    aria-label={`${thread.title}をアーカイブ`}
+                    onClick={() => handleArchiveThread(thread.id)}
+                  >
+                    <span className="ai-thread-archive-icon" aria-hidden="true" />
+                  </button>
+                </span>
                 <span className="ai-mini-badges">
                   {thread.badges.map((badge) => <span key={badge}>{badge}</span>)}
                 </span>
-              </button>
+              </div>
             ))}
           </div>
         ) : (
@@ -1210,48 +1364,14 @@ function AiChatPane({
             </div>
           </div>
           <div className="ai-chat-actions">
-            <button
-              className="ai-icon-button"
-              type="button"
-              title="コンテキストパネルを開く"
-              onClick={() => setContextPanel((current) => current || {
-                type: "thread",
-                title: selectedThread ? selectedThread.title : "詳細ビュー",
-                subtitle: selectedThread ? selectedThread.subtitle : "スレッド詳細",
-              })}
-            >
-              □
-            </button>
             <button className="ai-icon-button" type="button" title="タスクへ戻る">↩</button>
             <button className="ai-icon-button" type="button" title="メニュー">⋯</button>
           </div>
         </header>
 
         <div className={`ai-runtime-banner ai-runtime-banner--${runtimeState.status}`}>
-          <strong>{runtimeState.ready ? "接続状態" : "確認が必要"}</strong>
+          <strong>{runtimeState.status === "warning" || !runtimeState.ready ? "確認が必要" : "接続状態"}</strong>
           <span>{runtimeState.message}</span>
-        </div>
-
-        <div className="ai-context-bar">
-          <span>参照中</span>
-          {references.length === 0 ? (
-            <button type="button" className="muted" onClick={handleAddReferenceFiles}>参照ファイルなし</button>
-          ) : references.slice(0, 4).map((reference) => (
-            <button
-              key={reference.id}
-              type="button"
-              title={reference.filePath || reference.label}
-              onClick={() => openFileContext({
-                type: "file",
-                file_path: reference.filePath,
-                label: reference.label,
-              })}
-            >
-              {reference.label}
-            </button>
-          ))}
-          {references.length > 4 && <span>+{references.length - 4}</span>}
-          <button type="button" className="ai-context-add" onClick={handleAddReferenceFiles}>＋</button>
         </div>
 
         <section
@@ -1269,6 +1389,18 @@ function AiChatPane({
             <article key={message.id} className={`ai-message ai-message--${message.role}`}>
               <div className="ai-message-author">{message.author}</div>
               <MarkdownPreview content={message.body} error={message.error} onOpenTask={openTaskContext} />
+              <div className="ai-message-hover-actions" aria-label="メッセージ操作">
+                {message.time && <time dateTime={message.createdAt}>{message.time}</time>}
+                <button
+                  type="button"
+                  className="ai-message-copy-btn"
+                  title="チャット内容をコピー"
+                  aria-label="チャット内容をコピー"
+                  onClick={() => handleCopyMessage(message)}
+                >
+                  <span aria-hidden="true" />
+                </button>
+              </div>
             </article>
           ))}
           {isSending && (
@@ -1380,6 +1512,14 @@ function AiChatPane({
 
       {contextPanel && (
       <aside className="ai-right-pane">
+        <div
+          className="ai-right-resize-handle"
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="コンテキストパネル幅を変更"
+          title="ドラッグして幅を変更"
+          onMouseDown={handleContextPanelResizeStart}
+        />
         <header className="ai-right-header">
           <div>
             <div className="ai-right-title">{contextPanel.title || "コンテキスト"}</div>
@@ -1460,37 +1600,6 @@ function AiChatPane({
                 <p className="ai-muted-text">このファイル形式はプレビューに対応していません。</p>
               )}
             </section>
-          )}
-          {contextPanel.type === "thread" && (
-            <>
-              <section className="ai-info-card">
-                <h3>スレッド</h3>
-                {selectedThread ? (
-                  <dl className="ai-meta-grid">
-                    <dt>thread</dt><dd>{selectedThread.id}</dd>
-                    <dt>status</dt><dd>{selectedThread.time || "active"}</dd>
-                  </dl>
-                ) : (
-                  <p className="ai-muted-text">スレッドを選択すると詳細を表示します。</p>
-                )}
-              </section>
-              <section className="ai-info-card">
-                <h3>提案カード</h3>
-                {proposals.length === 0 ? (
-                  <p className="ai-muted-text">承認待ちの提案はありません。</p>
-                ) : (
-                  <div className="ai-proposal-list">
-                    {proposals.map((proposal) => (
-                      <div key={proposal.id} className="ai-proposal-row">
-                        <strong>{proposal.title}</strong>
-                        <span>{proposal.meta}</span>
-                        <em>{proposal.state}</em>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </section>
-            </>
           )}
         </div>
       </aside>

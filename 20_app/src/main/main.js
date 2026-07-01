@@ -1475,8 +1475,19 @@ function resolveAiPreviewFilePath(filePath) {
 ipcMain.handle("aiChat:listWorkdirTree", async () => {
   await servicesReady;
   try {
+    const settingsResult = settingsService.getSettings();
+    if (!settingsResult.configured?.aiChatWorkdir) {
+      return {
+        ok: false,
+        error: "設定の作業フォルダが未設定です。設定画面で作業フォルダを選択してください。",
+        rows: [],
+        root: "",
+        truncated: false,
+        workdirConfigured: false,
+      };
+    }
     const workdir = getAiWorkdir();
-    return { ok: true, ...listWorkdirTree(workdir) };
+    return { ok: true, workdirConfigured: true, ...listWorkdirTree(workdir) };
   } catch (err) {
     logger.error("aiChat:listWorkdirTree failed", err);
     return { ok: false, error: err.message || String(err), rows: [] };
@@ -1567,11 +1578,12 @@ ipcMain.handle("aiChat:deleteWorkdirPath", async (_e, filePath) => {
   }
 });
 
-ipcMain.handle("aiChat:chooseReferenceFiles", async () => {
+ipcMain.handle("aiChat:chooseReferenceFiles", async (event) => {
   await servicesReady;
   try {
     const workdir = getAiWorkdir();
-    const result = await dialog.showOpenDialog({
+    const ownerWindow = BrowserWindow.fromWebContents(event.sender);
+    const dialogOptions = {
       title: "参照ファイルを選択",
       defaultPath: workdir,
       properties: ["openFile", "multiSelections"],
@@ -1579,7 +1591,10 @@ ipcMain.handle("aiChat:chooseReferenceFiles", async () => {
         { name: "参照ファイル", extensions: ["md", "txt", "js", "jsx", "ts", "tsx", "json", "yaml", "yml", "css", "html", "py", "ps1", "sql"] },
         { name: "すべてのファイル", extensions: ["*"] },
       ],
-    });
+    };
+    const result = ownerWindow && !ownerWindow.isDestroyed()
+      ? await dialog.showOpenDialog(ownerWindow, dialogOptions)
+      : await dialog.showOpenDialog(dialogOptions);
     if (result.canceled || !result.filePaths?.length) {
       return { ok: false, canceled: true };
     }

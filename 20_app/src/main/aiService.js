@@ -64,9 +64,13 @@ function parseJson(value, fallback = null) {
   }
 }
 
+function normalizeSqlParams(params = []) {
+  return params.map((param) => (param === undefined ? null : param));
+}
+
 function run(sql, params = []) {
   assertDbReady();
-  db.run(sql, params);
+  db.run(sql, normalizeSqlParams(params));
 }
 
 function query(sql, params = []) {
@@ -74,7 +78,7 @@ function query(sql, params = []) {
   const stmt = db.prepare(sql);
   const rows = [];
   try {
-    stmt.bind(params);
+    stmt.bind(normalizeSqlParams(params));
     while (stmt.step()) {
       rows.push(stmt.getAsObject());
     }

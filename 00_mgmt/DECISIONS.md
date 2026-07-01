@@ -413,3 +413,8 @@
 - AIチャットの処理中表示は Codex SDK の `runStreamed()` を利用し、main process から renderer へ `request_id` 付きの途中イベントを通知する。
 - 初期実装では途中イベント全文をDB保存せず、待ち時間の体感改善のためのリアルタイム表示として扱う。会話履歴として保存するのは、完了時の最終AI応答のみとする。
 - `command_execution` の出力など大きくなりやすいイベントは、renderer へ送る前に main process 側で丸める。
+
+## 2026-07-01 CHG-058 AIコンテキストパネル幅変更
+
+- AIモード右側のコンテキストパネル幅は、専用DBや設定ファイルではなく renderer の `localStorage` に保存する。
+- 初期幅は 410px、変更可能範囲は 320px から 720px とし、画面幅が狭い場合はCSS側で表示可能範囲に収める。

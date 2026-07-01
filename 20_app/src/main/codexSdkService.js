@@ -200,7 +200,8 @@ function cancelRun(requestId) {
 async function sendMessage(input = {}) {
   await aiService.openAiService();
   const inputThreadId = input.thread_id || input.threadId;
-  const thread = aiService.getThread(inputThreadId) || aiService.createThread({
+  const currentThread = inputThreadId ? aiService.getThread(inputThreadId) : null;
+  const thread = currentThread || aiService.createThread({
     thread_id: inputThreadId,
     title: input.title || "Codex chat",
     primary_task_id: input.primary_task_id,

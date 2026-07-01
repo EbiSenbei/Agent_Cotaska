@@ -55,6 +55,14 @@ function normalizeSandboxMode(value, fallback = DEFAULT_SETTINGS.aiChat.sandboxM
   return ["read-only", "workspace-write", "danger-full-access"].includes(mode) ? mode : fallback;
 }
 
+function hasOwn(object, key) {
+  return Object.prototype.hasOwnProperty.call(object || {}, key);
+}
+
+function isAiWorkdirConfigured(raw) {
+  return Boolean(String(raw?.aiChat?.workdir || "").trim());
+}
+
 function getDataDir() {
   return COTASKA_DATA_DIR;
 }
@@ -88,7 +96,9 @@ function mergeSettings(raw) {
     aiChat: {
       ...DEFAULT_SETTINGS.aiChat,
       ...(source.aiChat || {}),
-      workdir: String(source.aiChat?.workdir || DEFAULT_SETTINGS.aiChat.workdir),
+      workdir: hasOwn(source.aiChat, "workdir")
+        ? String(source.aiChat?.workdir || "")
+        : DEFAULT_SETTINGS.aiChat.workdir,
       sandboxMode: normalizeSandboxMode(source.aiChat?.sandboxMode),
       retentionDays: clampNumber(source.aiChat?.retentionDays, 1, 3650, DEFAULT_SETTINGS.aiChat.retentionDays),
       maxReferenceFiles: clampNumber(source.aiChat?.maxReferenceFiles, 1, 100, DEFAULT_SETTINGS.aiChat.maxReferenceFiles),
@@ -179,12 +189,18 @@ function getSettings() {
     return {
       ok: true,
       settings: mergeSettings(parsed),
+      configured: {
+        aiChatWorkdir: isAiWorkdirConfigured(parsed),
+      },
       path: settingsPath,
     };
   } catch (err) {
     return {
       ok: false,
       settings: mergeSettings(DEFAULT_SETTINGS),
+      configured: {
+        aiChatWorkdir: isAiWorkdirConfigured(DEFAULT_SETTINGS),
+      },
       path: settingsPath,
       error: err.message || "settings.yaml を読み込めませんでした。",
     };
@@ -219,6 +235,9 @@ function updateSettings(patch) {
   return {
     ok: true,
     settings: next,
+    configured: {
+      aiChatWorkdir: isAiWorkdirConfigured(next),
+    },
     path: getSettingsPath(),
   };
 }
