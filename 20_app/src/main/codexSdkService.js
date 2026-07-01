@@ -2,6 +2,7 @@ const path = require("path");
 const fs = require("fs");
 const aiService = require("./aiService");
 const settingsService = require("./settingsService");
+const appLogger = require("./appLogger");
 
 const SANDBOX_MODES = new Set(["read-only", "workspace-write", "danger-full-access"]);
 const activeRequests = new Map();
@@ -175,6 +176,18 @@ function emitRunEvent(input, payload) {
   }
 }
 
+function logAiChatResponse(eventName, data = {}) {
+  try {
+    appLogger.logInfo(eventName, {
+      category: "aiChat",
+      provider: "codex-sdk",
+      ...data,
+    });
+  } catch (_err) {
+    // ログ出力の失敗でAIチャット本体を止めない。
+  }
+}
+
 function cancelRun(requestId) {
   const key = requestId ? String(requestId) : "";
   const active = key ? activeRequests.get(key) : null;
@@ -198,6 +211,7 @@ function cancelRun(requestId) {
 }
 
 async function sendMessage(input = {}) {
+  const startedAt = Date.now();
   await aiService.openAiService();
   const inputThreadId = input.thread_id || input.threadId;
   const currentThread = inputThreadId ? aiService.getThread(inputThreadId) : null;
@@ -250,20 +264,40 @@ async function sendMessage(input = {}) {
     codex_run_id: run.run_id,
   });
 
+  logAiChatResponse("AI chat request started", {
+    request_id: requestId,
+    thread_id: thread.thread_id,
+    run_id: run.run_id,
+    codex_thread_id: thread.codex_thread_id,
+    sandbox: sandboxMode,
+    workdir,
+    model: input.model || null,
+    prompt_chars: prompt.length,
+    user_input_chars: text.length,
+    reference_files: referenceContext.usedCount,
+    reference_chars: referenceContext.totalChars,
+    reference_skipped: referenceContext.skipped,
+  });
+
   try {
     const { Codex } = await loadCodexSdk();
+    const sdkLoadedAt = Date.now();
     const codex = new Codex();
     const threadOptions = buildThreadOptions(thread, { ...input, workdir });
     const codexThread = thread.codex_thread_id
       ? codex.resumeThread(thread.codex_thread_id, threadOptions)
       : codex.startThread(threadOptions);
     const streamed = await codexThread.runStreamed(prompt, { signal: abortController.signal });
+    const streamStartedAt = Date.now();
     const items = [];
     let finalResponse = "";
     let usage = null;
     let turnFailure = null;
+    let firstEventAt = null;
+    let firstAgentMessageAt = null;
 
     for await (const rawEvent of streamed.events) {
+      if (!firstEventAt) firstEventAt = Date.now();
       const event = sanitizeThreadEvent(rawEvent);
       emitRunEvent(input, {
         type: "event",
@@ -273,9 +307,12 @@ async function sendMessage(input = {}) {
       });
       if (event.type === "item.completed") {
         if (event.item?.type === "agent_message") {
+          if (!firstAgentMessageAt) firstAgentMessageAt = Date.now();
           finalResponse = event.item.text || "";
         }
         items.push(event.item);
+      } else if (event.type === "item.updated" && event.item?.type === "agent_message") {
+        if (!firstAgentMessageAt) firstAgentMessageAt = Date.now();
       } else if (event.type === "turn.completed") {
         usage = event.usage || null;
       } else if (event.type === "turn.failed") {
@@ -307,6 +344,31 @@ async function sendMessage(input = {}) {
       token_count: summarizeUsage(usage),
     });
 
+    const completedAt = Date.now();
+    logAiChatResponse("AI chat assistant response", {
+      request_id: requestId,
+      thread_id: thread.thread_id,
+      run_id: run.run_id,
+      codex_thread_id: codexThreadId,
+      message_id: assistantMessage.message_id,
+      response_chars: finalResponse.length,
+      response: finalResponse,
+      usage,
+      timings_ms: {
+        total: completedAt - startedAt,
+        open_ai_service_to_sdk_loaded: sdkLoadedAt - startedAt,
+        sdk_loaded_to_stream_started: streamStartedAt - sdkLoadedAt,
+        stream_started_to_first_event: firstEventAt ? firstEventAt - streamStartedAt : null,
+        stream_started_to_first_agent_message: firstAgentMessageAt ? firstAgentMessageAt - streamStartedAt : null,
+        stream_started_to_completed: completedAt - streamStartedAt,
+      },
+      reference_context: {
+        used_count: referenceContext.usedCount,
+        total_chars: referenceContext.totalChars,
+        skipped: referenceContext.skipped,
+      },
+    });
+
     return {
       ok: true,
       thread: aiService.getThread(thread.thread_id),
@@ -332,6 +394,13 @@ async function sendMessage(input = {}) {
         content: "AI処理を中断しました。",
         codex_run_id: run.run_id,
       });
+      logAiChatResponse("AI chat canceled", {
+        request_id: requestId,
+        thread_id: thread.thread_id,
+        run_id: run.run_id,
+        elapsed_ms: Date.now() - startedAt,
+        response: canceledMessage.content,
+      });
       return {
         ok: false,
         canceled: true,
@@ -354,6 +423,13 @@ async function sendMessage(input = {}) {
       codex_run_id: run.run_id,
       error_code: "CODEX_SDK_ERROR",
       error_message: message,
+    });
+    logAiChatResponse("AI chat failed", {
+      request_id: requestId,
+      thread_id: thread.thread_id,
+      run_id: run.run_id,
+      elapsed_ms: Date.now() - startedAt,
+      error: message,
     });
     return {
       ok: false,

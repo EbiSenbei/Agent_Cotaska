@@ -1453,7 +1453,7 @@ tasks:
       - AI連携
       - Codex SDK
     due_date: null
-    updated_at: '2026-06-28T18:08:59+09:00'
+    updated_at: '2026-07-01T20:08:00+09:00'
   - id: T-0151
     title: CHG-057-02 実装：現在バージョン取得と表示
     list: 仕様変更
@@ -1511,17 +1511,17 @@ tasks:
     due_date: '2026-05-13'
     updated_at: '2026-05-13T14:02:45.612Z'
   - id: T-0157
-    title: 'CHG-058-03 ユーザー確認: ローカルAI CLIチャット連携'
+    title: 'CHG-058-03 ユーザー確認: Codex SDKチャット連携'
     list: 仕様変更
     status: todo
     priority: normal
     sort_order: 143
     tags:
-      - CHG-057
+      - CHG-058
       - ユーザー確認
       - AI連携
     due_date: null
-    updated_at: '2026-06-28T09:45:41.437Z'
+    updated_at: '2026-07-01T19:55:00+09:00'
   - id: T-0158
     title: 'CHG-058-04 実装: GitHub Copilot CLIプロバイダ追加'
     list: 仕様変更
@@ -3771,16 +3771,183 @@ tasks:
     tags: []
     due_date: '2026-07-01'
     updated_at: '2026-07-01T00:56:32.900Z'
-  - id: T-0352
-    title: 仕様変更：チャット内容にリンクを付けたい
+  - id: T-0353
+    title: 仕様変更：Codex認証状態確認とログイン案内を設定画面に追加
     list: 仕様変更
     status: todo
     priority: normal
-    sort_order: 342
+    sort_order: 343
+    tags:
+      - CHG-058
+    due_date: null
+    updated_at: '2026-07-01T10:32:22.058Z'
+  - id: T-0354
+    title: 調査：Codex SDK/CLIの認証状態確認方法を整理
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 344
+    tags:
+      - CHG-058
+    due_date: '2026-07-01'
+    updated_at: '2026-07-01T10:36:51.579Z'
+  - id: T-0355
+    title: 実装：main processにCodex認証診断IPCを追加
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 345
+    tags:
+      - CHG-058
+    due_date: null
+    updated_at: '2026-07-01T10:15:17.583Z'
+  - id: T-0356
+    title: 実装：設定画面にCodex認証状態表示と再確認ボタンを追加
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 346
+    tags:
+      - CHG-058
+    due_date: null
+    updated_at: '2026-07-01T10:15:17.583Z'
+  - id: T-0357
+    title: 実装：AIチャット画面の認証エラー時に設定画面へ誘導
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 347
+    tags:
+      - CHG-058
+    due_date: null
+    updated_at: '2026-07-01T10:15:17.583Z'
+  - id: T-0358
+    title: 確認：未認証/認証済み/SDK未検出時の表示確認
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 348
+    tags:
+      - CHG-058
+    due_date: null
+    updated_at: '2026-07-01T10:15:17.583Z'
+  - id: T-0359
+    title: 調査：チャットの応答速度が速くならないか？
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 349
+    tags: []
+    due_date: '2026-07-01'
+    updated_at: '2026-07-02T00:04:33+09:00'
+  - id: T-0360
+    title: 仕様変更：添付ファイルをクリックしたときの挙動
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 350
     tags: []
     due_date: null
-    updated_at: '2026-07-01T04:29:58.211Z'
+    updated_at: '2026-07-01T10:34:08.263Z'
+  - id: T-0361
+    title: 設計：これまでを振り返って
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 351
+    tags:
+      - CHG-058
+    due_date: 2026-07-01T00:00:00.000Z
+    updated_at: '2026-07-01T19:58:00+09:00'
+  - id: T-0362
+    title: 'CHG-058後続拡張: AI右ペインのファイルビュー編集対応を検討する'
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 352
+    tags:
+      - CHG-058
+      - 後続拡張
+      - AIチャット
+    due_date: null
+    updated_at: '2026-07-01T20:08:00+09:00'
+  - id: T-0363
+    title: 'CHG-058後続拡張: AIプロバイダ追加タスクを現行方針に合わせて再整理する'
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 353
+    tags:
+      - CHG-058
+      - 後続拡張
+      - AIプロバイダ
+    due_date: null
+    updated_at: '2026-07-01T20:08:00+09:00'
+  - id: T-0364
+    title: '調査: AIチャット応答速度を詳細ログで再計測する'
+    list: 仕様変更
+    status: todo
+    priority: high
+    sort_order: 354
+    tags:
+      - CHG-058
+      - AIチャット
+      - 応答速度
+    due_date: null
+    updated_at: '2026-07-02T00:04:33+09:00'
+  - id: T-0365
+    title: '実装: Codex SDKインスタンスの使い回しを検討・実装する'
+    list: 仕様変更
+    status: todo
+    priority: high
+    sort_order: 355
+    tags:
+      - CHG-058
+      - AIチャット
+      - 応答速度
+      - Codex SDK
+    due_date: null
+    updated_at: '2026-07-02T00:04:33+09:00'
+  - id: T-0366
+    title: '実装: 単純質問時の参照ファイル送信抑制を追加する'
+    list: 仕様変更
+    status: todo
+    priority: high
+    sort_order: 356
+    tags:
+      - CHG-058
+      - AIチャット
+      - 応答速度
+      - 参照ファイル
+    due_date: null
+    updated_at: '2026-07-02T00:04:33+09:00'
+  - id: T-0367
+    title: '調査・実装: 速度優先モードとFast mode利用可否を整理する'
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 357
+    tags:
+      - CHG-058
+      - AIチャット
+      - 応答速度
+      - 設定
+    due_date: null
+    updated_at: '2026-07-02T00:04:33+09:00'
+  - id: T-0368
+    title: '実装: agent_messageの途中本文をチャット欄へ逐次表示する'
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 358
+    tags:
+      - CHG-058
+      - AIチャット
+      - 応答速度
+      - UI
+    due_date: null
+    updated_at: '2026-07-02T00:04:33+09:00'
 task_file_roots:
   - .
-next_task_id: 353
-last_updated: '2026-07-01T04:29:58.721Z'
+next_task_id: 369
+last_updated: '2026-07-01T15:20:12.946Z'
