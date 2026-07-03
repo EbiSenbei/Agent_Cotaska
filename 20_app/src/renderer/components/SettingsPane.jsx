@@ -28,6 +28,7 @@ const DEFAULT_SETTINGS = {
   aiChat: {
     workdir: "",
     sandboxMode: "read-only",
+    performanceMode: "standard",
     retentionDays: 90,
     maxReferenceFiles: 10,
     maxReferenceChars: 100000,
@@ -536,6 +537,21 @@ function SettingsPane() {
                         <option value="danger-full-access">フルアクセス</option>
                       </select>
                       <div className="settings-help-text">Codex SDK実行時の既定権限。チャット入力欄でも送信前に一時変更できます。</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>AI速度</th>
+                    <td>
+                      <select
+                        className="settings-select-input"
+                        value={settings.aiChat.performanceMode}
+                        aria-label="AI速度モード"
+                        onChange={(e) => updateSettingState({ aiChat: { performanceMode: e.target.value } })}
+                      >
+                        <option value="standard">標準</option>
+                        <option value="speed">速度優先</option>
+                      </select>
+                      <div className="settings-help-text">速度優先ではCodex SDKへFast mode設定を渡します。利用可否はOpenAIアカウントとCodex側の対応状況に依存します。</div>
                     </td>
                   </tr>
                   <tr>

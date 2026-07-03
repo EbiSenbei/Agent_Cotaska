@@ -201,6 +201,13 @@ function AiChatPane({
     filePath: reference.file_path || "",
   });
 
+  const getAgentMessageText = (payload) => {
+    const event = payload?.event;
+    const item = event?.item;
+    if (!item || item.type !== "agent_message") return "";
+    return String(item.text || "").trimEnd();
+  };
+
   const summarizeStreamEvent = (payload) => {
     const event = payload?.event;
     const item = event?.item;
@@ -221,7 +228,7 @@ function AiChatPane({
     }
     if (!item) return null;
     if (item.type === "agent_message") {
-      return { id, title: "応答を生成しています", detail: item.text || "", status };
+      return { id, title: "応答本文を受信しています", detail: "", status };
     }
     if (item.type === "reasoning") {
       return { id, title: "考えを整理しています", detail: item.text || "", status };
@@ -525,6 +532,23 @@ function AiChatPane({
     return aiChatApi.onRunEvent((payload) => {
       const activeRequest = activeSendRequestRef.current;
       if (!activeRequest?.id || payload?.request_id !== activeRequest.id || activeRequest.canceled) return;
+      const agentText = getAgentMessageText(payload);
+      if (agentText) {
+        setMessages((current) => {
+          const streamingMessage = {
+            id: activeRequest.streamingAssistantMessageId,
+            role: "assistant",
+            author: "Codex SDK",
+            body: agentText,
+            streaming: true,
+          };
+          const index = current.findIndex((message) => message.id === activeRequest.streamingAssistantMessageId);
+          if (index >= 0) {
+            return current.map((message, messageIndex) => (messageIndex === index ? streamingMessage : message));
+          }
+          return [...current, streamingMessage];
+        });
+      }
       const nextEvent = summarizeStreamEvent(payload);
       if (!nextEvent) return;
       setStreamEvents((current) => mergeStreamEvent(current, nextEvent));
@@ -1077,7 +1101,7 @@ function AiChatPane({
     }));
     requestScrollMessagesToBottom();
     setMessages((current) => [
-      ...current,
+      ...current.filter((message) => message.id !== currentRequest.streamingAssistantMessageId),
       {
         id: `cancel-${Date.now()}`,
         role: "assistant",
@@ -1116,7 +1140,8 @@ function AiChatPane({
     }
 
     const requestId = `ai-send-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    activeSendRequestRef.current = { id: requestId, canceled: false };
+    const streamingAssistantMessageId = `stream-assistant-${Date.now()}`;
+    activeSendRequestRef.current = { id: requestId, canceled: false, streamingAssistantMessageId };
     const pendingUserMessage = {
       id: `pending-user-${Date.now()}`,
       role: "user",
@@ -1172,7 +1197,7 @@ function AiChatPane({
       if (resultMessages.length > 0) {
         requestScrollMessagesToBottom();
         setMessages((current) => [
-          ...current.filter((message) => message.id !== pendingUserMessage.id),
+          ...current.filter((message) => message.id !== pendingUserMessage.id && message.id !== streamingAssistantMessageId),
           ...resultMessages,
         ]);
       }
@@ -1190,7 +1215,7 @@ function AiChatPane({
       });
       requestScrollMessagesToBottom();
       setMessages((current) => [
-        ...current.filter((message) => message.id !== pendingUserMessage.id),
+        ...current.filter((message) => message.id !== pendingUserMessage.id && message.id !== streamingAssistantMessageId),
         pendingUserMessage,
         {
           id: `error-${Date.now()}`,
@@ -1386,7 +1411,7 @@ function AiChatPane({
               <span>会話履歴、提案、参照ファイルは実データが作成された後に表示されます。</span>
             </div>
           ) : messages.map((message) => (
-            <article key={message.id} className={`ai-message ai-message--${message.role}`}>
+            <article key={message.id} className={`ai-message ai-message--${message.role}${message.streaming ? " ai-message--streaming" : ""}`}>
               <div className="ai-message-author">{message.author}</div>
               <MarkdownPreview content={message.body} error={message.error} onOpenTask={openTaskContext} />
               <div className="ai-message-hover-actions" aria-label="メッセージ操作">

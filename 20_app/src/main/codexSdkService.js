@@ -5,6 +5,7 @@ const settingsService = require("./settingsService");
 const appLogger = require("./appLogger");
 
 const SANDBOX_MODES = new Set(["read-only", "workspace-write", "danger-full-access"]);
+const PERFORMANCE_MODES = new Set(["standard", "speed"]);
 const activeRequests = new Map();
 
 async function loadCodexSdk() {
@@ -19,6 +20,28 @@ function normalizeSandboxMode(value, fallback = "read-only") {
   const fallbackMode = SANDBOX_MODES.has(String(fallback)) ? String(fallback) : "read-only";
   const mode = String(value || fallbackMode).trim();
   return SANDBOX_MODES.has(mode) ? mode : fallbackMode;
+}
+
+function normalizePerformanceMode(value, fallback = "standard") {
+  const fallbackMode = PERFORMANCE_MODES.has(String(fallback)) ? String(fallback) : "standard";
+  const mode = String(value || fallbackMode).trim();
+  return PERFORMANCE_MODES.has(mode) ? mode : fallbackMode;
+}
+
+function buildCodexOptions(settings, options = {}) {
+  const performanceMode = normalizePerformanceMode(
+    options.performanceMode || options.performance_mode,
+    settings.performanceMode,
+  );
+  if (performanceMode !== "speed") return {};
+  return {
+    config: {
+      service_tier: "fast",
+      features: {
+        fast_mode: true,
+      },
+    },
+  };
 }
 
 function buildThreadOptions(thread, options = {}) {
@@ -176,11 +199,14 @@ function emitRunEvent(input, payload) {
   }
 }
 
-function logAiChatResponse(eventName, data = {}) {
+// CHG-058 AI_DIAGNOSTICS:
+// AI応答速度調査用ログ。調査完了後に削除または設定化する。
+function logAiChatDiagnostics(eventName, data = {}) {
   try {
-    appLogger.logInfo(eventName, {
+    appLogger.logInfo(`AI_DIAGNOSTICS ${eventName}`, {
       category: "aiChat",
       provider: "codex-sdk",
+      diagnostics: "AI_DIAGNOSTICS",
       ...data,
     });
   } catch (_err) {
@@ -239,6 +265,7 @@ async function sendMessage(input = {}) {
   const settings = settingsService.getSettings().settings.aiChat || {};
   const workdir = String(input.workdir || settings.workdir || path.resolve(process.cwd(), ".."));
   const sandboxMode = normalizeSandboxMode(input.sandboxMode || input.sandbox_mode || input.sandbox, settings.sandboxMode);
+  const performanceMode = normalizePerformanceMode(input.performanceMode || input.performance_mode, settings.performanceMode);
   const referenceContext = buildReferenceContext(thread.thread_id, workdir, settings);
   const prompt = referenceContext.promptPrefix
     ? `${referenceContext.promptPrefix}\n\n## ユーザー入力\n${text}`
@@ -264,12 +291,14 @@ async function sendMessage(input = {}) {
     codex_run_id: run.run_id,
   });
 
-  logAiChatResponse("AI chat request started", {
+  logAiChatDiagnostics("chat request started", {
     request_id: requestId,
     thread_id: thread.thread_id,
     run_id: run.run_id,
     codex_thread_id: thread.codex_thread_id,
     sandbox: sandboxMode,
+    performance_mode: performanceMode,
+    fast_mode_requested: performanceMode === "speed",
     workdir,
     model: input.model || null,
     prompt_chars: prompt.length,
@@ -282,7 +311,7 @@ async function sendMessage(input = {}) {
   try {
     const { Codex } = await loadCodexSdk();
     const sdkLoadedAt = Date.now();
-    const codex = new Codex();
+    const codex = new Codex(buildCodexOptions(settings, { ...input, performanceMode }));
     const threadOptions = buildThreadOptions(thread, { ...input, workdir });
     const codexThread = thread.codex_thread_id
       ? codex.resumeThread(thread.codex_thread_id, threadOptions)
@@ -345,14 +374,15 @@ async function sendMessage(input = {}) {
     });
 
     const completedAt = Date.now();
-    logAiChatResponse("AI chat assistant response", {
+    logAiChatDiagnostics("chat assistant response", {
       request_id: requestId,
       thread_id: thread.thread_id,
       run_id: run.run_id,
       codex_thread_id: codexThreadId,
       message_id: assistantMessage.message_id,
       response_chars: finalResponse.length,
-      response: finalResponse,
+      performance_mode: performanceMode,
+      fast_mode_requested: performanceMode === "speed",
       usage,
       timings_ms: {
         total: completedAt - startedAt,
@@ -394,12 +424,12 @@ async function sendMessage(input = {}) {
         content: "AI処理を中断しました。",
         codex_run_id: run.run_id,
       });
-      logAiChatResponse("AI chat canceled", {
+      logAiChatDiagnostics("chat canceled", {
         request_id: requestId,
         thread_id: thread.thread_id,
         run_id: run.run_id,
         elapsed_ms: Date.now() - startedAt,
-        response: canceledMessage.content,
+        response_chars: canceledMessage.content.length,
       });
       return {
         ok: false,
@@ -424,7 +454,7 @@ async function sendMessage(input = {}) {
       error_code: "CODEX_SDK_ERROR",
       error_message: message,
     });
-    logAiChatResponse("AI chat failed", {
+    logAiChatDiagnostics("chat failed", {
       request_id: requestId,
       thread_id: thread.thread_id,
       run_id: run.run_id,

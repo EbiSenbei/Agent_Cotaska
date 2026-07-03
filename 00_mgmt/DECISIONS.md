@@ -418,3 +418,17 @@
 
 - AIモード右側のコンテキストパネル幅は、専用DBや設定ファイルではなく renderer の `localStorage` に保存する。
 - 初期幅は 410px、変更可能範囲は 320px から 720px とし、画面幅が狭い場合はCSS側で表示可能範囲に収める。
+
+## 2026-07-02 CHG-058 AI速度優先モード
+
+- AIチャットの速度優先は、チャット入力欄ではなく設定画面の `AI速度` で `標準` / `速度優先` を選択する。
+- `速度優先` では Codex SDK の `config` 上書きで `service_tier = "fast"` と `[features].fast_mode = true` 相当を渡す。
+- 既定値は `標準` とし、Fast mode の利用可否はユーザーのCodex認証状態と契約に依存するため、Cotaska側では事前に強制判定しない。
+- 軽量モデル指定と参照ファイル自動抑制は、回答品質やユーザーが添付した意図に影響するため今回の実装範囲から外し、必要時に別タスクで扱う。
+- AI応答速度調査用ログには応答本文を残さず、文字数・トークン使用量・処理時間のみを記録する。
+
+## 2026-07-02 CHG-058 AIチャット入力トークン削減方針
+
+- 参照ファイルなし・短文入力でも `input_tokens` が約3万になる主因は、Cotaskaの参照展開ではなくCodex CLI/agent側の基礎文脈とツール構成と判断する。
+- 速度優先モードでは、Fast modeだけでなく `web_search = "disabled"`、`features.multi_agent = false`、`modelReasoningEffort = "low"` を組み合わせた軽量Codex実行プロファイルを検討する。
+- `modelReasoningEffort = "minimal"` は現行ツール構成で `image_gen` との互換性エラーが出たため、既定候補にしない。

@@ -3838,8 +3838,8 @@ tasks:
     priority: normal
     sort_order: 349
     tags: []
-    due_date: '2026-07-01'
-    updated_at: '2026-07-02T00:04:33+09:00'
+    due_date: '2026-07-02'
+    updated_at: '2026-07-03T23:35:00+09:00'
   - id: T-0360
     title: 仕様変更：添付ファイルをクリックしたときの挙動
     list: 仕様変更
@@ -3886,15 +3886,15 @@ tasks:
   - id: T-0364
     title: '調査: AIチャット応答速度を詳細ログで再計測する'
     list: 仕様変更
-    status: todo
+    status: done
     priority: high
     sort_order: 354
     tags:
       - CHG-058
       - AIチャット
       - 応答速度
-    due_date: null
-    updated_at: '2026-07-02T00:04:33+09:00'
+    due_date: '2026-07-02'
+    updated_at: '2026-07-01T15:36:35.077Z'
   - id: T-0365
     title: '実装: Codex SDKインスタンスの使い回しを検討・実装する'
     list: 仕様変更
@@ -3906,8 +3906,8 @@ tasks:
       - AIチャット
       - 応答速度
       - Codex SDK
-    due_date: null
-    updated_at: '2026-07-02T00:04:33+09:00'
+    due_date: '2026-07-02'
+    updated_at: '2026-07-02T03:03:11.250Z'
   - id: T-0366
     title: '実装: 単純質問時の参照ファイル送信抑制を追加する'
     list: 仕様変更
@@ -3919,12 +3919,12 @@ tasks:
       - AIチャット
       - 応答速度
       - 参照ファイル
-    due_date: null
-    updated_at: '2026-07-02T00:04:33+09:00'
+    due_date: '2026-07-02'
+    updated_at: '2026-07-02T03:03:15.805Z'
   - id: T-0367
     title: '調査・実装: 速度優先モードとFast mode利用可否を整理する'
     list: 仕様変更
-    status: todo
+    status: doing
     priority: normal
     sort_order: 357
     tags:
@@ -3932,8 +3932,8 @@ tasks:
       - AIチャット
       - 応答速度
       - 設定
-    due_date: null
-    updated_at: '2026-07-02T00:04:33+09:00'
+    due_date: '2026-07-02'
+    updated_at: '2026-07-02T03:03:19.459Z'
   - id: T-0368
     title: '実装: agent_messageの途中本文をチャット欄へ逐次表示する'
     list: 仕様変更
@@ -3945,9 +3945,102 @@ tasks:
       - AIチャット
       - 応答速度
       - UI
-    due_date: null
-    updated_at: '2026-07-02T00:04:33+09:00'
+    due_date: '2026-07-02'
+    updated_at: '2026-07-01T15:35:15.115Z'
+  - id: T-0369
+    title: '調査: AIチャット入力トークン肥大化の原因を確認する'
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 359
+    tags:
+      - CHG-058
+      - AIチャット
+      - 応答速度
+      - トークン
+    due_date: '2026-07-02'
+    updated_at: '2026-07-03T23:35:00+09:00'
+  - id: T-0370
+    title: '調査・実装: 速度優先時の推論強度設定を検証する'
+    list: 仕様変更
+    status: todo
+    priority: high
+    sort_order: 360
+    tags:
+      - CHG-058
+      - AIチャット
+      - 応答速度
+      - Codex SDK
+      - 設定
+    due_date: '2026-07-02'
+    updated_at: '2026-07-02T11:32:00+09:00'
+  - id: T-0371
+    title: '実装: 速度優先モード用の軽量Codex実行プロファイルを追加する'
+    list: 仕様変更
+    status: todo
+    priority: high
+    sort_order: 361
+    tags:
+      - CHG-058
+      - AIチャット
+      - 応答速度
+      - Codex SDK
+      - 設定
+    due_date: '2026-07-02'
+    updated_at: '2026-07-02T13:55:00+09:00'
+  - id: T-0372
+    title: '調査: 新規スレッド初回と継続投稿のキャッシュ効果を測定する'
+    list: 仕様変更
+    status: todo
+    priority: high
+    sort_order: 362
+    tags:
+      - CHG-058
+      - AIチャット
+      - 応答速度
+      - キャッシュ
+    due_date: '2026-07-03'
+    updated_at: '2026-07-03T23:45:00+09:00'
+  - id: T-0373
+    title: '実装: タスク単位の既存AIスレッド継続利用を優先する'
+    list: 仕様変更
+    status: todo
+    priority: high
+    sort_order: 363
+    tags:
+      - CHG-058
+      - AIチャット
+      - 応答速度
+      - UI
+    due_date: '2026-07-03'
+    updated_at: '2026-07-03T23:45:00+09:00'
+  - id: T-0374
+    title: '調査: 新規AIスレッド初回遅延のプリウォーム可否を確認する'
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 364
+    tags:
+      - CHG-058
+      - AIチャット
+      - 応答速度
+      - Codex SDK
+    due_date: '2026-07-03'
+    updated_at: '2026-07-03T23:45:00+09:00'
+  - id: T-0375
+    title: '後処理: AI応答速度調査ログを削除または設定化する'
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 365
+    tags:
+      - CHG-058
+      - AIチャット
+      - 応答速度
+      - 後処理
+    due_date: '2026-07-03'
+    updated_at: '2026-07-03T23:55:00+09:00'
 task_file_roots:
   - .
-next_task_id: 369
-last_updated: '2026-07-01T15:20:12.946Z'
+next_task_id: 376
+last_updated: '2026-07-03T14:55:00.000Z'

@@ -19,6 +19,7 @@ const DEFAULT_SETTINGS = {
   aiChat: {
     workdir: COTASKA_ROOT_DIR,
     sandboxMode: "read-only",
+    performanceMode: "standard",
     retentionDays: 90,
     maxReferenceFiles: 10,
     maxReferenceChars: 100000,
@@ -53,6 +54,11 @@ function clampNumber(value, min, max, fallback) {
 function normalizeSandboxMode(value, fallback = DEFAULT_SETTINGS.aiChat.sandboxMode) {
   const mode = String(value || fallback).trim();
   return ["read-only", "workspace-write", "danger-full-access"].includes(mode) ? mode : fallback;
+}
+
+function normalizePerformanceMode(value, fallback = DEFAULT_SETTINGS.aiChat.performanceMode) {
+  const mode = String(value || fallback).trim();
+  return ["standard", "speed"].includes(mode) ? mode : fallback;
 }
 
 function hasOwn(object, key) {
@@ -100,6 +106,7 @@ function mergeSettings(raw) {
         ? String(source.aiChat?.workdir || "")
         : DEFAULT_SETTINGS.aiChat.workdir,
       sandboxMode: normalizeSandboxMode(source.aiChat?.sandboxMode),
+      performanceMode: normalizePerformanceMode(source.aiChat?.performanceMode),
       retentionDays: clampNumber(source.aiChat?.retentionDays, 1, 3650, DEFAULT_SETTINGS.aiChat.retentionDays),
       maxReferenceFiles: clampNumber(source.aiChat?.maxReferenceFiles, 1, 100, DEFAULT_SETTINGS.aiChat.maxReferenceFiles),
       maxReferenceChars: clampNumber(source.aiChat?.maxReferenceChars, 1000, 1000000, DEFAULT_SETTINGS.aiChat.maxReferenceChars),
@@ -152,6 +159,9 @@ function renderSettingsYaml(settings) {
     "",
     "  # Codex SDK sandbox mode: read-only / workspace-write / danger-full-access.",
     `  sandboxMode: ${escaped(normalized.aiChat.sandboxMode)}`,
+    "",
+    "  # AI response performance mode: standard / speed.",
+    `  performanceMode: ${escaped(normalized.aiChat.performanceMode)}`,
     "",
     "  # Days to keep archived AI data before cleanup.",
     `  retentionDays: ${normalized.aiChat.retentionDays}`,
