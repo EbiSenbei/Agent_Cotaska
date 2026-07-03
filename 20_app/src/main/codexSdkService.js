@@ -7,6 +7,11 @@ const appLogger = require("./appLogger");
 const SANDBOX_MODES = new Set(["read-only", "workspace-write", "danger-full-access"]);
 const PERFORMANCE_MODES = new Set(["standard", "speed"]);
 const activeRequests = new Map();
+const SPEED_PROFILE = {
+  webSearchMode: "disabled",
+  multiAgentEnabled: false,
+  modelReasoningEffort: "low",
+};
 
 async function loadCodexSdk() {
   try {
@@ -37,8 +42,10 @@ function buildCodexOptions(settings, options = {}) {
   return {
     config: {
       service_tier: "fast",
+      web_search: SPEED_PROFILE.webSearchMode,
       features: {
         fast_mode: true,
+        multi_agent: SPEED_PROFILE.multiAgentEnabled,
       },
     },
   };
@@ -47,22 +54,38 @@ function buildCodexOptions(settings, options = {}) {
 function buildThreadOptions(thread, options = {}) {
   const settings = settingsService.getSettings().settings.aiChat || {};
   const sandboxMode = normalizeSandboxMode(options.sandboxMode || options.sandbox_mode || options.sandbox, settings.sandboxMode);
+  const performanceMode = normalizePerformanceMode(options.performanceMode || options.performance_mode, settings.performanceMode);
   return {
     workingDirectory: String(options.workdir || settings.workdir || path.resolve(process.cwd(), "..")),
     sandboxMode,
     approvalPolicy: "never",
     skipGitRepoCheck: true,
     model: options.model || undefined,
+    modelReasoningEffort: performanceMode === "speed" ? SPEED_PROFILE.modelReasoningEffort : undefined,
+  };
+}
+
+function buildPerformanceDiagnostics(performanceMode) {
+  const isSpeed = performanceMode === "speed";
+  return {
+    performance_mode: performanceMode,
+    fast_mode_requested: isSpeed,
+    web_search_mode: isSpeed ? SPEED_PROFILE.webSearchMode : null,
+    multi_agent_enabled: isSpeed ? SPEED_PROFILE.multiAgentEnabled : null,
+    model_reasoning_effort: isSpeed ? SPEED_PROFILE.modelReasoningEffort : null,
   };
 }
 
 function summarizeUsage(usage) {
   if (!usage) return null;
   const input = Number(usage.input_tokens || 0);
-  const cached = Number(usage.cached_input_tokens || 0);
   const output = Number(usage.output_tokens || 0);
   const reasoning = Number(usage.reasoning_output_tokens || 0);
-  return input + cached + output + reasoning;
+  return input + output + reasoning;
+}
+
+function shouldUsePersistentCodexThread(performanceMode) {
+  return performanceMode !== "speed";
 }
 
 function ensurePathInside(baseDir, targetPath) {
@@ -266,13 +289,16 @@ async function sendMessage(input = {}) {
   const workdir = String(input.workdir || settings.workdir || path.resolve(process.cwd(), ".."));
   const sandboxMode = normalizeSandboxMode(input.sandboxMode || input.sandbox_mode || input.sandbox, settings.sandboxMode);
   const performanceMode = normalizePerformanceMode(input.performanceMode || input.performance_mode, settings.performanceMode);
+  const usePersistentCodexThread = shouldUsePersistentCodexThread(performanceMode);
+  const codexThreadIdForRun = usePersistentCodexThread ? thread.codex_thread_id : null;
+  const codexThreadStrategy = usePersistentCodexThread ? "persistent" : "transient";
   const referenceContext = buildReferenceContext(thread.thread_id, workdir, settings);
   const prompt = referenceContext.promptPrefix
     ? `${referenceContext.promptPrefix}\n\n## ユーザー入力\n${text}`
     : text;
   const run = aiService.createRun({
     thread_id: thread.thread_id,
-    codex_thread_id: thread.codex_thread_id,
+    codex_thread_id: codexThreadIdForRun,
     sandbox: sandboxMode,
     workdir,
     model: input.model,
@@ -295,10 +321,12 @@ async function sendMessage(input = {}) {
     request_id: requestId,
     thread_id: thread.thread_id,
     run_id: run.run_id,
-    codex_thread_id: thread.codex_thread_id,
+    codex_thread_id: codexThreadIdForRun,
+    stored_codex_thread_id: thread.codex_thread_id,
+    codex_thread_strategy: codexThreadStrategy,
+    codex_thread_reused: Boolean(codexThreadIdForRun),
     sandbox: sandboxMode,
-    performance_mode: performanceMode,
-    fast_mode_requested: performanceMode === "speed",
+    ...buildPerformanceDiagnostics(performanceMode),
     workdir,
     model: input.model || null,
     prompt_chars: prompt.length,
@@ -312,9 +340,9 @@ async function sendMessage(input = {}) {
     const { Codex } = await loadCodexSdk();
     const sdkLoadedAt = Date.now();
     const codex = new Codex(buildCodexOptions(settings, { ...input, performanceMode }));
-    const threadOptions = buildThreadOptions(thread, { ...input, workdir });
-    const codexThread = thread.codex_thread_id
-      ? codex.resumeThread(thread.codex_thread_id, threadOptions)
+    const threadOptions = buildThreadOptions(thread, { ...input, workdir, performanceMode });
+    const codexThread = codexThreadIdForRun
+      ? codex.resumeThread(codexThreadIdForRun, threadOptions)
       : codex.startThread(threadOptions);
     const streamed = await codexThread.runStreamed(prompt, { signal: abortController.signal });
     const streamStartedAt = Date.now();
@@ -356,9 +384,10 @@ async function sendMessage(input = {}) {
     if (turnFailure) {
       throw new Error(turnFailure.message || "Codex SDK stream failed.");
     }
-    const codexThreadId = codexThread.id || thread.codex_thread_id || null;
+    const codexThreadId = codexThread.id || codexThreadIdForRun || null;
+    const persistCodexThreadId = usePersistentCodexThread && codexThreadId;
 
-    if (codexThreadId && codexThreadId !== thread.codex_thread_id) {
+    if (persistCodexThreadId && codexThreadId !== thread.codex_thread_id) {
       aiService.updateThread(thread.thread_id, { codex_thread_id: codexThreadId });
     }
     aiService.updateRun(run.run_id, {
@@ -379,10 +408,13 @@ async function sendMessage(input = {}) {
       thread_id: thread.thread_id,
       run_id: run.run_id,
       codex_thread_id: codexThreadId,
+      stored_codex_thread_id: thread.codex_thread_id,
+      codex_thread_strategy: codexThreadStrategy,
+      codex_thread_reused: Boolean(codexThreadIdForRun),
+      codex_thread_persisted: Boolean(persistCodexThreadId),
       message_id: assistantMessage.message_id,
       response_chars: finalResponse.length,
-      performance_mode: performanceMode,
-      fast_mode_requested: performanceMode === "speed",
+      ...buildPerformanceDiagnostics(performanceMode),
       usage,
       timings_ms: {
         total: completedAt - startedAt,

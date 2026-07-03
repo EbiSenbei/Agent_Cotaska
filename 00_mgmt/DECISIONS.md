@@ -432,3 +432,9 @@
 - 参照ファイルなし・短文入力でも `input_tokens` が約3万になる主因は、Cotaskaの参照展開ではなくCodex CLI/agent側の基礎文脈とツール構成と判断する。
 - 速度優先モードでは、Fast modeだけでなく `web_search = "disabled"`、`features.multi_agent = false`、`modelReasoningEffort = "low"` を組み合わせた軽量Codex実行プロファイルを検討する。
 - `modelReasoningEffort = "minimal"` は現行ツール構成で `image_gen` との互換性エラーが出たため、既定候補にしない。
+
+## 2026-07-04 CHG-058 速度優先時のCodexスレッド扱い
+
+- 速度優先モードではCotaska上のAIスレッドと会話履歴は維持するが、Codex SDK側は短命スレッドとして実行し、既存 `codex_thread_id` を `resumeThread()` しない。
+- 速度優先モードで生成されたCodexスレッドIDは `ai_runs` には記録するが、Cotaskaスレッドの保存済み `codex_thread_id` は上書きしない。
+- 標準モードでは従来通りCodexスレッドを継続し、実装作業やファイル更新の文脈維持を優先する。

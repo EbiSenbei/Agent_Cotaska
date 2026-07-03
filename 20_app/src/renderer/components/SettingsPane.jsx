@@ -551,7 +551,7 @@ function SettingsPane() {
                         <option value="standard">標準</option>
                         <option value="speed">速度優先</option>
                       </select>
-                      <div className="settings-help-text">速度優先ではCodex SDKへFast mode設定を渡します。利用可否はOpenAIアカウントとCodex側の対応状況に依存します。</div>
+                      <div className="settings-help-text">速度優先ではFast mode設定と短命Codex実行を使い、Codex側の履歴肥大化を抑えます。</div>
                     </td>
                   </tr>
                   <tr>
