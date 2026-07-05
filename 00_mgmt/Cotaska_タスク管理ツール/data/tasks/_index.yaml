@@ -1513,15 +1513,15 @@ tasks:
   - id: T-0157
     title: 'CHG-058-03 ユーザー確認: Codex SDKチャット連携'
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 143
     tags:
       - CHG-058
       - ユーザー確認
       - AI連携
-    due_date: null
-    updated_at: '2026-07-05T14:45:19.173+09:00'
+    due_date: '2026-07-05'
+    updated_at: '2026-07-05T12:50:27.490Z'
   - id: T-0159
     title: 'CHG-058-05 調査・設計: Claude連携を見据えたAIプロバイダ拡張'
     list: 仕様変更
@@ -3761,13 +3761,13 @@ tasks:
   - id: T-0353
     title: 仕様変更：Codex認証状態確認とログイン案内を設定画面に追加
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 343
     tags:
       - CHG-058
-    due_date: null
-    updated_at: '2026-07-05T14:28:25.230+09:00'
+    due_date: '2026-07-05'
+    updated_at: '2026-07-05T12:50:16.572Z'
   - id: T-0354
     title: 調査：Codex SDK/CLIの認証状態確認方法を整理
     list: 仕様変更
@@ -3811,13 +3811,13 @@ tasks:
   - id: T-0358
     title: 確認：未認証/認証済み/SDK未検出時の表示確認
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 348
     tags:
       - CHG-058
-    due_date: null
-    updated_at: '2026-07-01T10:15:17.583Z'
+    due_date: '2026-07-05'
+    updated_at: '2026-07-05T12:50:15.494Z'
   - id: T-0359
     title: 調査：チャットの応答速度が速くならないか？
     list: 仕様変更
@@ -3846,30 +3846,6 @@ tasks:
       - CHG-058
     due_date: '2026-07-01'
     updated_at: '2026-07-05T05:45:46.780Z'
-  - id: T-0362
-    title: 'CHG-058後続拡張: AI右ペインのファイルビュー編集対応を検討する'
-    list: 仕様変更
-    status: todo
-    priority: normal
-    sort_order: 352
-    tags:
-      - CHG-058
-      - 後続拡張
-      - AIチャット
-    due_date: null
-    updated_at: '2026-07-01T20:08:00+09:00'
-  - id: T-0363
-    title: 'CHG-058後続拡張: AIプロバイダ追加タスクを現行方針に合わせて再整理する'
-    list: 仕様変更
-    status: todo
-    priority: normal
-    sort_order: 353
-    tags:
-      - CHG-058
-      - 後続拡張
-      - AIプロバイダ
-    due_date: null
-    updated_at: '2026-07-01T20:08:00+09:00'
   - id: T-0364
     title: '調査: AIチャット応答速度を詳細ログで再計測する'
     list: 仕様変更
@@ -4077,4 +4053,4 @@ tasks:
 task_file_roots:
   - .
 next_task_id: 380
-last_updated: '2026-07-05T12:43:29.852Z'
+last_updated: '2026-07-05T12:50:28.012Z'
