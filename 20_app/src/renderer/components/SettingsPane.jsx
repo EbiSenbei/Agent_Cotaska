@@ -29,6 +29,7 @@ const DEFAULT_SETTINGS = {
     workdir: "",
     sandboxMode: "read-only",
     performanceMode: "standard",
+    referenceSendMode: "always",
     diagnosticsEnabled: false,
     retentionDays: 90,
     maxReferenceFiles: 10,
@@ -663,6 +664,17 @@ function SettingsPane({ focusRequest }) {
                   <tr>
                     <th>AI参照上限</th>
                     <td>
+                      <select
+                        className="settings-select-input"
+                        value={settings.aiChat.referenceSendMode}
+                        aria-label="AI reference file send mode"
+                        onChange={(e) => updateSettingState({ aiChat: { referenceSendMode: e.target.value } })}
+                      >
+                        <option value="always">Always send</option>
+                        <option value="manual">Manual only</option>
+                        <option value="skip-in-speed">Skip in speed mode</option>
+                      </select>
+                      <div className="settings-help-text">Controls whether attached reference file contents are sent to Codex.</div>
                       <div className="settings-task-loading-row">
                         <div className="settings-unit-field settings-compact-unit-field">
                           <span className="settings-inline-label">ファイル</span>

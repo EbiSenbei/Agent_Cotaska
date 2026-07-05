@@ -24,6 +24,7 @@ const DEFAULT_SETTINGS = {
     retentionDays: 90,
     maxReferenceFiles: 10,
     maxReferenceChars: 100000,
+    referenceSendMode: "always",
   },
   update: {
     latestVersionUrl: "https://pub-d671fdad660b43a8a4b99ede58b7c092.r2.dev/latest/version.json",
@@ -60,6 +61,11 @@ function normalizeSandboxMode(value, fallback = DEFAULT_SETTINGS.aiChat.sandboxM
 function normalizePerformanceMode(value, fallback = DEFAULT_SETTINGS.aiChat.performanceMode) {
   const mode = String(value || fallback).trim();
   return ["standard", "speed"].includes(mode) ? mode : fallback;
+}
+
+function normalizeReferenceSendMode(value, fallback = DEFAULT_SETTINGS.aiChat.referenceSendMode) {
+  const mode = String(value || fallback).trim();
+  return ["always", "manual", "skip-in-speed"].includes(mode) ? mode : fallback;
 }
 
 function hasOwn(object, key) {
@@ -108,6 +114,7 @@ function mergeSettings(raw) {
         : DEFAULT_SETTINGS.aiChat.workdir,
       sandboxMode: normalizeSandboxMode(source.aiChat?.sandboxMode),
       performanceMode: normalizePerformanceMode(source.aiChat?.performanceMode),
+      referenceSendMode: normalizeReferenceSendMode(source.aiChat?.referenceSendMode),
       diagnosticsEnabled: source.aiChat?.diagnosticsEnabled === true,
       retentionDays: clampNumber(source.aiChat?.retentionDays, 1, 3650, DEFAULT_SETTINGS.aiChat.retentionDays),
       maxReferenceFiles: clampNumber(source.aiChat?.maxReferenceFiles, 1, 100, DEFAULT_SETTINGS.aiChat.maxReferenceFiles),
@@ -164,6 +171,9 @@ function renderSettingsYaml(settings) {
     "",
     "  # AI response performance mode: standard / speed.",
     `  performanceMode: ${escaped(normalized.aiChat.performanceMode)}`,
+    "",
+    "  # Reference file send mode: always / manual / skip-in-speed.",
+    `  referenceSendMode: ${escaped(normalized.aiChat.referenceSendMode)}`,
     "",
     "  # Enable detailed AI diagnostics logs for response time investigation.",
     `  diagnosticsEnabled: ${normalized.aiChat.diagnosticsEnabled ? "true" : "false"}`,

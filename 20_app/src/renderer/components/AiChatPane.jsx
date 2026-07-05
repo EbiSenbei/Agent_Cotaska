@@ -15,6 +15,12 @@ const SANDBOX_OPTIONS = [
   { value: "danger-full-access", label: "フルアクセス" },
 ];
 const SANDBOX_VALUES = new Set(SANDBOX_OPTIONS.map((option) => option.value));
+const REFERENCE_SEND_OPTIONS = [
+  { value: "default", label: "参照:設定" },
+  { value: "force", label: "参照:送る" },
+  { value: "skip", label: "参照:送らない" },
+];
+const REFERENCE_SEND_VALUES = new Set(REFERENCE_SEND_OPTIONS.map((option) => option.value));
 const CONTEXT_PANEL_WIDTH_KEY = "cotaska.aiChat.contextPanelWidth";
 const CONTEXT_PANEL_MIN_WIDTH = 320;
 const CONTEXT_PANEL_MAX_WIDTH = 720;
@@ -66,6 +72,10 @@ function createDraftThreadTitle(text) {
 
 function normalizeSandboxMode(value) {
   return SANDBOX_VALUES.has(value) ? value : "read-only";
+}
+
+function normalizeReferenceSendMode(value) {
+  return REFERENCE_SEND_VALUES.has(value) ? value : "default";
 }
 
 function openCodexAuthSettings() {
@@ -165,6 +175,7 @@ function AiChatPane({
   const [streamEvents, setStreamEvents] = useState([]);
   const [waitingSeconds, setWaitingSeconds] = useState(0);
   const [sandboxMode, setSandboxMode] = useState("read-only");
+  const [referenceSendMode, setReferenceSendMode] = useState("default");
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   const [workdirContextMenu, setWorkdirContextMenu] = useState(null);
   const [isComposeDragOver, setIsComposeDragOver] = useState(false);
@@ -490,6 +501,9 @@ function AiChatPane({
         const settingsResult = await window.cotaskaAPI?.settings?.get?.();
         if (!cancelled && settingsResult?.settings?.aiChat?.sandboxMode) {
           setSandboxMode(normalizeSandboxMode(settingsResult.settings.aiChat.sandboxMode));
+        }
+        if (!cancelled && settingsResult?.settings?.aiChat?.referenceSendMode === "manual") {
+          setReferenceSendMode("skip");
         }
         const isWorkdirConfigured = settingsResult?.configured?.aiChatWorkdir !== false
           && Boolean(String(settingsResult?.settings?.aiChat?.workdir || "").trim());
@@ -1167,11 +1181,13 @@ function AiChatPane({
 
     try {
       const effectiveSandboxMode = normalizeSandboxMode(sandboxMode);
+      const effectiveReferenceSendMode = normalizeReferenceSendMode(referenceSendMode);
       const result = await aiChatApi.sendMessage({
         thread_id: selectedThreadId || undefined,
         content: text,
         title: selectedThread?.title || createDraftThreadTitle(text),
         sandboxMode: effectiveSandboxMode,
+        referenceSendMode: effectiveReferenceSendMode === "default" ? undefined : effectiveReferenceSendMode,
         request_id: requestId,
       });
 
@@ -1530,6 +1546,19 @@ function AiChatPane({
                 onChange={handleSandboxModeChange}
               >
                 {SANDBOX_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </label>
+            <label className="ai-permission-control" title="参照ファイル送信">
+              <span>添</span>
+              <select
+                value={referenceSendMode}
+                disabled={isSending}
+                aria-label="参照ファイル送信"
+                onChange={(event) => setReferenceSendMode(normalizeReferenceSendMode(event.target.value))}
+              >
+                {REFERENCE_SEND_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </select>

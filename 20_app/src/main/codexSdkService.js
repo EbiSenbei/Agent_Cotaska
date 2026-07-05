@@ -7,7 +7,9 @@ const appLogger = require("./appLogger");
 
 const SANDBOX_MODES = new Set(["read-only", "workspace-write", "danger-full-access"]);
 const PERFORMANCE_MODES = new Set(["standard", "speed"]);
+const REFERENCE_SEND_MODES = new Set(["always", "manual", "skip-in-speed"]);
 const activeRequests = new Map();
+const codexClientCache = new Map();
 const SPEED_PROFILE = {
   webSearchMode: "disabled",
   multiAgentEnabled: false,
@@ -30,6 +32,13 @@ async function loadCodexSdk() {
   }
 }
 
+function resolveExecutablePath(filePath) {
+  if (fs.existsSync(filePath)) return filePath;
+  const unpackedPath = filePath.replace(`${path.sep}app.asar${path.sep}`, `${path.sep}app.asar.unpacked${path.sep}`);
+  if (unpackedPath !== filePath && fs.existsSync(unpackedPath)) return unpackedPath;
+  return filePath;
+}
+
 function resolveBundledCodexBinary() {
   const platformPackage = process.platform === "win32"
     ? (process.arch === "arm64" ? "@openai/codex-win32-arm64" : "@openai/codex-win32-x64")
@@ -43,15 +52,46 @@ function resolveBundledCodexBinary() {
       : (process.arch === "arm64" ? "aarch64-unknown-linux-musl" : "x86_64-unknown-linux-musl");
 
   const packageJsonPath = require.resolve(`${platformPackage}/package.json`);
-  const command = path.join(
+  const command = resolveExecutablePath(path.join(
     path.dirname(packageJsonPath),
     "vendor",
     targetTriple,
     "bin",
     process.platform === "win32" ? "codex.exe" : "codex",
-  );
+  ));
   if (!fs.existsSync(command)) throw new Error("Bundled Codex CLI binary was not found.");
   return { command, argsPrefix: [] };
+}
+
+function buildCodexClientOptions(settings, options = {}) {
+  const codexOptions = buildCodexOptions(settings, options);
+  try {
+    const binary = resolveBundledCodexBinary();
+    return {
+      ...codexOptions,
+      codexPathOverride: binary.command,
+    };
+  } catch (err) {
+    appLogger.logWarning("Codex CLI path could not be resolved; falling back to SDK default resolution", {
+      category: "aiChat",
+      error: err.message || String(err),
+    });
+    return codexOptions;
+  }
+}
+
+async function getCodexClient(settings, options = {}) {
+  const { Codex } = await loadCodexSdk();
+  const codexOptions = buildCodexClientOptions(settings, options);
+  const cacheKey = JSON.stringify(codexOptions);
+  const cached = codexClientCache.get(cacheKey);
+  if (cached) {
+    return { codex: cached, reused: true };
+  }
+
+  const codex = new Codex(codexOptions);
+  codexClientCache.set(cacheKey, codex);
+  return { codex, reused: false };
 }
 
 function runCodexCli(args, options = {}) {
@@ -221,6 +261,12 @@ function normalizePerformanceMode(value, fallback = "standard") {
   return PERFORMANCE_MODES.has(mode) ? mode : fallbackMode;
 }
 
+function normalizeReferenceSendMode(value, fallback = "always") {
+  const fallbackMode = REFERENCE_SEND_MODES.has(String(fallback)) ? String(fallback) : "always";
+  const mode = String(value || fallbackMode).trim();
+  return REFERENCE_SEND_MODES.has(mode) ? mode : fallbackMode;
+}
+
 function buildCodexOptions(settings, options = {}) {
   const performanceMode = normalizePerformanceMode(
     options.performanceMode || options.performance_mode,
@@ -296,7 +342,28 @@ function formatReferencePath(workdir, filePath) {
   return filePath;
 }
 
-function buildReferenceContext(threadId, workdir, settings) {
+function buildReferenceContext(threadId, workdir, settings, options = {}) {
+  const performanceMode = normalizePerformanceMode(options.performanceMode || options.performance_mode, settings.performanceMode);
+  const configuredMode = normalizeReferenceSendMode(settings.referenceSendMode);
+  const requestedMode = options.referenceSendMode || options.reference_send_mode;
+  const referenceSendMode = requestedMode === "force"
+    ? "always"
+    : requestedMode === "skip"
+      ? "manual"
+      : normalizeReferenceSendMode(requestedMode, configuredMode);
+  const shouldSendReferences = referenceSendMode === "always"
+    || (referenceSendMode === "skip-in-speed" && performanceMode !== "speed");
+  if (!shouldSendReferences) {
+    return {
+      promptPrefix: "",
+      usedCount: 0,
+      totalChars: 0,
+      skipped: [],
+      sendMode: referenceSendMode,
+      sent: false,
+      skippedReason: referenceSendMode === "manual" ? "manual" : "speed",
+    };
+  }
   const maxFiles = Number(settings.maxReferenceFiles || 10);
   const maxChars = Number(settings.maxReferenceChars || 100000);
   const refs = aiService
@@ -334,7 +401,7 @@ function buildReferenceContext(threadId, workdir, settings) {
   });
 
   if (chunks.length === 0) {
-    return { promptPrefix: "", usedCount: 0, totalChars, skipped };
+    return { promptPrefix: "", usedCount: 0, totalChars, skipped, sendMode: referenceSendMode, sent: false, skippedReason: "empty" };
   }
   const promptPrefix = [
     "以下はCotaskaで選択された参照ファイルです。回答時の根拠として使ってください。",
@@ -342,7 +409,7 @@ function buildReferenceContext(threadId, workdir, settings) {
     skipped.length > 0 ? `参照上限により省略または切り詰めたファイル: ${skipped.join(", ")}` : "",
     "",
   ].filter(Boolean).join("\n\n");
-  return { promptPrefix, usedCount: chunks.length, totalChars, skipped };
+  return { promptPrefix, usedCount: chunks.length, totalChars, skipped, sendMode: referenceSendMode, sent: true, skippedReason: null };
 }
 
 function getRequestId(input = {}) {
@@ -502,7 +569,10 @@ async function sendMessage(input = {}) {
   const usePersistentCodexThread = shouldUsePersistentCodexThread(performanceMode);
   const codexThreadIdForRun = usePersistentCodexThread ? thread.codex_thread_id : null;
   const codexThreadStrategy = usePersistentCodexThread ? "persistent" : "transient";
-  const referenceContext = buildReferenceContext(thread.thread_id, workdir, settings);
+  const referenceContext = buildReferenceContext(thread.thread_id, workdir, settings, {
+    ...input,
+    performanceMode,
+  });
   const prompt = referenceContext.promptPrefix
     ? `${referenceContext.promptPrefix}\n\n## ユーザー入力\n${text}`
     : text;
@@ -544,12 +614,14 @@ async function sendMessage(input = {}) {
     reference_files: referenceContext.usedCount,
     reference_chars: referenceContext.totalChars,
     reference_skipped: referenceContext.skipped,
+    reference_send_mode: referenceContext.sendMode,
+    reference_sent: referenceContext.sent,
+    reference_skipped_reason: referenceContext.skippedReason,
   });
 
   try {
-    const { Codex } = await loadCodexSdk();
+    const { codex, reused: codexClientReused } = await getCodexClient(settings, { ...input, performanceMode });
     const sdkLoadedAt = Date.now();
-    const codex = new Codex(buildCodexOptions(settings, { ...input, performanceMode }));
     const threadOptions = buildThreadOptions(thread, { ...input, workdir, performanceMode });
     const codexThread = codexThreadIdForRun
       ? codex.resumeThread(codexThreadIdForRun, threadOptions)
@@ -622,6 +694,7 @@ async function sendMessage(input = {}) {
       codex_thread_strategy: codexThreadStrategy,
       codex_thread_reused: Boolean(codexThreadIdForRun),
       codex_thread_persisted: Boolean(persistCodexThreadId),
+      codex_client_reused: codexClientReused,
       message_id: assistantMessage.message_id,
       response_chars: finalResponse.length,
       ...buildPerformanceDiagnostics(performanceMode),
@@ -638,6 +711,9 @@ async function sendMessage(input = {}) {
         used_count: referenceContext.usedCount,
         total_chars: referenceContext.totalChars,
         skipped: referenceContext.skipped,
+        send_mode: referenceContext.sendMode,
+        sent: referenceContext.sent,
+        skipped_reason: referenceContext.skippedReason,
       },
     });
 

@@ -3826,7 +3826,7 @@ tasks:
     sort_order: 349
     tags: []
     due_date: '2026-07-02'
-    updated_at: '2026-07-05T11:40:52+09:00'
+    updated_at: '2026-07-05T12:43:29.275Z'
   - id: T-0360
     title: 仕様変更：添付ファイルをクリックしたときの挙動
     list: 仕様変更
@@ -3881,11 +3881,11 @@ tasks:
       - AIチャット
       - 応答速度
     due_date: '2026-07-02'
-    updated_at: '2026-07-01T15:36:35.077Z'
+    updated_at: '2026-07-05T15:10:04.207+09:00'
   - id: T-0365
     title: '実装: Codex SDKインスタンスの使い回しを検討・実装する'
     list: 仕様変更
-    status: todo
+    status: done
     priority: high
     sort_order: 355
     tags:
@@ -3894,11 +3894,11 @@ tasks:
       - 応答速度
       - Codex SDK
     due_date: '2026-07-02'
-    updated_at: '2026-07-02T03:03:11.250Z'
+    updated_at: '2026-07-05T12:43:29.286Z'
   - id: T-0366
     title: '実装: 単純質問時の参照ファイル送信抑制を追加する'
     list: 仕様変更
-    status: todo
+    status: done
     priority: high
     sort_order: 356
     tags:
@@ -3907,11 +3907,11 @@ tasks:
       - 応答速度
       - 参照ファイル
     due_date: '2026-07-02'
-    updated_at: '2026-07-02T03:03:15.805Z'
+    updated_at: '2026-07-05T12:43:29.296Z'
   - id: T-0367
     title: '調査・実装: 速度優先モードとFast mode利用可否を整理する'
     list: 仕様変更
-    status: doing
+    status: done
     priority: normal
     sort_order: 357
     tags:
@@ -3920,11 +3920,11 @@ tasks:
       - 応答速度
       - 設定
     due_date: '2026-07-02'
-    updated_at: '2026-07-02T03:03:19.459Z'
+    updated_at: '2026-07-05T15:10:04.207+09:00'
   - id: T-0368
     title: '実装: agent_messageの途中本文をチャット欄へ逐次表示する'
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 358
     tags:
@@ -3933,7 +3933,7 @@ tasks:
       - 応答速度
       - UI
     due_date: '2026-07-02'
-    updated_at: '2026-07-01T15:35:15.115Z'
+    updated_at: '2026-07-05T15:10:04.207+09:00'
   - id: T-0369
     title: '調査: AIチャット入力トークン肥大化の原因を確認する'
     list: 仕様変更
@@ -3946,7 +3946,7 @@ tasks:
       - 応答速度
       - トークン
     due_date: '2026-07-02'
-    updated_at: '2026-07-03T23:35:00+09:00'
+    updated_at: '2026-07-05T15:10:04.207+09:00'
   - id: T-0370
     title: '調査・実装: 速度優先時の推論強度設定を検証する'
     list: 仕様変更
@@ -3960,7 +3960,7 @@ tasks:
       - Codex SDK
       - 設定
     due_date: '2026-07-02'
-    updated_at: '2026-07-05T11:40:52+09:00'
+    updated_at: '2026-07-05T15:10:04.207+09:00'
   - id: T-0371
     title: '実装: 速度優先モード用の軽量Codex実行プロファイルを追加する'
     list: 仕様変更
@@ -3974,7 +3974,7 @@ tasks:
       - Codex SDK
       - 設定
     due_date: '2026-07-02'
-    updated_at: '2026-07-05T11:40:52+09:00'
+    updated_at: '2026-07-05T15:10:04.207+09:00'
   - id: T-0372
     title: '調査: 新規スレッド初回と継続投稿のキャッシュ効果を測定する'
     list: 仕様変更
@@ -3987,7 +3987,7 @@ tasks:
       - 応答速度
       - キャッシュ
     due_date: '2026-07-03'
-    updated_at: '2026-07-05T11:40:52+09:00'
+    updated_at: '2026-07-05T15:10:04.207+09:00'
   - id: T-0373
     title: '実装: タスク単位の既存AIスレッド継続利用を優先する'
     list: 仕様変更
@@ -4000,7 +4000,7 @@ tasks:
       - 応答速度
       - UI
     due_date: '2026-07-03'
-    updated_at: '2026-07-05T11:40:52+09:00'
+    updated_at: '2026-07-05T15:10:04.207+09:00'
   - id: T-0374
     title: '調査: 新規AIスレッド初回遅延のプリウォーム可否を確認する'
     list: 仕様変更
@@ -4013,7 +4013,7 @@ tasks:
       - 応答速度
       - Codex SDK
     due_date: '2026-07-03'
-    updated_at: '2026-07-05T11:40:52+09:00'
+    updated_at: '2026-07-05T15:10:04.207+09:00'
   - id: T-0375
     title: '後処理: AI応答速度調査ログを削除または設定化する'
     list: 仕様変更
@@ -4026,7 +4026,7 @@ tasks:
       - 応答速度
       - 後処理
     due_date: '2026-07-03'
-    updated_at: '2026-07-05T11:40:52+09:00'
+    updated_at: '2026-07-05T15:10:04.207+09:00'
   - id: T-0376
     title: '不具合: ai_messages.token_countでcached_input_tokensを二重計上している'
     list: 不具合修正
@@ -4039,7 +4039,7 @@ tasks:
       - 応答速度
       - ログ
     due_date: '2026-07-04'
-    updated_at: '2026-07-04T00:36:38+09:00'
+    updated_at: '2026-07-05T15:10:04.207+09:00'
   - id: T-0377
     title: '仕様変更: 速度優先モードではCodexスレッドを継続しない/ローテーションする'
     list: 仕様変更
@@ -4053,7 +4053,7 @@ tasks:
       - Codex SDK
       - スレッド
     due_date: '2026-07-04'
-    updated_at: '2026-07-04T00:34:18+09:00'
+    updated_at: '2026-07-05T15:10:04.207+09:00'
   - id: T-0378
     title: 設計反映：CHG-058 Codex認証状態確認と未反映仕様を設計書へ追記
     list: 仕様変更
@@ -4077,4 +4077,4 @@ tasks:
 task_file_roots:
   - .
 next_task_id: 380
-last_updated: '2026-07-05T05:59:15.713Z'
+last_updated: '2026-07-05T12:43:29.852Z'
