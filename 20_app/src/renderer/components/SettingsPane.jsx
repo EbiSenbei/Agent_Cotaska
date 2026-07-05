@@ -29,6 +29,7 @@ const DEFAULT_SETTINGS = {
     workdir: "",
     sandboxMode: "read-only",
     performanceMode: "standard",
+    diagnosticsEnabled: false,
     retentionDays: 90,
     maxReferenceFiles: 10,
     maxReferenceChars: 100000,
@@ -552,6 +553,20 @@ function SettingsPane() {
                         <option value="speed">速度優先</option>
                       </select>
                       <div className="settings-help-text">速度優先ではFast mode設定と短命Codex実行を使い、Codex側の履歴肥大化を抑えます。</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>AI診断ログ</th>
+                    <td>
+                      <label className="settings-checkbox-row">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(settings.aiChat.diagnosticsEnabled)}
+                          onChange={(e) => updateSettingState({ aiChat: { diagnosticsEnabled: e.target.checked } })}
+                        />
+                        <span>応答速度調査用の詳細ログを出力する</span>
+                      </label>
+                      <div className="settings-help-text">通常はOFF。ONにするとAI応答時間、トークン数、Codexスレッド戦略などをアプリログへ出力します。</div>
                     </td>
                   </tr>
                   <tr>

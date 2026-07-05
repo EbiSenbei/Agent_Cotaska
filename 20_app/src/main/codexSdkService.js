@@ -226,6 +226,8 @@ function emitRunEvent(input, payload) {
 // AI応答速度調査用ログ。調査完了後に削除または設定化する。
 function logAiChatDiagnostics(eventName, data = {}) {
   try {
+    const settings = settingsService.getSettings().settings.aiChat || {};
+    if (settings.diagnosticsEnabled !== true) return;
     appLogger.logInfo(`AI_DIAGNOSTICS ${eventName}`, {
       category: "aiChat",
       provider: "codex-sdk",

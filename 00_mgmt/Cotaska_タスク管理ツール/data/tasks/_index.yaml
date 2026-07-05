@@ -3834,12 +3834,12 @@ tasks:
   - id: T-0359
     title: 調査：チャットの応答速度が速くならないか？
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 349
     tags: []
     due_date: '2026-07-02'
-    updated_at: '2026-07-04T00:25:02+09:00'
+    updated_at: '2026-07-05T11:40:52+09:00'
   - id: T-0360
     title: 仕様変更：添付ファイルをクリックしたときの挙動
     list: 仕様変更
@@ -3963,7 +3963,7 @@ tasks:
   - id: T-0370
     title: '調査・実装: 速度優先時の推論強度設定を検証する'
     list: 仕様変更
-    status: todo
+    status: done
     priority: high
     sort_order: 360
     tags:
@@ -3973,11 +3973,11 @@ tasks:
       - Codex SDK
       - 設定
     due_date: '2026-07-02'
-    updated_at: '2026-07-02T11:32:00+09:00'
+    updated_at: '2026-07-05T11:40:52+09:00'
   - id: T-0371
     title: '実装: 速度優先モード用の軽量Codex実行プロファイルを追加する'
     list: 仕様変更
-    status: doing
+    status: done
     priority: high
     sort_order: 361
     tags:
@@ -3987,11 +3987,11 @@ tasks:
       - Codex SDK
       - 設定
     due_date: '2026-07-02'
-    updated_at: '2026-07-03T23:58:00+09:00'
+    updated_at: '2026-07-05T11:40:52+09:00'
   - id: T-0372
     title: '調査: 新規スレッド初回と継続投稿のキャッシュ効果を測定する'
     list: 仕様変更
-    status: todo
+    status: done
     priority: high
     sort_order: 362
     tags:
@@ -4000,11 +4000,11 @@ tasks:
       - 応答速度
       - キャッシュ
     due_date: '2026-07-03'
-    updated_at: '2026-07-03T23:45:00+09:00'
+    updated_at: '2026-07-05T11:40:52+09:00'
   - id: T-0373
     title: '実装: タスク単位の既存AIスレッド継続利用を優先する'
     list: 仕様変更
-    status: todo
+    status: done
     priority: high
     sort_order: 363
     tags:
@@ -4013,11 +4013,11 @@ tasks:
       - 応答速度
       - UI
     due_date: '2026-07-03'
-    updated_at: '2026-07-03T23:45:00+09:00'
+    updated_at: '2026-07-05T11:40:52+09:00'
   - id: T-0374
     title: '調査: 新規AIスレッド初回遅延のプリウォーム可否を確認する'
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 364
     tags:
@@ -4026,11 +4026,11 @@ tasks:
       - 応答速度
       - Codex SDK
     due_date: '2026-07-03'
-    updated_at: '2026-07-03T23:45:00+09:00'
+    updated_at: '2026-07-05T11:40:52+09:00'
   - id: T-0375
     title: '後処理: AI応答速度調査ログを削除または設定化する'
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 365
     tags:
@@ -4039,7 +4039,7 @@ tasks:
       - 応答速度
       - 後処理
     due_date: '2026-07-03'
-    updated_at: '2026-07-03T23:55:00+09:00'
+    updated_at: '2026-07-05T11:40:52+09:00'
   - id: T-0376
     title: '不具合: ai_messages.token_countでcached_input_tokensを二重計上している'
     list: 不具合修正
@@ -4070,4 +4070,4 @@ tasks:
 task_file_roots:
   - .
 next_task_id: 378
-last_updated: '2026-07-03T15:36:38.000Z'
+last_updated: '2026-07-05T02:40:52.000Z'
