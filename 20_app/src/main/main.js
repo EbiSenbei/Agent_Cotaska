@@ -1282,6 +1282,23 @@ ipcMain.handle("aiChat:getDbInfo", async () => {
   }
 });
 
+ipcMain.handle("aiChat:checkAuthStatus", async () => {
+  await servicesReady;
+  try {
+    return await codexSdkService.checkAuthStatus();
+  } catch (err) {
+    logger.error("aiChat:checkAuthStatus failed", err);
+    return {
+      ok: false,
+      status: "error",
+      label: "確認失敗",
+      message: "Codex認証状態を確認できませんでした。",
+      checkedAt: new Date().toISOString(),
+      needsLogin: false,
+    };
+  }
+});
+
 ipcMain.handle("aiChat:listThreads", async (_e, options) => {
   await servicesReady;
   try {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const SETTINGS_TABS = [
   { id: "app-info", label: "アプリ情報" },
@@ -55,7 +55,30 @@ function normalizeSettings(settings) {
   };
 }
 
-function SettingsPane() {
+function formatCheckedAt(value) {
+  if (!value) return "未確認";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "未確認";
+  return date.toLocaleString("ja-JP", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+}
+
+function getAuthGuide(status) {
+  if (status === "available") return "Codexを利用できる認証状態です。";
+  if (status === "sdk_missing") return "Cotaskaの依存関係を確認してください。配布版ではCodex SDKを同梱する想定です。";
+  if (status === "cli_unavailable") return "Codex CLIを実行できません。インストール状態、ウイルス対策ソフト、実行権限を確認してください。";
+  if (status === "login_required") return "ターミナルで codex login を実行し、ブラウザでログインを完了してから再確認してください。";
+  if (status === "expired_possible") return "Codexの認証情報が期限切れ、無効、または権限不足の可能性があります。codex login で再ログインしてから再確認してください。";
+  return "状態を確認できませんでした。Codexのログイン状態とネットワークを確認してから再確認してください。";
+}
+
+function SettingsPane({ focusRequest }) {
   const [activeTab, setActiveTab] = useState("app-info");
   const [appInfo, setAppInfo] = useState(DEFAULT_APP_INFO);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
@@ -81,6 +104,15 @@ function SettingsPane() {
   const [restoreError, setRestoreError] = useState("");
   const [aiCleanupStatus, setAiCleanupStatus] = useState("");
   const [aiCleanupError, setAiCleanupError] = useState("");
+  const [authStatus, setAuthStatus] = useState({
+    status: "unknown",
+    label: "未確認",
+    message: "まだ確認していません。",
+    checkedAt: null,
+    needsLogin: false,
+  });
+  const [checkingAuth, setCheckingAuth] = useState(false);
+  const authSectionRef = useRef(null);
 
   const refreshAppInfo = async () => {
     const info = await window.cotaskaAPI?.app?.getInfo?.();
@@ -114,6 +146,14 @@ function SettingsPane() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (focusRequest?.target !== "codex-auth") return;
+    setActiveTab("settings");
+    window.setTimeout(() => {
+      authSectionRef.current?.scrollIntoView?.({ block: "center", behavior: "smooth" });
+    }, 80);
+  }, [focusRequest]);
 
   useEffect(() => {
     let cancelled = false;
@@ -195,6 +235,32 @@ function SettingsPane() {
       return;
     }
     setAiCleanupStatus(`AIデータを削除しました。削除スレッド数: ${result.deletedThreads ?? 0}`);
+  };
+
+  const checkCodexAuthStatus = async () => {
+    setCheckingAuth(true);
+    setErrorMessage("");
+    try {
+      const result = await window.cotaskaAPI?.aiChat?.checkAuthStatus?.();
+      setAuthStatus({
+        status: result?.status || "error",
+        label: result?.label || "確認失敗",
+        message: result?.message || "Codex認証状態を確認できませんでした。",
+        checkedAt: result?.checkedAt || new Date().toISOString(),
+        needsLogin: Boolean(result?.needsLogin),
+        version: result?.version || null,
+      });
+    } catch (error) {
+      setAuthStatus({
+        status: "error",
+        label: "確認失敗",
+        message: error?.message || "Codex認証状態を確認できませんでした。",
+        checkedAt: new Date().toISOString(),
+        needsLogin: false,
+      });
+    } finally {
+      setCheckingAuth(false);
+    }
   };
 
   const checkForUpdates = async () => {
@@ -567,6 +633,31 @@ function SettingsPane() {
                         <span>応答速度調査用の詳細ログを出力する</span>
                       </label>
                       <div className="settings-help-text">通常はOFF。ONにするとAI応答時間、トークン数、Codexスレッド戦略などをアプリログへ出力します。</div>
+                    </td>
+                  </tr>
+                  <tr ref={authSectionRef} id="codex-auth-settings">
+                    <th>Codex認証状態</th>
+                    <td>
+                      <div className="settings-auth-panel">
+                        <div className={`settings-auth-badge settings-auth-badge--${authStatus.status}`}>
+                          {authStatus.label}
+                        </div>
+                        <div className="settings-auth-body">
+                          <div className="settings-auth-message">{authStatus.message}</div>
+                          <div className="settings-help-text">最終確認: {formatCheckedAt(authStatus.checkedAt)}</div>
+                          {authStatus.version && <div className="settings-help-text">Codex CLI: {authStatus.version}</div>}
+                          <div className="settings-help-text">{getAuthGuide(authStatus.status)}</div>
+                          <div className="settings-help-text">CotaskaはOpenAI APIキー、Codex access token、Codex認証ファイルの内容を保存しません。</div>
+                        </div>
+                        <button
+                          type="button"
+                          className="settings-secondary-btn"
+                          onClick={checkCodexAuthStatus}
+                          disabled={checkingAuth}
+                        >
+                          {checkingAuth ? "確認中..." : "再確認"}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                   <tr>

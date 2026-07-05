@@ -443,3 +443,9 @@
 
 - AI応答速度調査用の `AI_DIAGNOSTICS` ログは削除せず、設定画面の `AI診断ログ` でON/OFFできる正式診断ログとして残す。
 - 既定値はOFFとし、通常利用では応答時間・トークン数などの詳細診断ログを出力しない。
+
+## 2026-07-05 CHG-058 Codex認証状態確認
+
+- CotaskaからのCodex認証状態確認は、グローバル `codex` コマンドではなく、`@openai/codex-sdk` が同梱するCodex CLIの `doctor --json` を優先して実行する。
+- 診断結果は `available` / `login_required` / `expired_possible` / `sdk_missing` / `cli_unavailable` / `error` などのUI向け区分へ変換し、`auth.json` の内容、APIキー、アクセストークンは保存・表示しない。
+- AIチャット送信時に認証系エラーが疑われる場合は、APIキー入力を促さず、設定画面のCodex認証状態確認へ誘導する。

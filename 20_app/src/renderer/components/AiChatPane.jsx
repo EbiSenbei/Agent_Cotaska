@@ -68,6 +68,10 @@ function normalizeSandboxMode(value) {
   return SANDBOX_VALUES.has(value) ? value : "read-only";
 }
 
+function openCodexAuthSettings() {
+  window.dispatchEvent(new CustomEvent("cotaska:openSettings", { detail: { target: "codex-auth" } }));
+}
+
 function clampContextPanelWidth(value) {
   const numeric = Number(value);
   if (!Number.isFinite(numeric)) return CONTEXT_PANEL_DEFAULT_WIDTH;
@@ -1179,18 +1183,22 @@ function AiChatPane({
           ready: true,
           status: "ready",
           message: "AI処理を中断しました。",
+          action: null,
         });
       } else if (result?.ok === false) {
+        const isAuthError = result.error_kind === "auth";
         setRuntimeState({
           ready: false,
-          status: "error",
+          status: isAuthError ? "auth" : "error",
           message: result.error || "メッセージ送信に失敗しました。",
+          action: isAuthError ? "codex-auth-settings" : null,
         });
       } else {
         setRuntimeState({
           ready: true,
           status: "ready",
           message: "Codex SDKの応答を保存しました。",
+          action: null,
         });
       }
 
@@ -1212,6 +1220,7 @@ function AiChatPane({
         ready: false,
         status: "error",
         message: error?.message || "メッセージ送信に失敗しました。",
+        action: null,
       });
       requestScrollMessagesToBottom();
       setMessages((current) => [
@@ -1397,6 +1406,11 @@ function AiChatPane({
         <div className={`ai-runtime-banner ai-runtime-banner--${runtimeState.status}`}>
           <strong>{runtimeState.status === "warning" || !runtimeState.ready ? "確認が必要" : "接続状態"}</strong>
           <span>{runtimeState.message}</span>
+          {runtimeState.action === "codex-auth-settings" && (
+            <button type="button" className="ai-runtime-action" onClick={openCodexAuthSettings}>
+              設定で確認
+            </button>
+          )}
         </div>
 
         <section

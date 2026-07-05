@@ -1,5 +1,6 @@
 const path = require("path");
 const fs = require("fs");
+const { execFile } = require("child_process");
 const aiService = require("./aiService");
 const settingsService = require("./settingsService");
 const appLogger = require("./appLogger");
@@ -12,12 +13,199 @@ const SPEED_PROFILE = {
   multiAgentEnabled: false,
   modelReasoningEffort: "low",
 };
+const AUTH_STATUS_LABELS = {
+  available: "利用可能",
+  login_required: "ログインが必要",
+  expired_possible: "期限切れの可能性",
+  sdk_missing: "SDK未検出",
+  cli_unavailable: "Codex CLIを実行できません",
+  error: "確認失敗",
+};
 
 async function loadCodexSdk() {
   try {
     return await import("@openai/codex-sdk");
   } catch (err) {
     throw new Error(`Codex SDK is not available: ${err.message || err}`);
+  }
+}
+
+function resolveBundledCodexBinary() {
+  const platformPackage = process.platform === "win32"
+    ? (process.arch === "arm64" ? "@openai/codex-win32-arm64" : "@openai/codex-win32-x64")
+    : process.platform === "darwin"
+      ? (process.arch === "arm64" ? "@openai/codex-darwin-arm64" : "@openai/codex-darwin-x64")
+      : (process.arch === "arm64" ? "@openai/codex-linux-arm64" : "@openai/codex-linux-x64");
+  const targetTriple = process.platform === "win32"
+    ? (process.arch === "arm64" ? "aarch64-pc-windows-msvc" : "x86_64-pc-windows-msvc")
+    : process.platform === "darwin"
+      ? (process.arch === "arm64" ? "aarch64-apple-darwin" : "x86_64-apple-darwin")
+      : (process.arch === "arm64" ? "aarch64-unknown-linux-musl" : "x86_64-unknown-linux-musl");
+
+  const packageJsonPath = require.resolve(`${platformPackage}/package.json`);
+  const command = path.join(
+    path.dirname(packageJsonPath),
+    "vendor",
+    targetTriple,
+    "bin",
+    process.platform === "win32" ? "codex.exe" : "codex",
+  );
+  if (!fs.existsSync(command)) throw new Error("Bundled Codex CLI binary was not found.");
+  return { command, argsPrefix: [] };
+}
+
+function runCodexCli(args, options = {}) {
+  return new Promise((resolve) => {
+    let binary;
+    try {
+      binary = resolveBundledCodexBinary();
+    } catch (err) {
+      resolve({ ok: false, missing: true, error: err.message || String(err) });
+      return;
+    }
+
+    execFile(binary.command, [...binary.argsPrefix, ...args], {
+      cwd: options.cwd || process.cwd(),
+      timeout: Number(options.timeoutMs || 25000),
+      windowsHide: true,
+      maxBuffer: 1024 * 1024 * 4,
+    }, (error, stdout, stderr) => {
+      resolve({
+        ok: !error,
+        code: typeof error?.code === "number" ? error.code : 0,
+        signal: error?.signal || null,
+        stdout: String(stdout || ""),
+        stderr: String(stderr || ""),
+        error: error?.message || "",
+      });
+    });
+  });
+}
+
+function safeDoctorCheck(checks, id) {
+  const check = checks?.[id] || null;
+  if (!check) return null;
+  return {
+    status: String(check.status || "unknown"),
+    summary: String(check.summary || ""),
+    category: String(check.category || ""),
+  };
+}
+
+function classifyDoctorResult(doctor) {
+  const checks = doctor?.checks || {};
+  const auth = safeDoctorCheck(checks, "auth.credentials");
+  const providerReachability = safeDoctorCheck(checks, "network.provider_reachability");
+  const websocketReachability = safeDoctorCheck(checks, "network.websocket_reachability");
+  const installation = safeDoctorCheck(checks, "installation");
+  const authSummary = `${auth?.summary || ""}`.toLowerCase();
+  const authStatus = auth?.status || "unknown";
+
+  if (!auth) {
+    return {
+      status: "error",
+      message: "Codex診断結果から認証状態を判定できませんでした。",
+      needsLogin: false,
+    };
+  }
+  if (authStatus === "ok") {
+    return {
+      status: "available",
+      message: "Codexの認証情報が構成されています。",
+      needsLogin: false,
+    };
+  }
+  if (/not configured|missing|no auth|login|required|sign in/.test(authSummary)) {
+    return {
+      status: "login_required",
+      message: "Codexのログインが必要です。",
+      needsLogin: true,
+    };
+  }
+  return {
+    status: "expired_possible",
+    message: "Codex認証情報が無効、期限切れ、または権限不足の可能性があります。",
+    needsLogin: true,
+    checks: {
+      auth,
+      providerReachability,
+      websocketReachability,
+      installation,
+    },
+  };
+}
+
+function sanitizeAuthStatusResult(result) {
+  const status = result?.status || "error";
+  return {
+    ok: status === "available",
+    status,
+    label: AUTH_STATUS_LABELS[status] || AUTH_STATUS_LABELS.error,
+    message: result?.message || "Codex認証状態を確認できませんでした。",
+    checkedAt: new Date().toISOString(),
+    needsLogin: Boolean(result?.needsLogin),
+    version: result?.version || null,
+    checks: result?.checks || null,
+  };
+}
+
+async function checkAuthStatus() {
+  try {
+    await loadCodexSdk();
+  } catch (err) {
+    return sanitizeAuthStatusResult({
+      status: "sdk_missing",
+      message: "Codex SDKを読み込めませんでした。Cotaskaの依存関係を確認してください。",
+      needsLogin: false,
+    });
+  }
+
+  const versionResult = await runCodexCli(["--version"], { timeoutMs: 10000 });
+  if (versionResult.missing) {
+    return sanitizeAuthStatusResult({
+      status: "sdk_missing",
+      message: "Codex SDK同梱のCodex CLIが見つかりませんでした。",
+      needsLogin: false,
+    });
+  }
+  if (!versionResult.ok) {
+    return sanitizeAuthStatusResult({
+      status: "cli_unavailable",
+      message: "Codex CLIを実行できませんでした。インストール状態または実行権限を確認してください。",
+      needsLogin: false,
+    });
+  }
+
+  const doctorResult = await runCodexCli(["doctor", "--json"], { timeoutMs: 30000 });
+  if (!doctorResult.ok && !doctorResult.stdout.trim()) {
+    const combined = `${doctorResult.stderr}\n${doctorResult.error}`.toLowerCase();
+    const status = /login|auth|credential|token|unauthorized|forbidden|expired/.test(combined)
+      ? "expired_possible"
+      : "error";
+    return sanitizeAuthStatusResult({
+      status,
+      message: status === "expired_possible"
+        ? "Codex認証情報が無効、期限切れ、または権限不足の可能性があります。"
+        : "Codex診断の実行に失敗しました。",
+      needsLogin: status === "expired_possible",
+      version: versionResult.stdout.trim() || null,
+    });
+  }
+
+  try {
+    const doctor = JSON.parse(doctorResult.stdout);
+    const classified = classifyDoctorResult(doctor);
+    return sanitizeAuthStatusResult({
+      ...classified,
+      version: doctor.codexVersion || versionResult.stdout.trim() || null,
+    });
+  } catch (_err) {
+    return sanitizeAuthStatusResult({
+      status: "error",
+      message: "Codex診断結果を読み取れませんでした。",
+      needsLogin: false,
+      version: versionResult.stdout.trim() || null,
+    });
   }
 }
 
@@ -166,6 +354,26 @@ function isAbortError(err) {
   const name = String(err?.name || "");
   const message = String(err?.message || err || "");
   return name === "AbortError" || /aborted|abort|cancel/i.test(message);
+}
+
+function isAuthRelatedErrorMessage(message) {
+  const text = String(message || "").toLowerCase();
+  return /auth|login|sign in|signin|credential|token|unauthorized|forbidden|expired|api key|access denied|not authenticated/.test(text);
+}
+
+function buildUserFacingError(message) {
+  if (isAuthRelatedErrorMessage(message)) {
+    return {
+      error: "Codexの認証が必要、または認証情報が期限切れの可能性があります。設定画面でCodex認証状態を確認してください。",
+      error_kind: "auth",
+      original_error: message,
+    };
+  }
+  return {
+    error: message,
+    error_kind: "general",
+    original_error: message,
+  };
 }
 
 function truncateText(value, maxLength = 8000) {
@@ -480,13 +688,14 @@ async function sendMessage(input = {}) {
       error_code: "CODEX_SDK_ERROR",
       error_message: message,
     });
+    const userFacingError = buildUserFacingError(message);
     const errorMessage = aiService.addMessage({
       thread_id: thread.thread_id,
       role: "assistant",
       content: "",
       codex_run_id: run.run_id,
       error_code: "CODEX_SDK_ERROR",
-      error_message: message,
+      error_message: userFacingError.error,
     });
     logAiChatDiagnostics("chat failed", {
       request_id: requestId,
@@ -501,7 +710,8 @@ async function sendMessage(input = {}) {
       run: failedRun,
       userMessage,
       assistantMessage: errorMessage,
-      error: message,
+      error: userFacingError.error,
+      error_kind: userFacingError.error_kind,
     };
   } finally {
     if (requestId) {
@@ -511,6 +721,7 @@ async function sendMessage(input = {}) {
 }
 
 module.exports = {
+  checkAuthStatus,
   cancelRun,
   sendMessage,
 };

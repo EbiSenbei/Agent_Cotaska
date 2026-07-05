@@ -83,6 +83,7 @@ function App() {
     latestVersion: "",
   });
   const [aiTaskChatRequest, setAiTaskChatRequest] = useState(null);
+  const [settingsFocusRequest, setSettingsFocusRequest] = useState(null);
   const startupUpdateCheckRef = useRef(false);
 
   // CHG-032: ペイン幅リサイズ
@@ -700,6 +701,19 @@ function App() {
     }
   }, [tasks]);
 
+  useEffect(() => {
+    const handleOpenSettings = (event) => {
+      setActiveIcon("設定");
+      setDetailPaneExpanded(false);
+      setSettingsFocusRequest({
+        target: event.detail?.target || "settings",
+        requestedAt: Date.now(),
+      });
+    };
+    window.addEventListener("cotaska:openSettings", handleOpenSettings);
+    return () => window.removeEventListener("cotaska:openSettings", handleOpenSettings);
+  }, []);
+
   const handleStartTaskAiChat = useCallback((task) => {
     if (!task?.id) return;
     setDetailPaneExpanded(false);
@@ -864,7 +878,7 @@ function App() {
         updateAlert={updateAlert}
       />
       {isSettingsMode ? (
-        <SettingsPane />
+        <SettingsPane focusRequest={settingsFocusRequest} />
       ) : isAiMode ? (
         <AiChatPane
           tasks={tasks}

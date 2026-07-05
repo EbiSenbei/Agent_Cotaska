@@ -51,6 +51,7 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
 
   aiChat: {
     getDbInfo: () => ipcRenderer.invoke("aiChat:getDbInfo"),
+    checkAuthStatus: () => ipcRenderer.invoke("aiChat:checkAuthStatus"),
     listThreads: (options) => ipcRenderer.invoke("aiChat:listThreads", options),
     createThread: (input) => ipcRenderer.invoke("aiChat:createThread", input),
     updateThread: (threadId, updates) => ipcRenderer.invoke("aiChat:updateThread", threadId, updates),

@@ -614,6 +614,55 @@ body.is-resizing-detail-sections * {
   font-weight: 600;
 }
 
+.settings-auth-panel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+}
+
+.settings-auth-badge {
+  min-width: 88px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  border: 1px solid #d2dbe7;
+  background: #f6f8fb;
+  color: #536174;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.settings-auth-badge--available {
+  border-color: #b9dfc7;
+  background: #effaf3;
+  color: #246b3c;
+}
+
+.settings-auth-badge--login_required,
+.settings-auth-badge--expired_possible,
+.settings-auth-badge--cli_unavailable,
+.settings-auth-badge--sdk_missing,
+.settings-auth-badge--error {
+  border-color: #efd2a7;
+  background: #fff8ec;
+  color: #7a5420;
+}
+
+.settings-auth-body {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.settings-auth-message {
+  color: #253044;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
 .settings-primary-btn,
 .settings-secondary-btn {
   height: 34px;
@@ -1354,11 +1403,30 @@ body.is-resizing-detail-sections * {
 }
 
 .ai-runtime-banner--unavailable,
+.ai-runtime-banner--auth,
 .ai-runtime-banner--warning,
 .ai-runtime-banner--error {
   border-color: #efd2a7;
   background: #fff8ec;
   color: #7a5420;
+}
+
+.ai-runtime-action {
+  margin-left: auto;
+  height: 28px;
+  border: 1px solid #d8b67c;
+  border-radius: 6px;
+  background: #fff;
+  color: #7a5420;
+  padding: 0 10px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ai-runtime-action:hover {
+  background: #fff3df;
 }
 
 .ai-message-scroll {

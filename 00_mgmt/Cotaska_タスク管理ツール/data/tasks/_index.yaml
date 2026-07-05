@@ -11,13 +11,13 @@ tasks:
   - id: T-0026
     title: 仕様変更：親子紐づけを手動でメンテ
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 2
     tags:
       - CHG-088
-    due_date: null
-    updated_at: '2026-06-25T22:45:00+09:00'
+    due_date: '2026-07-05'
+    updated_at: '2026-07-05T03:49:41.389Z'
   - id: T-0028
     title: 仕様変更：バックアップ機能の実装
     list: 仕様変更
@@ -1521,20 +1521,7 @@ tasks:
       - ユーザー確認
       - AI連携
     due_date: null
-    updated_at: '2026-07-01T19:55:00+09:00'
-  - id: T-0158
-    title: 'CHG-058-04 実装: GitHub Copilot CLIプロバイダ追加'
-    list: 仕様変更
-    status: todo
-    priority: normal
-    sort_order: 144
-    tags:
-      - CHG-057
-      - 実装
-      - GitHub Copilot
-      - AI連携
-    due_date: null
-    updated_at: '2026-05-15T01:44:49.189Z'
+    updated_at: '2026-07-05T14:45:19.173+09:00'
   - id: T-0159
     title: 'CHG-058-05 調査・設計: Claude連携を見据えたAIプロバイダ拡張'
     list: 仕様変更
@@ -3780,47 +3767,47 @@ tasks:
     tags:
       - CHG-058
     due_date: null
-    updated_at: '2026-07-01T10:32:22.058Z'
+    updated_at: '2026-07-05T14:28:25.230+09:00'
   - id: T-0354
     title: 調査：Codex SDK/CLIの認証状態確認方法を整理
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 344
     tags:
       - CHG-058
     due_date: '2026-07-01'
-    updated_at: '2026-07-01T10:36:51.579Z'
+    updated_at: '2026-07-05T05:32:15.519Z'
   - id: T-0355
     title: 実装：main processにCodex認証診断IPCを追加
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 345
     tags:
       - CHG-058
-    due_date: null
-    updated_at: '2026-07-01T10:15:17.583Z'
+    due_date: '2026-07-05'
+    updated_at: '2026-07-05T14:39:42.488+09:00'
   - id: T-0356
     title: 実装：設定画面にCodex認証状態表示と再確認ボタンを追加
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 346
     tags:
       - CHG-058
-    due_date: null
-    updated_at: '2026-07-01T10:15:17.583Z'
+    due_date: '2026-07-05'
+    updated_at: '2026-07-05T14:39:42.488+09:00'
   - id: T-0357
     title: 実装：AIチャット画面の認証エラー時に設定画面へ誘導
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 347
     tags:
       - CHG-058
-    due_date: null
-    updated_at: '2026-07-01T10:15:17.583Z'
+    due_date: '2026-07-05'
+    updated_at: '2026-07-05T14:39:42.488+09:00'
   - id: T-0358
     title: 確認：未認証/認証済み/SDK未検出時の表示確認
     list: 仕様変更
@@ -3843,12 +3830,12 @@ tasks:
   - id: T-0360
     title: 仕様変更：添付ファイルをクリックしたときの挙動
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 350
     tags: []
-    due_date: null
-    updated_at: '2026-07-01T10:34:08.263Z'
+    due_date: '2026-07-05'
+    updated_at: '2026-07-05T04:47:07.100Z'
   - id: T-0361
     title: 設計：これまでを振り返って
     list: 仕様変更
@@ -3857,8 +3844,8 @@ tasks:
     sort_order: 351
     tags:
       - CHG-058
-    due_date: 2026-07-01T00:00:00.000Z
-    updated_at: '2026-07-01T19:58:00+09:00'
+    due_date: '2026-07-01'
+    updated_at: '2026-07-05T05:45:46.780Z'
   - id: T-0362
     title: 'CHG-058後続拡張: AI右ペインのファイルビュー編集対応を検討する'
     list: 仕様変更
@@ -4067,7 +4054,27 @@ tasks:
       - スレッド
     due_date: '2026-07-04'
     updated_at: '2026-07-04T00:34:18+09:00'
+  - id: T-0378
+    title: 設計反映：CHG-058 Codex認証状態確認と未反映仕様を設計書へ追記
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 378
+    tags:
+      - CHG-058
+    due_date: '2026-07-05'
+    updated_at: '2026-07-05T14:57:48.393+09:00'
+  - id: T-0379
+    title: 調査：CHG-058関連の設計書反映漏れを最新実装から洗い出す
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 379
+    tags:
+      - CHG-058
+    due_date: '2026-07-05'
+    updated_at: '2026-07-05T14:45:19.173+09:00'
 task_file_roots:
   - .
-next_task_id: 378
-last_updated: '2026-07-05T02:40:52.000Z'
+next_task_id: 380
+last_updated: '2026-07-05T05:59:15.713Z'
