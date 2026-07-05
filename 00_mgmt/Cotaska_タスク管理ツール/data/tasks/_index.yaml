@@ -4043,7 +4043,7 @@ tasks:
   - id: T-0376
     title: '不具合: ai_messages.token_countでcached_input_tokensを二重計上している'
     list: 不具合修正
-    status: todo
+    status: done
     priority: normal
     sort_order: 366
     tags:
@@ -4052,7 +4052,7 @@ tasks:
       - 応答速度
       - ログ
     due_date: '2026-07-04'
-    updated_at: '2026-07-04T00:32:00+09:00'
+    updated_at: '2026-07-04T00:36:38+09:00'
   - id: T-0377
     title: '仕様変更: 速度優先モードではCodexスレッドを継続しない/ローテーションする'
     list: 仕様変更
@@ -4070,4 +4070,4 @@ tasks:
 task_file_roots:
   - .
 next_task_id: 378
-last_updated: '2026-07-03T15:34:18.000Z'
+last_updated: '2026-07-03T15:36:38.000Z'
