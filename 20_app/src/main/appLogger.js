@@ -1,6 +1,13 @@
 const fs = require('fs');
 const path = require('path');
 
+const LOG_LEVEL_PRIORITY = {
+  debug: 10,
+  info: 20,
+  warn: 30,
+  error: 40,
+};
+
 /**
  * AppLogger - アプリ実行ログ
  * アプリのシステムヘルス記録
@@ -63,10 +70,28 @@ class AppLogger {
     this.logFilePath = path.join(this.logDir, filename);
   }
 
+  _getConfiguredLevel() {
+    try {
+      const settingsService = require("./settingsService");
+      const settings = settingsService.getSettings().settings;
+      const level = String(settings?.logging?.level || "info").toLowerCase();
+      return Object.prototype.hasOwnProperty.call(LOG_LEVEL_PRIORITY, level) ? level : "info";
+    } catch (_err) {
+      return "info";
+    }
+  }
+
+  _shouldWrite(level) {
+    const current = LOG_LEVEL_PRIORITY[this._getConfiguredLevel()] || LOG_LEVEL_PRIORITY.info;
+    const requested = LOG_LEVEL_PRIORITY[String(level || "").toLowerCase()] || LOG_LEVEL_PRIORITY.info;
+    return requested >= current;
+  }
+
   /**
    * ログメッセージを書き込み
    */
   _write(level, message, data = null) {
+    if (!this._shouldWrite(level)) return;
     const timestamp = new Date().toISOString();
     let output = `[${timestamp}] [${level}] ${message}`;
     if (data) {
@@ -147,6 +172,7 @@ class AppLogger {
    * @param {Error|null} error
    */
   logError(errorMsg, error = null) {
+    if (!this._shouldWrite('ERROR')) return;
     let output = `[${new Date().toISOString()}] [ERROR] ${errorMsg}`;
     if (error && error.stack) {
       output += `\n${error.stack}`;

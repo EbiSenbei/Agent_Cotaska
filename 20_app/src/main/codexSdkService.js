@@ -33,9 +33,10 @@ async function loadCodexSdk() {
 }
 
 function resolveExecutablePath(filePath) {
-  if (fs.existsSync(filePath)) return filePath;
-  const unpackedPath = filePath.replace(`${path.sep}app.asar${path.sep}`, `${path.sep}app.asar.unpacked${path.sep}`);
+  const unpackedPath = filePath.replace(/([\\/])app\.asar([\\/])/i, "$1app.asar.unpacked$2");
   if (unpackedPath !== filePath && fs.existsSync(unpackedPath)) return unpackedPath;
+  if (unpackedPath !== filePath) return unpackedPath;
+  if (fs.existsSync(filePath)) return filePath;
   return filePath;
 }
 
@@ -51,32 +52,110 @@ function resolveBundledCodexBinary() {
       ? (process.arch === "arm64" ? "aarch64-apple-darwin" : "x86_64-apple-darwin")
       : (process.arch === "arm64" ? "aarch64-unknown-linux-musl" : "x86_64-unknown-linux-musl");
 
-  const packageJsonPath = require.resolve(`${platformPackage}/package.json`);
-  const command = resolveExecutablePath(path.join(
-    path.dirname(packageJsonPath),
-    "vendor",
-    targetTriple,
-    "bin",
-    process.platform === "win32" ? "codex.exe" : "codex",
-  ));
-  if (!fs.existsSync(command)) throw new Error("Bundled Codex CLI binary was not found.");
-  return { command, argsPrefix: [] };
+  const packageJsonPath = resolveExecutablePath(require.resolve(`${platformPackage}/package.json`));
+  const packageRoot = path.dirname(packageJsonPath);
+  const commandCandidates = [
+    path.join(
+      packageRoot,
+      "vendor",
+      targetTriple,
+      "bin",
+      process.platform === "win32" ? "codex.exe" : "codex",
+    ),
+  ];
+
+  if (process.resourcesPath) {
+    commandCandidates.push(path.join(
+      process.resourcesPath,
+      "app.asar.unpacked",
+      "node_modules",
+      ...platformPackage.split("/"),
+      "vendor",
+      targetTriple,
+      "bin",
+      process.platform === "win32" ? "codex.exe" : "codex",
+    ));
+  }
+
+  const command = commandCandidates
+    .map(resolveExecutablePath)
+    .find((candidate) => fs.existsSync(candidate));
+
+  if (!command) {
+    throw new Error(`Bundled Codex CLI binary was not found. candidates=${commandCandidates.join("; ")}`);
+  }
+
+  const pathDirs = [
+    path.join(
+      packageRoot,
+      "vendor",
+      targetTriple,
+      "codex-path",
+    ),
+    path.join(
+      packageRoot,
+      "vendor",
+      targetTriple,
+      "path",
+    ),
+  ].map(resolveExecutablePath).filter((candidate) => fs.existsSync(candidate));
+
+  return { command, argsPrefix: [], pathDirs };
+}
+
+function buildCodexEnv(binary) {
+  if (!binary?.pathDirs?.length) return undefined;
+  const env = { ...process.env };
+  const pathKey = Object.keys(env).find((key) => key.toLowerCase() === "path") || "PATH";
+  env[pathKey] = [
+    ...binary.pathDirs,
+    env[pathKey] || "",
+  ].filter(Boolean).join(path.delimiter);
+  return env;
+}
+
+function getCodexBinaryDiagnostics(binary) {
+  if (!binary) return null;
+  return {
+    command: binary.command,
+    exists: fs.existsSync(binary.command),
+    pathDirs: binary.pathDirs || [],
+  };
+}
+
+function createCodexPathError(binary) {
+  const err = new Error(`Codex CLI binary is not executable: ${binary?.command || "(missing)"}`);
+  err.code = "CODEX_CLI_MISSING";
+  return err;
+}
+
+function assertCodexBinaryUsable(binary) {
+  if (!binary?.command || !fs.existsSync(binary.command)) {
+    throw createCodexPathError(binary);
+  }
 }
 
 function buildCodexClientOptions(settings, options = {}) {
   const codexOptions = buildCodexOptions(settings, options);
   try {
     const binary = resolveBundledCodexBinary();
+    assertCodexBinaryUsable(binary);
+    appLogger.logInfo("Codex CLI path resolved", {
+      category: "aiChat",
+      ...getCodexBinaryDiagnostics(binary),
+    });
     return {
       ...codexOptions,
       codexPathOverride: binary.command,
+      env: buildCodexEnv(binary),
     };
   } catch (err) {
-    appLogger.logWarning("Codex CLI path could not be resolved; falling back to SDK default resolution", {
+    appLogger.logError("Codex CLI path could not be resolved", err);
+    appLogger.logWarning("Codex SDK default CLI resolution was skipped to avoid app.asar executable paths", {
       category: "aiChat",
       error: err.message || String(err),
     });
-    return codexOptions;
+    throw err;
   }
 }
 
@@ -99,6 +178,7 @@ function runCodexCli(args, options = {}) {
     let binary;
     try {
       binary = resolveBundledCodexBinary();
+      assertCodexBinaryUsable(binary);
     } catch (err) {
       resolve({ ok: false, missing: true, error: err.message || String(err) });
       return;
@@ -106,6 +186,7 @@ function runCodexCli(args, options = {}) {
 
     execFile(binary.command, [...binary.argsPrefix, ...args], {
       cwd: options.cwd || process.cwd(),
+      env: buildCodexEnv(binary) || process.env,
       timeout: Number(options.timeoutMs || 25000),
       windowsHide: true,
       maxBuffer: 1024 * 1024 * 4,
@@ -290,13 +371,21 @@ function buildThreadOptions(thread, options = {}) {
   const sandboxMode = normalizeSandboxMode(options.sandboxMode || options.sandbox_mode || options.sandbox, settings.sandboxMode);
   const performanceMode = normalizePerformanceMode(options.performanceMode || options.performance_mode, settings.performanceMode);
   return {
-    workingDirectory: String(options.workdir || settings.workdir || path.resolve(process.cwd(), "..")),
+    workingDirectory: resolveRequiredWorkdir(options.workdir || settings.workdir),
     sandboxMode,
     approvalPolicy: "never",
     skipGitRepoCheck: true,
     model: options.model || undefined,
     modelReasoningEffort: performanceMode === "speed" ? SPEED_PROFILE.modelReasoningEffort : undefined,
   };
+}
+
+function resolveRequiredWorkdir(value) {
+  const workdir = String(value || "").trim();
+  if (!workdir) {
+    throw new Error("設定の作業フォルダが未設定です。設定画面で作業フォルダを選択してください。");
+  }
+  return workdir;
 }
 
 function buildPerformanceDiagnostics(performanceMode) {
@@ -563,7 +652,7 @@ async function sendMessage(input = {}) {
   }
 
   const settings = settingsService.getSettings().settings.aiChat || {};
-  const workdir = String(input.workdir || settings.workdir || path.resolve(process.cwd(), ".."));
+  const workdir = resolveRequiredWorkdir(input.workdir || settings.workdir);
   const sandboxMode = normalizeSandboxMode(input.sandboxMode || input.sandbox_mode || input.sandbox, settings.sandboxMode);
   const performanceMode = normalizePerformanceMode(input.performanceMode || input.performance_mode, settings.performanceMode);
   const usePersistentCodexThread = shouldUsePersistentCodexThread(performanceMode);
@@ -729,6 +818,15 @@ async function sendMessage(input = {}) {
     };
   } catch (err) {
     const message = err.message || String(err);
+    appLogger.logError("AI chat failed", err);
+    appLogger.logInfo("AI chat failure context", {
+      category: "aiChat",
+      request_id: requestId,
+      thread_id: thread.thread_id,
+      run_id: run.run_id,
+      elapsed_ms: Date.now() - startedAt,
+      error: message,
+    });
     const active = requestId ? activeRequests.get(requestId) : null;
     if (abortController.signal.aborted || active?.cancelled || isAbortError(err)) {
       const canceledRun = aiService.updateRun(run.run_id, {

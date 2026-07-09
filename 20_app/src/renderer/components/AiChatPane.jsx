@@ -25,6 +25,7 @@ const CONTEXT_PANEL_WIDTH_KEY = "cotaska.aiChat.contextPanelWidth";
 const CONTEXT_PANEL_MIN_WIDTH = 320;
 const CONTEXT_PANEL_MAX_WIDTH = 720;
 const CONTEXT_PANEL_DEFAULT_WIDTH = 410;
+const WORKDIR_REQUIRED_MESSAGE = "作業フォルダを設定してください。設定画面で作業フォルダを選択してから送信してください。";
 
 markdown.core.ruler.after("inline", "cotaska_task_links", (state) => {
   state.tokens.forEach((blockToken) => {
@@ -126,16 +127,23 @@ async function copyTextToClipboard(text) {
   }
 }
 
-function MarkdownPreview({ content, error, onOpenTask }) {
+function MarkdownPreview({ content, error, onOpenTask, onOpenLink }) {
   const html = useMemo(() => markdown.render(String(content || "")), [content]);
   return (
     <div
       className={`ai-message-markdown${error ? " ai-message-error" : ""}`}
       onClick={(event) => {
-        const link = event.target.closest?.("[data-task-id]");
-        if (!link) return;
+        const taskLink = event.target.closest?.("[data-task-id]");
+        if (taskLink) {
+          event.preventDefault();
+          onOpenTask?.(taskLink.getAttribute("data-task-id"));
+          return;
+        }
+
+        const anchor = event.target.closest?.("a[href]");
+        if (!anchor) return;
         event.preventDefault();
-        onOpenTask?.(link.getAttribute("data-task-id"));
+        onOpenLink?.(anchor.getAttribute("href"));
       }}
       dangerouslySetInnerHTML={{ __html: html }}
     />
@@ -931,6 +939,21 @@ function AiChatPane({
     openFileContext(entry);
   };
 
+  const handleReferenceClick = (reference) => {
+    if (!reference?.filePath) return;
+    openFileContext({
+      type: "file",
+      file_path: reference.filePath,
+      label: reference.label || reference.filePath,
+    });
+  };
+
+  const handleReferenceKeyDown = (event, reference) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    handleReferenceClick(reference);
+  };
+
   const handleWorkdirTreeContextMenu = (event, entry) => {
     event.preventDefault();
     event.stopPropagation();
@@ -1106,6 +1129,49 @@ function AiChatPane({
     }
   };
 
+  const handleOpenMarkdownLink = async (href) => {
+    const target = String(href || "").trim();
+    if (!target) return;
+    try {
+      const result = await window.cotaskaAPI?.shell?.openTarget?.(target);
+      if (result?.ok === false) {
+        throw new Error(result.error || "リンクを開けませんでした。");
+      }
+      setRuntimeState((current) => ({
+        ...current,
+        status: "ready",
+        message: "リンクを外部アプリで開きました。",
+      }));
+    } catch (error) {
+      setRuntimeState({
+        ready: false,
+        status: "error",
+        message: error?.message || "リンクを開けませんでした。",
+      });
+    }
+  };
+
+  const appendAssistantErrorMessage = (message) => {
+    requestScrollMessagesToBottom();
+    setMessages((current) => [
+      ...current,
+      {
+        id: `error-${Date.now()}`,
+        role: "assistant",
+        author: "Codex SDK",
+        body: message,
+        error: true,
+      },
+    ]);
+  };
+
+  const isAiWorkdirConfigured = async () => {
+    const settingsResult = await window.cotaskaAPI?.settings?.get?.();
+    if (!settingsResult) return true;
+    return settingsResult.configured?.aiChatWorkdir !== false
+      && Boolean(String(settingsResult.settings?.aiChat?.workdir || "").trim());
+  };
+
   const handleCancelSend = async () => {
     const currentRequest = activeSendRequestRef.current;
     if (!isSending || !currentRequest?.id) return;
@@ -1154,6 +1220,28 @@ function AiChatPane({
         status: "unavailable",
         message: "送信先が未接続のため、入力内容は送信されませんでした。",
       });
+      return;
+    }
+    try {
+      if (!(await isAiWorkdirConfigured())) {
+        setRuntimeState({
+          ready: false,
+          status: "error",
+          message: WORKDIR_REQUIRED_MESSAGE,
+          action: null,
+        });
+        appendAssistantErrorMessage(WORKDIR_REQUIRED_MESSAGE);
+        return;
+      }
+    } catch (error) {
+      const message = error?.message || "設定の作業フォルダを確認できませんでした。";
+      setRuntimeState({
+        ready: false,
+        status: "error",
+        message,
+        action: null,
+      });
+      appendAssistantErrorMessage(message);
       return;
     }
 
@@ -1419,16 +1507,6 @@ function AiChatPane({
           </div>
         </header>
 
-        <div className={`ai-runtime-banner ai-runtime-banner--${runtimeState.status}`}>
-          <strong>{runtimeState.status === "warning" || !runtimeState.ready ? "確認が必要" : "接続状態"}</strong>
-          <span>{runtimeState.message}</span>
-          {runtimeState.action === "codex-auth-settings" && (
-            <button type="button" className="ai-runtime-action" onClick={openCodexAuthSettings}>
-              設定で確認
-            </button>
-          )}
-        </div>
-
         <section
           ref={messageScrollRef}
           className="ai-message-scroll"
@@ -1443,7 +1521,12 @@ function AiChatPane({
           ) : messages.map((message) => (
             <article key={message.id} className={`ai-message ai-message--${message.role}${message.streaming ? " ai-message--streaming" : ""}`}>
               <div className="ai-message-author">{message.author}</div>
-              <MarkdownPreview content={message.body} error={message.error} onOpenTask={openTaskContext} />
+              <MarkdownPreview
+                content={message.body}
+                error={message.error}
+                onOpenTask={openTaskContext}
+                onOpenLink={handleOpenMarkdownLink}
+              />
               <div className="ai-message-hover-actions" aria-label="メッセージ操作">
                 {message.time && <time dateTime={message.createdAt}>{message.time}</time>}
                 <button
@@ -1510,12 +1593,23 @@ function AiChatPane({
           {references.length > 0 && (
             <div className="ai-compose-attachments" aria-label="添付ファイル">
               {references.map((reference) => (
-                <span key={reference.id} className="ai-compose-attachment" title={reference.filePath || reference.label}>
+                <span
+                  key={reference.id}
+                  className="ai-compose-attachment"
+                  title={reference.filePath || reference.label}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => handleReferenceClick(reference)}
+                  onKeyDown={(event) => handleReferenceKeyDown(event, reference)}
+                >
                   <span className="ai-compose-attachment-icon">F</span>
                   <span className="ai-compose-attachment-name">{reference.label}</span>
                   <button
                     type="button"
-                    onClick={() => handleRemoveReference(reference.id)}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleRemoveReference(reference.id);
+                    }}
                     disabled={isSending}
                     aria-label={`${reference.label}を外す`}
                     title="添付を外す"
@@ -1655,7 +1749,11 @@ function AiChatPane({
               {contextPanel.status === "error" && <p className="ai-muted-text">{contextPanel.error}</p>}
               {contextPanel.file?.preview_type === "text" && isMarkdownFile(contextPanel.file) && filePreviewMode && (
                 <div className="ai-file-preview-markdown">
-                  <MarkdownPreview content={contextPanel.file.content || ""} onOpenTask={openTaskContext} />
+                  <MarkdownPreview
+                    content={contextPanel.file.content || ""}
+                    onOpenTask={openTaskContext}
+                    onOpenLink={handleOpenMarkdownLink}
+                  />
                 </div>
               )}
               {contextPanel.file?.preview_type === "text" && (!isMarkdownFile(contextPanel.file) || !filePreviewMode) && (

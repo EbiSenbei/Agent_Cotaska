@@ -22,6 +22,11 @@ taskLoading:
   # 完了ビューで次を読み込む1回あたりの件数
   completedLoadMoreLimit: 100
 
+logging:
+  # App log level: debug / info / warn / error.
+  # Default info writes INFO, WARN, and ERROR to app-YYYY-MM-DD.log.
+  level: "info"
+
 update:
   # 最新版確認に使うURL。Cloudflare R2 の version.json または GitHub Releases latest API 互換JSONを想定します
   latestVersionUrl: "https://pub-d671fdad660b43a8a4b99ede58b7c092.r2.dev/latest/version.json"

@@ -1388,47 +1388,6 @@ body.is-resizing-detail-sections * {
   background: #2f9e6d;
 }
 
-.ai-runtime-banner {
-  margin: 12px 20px 0;
-  padding: 9px 11px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border: 1px solid #dce7f3;
-  border-radius: 8px;
-  background: #f7fbff;
-  color: #536174;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.ai-runtime-banner--unavailable,
-.ai-runtime-banner--auth,
-.ai-runtime-banner--warning,
-.ai-runtime-banner--error {
-  border-color: #efd2a7;
-  background: #fff8ec;
-  color: #7a5420;
-}
-
-.ai-runtime-action {
-  margin-left: auto;
-  height: 28px;
-  border: 1px solid #d8b67c;
-  border-radius: 6px;
-  background: #fff;
-  color: #7a5420;
-  padding: 0 10px;
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.ai-runtime-action:hover {
-  background: #fff3df;
-}
-
 .ai-message-scroll {
   flex: 1;
   min-height: 0;
@@ -1953,6 +1912,17 @@ body.is-resizing-detail-sections * {
   color: #344052;
   font-size: 12px;
   line-height: 1;
+  cursor: pointer;
+}
+
+.ai-compose-attachment:hover {
+  border-color: #b7c5d8;
+  background: #eef4fb;
+}
+
+.ai-compose-attachment:focus-visible {
+  outline: 2px solid #2d78b7;
+  outline-offset: 2px;
 }
 
 .ai-compose-attachment-icon {

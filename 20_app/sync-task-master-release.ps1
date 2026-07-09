@@ -130,6 +130,26 @@ function Get-LockingProcesses {
     }
 }
 
+function Remove-DirectoryTree {
+    param(
+        [Parameter(Mandatory = $true)][string]$Path
+    )
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return
+    }
+
+    $fullPath = [System.IO.Path]::GetFullPath((Resolve-Path -LiteralPath $Path).Path)
+    $extendedPath = if ($fullPath.StartsWith("\\?\")) { $fullPath } else { "\\?\$fullPath" }
+    & cmd.exe /c rmdir /s /q $extendedPath
+    $exitCode = $LASTEXITCODE
+    $global:LASTEXITCODE = 0
+
+    if ($exitCode -ne 0 -and (Test-Path -LiteralPath $Path)) {
+        throw "フォルダを削除できませんでした: $Path"
+    }
+}
+
 function Remove-PathWithLockHint {
     param(
         [Parameter(Mandatory = $true)][string]$Path
@@ -139,7 +159,7 @@ function Remove-PathWithLockHint {
     # 短いリトライ後も失敗する場合はロック元プロセスを表示して終了する。
     for ($try = 1; $try -le 3; $try++) {
         try {
-            Remove-Item -LiteralPath $Path -Recurse -Force
+            Remove-DirectoryTree -Path $Path
             return
         }
         catch {
@@ -185,13 +205,19 @@ function Compress-BackupAndRemoveFolder {
         Remove-Item -LiteralPath $backupZip -Force
     }
 
-    Compress-Archive -LiteralPath $backupRootFullPath -DestinationPath $backupZip -CompressionLevel Optimal -Force
+    $backupParent = Split-Path -Parent $backupRootFullPath
+    $backupLeaf = Split-Path -Leaf $backupRootFullPath
+    & tar.exe -a -cf $backupZip -C $backupParent $backupLeaf
+    if ($LASTEXITCODE -ne 0) {
+        throw "バックアップZIPの作成に失敗しました: $backupZip"
+    }
+    $global:LASTEXITCODE = 0
 
     if (-not (Test-Path -LiteralPath $backupZip)) {
         throw "バックアップZIPが作成されていません: $backupZip"
     }
 
-    Remove-Item -LiteralPath $backupRootFullPath -Recurse -Force
+    Remove-DirectoryTree -Path $backupRootFullPath
     return $backupZip
 }
 
@@ -202,6 +228,23 @@ function Assert-PathExists {
     )
     if (-not (Test-Path -LiteralPath $Path)) {
         throw "$Label が見つかりません: $Path"
+    }
+}
+
+function Invoke-RobocopyChecked {
+    param(
+        [Parameter(Mandatory = $true)][string]$Source,
+        [Parameter(Mandatory = $true)][string]$Destination,
+        [string[]]$Options = @("/E")
+    )
+
+    $robocopyArgs = @($Source, $Destination) + $Options + @("/R:2", "/W:1", "/NFL", "/NDL", "/NP")
+    & robocopy @robocopyArgs | Out-Host
+    $exitCode = $LASTEXITCODE
+    $global:LASTEXITCODE = 0
+
+    if ($exitCode -ge 8) {
+        throw "robocopy に失敗しました。exitCode=$exitCode source=$Source destination=$Destination"
     }
 }
 
@@ -264,7 +307,7 @@ Assert-PathExists -Path $srcAiAgentRule -Label "リリース版 AIエージェ�
 
 Write-Host "[3/6] バックアップを作成しています: $backupRoot"
 # 失敗時に戻せるよう、現在のタスクマスター配布フォルダを丸ごとバックアップする。
-Copy-Item -LiteralPath $taskMasterRoot -Destination $backupRoot -Recurse -Force
+Invoke-RobocopyChecked -Source $taskMasterRoot -Destination $backupRoot
 
 Write-Host "[4/6] バックアップをZIP化し、一時フォルダを削除しています..."
 # 退避フォルダは zip にまとめ、圧縮成功後はフォルダを削除して backup 配下を軽く保つ。
@@ -280,7 +323,7 @@ Write-Host "[6/6] _app フォルダを置き換えています..."
 if (Test-Path -LiteralPath $dstApp) {
     Remove-PathWithLockHint -Path $dstApp
 }
-Copy-Item -LiteralPath $srcApp -Destination $dstApp -Recurse -Force
+Invoke-RobocopyChecked -Source $srcApp -Destination $dstApp
 
 Write-Host "      tools フォルダを同期しています..."
 # 検証スクリプトなどの補助ツールもリリース成果物に合わせて同期する。

@@ -4,6 +4,8 @@ const { pathToFileURL } = require("url");
 const crypto = require("crypto");
 const { spawn } = require("child_process");
 const fs = require("fs");
+const earlyStartupLogger = require("./earlyStartupLogger");
+earlyStartupLogger.installProcessErrorHandlers();
 const AdmZip = require("adm-zip");
 const taskService = require("./taskService");
 const listService = require("./listService");
@@ -14,6 +16,7 @@ const aiService = require("./aiService");
 const codexSdkService = require("./codexSdkService");
 const logger     = require("./logger");
 const appLogger  = require("./appLogger");
+earlyStartupLogger.setSecondaryLogger(appLogger);
 const { createBackupService } = require("./backupService");
 const packageInfo = require("../../package.json");
 
@@ -1076,15 +1079,6 @@ function showLaunchFailedGuidance(details) {
   });
 }
 
-process.on("uncaughtException", (err) => {
-  appLogger.logError("uncaughtException in main process", err);
-});
-
-process.on("unhandledRejection", (reason) => {
-  const asError = reason instanceof Error ? reason : new Error(String(reason));
-  appLogger.logError("unhandledRejection in main process", asError);
-});
-
 function focusMainWindow() {
   if (!mainWindow || mainWindow.isDestroyed()) {
     mainWindow = createWindow();
@@ -1124,6 +1118,12 @@ if (!gotSingleInstanceLock) {
 app.on("second-instance", () => {
   logger.info("second-instance detected, focusing existing window");
   focusMainWindow();
+});
+
+app.on("child-process-gone", (_event, details) => {
+  appLogger.logError(
+    `Electron child process gone: type=${details?.type || "unknown"}, reason=${details?.reason || "unknown"}, exitCode=${details?.exitCode ?? "unknown"}`
+  );
 });
 
 // サービス初期化 Promise（IPC ハンドラ内で await してサービスの準備完了を待つ）
@@ -1217,7 +1217,7 @@ ipcMain.handle("settings:chooseExternalEditor", async () => {
 ipcMain.handle("settings:chooseAiWorkdir", async () => {
   const result = await dialog.showOpenDialog({
     title: "作業フォルダを選択",
-    defaultPath: settingsService.getSettings().settings.aiChat?.workdir || path.resolve(process.cwd(), ".."),
+    defaultPath: settingsService.getSettings().settings.aiChat?.workdir || undefined,
     properties: ["openDirectory", "createDirectory"],
   });
   if (result.canceled || !result.filePaths?.[0]) {
@@ -1422,7 +1422,10 @@ function listWorkdirTree(rootDir, options = {}) {
 
 function getAiWorkdir() {
   const aiSettings = settingsService.getSettings().settings.aiChat || {};
-  return path.resolve(aiSettings.workdir || settingsService.DEFAULT_SETTINGS.aiChat.workdir);
+  if (!String(aiSettings.workdir || "").trim()) {
+    throw new Error("設定の作業フォルダが未設定です。設定画面で作業フォルダを選択してください。");
+  }
+  return path.resolve(aiSettings.workdir);
 }
 
 function resolveWorkdirPath(relativePath) {
@@ -1747,8 +1750,7 @@ function applyAiProposal(proposalId) {
   } else if (proposal.action_type === "create_task") {
     result = taskService.addTask(payload);
   } else if (proposal.action_type === "update_file") {
-    const settings = settingsService.getSettings().settings.aiChat || {};
-    const filePath = ensurePathInside(settings.workdir || path.resolve(process.cwd(), ".."), payload.file_path || payload.path || proposal.target_id);
+    const filePath = ensurePathInside(getAiWorkdir(), payload.file_path || payload.path || proposal.target_id);
     if (typeof payload.content !== "string") {
       throw new Error("update_file には content が必要です。");
     }
@@ -2161,6 +2163,17 @@ ipcMain.handle("shell:openPath", async (_e, targetPath) => {
   }
 });
 
+function stripFileLineSuffixIfExists(filePath) {
+  const rawPath = String(filePath || "").trim();
+  if (!rawPath || fs.existsSync(rawPath)) return rawPath;
+
+  const match = rawPath.match(/^(.*):(\d+)(?::\d+)?$/);
+  if (!match) return rawPath;
+
+  const withoutLine = match[1];
+  return withoutLine && fs.existsSync(withoutLine) ? withoutLine : rawPath;
+}
+
 async function openShellTarget(target, baseDir) {
   const rawTarget = String(target || "").trim();
   const rawBaseDir = String(baseDir || "").trim();
@@ -2192,6 +2205,7 @@ async function openShellTarget(target, baseDir) {
       if (/^\/[a-zA-Z]:/.test(candidatePath)) {
         candidatePath = candidatePath.slice(1);
       }
+      candidatePath = stripFileLineSuffixIfExists(candidatePath);
     } catch {
       return { ok: false, error: "file URL の解析に失敗しました。" };
     }
@@ -2209,7 +2223,7 @@ async function openShellTarget(target, baseDir) {
     candidatePath = path.resolve(base, candidatePath);
   }
 
-  const normalizedPath = path.normalize(candidatePath);
+  const normalizedPath = path.normalize(stripFileLineSuffixIfExists(candidatePath));
   if (!fs.existsSync(normalizedPath)) {
     logger.warn("shell:openTarget target not found", { path: normalizedPath, baseDir: rawBaseDir || null });
     return { ok: false, error: "対象のファイルまたはフォルダが見つかりません。" };
@@ -2427,6 +2441,44 @@ function createWindow() {
     appLogger.logError(
       `Renderer load failed: code=${errorCode}, desc=${errorDescription}, url=${validatedURL || "(empty)"}`
     );
+  });
+
+  const isAppUrl = (targetUrl) => {
+    const rawUrl = String(targetUrl || "");
+    if (!rawUrl || rawUrl === "about:blank") return true;
+    if (process.env.NODE_ENV === "development") {
+      const port = process.env.VITE_PORT || "5173";
+      return rawUrl.startsWith(`http://localhost:${port}/`) || rawUrl === `http://localhost:${port}`;
+    }
+    return /^file:\/\/\/.*\/dist\/renderer\/index\.html(?:[?#].*)?$/i.test(rawUrl.replace(/\\/g, "/"));
+  };
+
+  const openExternalNavigation = async (targetUrl) => {
+    const result = await openShellTarget(targetUrl);
+    if (result?.ok === false) {
+      appLogger.logWarning("External navigation blocked but could not be opened", {
+        targetUrl,
+        error: result.error,
+      });
+    }
+  };
+
+  win.webContents.on("will-navigate", (event, targetUrl) => {
+    if (isAppUrl(targetUrl)) return;
+    event.preventDefault();
+    appLogger.logWarning("Blocked renderer navigation outside app", { targetUrl });
+    openExternalNavigation(targetUrl).catch((err) => {
+      appLogger.logError("Blocked navigation open failed", err);
+    });
+  });
+
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (isAppUrl(url)) return { action: "allow" };
+    appLogger.logWarning("Blocked renderer window open outside app", { targetUrl: url });
+    openExternalNavigation(url).catch((err) => {
+      appLogger.logError("Blocked window open failed", err);
+    });
+    return { action: "deny" };
   });
 
   win.webContents.on("did-finish-load", () => {

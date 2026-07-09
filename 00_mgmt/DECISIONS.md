@@ -454,3 +454,19 @@
 - リリース版起動時に `Cannot find module 'sql.js'` が発生した原因は、`package.json` 定義済みのランタイム依存が `node_modules` に存在しないまま配布物を作成できていたことと判断した。
 - `release-all.ps1` はビルド前に `npm ci --no-audit --no-fund` を実行し、`sql.js` は `require.resolve`、`@openai/codex-sdk` は dynamic `import()` で検証してから Electron パッケージングへ進む。
 - `00_mgmt/CURRENT_SPRINT.md` は現行ツリーに存在しないため更新対象外とし、不具合対応レポート `10_docs/30_実装・検証/10_不具合対応/20260709_01_リリース版起動時にsqljsが見つからない.md` で追跡する。
+
+## 2026-07-09 BUG-20260709-02 起動時 main process エラーログ
+
+- main process の初期 import 中に落ちる例外を記録するため、Electron やアプリサービスへ依存しない `earlyStartupLogger` を `main.js` の先頭で有効化する。
+- `aiService.js` は `sql.js` をトップレベル require せず、`openAiService()` 時に遅延読み込みして、失敗時に require stack と実行環境をログへ残す。
+
+## 2026-07-09 CHG-090 AI作業フォルダ初期値空欄化
+
+- AI作業フォルダは自動初期設定せず、初期値を空欄にする。ユーザーが設定画面で明示的に選択した場合のみ `settings.yaml` に保存する。
+- 旧実装で配布版に自動生成された `_app/resources` 作業フォルダは未設定扱いに正規化し、AI実行時も別パスへフォールバックしない。
+- 作業フォルダに値が入っている場合は、保存時に存在する絶対パスかつフォルダであることを検証する。空欄は未設定として許可する。
+
+## 2026-07-09 T-0360 AI添付ファイルクリック時の右ペイン表示
+
+- AIモードの入力欄に表示される添付ファイルチップは、既存の `openFileContext()` に接続して右側コンテキストパネルを開く。
+- `T-XXXX.md` はタスク詳細、PDFはPDFプレビュー、テキスト/Markdownはファイルプレビューという既存分岐を再利用し、削除ボタンのクリックはプレビュー表示へ伝播させない。

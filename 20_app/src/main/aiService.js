@@ -1,8 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
-const initSqlJs = require("sql.js");
 const settingsService = require("./settingsService");
+const earlyStartupLogger = require("./earlyStartupLogger");
 
 const THREAD_STATUSES = new Set(["active", "archived"]);
 const PROPOSAL_STATUSES = new Set(["pending", "approved", "rejected", "applied", "failed"]);
@@ -10,6 +10,7 @@ const RUN_STATUSES = new Set(["running", "completed", "failed", "canceled"]);
 const ACTION_TYPES = new Set(["update_task", "create_task", "update_file"]);
 
 let SQL = null;
+let initSqlJs = null;
 let db = null;
 let dbPath = null;
 
@@ -23,6 +24,22 @@ function createId(prefix) {
 
 function getAiDbPath() {
   return path.join(settingsService.getDataDir(), "ai.sqlite");
+}
+
+function getSqlJsInitializer() {
+  if (initSqlJs) return initSqlJs;
+
+  try {
+    initSqlJs = require("sql.js");
+    return initSqlJs;
+  } catch (err) {
+    earlyStartupLogger.logError("Failed to require sql.js for AI database initialization", err, {
+      module: "src/main/aiService.js",
+      dependency: "sql.js",
+      dbPath: dbPath || getAiDbPath(),
+    });
+    throw err;
+  }
 }
 
 function assertDbReady() {
@@ -189,9 +206,17 @@ async function openAiService() {
   if (db) return { ok: true, path: dbPath };
   dbPath = getAiDbPath();
   fs.mkdirSync(path.dirname(dbPath), { recursive: true });
-  SQL = SQL || await initSqlJs({
-    locateFile: (file) => require.resolve(`sql.js/dist/${file}`),
-  });
+  try {
+    SQL = SQL || await getSqlJsInitializer()({
+      locateFile: (file) => require.resolve(`sql.js/dist/${file}`),
+    });
+  } catch (err) {
+    earlyStartupLogger.logError("Failed to initialize sql.js for AI database", err, {
+      module: "src/main/aiService.js",
+      dbPath,
+    });
+    throw err;
+  }
   db = fs.existsSync(dbPath)
     ? new SQL.Database(fs.readFileSync(dbPath))
     : new SQL.Database();
@@ -435,7 +460,7 @@ function createRun(input = {}) {
       nullableString(input.codex_thread_id),
       normalizeStatus(input.run_status, RUN_STATUSES, "running"),
       String(input.sandbox || "read-only"),
-      String(input.workdir || settings.workdir || path.resolve(process.cwd(), "..")),
+      String(input.workdir || settings.workdir || ""),
       nullableString(input.model),
       nowIso(),
     ],

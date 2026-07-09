@@ -3671,12 +3671,12 @@ tasks:
   - id: T-0342
     title: 仕様変更：添付ファイル対応
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 332
     tags: []
     due_date: null
-    updated_at: '2026-06-29T15:08:12.380Z'
+    updated_at: '2026-07-09T23:09:28+09:00'
   - id: T-0343
     title: 仕様変更：起動時に「すべて」「今日」
     list: 仕様変更
@@ -3830,12 +3830,12 @@ tasks:
   - id: T-0360
     title: 仕様変更：添付ファイルをクリックしたときの挙動
     list: 仕様変更
-    status: done
+    status: todo
     priority: normal
     sort_order: 350
     tags: []
     due_date: '2026-07-05'
-    updated_at: '2026-07-05T04:47:07.100Z'
+    updated_at: '2026-07-09T14:30:59.507Z'
   - id: T-0361
     title: 設計：これまでを振り返って
     list: 仕様変更
@@ -4061,8 +4061,41 @@ tasks:
       - ログ
       - main process
     due_date: null
-    updated_at: '2026-07-09T16:49:00+09:00'
+    updated_at: '2026-07-09T17:35:00+09:00'
+  - id: T-0381
+    title: CHG-090-01 設計反映：AI作業フォルダ初期値空欄化
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 381
+    tags:
+      - CHG-090
+      - 設計
+    due_date: null
+    updated_at: '2026-07-09T13:36:07.000Z'
+  - id: T-0382
+    title: CHG-090-02 実装：AI作業フォルダ初期値空欄化
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 382
+    tags:
+      - CHG-090
+      - 実装
+    due_date: null
+    updated_at: '2026-07-09T13:36:07.000Z'
+  - id: T-0383
+    title: CHG-090-03 確認：AI作業フォルダ初期値空欄化
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 383
+    tags:
+      - CHG-090
+      - ユーザー確認
+    due_date: null
+    updated_at: '2026-07-09T23:29:41+09:00'
 task_file_roots:
   - .
-next_task_id: 381
-last_updated: '2026-07-09T16:49:00+09:00'
+next_task_id: 384
+last_updated: '2026-07-09T14:31:00.124Z'

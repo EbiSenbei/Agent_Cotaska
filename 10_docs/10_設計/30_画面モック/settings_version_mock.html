@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cotaska - 設定画面モック CHG-079</title>
+  <title>Cotaska - 設定画面モック</title>
   <style>
     :root {
       --dark-0: #15181d;
@@ -16,6 +16,10 @@
       --blue-soft: #eaf3ff;
       --green: #1f7a44;
       --green-soft: #e9f7ef;
+      --red: #b42318;
+      --red-soft: #fff1f0;
+      --amber: #946200;
+      --amber-soft: #fff7e6;
     }
     * { box-sizing: border-box; }
     html, body { height: 100%; }
@@ -25,10 +29,12 @@
       background: #f4f6f8;
       color: var(--text);
     }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
     .app {
       height: 100vh;
       display: grid;
-      grid-template-columns: 52px 256px minmax(560px, 1fr);
+      grid-template-columns: 52px 256px minmax(620px, 1fr);
       overflow: hidden;
     }
     .sidebar {
@@ -67,14 +73,9 @@
       border: 1px solid rgba(255, 199, 96, .52);
       background: #f2a93b;
       color: #181c22;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 800;
       opacity: 1;
-      box-shadow: 0 0 0 0 rgba(242, 169, 59, .42);
-      animation: update-alert-pulse 1.8s ease-out infinite;
-    }
-    .update-alert-btn:hover {
-      background: #ffc65d;
     }
     .update-alert-btn::after {
       content: "";
@@ -86,11 +87,6 @@
       border-radius: 999px;
       background: #d93025;
       box-shadow: 0 0 0 2px #20242b;
-    }
-    @keyframes update-alert-pulse {
-      0% { box-shadow: 0 0 0 0 rgba(242, 169, 59, .42); }
-      70% { box-shadow: 0 0 0 9px rgba(242, 169, 59, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(242, 169, 59, 0); }
     }
     .spacer { flex: 1; }
 
@@ -124,11 +120,8 @@
       border-radius: 7px;
       background: transparent;
       color: #c3ccd8;
-      font: inherit;
       font-size: 13px;
       text-align: left;
-      cursor: pointer;
-      transition: background .15s ease, color .15s ease;
     }
     .settings-item:hover {
       background: var(--dark-1);
@@ -150,7 +143,7 @@
       align-items: flex-start;
       justify-content: space-between;
       gap: 24px;
-      margin-bottom: 24px;
+      margin-bottom: 18px;
     }
     .page-title {
       margin: 0;
@@ -161,15 +154,6 @@
       margin: 6px 0 0;
       color: var(--muted);
       font-size: 13px;
-    }
-    .close-btn {
-      width: 32px;
-      height: 32px;
-      border: 1px solid #d8e0ea;
-      border-radius: 7px;
-      background: #fff;
-      color: #657285;
-      font-size: 18px;
     }
     .panel { display: none; }
     .panel.active { display: block; }
@@ -192,46 +176,6 @@
     .section-note {
       margin: 4px 0 0;
       color: #718095;
-      font-size: 12px;
-    }
-    .info-table,
-    .setting-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-    .info-table th,
-    .setting-table th {
-      padding: 13px 18px;
-      color: #718095;
-      font-weight: 600;
-      text-align: left;
-      vertical-align: top;
-      border-top: 1px solid #eef2f6;
-      background: #fbfcfe;
-    }
-    .info-table th { width: 190px; }
-    .setting-table th { width: 70px; }
-    .info-table td,
-    .setting-table td {
-      padding: 12px 18px;
-      border-top: 1px solid #eef2f6;
-      vertical-align: middle;
-    }
-    .info-table tr:first-child th,
-    .info-table tr:first-child td,
-    .setting-table thead th,
-    .setting-table thead td {
-      border-top: 0;
-    }
-    .setting-table thead th {
-      color: #516073;
-      background: #f6f8fb;
-      font-size: 12px;
-      letter-spacing: .02em;
-    }
-    .mono {
-      font-family: "Consolas", "Courier New", monospace;
       font-size: 12px;
     }
     .app-info {
@@ -262,107 +206,93 @@
       color: #516073;
       font-size: 13px;
     }
-    .source {
-      margin-top: 8px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 8px;
-      border-radius: 5px;
-      background: #f2f5f8;
-      color: #667386;
-      font-family: "Consolas", "Courier New", monospace;
-      font-size: 11px;
-    }
-    .primary-btn {
-      height: 34px;
-      border: 1px solid var(--blue);
-      border-radius: 7px;
-      background: var(--blue);
-      color: #fff;
-      font-size: 13px;
-      font-weight: 700;
-      padding: 0 14px;
-      white-space: nowrap;
-    }
-    .update-box {
-      margin: 0 18px 18px;
-      padding: 14px;
-      border: 1px solid #d6e6f6;
-      border-radius: 8px;
-      background: #f7fbff;
+    .update-guide-card {
+      padding: 16px 18px;
       display: grid;
       grid-template-columns: 1fr auto;
-      gap: 12px;
-      align-items: center;
+      gap: 14px;
+      align-items: start;
     }
     .update-title {
       color: #2b5f8f;
       font-size: 13px;
       font-weight: 700;
     }
-    .update-text {
-      margin-top: 3px;
+    .update-text,
+    .update-note {
+      margin-top: 5px;
       color: #657285;
       font-size: 12px;
+      line-height: 1.55;
     }
-    .rows { padding: 4px 18px 18px; }
-    .row {
-      min-height: 44px;
-      display: grid;
-      grid-template-columns: 168px 1fr auto;
-      gap: 14px;
-      align-items: center;
-      border-top: 1px solid #eef2f6;
+    .update-progress {
+      height: 8px;
+      margin-top: 10px;
+      border-radius: 999px;
+      background: #dde8f5;
+      overflow: hidden;
+    }
+    .update-progress-bar {
+      height: 100%;
+      width: 64%;
+      background: var(--blue);
+    }
+    .update-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 170px;
+    }
+
+    .setting-table {
+      width: 100%;
+      border-collapse: collapse;
       font-size: 13px;
     }
-    .row:first-child { border-top: none; }
-    .label { color: #718095; }
-    .value { color: var(--text); }
-    .muted {
-      color: #7b8798;
+    .setting-table th {
+      width: 150px;
+      padding: 13px 18px;
+      color: #718095;
+      font-weight: 600;
+      text-align: left;
+      vertical-align: top;
+      border-top: 1px solid #eef2f6;
+      background: #fbfcfe;
+    }
+    .setting-table td {
+      padding: 12px 18px;
+      border-top: 1px solid #eef2f6;
+      vertical-align: middle;
+    }
+    .setting-table thead th {
+      color: #516073;
+      background: #f6f8fb;
       font-size: 12px;
+      letter-spacing: .02em;
     }
-    .status-chip {
-      display: inline-flex;
-      align-items: center;
-      min-height: 24px;
-      padding: 3px 9px;
-      border-radius: 12px;
-      background: var(--green-soft);
-      color: var(--green);
-      font-size: 12px;
-      font-weight: 700;
-    }
-    .status-chip.warn {
-      background: #fff4df;
-      color: #946200;
-    }
-    .path-input,
     .text-input,
     .number-input,
     .select-input {
-      width: 100%;
       height: 34px;
       border: 1px solid #ccd6e3;
       border-radius: 7px;
       background: #fff;
       color: #253044;
-      font: inherit;
       font-size: 13px;
       padding: 0 10px;
       outline: none;
     }
-    .path-input:focus,
+    .text-input,
+    .select-input { width: 100%; }
+    .path-input {
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 12px;
+    }
     .text-input:focus,
     .number-input:focus,
     .select-input:focus {
       border-color: var(--blue);
       box-shadow: 0 0 0 3px rgba(31, 111, 178, .12);
-    }
-    .disabled-field {
-      background: #f3f5f8;
-      color: #8a96a8;
     }
     .field-row {
       display: grid;
@@ -370,31 +300,40 @@
       gap: 8px;
       align-items: center;
     }
+    .task-loading-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
     .unit-field {
       display: inline-grid;
-      grid-template-columns: 4.5em auto;
+      grid-template-columns: auto 5.5em auto;
       gap: 8px;
       align-items: center;
     }
-    .unit-field .number-input {
+    .unit-field.simple {
+      grid-template-columns: 5.5em auto;
+    }
+    .number-input {
       width: 100%;
       text-align: right;
     }
+    .inline-label,
     .unit-label {
       color: #516073;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
     }
-    .secondary-btn {
-      height: 34px;
-      border: 1px solid #d8e0ea;
-      border-radius: 7px;
-      background: #fff;
-      color: #435166;
-      font-size: 13px;
-      font-weight: 700;
-      padding: 0 14px;
-      white-space: nowrap;
+    .checkbox-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 30px;
+    }
+    .checkbox-row input {
+      width: 16px;
+      height: 16px;
     }
     .help-text {
       margin-top: 6px;
@@ -402,12 +341,85 @@
       font-size: 12px;
       line-height: 1.5;
     }
+    .primary-btn,
+    .secondary-btn {
+      height: 34px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 0 14px;
+      white-space: nowrap;
+    }
+    .primary-btn {
+      border: 1px solid var(--blue);
+      background: var(--blue);
+      color: #fff;
+    }
+    .secondary-btn {
+      border: 1px solid #d8e0ea;
+      background: #fff;
+      color: #435166;
+    }
+    .primary-btn:disabled,
+    .secondary-btn:disabled {
+      cursor: default;
+      opacity: .52;
+    }
+    .message {
+      margin-bottom: 16px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    .message.success {
+      border: 1px solid #cce6d5;
+      background: var(--green-soft);
+      color: #23643b;
+    }
+    .message.error {
+      border: 1px solid #ffd0cc;
+      background: var(--red-soft);
+      color: var(--red);
+    }
+    .auth-panel {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: start;
+      border: 1px solid #d9e3ee;
+      border-radius: 8px;
+      padding: 12px;
+      background: #fbfdff;
+    }
+    .auth-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .auth-badge.warn {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+    .auth-message {
+      font-weight: 700;
+      color: #354153;
+    }
+    .file-path {
+      margin-top: 10px;
+      color: #7b8798;
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 11px;
+    }
+
     .backup-panel {
       padding: 16px 18px 18px;
-    }
-    .backup-actions {
-      display: grid;
-      gap: 12px;
     }
     .subsection-title {
       min-height: 36px;
@@ -424,35 +436,12 @@
     }
     .divider {
       height: 1px;
-      margin: 10px 0 4px;
+      margin: 14px 0;
       background: #eef2f6;
     }
-    .backup-targets {
-      margin-top: 14px;
+    .backup-actions {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-    }
-    .backup-target {
-      min-height: 86px;
-      padding: 12px;
-      border: 1px solid #e4eaf2;
-      border-radius: 8px;
-      background: #fbfcfe;
-    }
-    .backup-target-title {
-      margin: 0;
-      color: #253044;
-      font-size: 13px;
-      font-weight: 700;
-    }
-    .backup-target-path {
-      margin-top: 6px;
-      color: #667386;
-      font-family: "Consolas", "Courier New", monospace;
-      font-size: 11px;
-      line-height: 1.5;
-      word-break: break-all;
+      gap: 12px;
     }
     .backup-result {
       margin-top: 14px;
@@ -469,65 +458,32 @@
       margin-bottom: 3px;
       font-size: 13px;
     }
-    .mock-note {
-      margin: 0 0 16px;
-      padding: 12px 14px;
-      border: 1px solid #f1d09a;
-      border-radius: 8px;
-      background: #fff8e9;
-      color: #73510f;
+    .mono {
+      font-family: "Consolas", "Courier New", monospace;
       font-size: 12px;
-      line-height: 1.6;
     }
-    .empty-state {
-      padding: 44px 18px;
-      text-align: center;
-      color: #6f7d91;
-    }
-    .empty-state-title {
-      margin: 0;
-      color: #253044;
-      font-size: 18px;
-      font-weight: 700;
-    }
-    .empty-state-text {
-      margin: 8px auto 0;
-      max-width: 460px;
-      line-height: 1.7;
-      font-size: 13px;
-    }
+
     @media (max-width: 900px) {
       .app { grid-template-columns: 52px 1fr; }
       .settings-nav { display: none; }
       .content { padding: 22px 18px; }
-      .app-info { grid-template-columns: 56px 1fr; }
-      .app-info .primary-btn { grid-column: 1 / -1; }
-      .row { grid-template-columns: 1fr; gap: 4px; padding: 12px 0; }
-      .update-box { grid-template-columns: 1fr; }
-      .info-table,
+      .app-info,
+      .update-guide-card,
+      .auth-panel {
+        grid-template-columns: 1fr;
+      }
       .setting-table,
-      .info-table tbody,
       .setting-table tbody,
-      .info-table tr,
       .setting-table tr,
-      .info-table th,
       .setting-table th,
-      .info-table td,
       .setting-table td {
         display: block;
         width: 100%;
       }
       .setting-table thead { display: none; }
-      .info-table th,
-      .setting-table th {
-        padding-bottom: 4px;
-      }
-      .info-table td,
-      .setting-table td {
-        padding-top: 4px;
-      }
+      .setting-table th { padding-bottom: 4px; }
+      .setting-table td { padding-top: 4px; }
       .field-row { grid-template-columns: 1fr; }
-      .backup-targets { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -535,36 +491,20 @@
   <div class="app">
     <aside class="sidebar" aria-label="サイドバー">
       <div class="avatar">C</div>
-      <button class="icon-btn update-alert-btn" title="新しいバージョンがあります: 0.2.6" aria-label="新しいバージョンがあります">
-        ↻
-      </button>
-      <button class="icon-btn" title="タスク">
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      </button>
-      <button class="icon-btn" title="検索">
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-      </button>
+      <button class="icon-btn update-alert-btn" title="新しいバージョンがあります">↻</button>
+      <button class="icon-btn" title="タスク">✓</button>
+      <button class="icon-btn" title="検索">⌕</button>
+      <button class="icon-btn" title="AI">AI</button>
       <div class="spacer"></div>
-      <button class="icon-btn active" title="設定">
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.2 2h-.4a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.2a2 2 0 0 1-2 0l-.1-.1a2 2 0 0 0-2.7.7l-.2.3a2 2 0 0 0 .7 2.7l.1.1a2 2 0 0 1 1 1.7v.5a2 2 0 0 1-1 1.7l-.1.1a2 2 0 0 0-.7 2.7l.2.3a2 2 0 0 0 2.7.7l.1-.1a2 2 0 0 1 2 0l.4.2a2 2 0 0 1 1 1.7v.2a2 2 0 0 0 2 2h.4a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.2a2 2 0 0 1 2 0l.1.1a2 2 0 0 0 2.7-.7l.2-.3a2 2 0 0 0-.7-2.7l-.1-.1a2 2 0 0 1-1-1.7v-.5a2 2 0 0 1 1-1.7l.1-.1a2 2 0 0 0 .7-2.7l-.2-.3a2 2 0 0 0-2.7-.7l-.1.1a2 2 0 0 1-2 0l-.4-.2a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2Z"/><circle cx="12" cy="12" r="3"/></svg>
-      </button>
+      <button class="icon-btn active" title="設定">⚙</button>
     </aside>
 
     <nav class="settings-nav" aria-label="設定メニュー">
       <h1 class="settings-title">設定</h1>
       <div class="nav-group-label">MENU</div>
-      <button class="settings-item active" type="button" data-target="app-info">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-        アプリ情報
-      </button>
-      <button class="settings-item" type="button" data-target="settings">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
-        設定
-      </button>
-      <button class="settings-item" type="button" data-target="backup">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m17 8-5-5-5 5"/><path d="M5 21h14"/></svg>
-        バックアップと復元
-      </button>
+      <button class="settings-item active" type="button" data-target="app-info">アプリ情報</button>
+      <button class="settings-item" type="button" data-target="settings">設定</button>
+      <button class="settings-item" type="button" data-target="backup">バックアップと復元</button>
     </nav>
 
     <main class="content">
@@ -572,38 +512,37 @@
         <div class="page-head">
           <div>
             <h2 class="page-title">アプリ情報</h2>
-              <p class="page-subtitle">現在の Cotaska と更新情報を確認します。</p>
+            <p class="page-subtitle">現在の Cotaska と更新情報を確認します。</p>
           </div>
-          <button class="close-btn" title="閉じる">×</button>
-        </div>
-
-        <div class="mock-note">
-          起動時更新確認で最新版が見つかった状態。左サイドバー上部の通知アイコンから、このアプリ情報画面へ誘導する。
         </div>
 
         <div class="section">
-          <div class="section-head">
-            <h3 class="section-title">バージョン</h3>
-            <p class="section-note">表示値は `20_app/package.json` の `version` を正本にします。</p>
-          </div>
           <div class="app-info">
             <div class="logo">C</div>
             <div>
               <p class="product-name">Cotaska</p>
-                  <div class="version">Cotaska 0.2.5</div>
-              <div class="source">source: package.json / version</div>
+              <div class="version">Cotaska 0.2.6</div>
+              <div class="help-text">表示名とバージョンはアプリ情報から取得します。</div>
             </div>
-            <button class="primary-btn">更新を確認</button>
-          </div>
-          <div class="update-box">
-            <div>
-                  <div class="update-title">新しいバージョンがあります: Cotaska 0.2.6</div>
-              <div class="update-text">起動時に更新を検知しました。更新ファイルをダウンロードし、再起動時に適用できます。</div>
-            </div>
-            <button class="primary-btn">更新をダウンロード</button>
+            <button class="primary-btn" type="button">更新を確認</button>
           </div>
         </div>
 
+        <div class="section update-guide-card">
+          <div>
+            <div class="update-title">更新案内</div>
+            <div class="update-text">新しいバージョンがあります。更新ファイルをダウンロードし、再起動時に適用できます。</div>
+            <div class="update-progress" aria-label="更新ダウンロード進捗">
+              <div class="update-progress-bar"></div>
+            </div>
+            <div class="update-note">確認後に更新をダウンロードし、再起動時に適用します。利用できない環境では手動ダウンロードを案内します。</div>
+          </div>
+          <div class="update-actions">
+            <button class="secondary-btn" type="button">更新をダウンロード</button>
+            <button class="primary-btn" type="button">再起動して更新</button>
+            <button class="secondary-btn" type="button">ダウンロードページを開く</button>
+          </div>
+        </div>
       </section>
 
       <section class="panel" id="settings">
@@ -612,13 +551,15 @@
             <h2 class="page-title">設定</h2>
             <p class="page-subtitle">表示、外部アプリ、通知、AI Agent の接続先を設定します。</p>
           </div>
-          <button class="close-btn" title="閉じる">×</button>
+          <button class="primary-btn" type="button">保存</button>
         </div>
+
+        <div class="message success">設定を保存しました。</div>
 
         <div class="section">
           <div class="section-head">
             <h3 class="section-title">設定項目</h3>
-            <p class="section-note">保存モデルと実装詳細は後続タスクで確定します。</p>
+            <p class="section-note">現行実装の `SettingsPane.jsx` と `data/settings.yaml` に対応する項目。</p>
           </div>
           <table class="setting-table">
             <thead>
@@ -632,24 +573,24 @@
                 <th>表示名</th>
                 <td>
                   <input class="text-input" type="text" value="Cotaska" aria-label="表示名" />
-                  <div class="help-text">Cotaska のランチャー表示名の入力欄。</div>
+                  <div class="help-text">Cotaska の画面タイトルやアプリ情報に表示する名前。</div>
                 </td>
               </tr>
               <tr>
                 <th>外部エディタ</th>
                 <td>
                   <div class="field-row">
-                    <input class="path-input mono" type="text" value="C:\Program Files\Microsoft VS Code\Code.exe" aria-label="外部エディタ" />
+                    <input class="text-input path-input" type="text" value="C:\Program Files\Microsoft VS Code\Code.exe" aria-label="外部エディタ" />
                     <button class="secondary-btn" type="button">参照</button>
                   </div>
-                  <div class="help-text">タスクファイルを外部アプリで開く場合に使用する、外部アプリの実行ファイルの絶対パス。空欄の場合は .md ファイルの既定のアプリが起動します。</div>
+                  <div class="help-text">空欄の場合は .md ファイルの既定のアプリが起動します。</div>
                 </td>
               </tr>
               <tr>
                 <th>通知時間</th>
                 <td>
-                  <div class="unit-field">
-                    <input class="number-input" type="number" value="5" min="0" step="1" aria-label="通知時間" />
+                  <div class="unit-field simple">
+                    <input class="number-input" type="number" value="5" min="0" max="1440" step="1" aria-label="通知時間" />
                     <span class="unit-label">分</span>
                   </div>
                   <div class="help-text">タスクの日時が近い場合の、事前通知の時間。</div>
@@ -658,25 +599,129 @@
               <tr>
                 <th>文字サイズ</th>
                 <td>
-                  <div class="unit-field">
+                  <div class="unit-field simple">
                     <input class="number-input" type="number" value="14" min="10" max="28" step="1" aria-label="文字サイズ" />
                     <span class="unit-label">px</span>
                   </div>
-                  <div class="help-text">タスク詳細の文字サイズ。</div>
+                  <div class="help-text">タスク詳細の文字サイズ。ショートカット操作でも同じ設定値を更新します。</div>
                 </td>
               </tr>
               <tr>
-                <th>外部AIAgent</th>
+                <th>完了タスク読込</th>
                 <td>
-                  <select class="select-input disabled-field" disabled aria-label="外部AIAgent">
-                    <option>(未実装) ローカルCLI</option>
+                  <div class="task-loading-row">
+                    <div class="unit-field">
+                      <span class="inline-label">起動時</span>
+                      <input class="number-input" type="number" value="100" min="0" max="1000" step="10" aria-label="起動時に読み込む完了タスク件数" />
+                      <span class="unit-label">件</span>
+                    </div>
+                    <div class="unit-field">
+                      <span class="inline-label">追加読込</span>
+                      <input class="number-input" type="number" value="100" min="1" max="1000" step="10" aria-label="次を読み込む件数" />
+                      <span class="unit-label">件</span>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th>作業フォルダ</th>
+                <td>
+                  <div class="field-row">
+                    <input class="text-input path-input" type="text" value="D:\Development\Git\EbiSenbei_dev\Agent_Cotaska\Cotaska" aria-label="作業フォルダ" />
+                    <button class="secondary-btn" type="button">参照</button>
+                  </div>
+                  <div class="help-text">AIモードのファイルツリー表示とCodex SDK実行時の作業フォルダ。APIキーはCotaskaに保存しません。</div>
+                </td>
+              </tr>
+              <tr>
+                <th>権限</th>
+                <td>
+                  <select class="select-input" aria-label="AI実行権限">
+                    <option>読み取り専用</option>
+                    <option selected>作業フォルダへ書き込み可</option>
+                    <option>フルアクセス</option>
                   </select>
-                  <div class="help-text">ローカル CLI 連携は未実装。</div>
+                  <div class="help-text">Codex SDK実行時の既定権限。チャット入力欄でも送信前に一時変更できます。</div>
+                </td>
+              </tr>
+              <tr>
+                <th>AI速度</th>
+                <td>
+                  <select class="select-input" aria-label="AI速度モード">
+                    <option selected>標準</option>
+                    <option>速度優先</option>
+                  </select>
+                  <div class="help-text">速度優先ではFast mode設定と短命Codex実行を使い、Codex側の履歴肥大化を抑えます。</div>
+                </td>
+              </tr>
+              <tr>
+                <th>AI診断ログ</th>
+                <td>
+                  <label class="checkbox-row">
+                    <input type="checkbox" />
+                    <span>応答速度調査用の詳細ログを出力する</span>
+                  </label>
+                  <div class="help-text">通常はOFF。ONにするとAI応答時間、トークン数、Codexスレッド戦略などをアプリログへ出力します。</div>
+                </td>
+              </tr>
+              <tr id="codex-auth-settings">
+                <th>Codex認証状態</th>
+                <td>
+                  <div class="auth-panel">
+                    <span class="auth-badge">利用可能</span>
+                    <div>
+                      <div class="auth-message">Codexを利用できる認証状態です。</div>
+                      <div class="help-text">最終確認: 2026/07/09 14:30:00</div>
+                      <div class="help-text">Codex CLI: codex-cli 0.142.3</div>
+                      <div class="help-text">CotaskaはOpenAI APIキー、Codex access token、Codex認証ファイルの内容を保存しません。</div>
+                    </div>
+                    <button class="secondary-btn" type="button">再確認</button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th>AI参照上限</th>
+                <td>
+                  <select class="select-input" aria-label="AI reference file send mode">
+                    <option selected>Always send</option>
+                    <option>Manual only</option>
+                    <option>Skip in speed mode</option>
+                  </select>
+                  <div class="help-text">Attached reference file contents をCodexへ送るかどうかの既定動作。</div>
+                  <div class="task-loading-row" style="margin-top: 8px;">
+                    <div class="unit-field">
+                      <span class="inline-label">ファイル</span>
+                      <input class="number-input" type="number" value="10" min="1" max="100" step="1" aria-label="AI参照ファイル最大件数" />
+                      <span class="unit-label">件</span>
+                    </div>
+                    <div class="unit-field">
+                      <span class="inline-label">合計</span>
+                      <input class="number-input" type="number" value="100000" min="1000" max="1000000" step="1000" aria-label="AI参照ファイル合計文字数" />
+                      <span class="unit-label">文字</span>
+                    </div>
+                  </div>
+                  <div class="help-text">Codexへ渡す参照ファイルの上限。初期値は10件、100,000文字。</div>
+                </td>
+              </tr>
+              <tr>
+                <th>AIデータ削除</th>
+                <td>
+                  <div class="task-loading-row">
+                    <div class="unit-field">
+                      <span class="inline-label">保持</span>
+                      <input class="number-input" type="number" value="90" min="1" max="3650" step="1" aria-label="AIデータ保持日数" />
+                      <span class="unit-label">日</span>
+                    </div>
+                    <button class="secondary-btn" type="button">古いAIデータを削除</button>
+                  </div>
+                  <div class="help-text">指定日数以前のアーカイブ済みAIスレッドと関連履歴を削除します。タスク本体は削除しません。</div>
+                  <div class="message success" style="margin: 8px 0 0;">AIデータを削除しました。削除スレッド数: 3</div>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
+        <div class="file-path">設定ファイル: D:\Apps\Cotaska\data\settings.yaml</div>
       </section>
 
       <section class="panel" id="backup">
@@ -685,56 +730,36 @@
             <h2 class="page-title">バックアップと復元</h2>
             <p class="page-subtitle">タスク正本、リスト、設定ファイルを手動バックアップします。</p>
           </div>
-          <button class="close-btn" title="閉じる">×</button>
         </div>
 
-        <div class="section">
-          <div class="section-head">
-            <h3 class="section-title">手動バックアップ</h3>
-            <p class="section-note">保存先を選択し、タイムスタンプ付きフォルダへ必要なデータをコピーします。</p>
-          </div>
-          <div class="backup-panel">
-            <div class="backup-actions">
-              <div class="subsection-title">バックアップ</div>
-              <div class="field-row">
-                <input class="path-input mono" type="text" value="D:\Apps\Cotaska\backup" aria-label="バックアップ保存先" />
-                <button class="secondary-btn" type="button">保存先</button>
-              </div>
-              <div class="help-text">既定では Cotaska.exe と同じフォルダに <span class="mono">backup</span> フォルダを作成し、バックアップをzipファイルとして保存します。</div>
-              <div>
-                <button class="primary-btn" type="button">バックアップ作成</button>
-              </div>
-              <div class="divider"></div>
-              <div class="subsection-title">復元</div>
-              <div class="field-row">
-                <input class="path-input mono" type="text" value="D:\Apps\Cotaska\backup\Cotaska-backup-2026-05-16T12-05-30-000Z.zip" aria-label="復元元バックアップzip" />
-                <button class="secondary-btn" type="button">zip選択</button>
-              </div>
-              <div class="help-text">復元前に現在のデータを <span class="mono">backup</span> 配下へ退避してから、選択したバックアップzipのタスク正本、リスト、設定ファイルを戻します。</div>
-              <div>
-                <button class="secondary-btn" type="button">バックアップから復元</button>
-              </div>
+        <div class="section backup-panel">
+          <div class="backup-actions">
+            <div class="subsection-title">バックアップ</div>
+            <div class="field-row">
+              <input class="text-input path-input" type="text" value="D:\Apps\Cotaska\backup" aria-label="バックアップ保存先" />
+              <button class="secondary-btn" type="button">保存先</button>
             </div>
-
-            <div class="backup-targets" aria-label="バックアップ対象">
-              <div class="backup-target">
-                <p class="backup-target-title">タスク正本</p>
-                <div class="backup-target-path">data/tasks/*.md</div>
-              </div>
-              <div class="backup-target">
-                <p class="backup-target-title">リストマスタ</p>
-                <div class="backup-target-path">data/lists.yaml</div>
-              </div>
-              <div class="backup-target">
-                <p class="backup-target-title">設定ファイル</p>
-                <div class="backup-target-path">data/settings.yaml</div>
-              </div>
+            <div class="help-text">既定では Cotaska.exe と同じフォルダの `backup` に保存します。`data/tasks`、`data/lists.yaml`、`data/settings.yaml` をタイムスタンプ付きzipにまとめます。</div>
+            <div>
+              <button class="primary-btn" type="button">バックアップ作成</button>
             </div>
-
             <div class="backup-result">
               <strong>バックアップを作成しました</strong>
-              D:\Apps\Cotaska\backup\Cotaska-backup-2026-05-16T12-05-30-000Z.zip
-              <div class="muted">生成物のため、data/tasks/_index.yaml は対象外です。</div>
+              D:\Apps\Cotaska\backup\Cotaska-backup-2026-07-09T14-30-00-000Z.zip
+            </div>
+
+            <div class="divider"></div>
+            <div class="subsection-title">復元</div>
+            <div class="field-row">
+              <input class="text-input path-input" type="text" value="D:\Apps\Cotaska\backup\Cotaska-backup-2026-07-09T14-30-00-000Z.zip" aria-label="復元元バックアップzip" />
+              <button class="secondary-btn" type="button">zip選択</button>
+            </div>
+            <div class="help-text">選択したバックアップzip内の `data/tasks`、`data/lists.yaml`、`data/settings.yaml` を復元します。実行前に現在のデータを `backup` 配下へ退避します。</div>
+            <div>
+              <button class="secondary-btn" type="button">バックアップから復元</button>
+            </div>
+            <div class="message success" style="margin: 0;">
+              復元しました: Cotaska-backup-2026-07-09T14-30-00-000Z.zip / 復元前バックアップを作成済み
             </div>
           </div>
         </div>

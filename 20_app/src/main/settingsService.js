@@ -16,8 +16,11 @@ const DEFAULT_SETTINGS = {
     completedInitialLimit: 100,
     completedLoadMoreLimit: 100,
   },
+  logging: {
+    level: "info",
+  },
   aiChat: {
-    workdir: COTASKA_ROOT_DIR,
+    workdir: "",
     sandboxMode: "read-only",
     performanceMode: "standard",
     diagnosticsEnabled: false,
@@ -68,12 +71,47 @@ function normalizeReferenceSendMode(value, fallback = DEFAULT_SETTINGS.aiChat.re
   return ["always", "manual", "skip-in-speed"].includes(mode) ? mode : fallback;
 }
 
+function normalizeLogLevel(value, fallback = DEFAULT_SETTINGS.logging.level) {
+  const level = String(value || fallback).trim().toLowerCase();
+  return ["debug", "info", "warn", "error"].includes(level) ? level : fallback;
+}
+
 function hasOwn(object, key) {
   return Object.prototype.hasOwnProperty.call(object || {}, key);
 }
 
 function isAiWorkdirConfigured(raw) {
   return Boolean(String(raw?.aiChat?.workdir || "").trim());
+}
+
+function isLegacyGeneratedWorkdir(value) {
+  const normalized = String(value || "").trim();
+  if (!normalized) return false;
+  const resolved = path.resolve(normalized);
+  const generatedResourceRoot = path.resolve(COTASKA_ROOT_DIR);
+  const resourceRootPattern = new RegExp(`[\\\\/]_app[\\\\/]resources$`, "i");
+  return resourceRootPattern.test(generatedResourceRoot) && resolved.toLowerCase() === generatedResourceRoot.toLowerCase();
+}
+
+function normalizeAiWorkdir(value) {
+  const normalized = String(value || "").trim();
+  if (!normalized) return "";
+  return isLegacyGeneratedWorkdir(normalized) ? "" : normalized;
+}
+
+function validateAiWorkdir(workdir) {
+  const normalized = String(workdir || "").trim();
+  if (!normalized) return;
+  if (!path.isAbsolute(normalized)) {
+    throw new Error("作業フォルダには存在するフォルダの絶対パスを指定してください。");
+  }
+  if (!fs.existsSync(normalized)) {
+    throw new Error("作業フォルダに存在しないパスは指定できません。");
+  }
+  const stat = fs.statSync(normalized);
+  if (!stat.isDirectory()) {
+    throw new Error("作業フォルダにはファイルではなくフォルダを指定してください。");
+  }
 }
 
 function getDataDir() {
@@ -106,11 +144,16 @@ function mergeSettings(raw) {
       completedInitialLimit: clampNumber(source.taskLoading?.completedInitialLimit, 0, 1000, DEFAULT_SETTINGS.taskLoading.completedInitialLimit),
       completedLoadMoreLimit: clampNumber(source.taskLoading?.completedLoadMoreLimit, 1, 1000, DEFAULT_SETTINGS.taskLoading.completedLoadMoreLimit),
     },
+    logging: {
+      ...DEFAULT_SETTINGS.logging,
+      ...(source.logging || {}),
+      level: normalizeLogLevel(source.logging?.level),
+    },
     aiChat: {
       ...DEFAULT_SETTINGS.aiChat,
       ...(source.aiChat || {}),
       workdir: hasOwn(source.aiChat, "workdir")
-        ? String(source.aiChat?.workdir || "")
+        ? normalizeAiWorkdir(source.aiChat?.workdir)
         : DEFAULT_SETTINGS.aiChat.workdir,
       sandboxMode: normalizeSandboxMode(source.aiChat?.sandboxMode),
       performanceMode: normalizePerformanceMode(source.aiChat?.performanceMode),
@@ -162,6 +205,11 @@ function renderSettingsYaml(settings) {
     "  # 完了ビューで次を読み込む1回あたりの件数",
     `  completedLoadMoreLimit: ${normalized.taskLoading.completedLoadMoreLimit}`,
     "",
+    "logging:",
+    "  # App log level: debug / info / warn / error.",
+    "  # Default info writes INFO, WARN, and ERROR to app-YYYY-MM-DD.log.",
+    `  level: ${escaped(normalized.logging.level)}`,
+    "",
     "aiChat:",
     "  # Working directory passed to Codex SDK.",
     `  workdir: ${escaped(normalized.aiChat.workdir)}`,
@@ -211,11 +259,12 @@ function getSettings() {
   try {
     const content = fs.readFileSync(settingsPath, "utf8");
     const parsed = yaml.load(content) || {};
+    const settings = mergeSettings(parsed);
     return {
       ok: true,
-      settings: mergeSettings(parsed),
+      settings,
       configured: {
-        aiChatWorkdir: isAiWorkdirConfigured(parsed),
+        aiChatWorkdir: isAiWorkdirConfigured(settings),
       },
       path: settingsPath,
     };
@@ -245,6 +294,10 @@ function updateSettings(patch) {
       ...current.taskLoading,
       ...((patch || {}).taskLoading || {}),
     },
+    logging: {
+      ...current.logging,
+      ...((patch || {}).logging || {}),
+    },
     aiChat: {
       ...current.aiChat,
       ...((patch || {}).aiChat || {}),
@@ -254,6 +307,7 @@ function updateSettings(patch) {
       ...((patch || {}).update || {}),
     },
   });
+  validateAiWorkdir(next.aiChat?.workdir);
 
   fs.mkdirSync(getDataDir(), { recursive: true });
   fs.writeFileSync(getSettingsPath(), renderSettingsYaml(next), "utf8");

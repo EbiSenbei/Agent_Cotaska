@@ -2,6 +2,7 @@
 .DS_Store
 Thumbs.db
 .vscode/
+*.lnk
 
 # Node.js
 20_app/node_modules/
@@ -13,6 +14,7 @@ Thumbs.db
 20_app/temp/
 20_app/win-unpacked/
 20_app/release/
+20_app/setup/launcher/Cotaska.exe
 
 # Runtime artifacts
 20_app/db/
@@ -35,3 +37,4 @@ Thumbs.db
 /00_mgmt/Cotaska_タスク管理ツール/_app
 /00_mgmt/Cotaska_タスク管理ツール/Cotaska.exe
 /00_mgmt/Cotaska_タスク管理ツール/logs
+/00_mgmt/Cotaska_タスク管理ツール/tools/CotaskaUpdater.exe
