@@ -38,6 +38,7 @@ $aiAgentRuleFileName = Split-Path -Leaf $sourceAiAgentRule
 $distAiAgentRule = Join-Path $distRoot $aiAgentRuleFileName
 $sourceReadme = Join-Path $repoRoot "README.md"
 $distReadme = Join-Path $distRoot "README.md"
+$npmCmd = Join-Path $nodeDir "npm.cmd"
 
 $env:PATH = "$nodeDir;$env:PATH"
 
@@ -61,6 +62,45 @@ function Remove-PathWithRetry {
     }
 }
 
+function Invoke-NpmChecked {
+    param(
+        [Parameter(Mandatory = $true)][string[]]$Arguments,
+        [Parameter(Mandatory = $true)][string]$FailureMessage
+    )
+
+    & $npmCmd @Arguments
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host $FailureMessage -ForegroundColor Red
+        exit 1
+    }
+}
+
+function Test-RequiredCommonJsDependency {
+    param(
+        [Parameter(Mandatory = $true)][string]$PackageName
+    )
+
+    $resolveScript = "require.resolve('$PackageName')"
+    & node -e $resolveScript | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "[失敗] 必須依存関係が見つかりません: $PackageName" -ForegroundColor Red
+        exit 1
+    }
+}
+
+function Test-RequiredEsmDependency {
+    param(
+        [Parameter(Mandatory = $true)][string]$PackageName
+    )
+
+    $importScript = "await import('$PackageName')"
+    & node --input-type=module -e $importScript | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "[失敗] 必須依存関係が見つかりません: $PackageName" -ForegroundColor Red
+        exit 1
+    }
+}
+
 Write-Host ""
 Write-Host "=======================================" -ForegroundColor Green
 Write-Host " Cotaska リリース一括作成  v$Version" -ForegroundColor Green
@@ -76,15 +116,25 @@ if (Test-Path -LiteralPath $legacyDistZip) {
 }
 
 # -------------------------------------------------------
+# ステップ 0.5: Node 依存関係の復元と検証
+# -------------------------------------------------------
+Write-Host "`n[ステップ 0.5] Node 依存関係を復元しています..." -ForegroundColor Cyan
+Set-Location $scriptDir
+if (-not (Test-Path -LiteralPath $npmCmd)) {
+    Write-Host "[失敗] npm が見つかりません: $npmCmd" -ForegroundColor Red
+    exit 1
+}
+Invoke-NpmChecked -Arguments @("ci", "--no-audit", "--no-fund") -FailureMessage "[失敗] npm ci"
+Test-RequiredCommonJsDependency -PackageName "sql.js"
+Test-RequiredEsmDependency -PackageName "@openai/codex-sdk"
+Write-Host "  完了: Node 依存関係の復元と検証が完了しました" -ForegroundColor Green
+
+# -------------------------------------------------------
 # ステップ 1: レンダラービルド + Electron パッケージング
 # -------------------------------------------------------
 Write-Host "`n[ステップ 1] npm run dist:dir を実行しています..." -ForegroundColor Cyan
 Set-Location $scriptDir
-npm run dist:dir
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "[失敗] npm run dist:dir" -ForegroundColor Red
-    exit 1
-}
+Invoke-NpmChecked -Arguments @("run", "dist:dir") -FailureMessage "[失敗] npm run dist:dir"
 $winUnpackedCore = Join-Path $scriptDir "release\win-unpacked\CotaskaCore.exe"
 if (-not (Test-Path $winUnpackedCore)) {
     Write-Host "[失敗] win-unpacked\CotaskaCore.exe が見つかりません" -ForegroundColor Red

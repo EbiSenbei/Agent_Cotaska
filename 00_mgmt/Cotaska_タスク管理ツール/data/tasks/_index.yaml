@@ -4050,7 +4050,19 @@ tasks:
       - CHG-058
     due_date: '2026-07-05'
     updated_at: '2026-07-05T14:45:19.173+09:00'
+  - id: T-0380
+    title: 不具合：起動時main process JavaScript errorのログ未出力を修正
+    list: 不具合対応
+    status: todo
+    priority: high
+    sort_order: 380
+    tags:
+      - 起動時エラー
+      - ログ
+      - main process
+    due_date: null
+    updated_at: '2026-07-09T16:49:00+09:00'
 task_file_roots:
   - .
-next_task_id: 380
-last_updated: '2026-07-05T12:50:28.012Z'
+next_task_id: 381
+last_updated: '2026-07-09T16:49:00+09:00'

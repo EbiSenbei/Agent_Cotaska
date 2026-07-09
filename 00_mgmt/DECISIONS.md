@@ -449,3 +449,8 @@
 - CotaskaからのCodex認証状態確認は、グローバル `codex` コマンドではなく、`@openai/codex-sdk` が同梱するCodex CLIの `doctor --json` を優先して実行する。
 - 診断結果は `available` / `login_required` / `expired_possible` / `sdk_missing` / `cli_unavailable` / `error` などのUI向け区分へ変換し、`auth.json` の内容、APIキー、アクセストークンは保存・表示しない。
 - AIチャット送信時に認証系エラーが疑われる場合は、APIキー入力を促さず、設定画面のCodex認証状態確認へ誘導する。
+## 2026-07-09 BUG-20260709-01 リリース版起動時の sql.js 不足対策
+
+- リリース版起動時に `Cannot find module 'sql.js'` が発生した原因は、`package.json` 定義済みのランタイム依存が `node_modules` に存在しないまま配布物を作成できていたことと判断した。
+- `release-all.ps1` はビルド前に `npm ci --no-audit --no-fund` を実行し、`sql.js` は `require.resolve`、`@openai/codex-sdk` は dynamic `import()` で検証してから Electron パッケージングへ進む。
+- `00_mgmt/CURRENT_SPRINT.md` は現行ツリーに存在しないため更新対象外とし、不具合対応レポート `10_docs/30_実装・検証/10_不具合対応/20260709_01_リリース版起動時にsqljsが見つからない.md` で追跡する。
