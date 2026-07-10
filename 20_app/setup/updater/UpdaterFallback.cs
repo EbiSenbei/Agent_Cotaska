@@ -27,6 +27,7 @@ internal static class UpdaterFallback
     {
         string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
         string extractRoot = Path.Combine(Path.GetTempPath(), "Cotaska-update-extract-" + timestamp);
+        string backupWorkRoot = Path.Combine(Path.GetTempPath(), "Cotaska-update-backup-" + timestamp);
         string backupPath = null;
 
         try
@@ -67,10 +68,15 @@ internal static class UpdaterFallback
             SetStatus("現在のファイルをバックアップしています...");
             string backupDir = Path.Combine(options.PortableRoot, "backup");
             Directory.CreateDirectory(backupDir);
-            backupPath = Path.Combine(backupDir, "portable-update-before-" + timestamp);
+            DeleteDirectoryIfExists(backupWorkRoot);
+            Directory.CreateDirectory(backupWorkRoot);
+            backupPath = Path.Combine(backupWorkRoot, "current");
             Directory.CreateDirectory(backupPath);
             WriteLog("Creating backup: " + backupPath);
             BackupCurrentFiles(options.PortableRoot, backupPath);
+            string backupArchivePath = Path.Combine(backupDir, "portable-update-before-" + timestamp + ".zip");
+            WriteLog("Creating backup archive: " + backupArchivePath);
+            CreateBackupArchive(backupPath, backupArchivePath);
 
             SetStatus("アプリを差し替えています...");
             WriteLog("Replacing application files");
@@ -107,6 +113,7 @@ internal static class UpdaterFallback
         finally
         {
             DeleteDirectoryIfExists(extractRoot);
+            DeleteDirectoryIfExists(backupWorkRoot);
             CloseStatusWindow();
         }
     }
@@ -329,6 +336,24 @@ internal static class UpdaterFallback
         CopyDirectoryIfExists(Path.Combine(portableRoot, "tools"), Path.Combine(backupPath, "tools"));
         CopyMatchingFiles(portableRoot, backupPath, "Cotaska_AI*.md");
         CopyFileIfExists(Path.Combine(portableRoot, "README.md"), Path.Combine(backupPath, "README.md"));
+    }
+
+    private static void CreateBackupArchive(string backupPath, string backupArchivePath)
+    {
+        string archiveDir = Path.GetDirectoryName(backupArchivePath);
+        if (!string.IsNullOrEmpty(archiveDir))
+        {
+            Directory.CreateDirectory(archiveDir);
+        }
+        if (File.Exists(backupArchivePath))
+        {
+            File.Delete(backupArchivePath);
+        }
+        ZipFile.CreateFromDirectory(backupPath, backupArchivePath, CompressionLevel.Optimal, false);
+        if (!File.Exists(backupArchivePath))
+        {
+            throw new IOException("Backup archive was not created: " + backupArchivePath);
+        }
     }
 
     private static void ReplaceApplicationFiles(string portableRoot, string sourceRoot)

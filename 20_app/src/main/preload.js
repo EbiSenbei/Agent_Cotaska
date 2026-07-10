@@ -61,6 +61,7 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
     listReferences: (threadId) => ipcRenderer.invoke("aiChat:listReferences", threadId),
     listWorkdirTree: () => ipcRenderer.invoke("aiChat:listWorkdirTree"),
     previewFile: (filePath) => ipcRenderer.invoke("aiChat:previewFile", filePath),
+    resolveLinkTarget: (target, baseFilePath) => ipcRenderer.invoke("aiChat:resolveLinkTarget", target, baseFilePath),
     copyWorkdirPath: (filePath) => ipcRenderer.invoke("aiChat:copyWorkdirPath", filePath),
     revealWorkdirPath: (filePath) => ipcRenderer.invoke("aiChat:revealWorkdirPath", filePath),
     deleteWorkdirPath: (filePath) => ipcRenderer.invoke("aiChat:deleteWorkdirPath", filePath),

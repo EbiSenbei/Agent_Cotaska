@@ -1492,6 +1492,54 @@ function resolveAiPreviewFilePath(filePath) {
   return targetPath;
 }
 
+function resolveAiChatLinkTarget(target, baseFilePath) {
+  const rawTarget = String(target || "").trim();
+  if (!rawTarget) throw new Error("リンク先が未指定です。");
+
+  if (/^https?:\/\//i.test(rawTarget)) {
+    return { ok: true, target_type: "url", url: rawTarget };
+  }
+
+  let candidatePath = rawTarget;
+  if (/^file:\/\//i.test(rawTarget)) {
+    try {
+      const fileUrl = new URL(rawTarget);
+      candidatePath = decodeURIComponent(fileUrl.pathname);
+      if (/^\/[a-zA-Z]:/.test(candidatePath)) candidatePath = candidatePath.slice(1);
+      if (fileUrl.hostname && fileUrl.hostname.toLowerCase() !== "localhost") {
+        candidatePath = `\\\\${fileUrl.hostname}${candidatePath}`;
+      }
+    } catch {
+      throw new Error("file URL の解析に失敗しました。");
+    }
+  } else if (/%[0-9a-fA-F]{2}/.test(candidatePath)) {
+    try {
+      candidatePath = decodeURIComponent(candidatePath);
+    } catch {
+      throw new Error("リンク先のURLデコードに失敗しました。");
+    }
+  }
+
+  if (!path.isAbsolute(candidatePath)) {
+    const basePath = String(baseFilePath || "").trim();
+    const baseDir = basePath && fs.existsSync(basePath) && fs.statSync(basePath).isFile()
+      ? path.dirname(basePath)
+      : getAiWorkdir();
+    candidatePath = path.resolve(baseDir, candidatePath);
+  }
+
+  const resolvedPath = path.normalize(stripFileLineSuffixIfExists(candidatePath));
+  if (!fs.existsSync(resolvedPath)) throw new Error("対象のファイルまたはフォルダが見つかりません。");
+  if (!fs.statSync(resolvedPath).isFile()) throw new Error("フォルダは右サイドパネルで開けません。");
+
+  return {
+    ok: true,
+    target_type: "file",
+    file_path: resolvedPath,
+    label: path.basename(resolvedPath),
+  };
+}
+
 ipcMain.handle("aiChat:listWorkdirTree", async () => {
   await servicesReady;
   try {
@@ -1545,6 +1593,19 @@ ipcMain.handle("aiChat:previewFile", async (_e, filePath) => {
     return result;
   } catch (err) {
     logger.error("aiChat:previewFile failed", err);
+    return { ok: false, error: err.message || String(err) };
+  }
+});
+
+ipcMain.handle("aiChat:resolveLinkTarget", async (_e, target, baseFilePath) => {
+  await servicesReady;
+  try {
+    return resolveAiChatLinkTarget(target, baseFilePath);
+  } catch (err) {
+    logger.warn("aiChat:resolveLinkTarget failed", {
+      target: String(target || ""),
+      detail: err.message || String(err),
+    });
     return { ok: false, error: err.message || String(err) };
   }
 });

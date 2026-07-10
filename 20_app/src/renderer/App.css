@@ -1748,6 +1748,23 @@ body.is-resizing-detail-sections * {
   font: 12px/1.5 Consolas, "Courier New", monospace;
 }
 
+.ai-stream-event-detail {
+  margin-top: 6px;
+}
+
+.ai-stream-event-detail summary {
+  width: fit-content;
+  cursor: pointer;
+  color: #526f91;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ai-stream-event-detail summary:focus-visible {
+  outline: 2px solid #5b9bd5;
+  outline-offset: 2px;
+}
+
 @keyframes ai-thinking-pulse {
   0% {
     transform: scale(.86);

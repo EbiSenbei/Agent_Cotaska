@@ -181,6 +181,7 @@ function AiChatPane({
   const [expandedWorkdirPaths, setExpandedWorkdirPaths] = useState(() => new Set());
   const [isSending, setIsSending] = useState(false);
   const [streamEvents, setStreamEvents] = useState([]);
+  const [expandedStreamEventIds, setExpandedStreamEventIds] = useState(() => new Set());
   const [waitingSeconds, setWaitingSeconds] = useState(0);
   const [sandboxMode, setSandboxMode] = useState("read-only");
   const [referenceSendMode, setReferenceSendMode] = useState("default");
@@ -251,7 +252,7 @@ function AiChatPane({
     }
     if (!item) return null;
     if (item.type === "agent_message") {
-      return { id, title: "応答本文を受信しています", detail: "", status };
+      return null;
     }
     if (item.type === "reasoning") {
       return { id, title: "考えを整理しています", detail: item.text || "", status };
@@ -263,6 +264,7 @@ function AiChatPane({
         title: item.status === "completed" ? "コマンド実行が完了しました" : "コマンドを実行しています",
         detail: [command, item.aggregated_output].filter(Boolean).join("\n"),
         status: item.status || status,
+        detailKind: "command",
       };
     }
     if (item.type === "file_change") {
@@ -299,10 +301,22 @@ function AiChatPane({
     return { id, title: item.type || event.type, detail: "", status };
   };
 
-  const mergeStreamEvent = (current, nextEvent) => {
+  const appendStreamEvent = (current, nextEvent) => {
     if (!nextEvent) return current;
-    const withoutSame = current.filter((event) => event.id !== nextEvent.id);
-    return [...withoutSame, nextEvent].slice(-8);
+    const renderEvent = {
+      ...nextEvent,
+      id: `${nextEvent.id}-${Date.now()}-${current.length}`,
+    };
+    return [...current, renderEvent].slice(-50);
+  };
+
+  const toggleStreamEventDetail = (eventId) => {
+    setExpandedStreamEventIds((current) => {
+      const next = new Set(current);
+      if (next.has(eventId)) next.delete(eventId);
+      else next.add(eventId);
+      return next;
+    });
   };
 
   const getWorkdirEntryPath = (entry) => String(entry?.file_path || entry?.id || "");
@@ -559,26 +573,24 @@ function AiChatPane({
       const activeRequest = activeSendRequestRef.current;
       if (!activeRequest?.id || payload?.request_id !== activeRequest.id || activeRequest.canceled) return;
       const agentText = getAgentMessageText(payload);
+      let appendedStreamEvent = false;
       if (agentText) {
-        setMessages((current) => {
-          const streamingMessage = {
-            id: activeRequest.streamingAssistantMessageId,
-            role: "assistant",
-            author: "Codex SDK",
-            body: agentText,
-            streaming: true,
-          };
-          const index = current.findIndex((message) => message.id === activeRequest.streamingAssistantMessageId);
-          if (index >= 0) {
-            return current.map((message, messageIndex) => (messageIndex === index ? streamingMessage : message));
-          }
-          return [...current, streamingMessage];
-        });
+        setStreamEvents((current) => appendStreamEvent(current, {
+          id: payload?.event?.item?.id || "agent-message",
+          title: "応答本文を受信しています",
+          detail: agentText,
+          status: payload?.event?.item?.status || payload?.event?.type || "in_progress",
+        }));
+        appendedStreamEvent = true;
       }
       const nextEvent = summarizeStreamEvent(payload);
-      if (!nextEvent) return;
-      setStreamEvents((current) => mergeStreamEvent(current, nextEvent));
-      requestScrollMessagesToBottom();
+      if (nextEvent) {
+        setStreamEvents((current) => appendStreamEvent(current, nextEvent));
+        appendedStreamEvent = true;
+      }
+      if (appendedStreamEvent) {
+        requestScrollMessagesToBottom();
+      }
     });
   }, [aiChatApi]);
 
@@ -1129,20 +1141,44 @@ function AiChatPane({
     }
   };
 
-  const handleOpenMarkdownLink = async (href) => {
+  const showLinkOpenError = (target, message) => {
+    setContextPanel({
+      type: "file",
+      title: "リンクを開けませんでした",
+      subtitle: target,
+      status: "error",
+      error: message,
+      file: null,
+    });
+  };
+
+  const handleOpenMarkdownLink = async (href, baseFilePath = "") => {
     const target = String(href || "").trim();
     if (!target) return;
     try {
-      const result = await window.cotaskaAPI?.shell?.openTarget?.(target);
-      if (result?.ok === false) {
-        throw new Error(result.error || "リンクを開けませんでした。");
+      if (!aiChatApi?.resolveLinkTarget) {
+        throw new Error("リンク先解決APIが利用できません。");
       }
+      const resolved = await aiChatApi.resolveLinkTarget(target, baseFilePath);
+      if (resolved?.ok === false) throw new Error(resolved.error || "リンク先を解決できませんでした。");
+      if (resolved?.target_type === "file") {
+        await openFileContext({
+          type: "file",
+          file_path: resolved.file_path,
+          label: resolved.label || resolved.file_path,
+        });
+        return;
+      }
+      if (resolved?.target_type !== "url") throw new Error("リンク先の種類を判定できませんでした。");
+      const result = await window.cotaskaAPI?.shell?.openTarget?.(resolved.url);
+      if (result?.ok === false) throw new Error(result.error || "外部リンクを開けませんでした。");
       setRuntimeState((current) => ({
         ...current,
         status: "ready",
         message: "リンクを外部アプリで開きました。",
       }));
     } catch (error) {
+      showLinkOpenError(target, error?.message || "リンクを開けませんでした。");
       setRuntimeState({
         ready: false,
         status: "error",
@@ -1178,6 +1214,7 @@ function AiChatPane({
     activeSendRequestRef.current = { ...currentRequest, canceled: true };
     setIsSending(false);
     setStreamEvents([]);
+    setExpandedStreamEventIds(new Set());
     setRuntimeState((current) => ({
       ...current,
       status: "ready",
@@ -1259,6 +1296,7 @@ function AiChatPane({
     setDraft("");
     setIsSending(true);
     setStreamEvents([]);
+    setExpandedStreamEventIds(new Set());
     requestScrollMessagesToBottom();
     setMessages((current) => [...current, pendingUserMessage]);
     setRuntimeState((current) => ({
@@ -1343,6 +1381,7 @@ function AiChatPane({
         activeSendRequestRef.current = null;
         setIsSending(false);
         setStreamEvents([]);
+        setExpandedStreamEventIds(new Set());
       }
     }
   };
@@ -1554,7 +1593,16 @@ function AiChatPane({
                   {streamEvents.map((event) => (
                     <div key={event.id} className={`ai-stream-event ai-stream-event--${event.status || "active"}`}>
                       <div className="ai-stream-event-title">{event.title}</div>
-                      {event.detail && <pre>{event.detail}</pre>}
+                      {event.detailKind === "command" && event.detail ? (
+                        <details
+                          className="ai-stream-event-detail"
+                          open={expandedStreamEventIds.has(event.id)}
+                          onToggle={() => toggleStreamEventDetail(event.id)}
+                        >
+                          <summary>コマンドライン詳細</summary>
+                          <pre>{event.detail}</pre>
+                        </details>
+                      ) : event.detail && <pre>{event.detail}</pre>}
                     </div>
                   ))}
                 </div>
@@ -1752,7 +1800,7 @@ function AiChatPane({
                   <MarkdownPreview
                     content={contextPanel.file.content || ""}
                     onOpenTask={openTaskContext}
-                    onOpenLink={handleOpenMarkdownLink}
+                    onOpenLink={(href) => handleOpenMarkdownLink(href, contextPanel.file?.path || "")}
                   />
                 </div>
               )}

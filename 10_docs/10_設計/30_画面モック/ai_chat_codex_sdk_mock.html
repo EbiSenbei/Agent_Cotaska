@@ -456,6 +456,15 @@
       font-family: "Consolas", "Courier New", monospace;
       color: #66758a;
     }
+    .ai-stream-event-detail {
+      margin-top: 6px;
+    }
+    .ai-stream-event-detail summary {
+      width: fit-content;
+      cursor: pointer;
+      color: #526f91;
+      font-weight: 700;
+    }
     .scroll-bottom {
       position: absolute;
       right: 22px;
@@ -840,6 +849,7 @@
             現行実装では、左側でAIスレッドと作業フォルダを切り替え、中央で会話と実行状況を表示し、右側でタスクまたはファイルのコンテキストを確認します。
             <ul>
               <li>タスクIDは <button class="task-link">T-0356</button> のようにクリック可能なリンクとして表示</li>
+              <li><a href="../20_基本設計/06_AI連携.md">ローカルMarkdownリンク</a> は右側のファイルプレビューで開く</li>
               <li>参照ファイルは入力欄の添付チップで管理</li>
               <li>送信前に権限と参照送信モードを一時変更可能</li>
             </ul>
@@ -861,8 +871,21 @@
                 <div class="ai-stream-event-title">ファイルを変更しています</div>
                 <pre>update: 10_docs/10_設計/30_画面モック/ai_chat_codex_sdk_mock.html</pre>
               </div>
+              <div class="ai-stream-event completed">
+                <div class="ai-stream-event-title">コマンド実行が完了しました</div>
+                <details class="ai-stream-event-detail">
+                  <summary>コマンドライン詳細</summary>
+                  <pre>$ npm run build
+stdout: build completed</pre>
+                </details>
+              </div>
               <div class="ai-stream-event">
                 <div class="ai-stream-event-title">応答本文を受信しています</div>
+                <pre>まず現在のAIチャット表示仕様を確認しています。</pre>
+              </div>
+              <div class="ai-stream-event">
+                <div class="ai-stream-event-title">応答本文を受信しています</div>
+                <pre>途中イベントは上書きせず、下方向へ累積表示します。</pre>
               </div>
             </div>
           </article>

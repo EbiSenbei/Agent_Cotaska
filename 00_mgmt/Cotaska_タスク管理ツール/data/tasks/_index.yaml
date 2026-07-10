@@ -1,484 +1,514 @@
 tasks:
-  - id: T-0010
-    title: 仕様変更：並び替え機能
+  - id: T-0154
+    title: CHG-058 Codex SDKチャット連携
     list: 仕様変更
-    status: done
-    priority: normal
+    status: todo
+    priority: high
     sort_order: 1
-    tags: []
+    tags:
+      - CHG-058
+      - 仕様変更
+      - AI連携
+      - Codex SDK
     due_date: null
-    updated_at: '2026-05-10T21:03:30+09:00'
-  - id: T-0026
-    title: 仕様変更：親子紐づけを手動でメンテ
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0159
+    title: 'CHG-058-05 調査・設計: Claude連携を見据えたAIプロバイダ拡張'
     list: 仕様変更
-    status: done
+    status: todo
     priority: normal
     sort_order: 2
     tags:
-      - CHG-088
-    due_date: '2026-07-05'
-    updated_at: '2026-07-05T03:49:41.389Z'
-  - id: T-0028
-    title: 仕様変更：バックアップ機能の実装
+      - CHG-058
+      - 設計
+      - Claude
+      - AI連携
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0160
+    title: 'CHG-058-06 実装: Gemini CLIプロバイダ追加'
     list: 仕様変更
-    status: done
+    status: todo
     priority: normal
     sort_order: 3
-    tags: []
-    due_date: '2026-05-16'
-    updated_at: '2026-05-16T10:22:35.035Z'
-  - id: T-0050
-    title: 仕様変更：タスク入力時の入力補正
-    list: Cotaska
-    status: done
+    tags:
+      - CHG-057
+      - 実装
+      - Gemini
+      - AI連携
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0268
+    title: AI秘書のテンプレートを作成し、Boothに登録する
+    list: 販売戦略
+    status: todo
     priority: normal
     sort_order: 4
     tags:
-      - 仕様変更
-      - Agent_Hisyo移管
-      - CHG-075
-    due_date: '2026-05-19'
-    updated_at: '2026-05-19T11:59:32.121Z'
-  - id: T-0021
-    title: 仕様変更：設定画面の実装
-    list: 仕様変更
-    status: done
+      - AI秘書
+      - テンプレート
+      - Booth
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0269
+    title: AI秘書のnote記事を書く
+    list: 販売戦略
+    status: todo
     priority: normal
     sort_order: 5
-    tags: []
-    due_date: '2026-05-15'
-    updated_at: '2026-05-15T14:16:10.906Z'
-  - id: T-0097
-    title: 仕様変更：バージョン管理
-    list: 仕様変更
-    status: done
+    tags:
+      - AI秘書
+      - note
+      - 活用事例
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0291
+    title: Cotaskaの知名度を上げたい
+    list: 販売戦略
+    status: todo
     priority: normal
     sort_order: 6
-    tags:
-      - CHG-057
-    due_date: '2026-05-16'
-    updated_at: '2026-05-16T03:10:12.855Z'
-  - id: T-0137
-    title: CHG-053-02 ユーザー確認：リスト表示並び替え
-    list: 仕様変更
-    status: done
+    tags: []
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0292
+    title: Cotaska認知向上：価値提案と想定ユーザーを整理する
+    list: 販売戦略
+    status: todo
     priority: normal
     sort_order: 7
     tags:
-      - CHG-053
-      - ユーザー確認
+      - Cotaska
+      - 知名度向上
+      - ロードマップ
     due_date: null
-    updated_at: '2026-05-10T21:00:21+09:00'
-  - id: T-0105
-    title: 仕様変更：進捗ステータスに「保留」を追加
-    list: 仕様変更
-    status: done
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0293
+    title: Cotaska認知向上：紹介文とキャッチコピーを作る
+    list: 販売戦略
+    status: todo
     priority: normal
     sort_order: 8
     tags:
-      - CHG-050
-      - 仕様変更
+      - Cotaska
+      - 知名度向上
+      - コピー
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0102
-    title: CHG-045-DOC 設計書階層記述見直しのユーザ確認
-    list: 仕様変更
-    status: done
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0294
+    title: Cotaska認知向上：スクリーンショットと短い操作動画を用意する
+    list: 販売戦略
+    status: todo
     priority: normal
     sort_order: 9
     tags:
-      - 開発管理
-      - 仕様変更
-      - CHG-045
+      - Cotaska
+      - 知名度向上
+      - 素材
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0001
-    title: T-047-07 ユーザ動作確認（ドラッグ＆並び替え確認！）
-    list: 仕様変更
-    status: done
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0295
+    title: Cotaska認知向上：公開・ダウンロード導線を整える
+    list: 販売戦略
+    status: todo
     priority: normal
     sort_order: 10
-    tags: []
+    tags:
+      - Cotaska
+      - 知名度向上
+      - 配布
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0002
-    title: リリース主要導線の目視確認（タスク一覧・左ナビ・詳細編集・保存）
-    list: null
-    status: done
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0296
+    title: Cotaska認知向上：noteとSNSの発信計画を作る
+    list: 販売戦略
+    status: todo
     priority: normal
     sort_order: 11
-    tags: []
+    tags:
+      - Cotaska
+      - 知名度向上
+      - 発信
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0003
-    title: T-054-04 GitHub push 初回実施（PAT準備後）
-    list: null
-    status: done
-    priority: low
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0297
+    title: Cotaska認知向上：ユーザー反応と改善要望の受け皿を作る
+    list: 販売戦略
+    status: todo
+    priority: normal
     sort_order: 12
-    tags: []
+    tags:
+      - Cotaska
+      - 知名度向上
+      - フィードバック
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0004
-    title: BUG-20260326-01 リリース版 Cotaska.exe 起動時に画面が表示されない 発生・調査
-    list: 不具合修正
-    status: done
-    priority: high
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0298
+    title: Cotaska認知向上：流入と反応の確認指標を決める
+    list: 販売戦略
+    status: todo
+    priority: normal
     sort_order: 13
     tags:
-      - 開発管理
-      - 不具合対応
+      - Cotaska
+      - 知名度向上
+      - 効果測定
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0005
-    title: 仕様変更：期限未設定
-    list: 仕様変更
-    status: done
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0299
+    title: Cotaska認知向上：初回公開キャンペーンを実施する
+    list: 販売戦略
+    status: todo
     priority: normal
     sort_order: 14
     tags:
-      - 開発管理
-      - 仕様変更
+      - Cotaska
+      - 知名度向上
+      - 初回公開
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0006
-    title: 運用ルールの見直し
-    list: null
-    status: done
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0331
+    title: 不具合：検索画面でタスク修正しても反映されない
+    list: 不具合修正
+    status: todo
     priority: normal
     sort_order: 15
-    tags:
-      - 開発管理
+    tags: []
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0007
-    title: 3/26時点でコミット
-    list: null
-    status: done
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0326
+    title: 'CHG-058-03 実装: Codex応答からアクション提案を自動抽出する'
+    list: 仕様変更
+    status: todo
     priority: normal
     sort_order: 16
     tags:
-      - 開発管理
+      - CHG-058
+      - Codex SDK
+      - AIチャット
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0093
-    title: 仕様変更：ドラッグ＆並び替え
-    list: null
-    status: done
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0327
+    title: 'CHG-058-04 実装: Codex SDKチャットのストリーミング表示に対応する'
+    list: 仕様変更
+    status: todo
     priority: normal
     sort_order: 17
-    tags: []
+    tags:
+      - CHG-058
+      - Codex SDK
+      - AIチャット
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0008
-    title: release-all.ps1 作成・リリース実施
-    list: null
-    status: done
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0343
+    title: 仕様変更：起動時に「すべて」「今日」
+    list: 仕様変更
+    status: todo
     priority: normal
     sort_order: 18
-    tags:
-      - 開発管理
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0009
-    title: 仕様変更：タスクIDを表示
-    list: 仕様変更
-    status: done
-    priority: high
-    sort_order: 19
     tags: []
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0096
-    title: CHG-046-02 並び替え操作のビルド確認とユーザ確認
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0360
+    title: 仕様変更：添付ファイルをクリックしたときの挙動
     list: 仕様変更
     status: done
+    priority: normal
+    sort_order: 19
+    tags: []
+    due_date: '2026-07-05'
+    updated_at: '2026-07-10T00:43:59.208Z'
+  - id: T-0384
+    title: 不具合：アプリ更新時のバックアップパスが長すぎる
+    list: null
+    status: todo
     priority: normal
     sort_order: 20
     tags:
-      - 開発管理
-      - 仕様変更
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0011
-    title: CHG-030-01 DetailPane 設計変更
-    list: 仕様変更
-    status: done
+      - BUG-20260710-01
+    due_date: '2026-07-10'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0389
+    title: 仕様変更：AIチャット処理途中表示の累積化
+    list: null
+    status: todo
     priority: normal
     sort_order: 21
-    tags:
-      - 開発管理
-      - 仕様変更
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0012
-    title: CHG-030-02 MainPane 設計変更
+    tags: []
+    due_date: '2026-07-10'
+    updated_at: '2026-07-10T03:04:04.223Z'
+  - id: T-0388
+    title: CHG-091-03 確認：AIチャット処理途中表示の累積化
     list: 仕様変更
-    status: done
+    status: todo
     priority: normal
     sort_order: 22
     tags:
-      - 開発管理
-      - 仕様変更
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0013
-    title: CHG-030-03 ビルド・配布物生成・起動確認
+      - CHG-091
+      - ユーザー確認
+      - AIチャット
+    due_date: '2026-07-10'
+    updated_at: '2026-07-10T03:04:16.602Z'
+  - id: T-0387
+    title: CHG-091-02 実装：AIチャット処理途中表示の累積化
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 23
     tags:
-      - 開発管理
-      - 仕様変更
+      - CHG-091
+      - 実装
+      - AIチャット
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0014
-    title: CHG-030-04 画面表示のユーザ確認
+    updated_at: '2026-07-10T09:32:00+09:00'
+  - id: T-0386
+    title: CHG-091-01 設計反映：AIチャット処理途中表示の累積化
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 24
     tags:
-      - 開発管理
-      - 仕様変更
+      - CHG-091
+      - 設計
+      - AIチャット
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0015
-    title: テスト！
-    list: null
+    updated_at: '2026-07-10T09:32:00+09:00'
+  - id: T-0380
+    title: 不具合：起動時main process JavaScript errorのログ未出力を修正
+    list: 不具合対応
     status: done
-    priority: normal
+    priority: high
     sort_order: 25
-    tags: []
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0016
-    title: サブタスク（１）
+    tags:
+      - 起動時エラー
+      - ログ
+      - main process
+    due_date: '2026-07-10'
+    updated_at: '2026-07-10T00:27:30.706Z'
+  - id: T-0385
+    title: 不具合：AIチャットリンククリックで画面が真っ白になる
     list: null
     status: done
-    priority: normal
+    priority: high
     sort_order: 26
-    tags: []
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0017
-    title: 不具合：子タスク連動で親が完了にならない
-    list: 不具合修正
+    tags:
+      - BUG-20260710-02
+    due_date: '2026-07-10'
+    updated_at: '2026-07-10T03:28:00.387Z'
+  - id: T-0010
+    title: 仕様変更：並び替え機能
+    list: 仕様変更
     status: done
     priority: normal
     sort_order: 27
     tags: []
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0018
-    title: 仕様変更：ファイルリンク機能
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0026
+    title: 仕様変更：親子紐づけを手動でメンテ
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 28
-    tags: []
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0020
-    title: 仕様変更：未着/仕掛のフィルター機能
+    tags:
+      - CHG-088
+    due_date: '2026-07-05'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0028
+    title: 仕様変更：バックアップ機能の実装
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 29
     tags: []
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0022
-    title: is_manual_progress フィールド削除（App.jsx / DetailPane.jsx）
-    list: 不具合修正
+    due_date: '2026-05-16'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0050
+    title: 仕様変更：タスク入力時の入力補正
+    list: Cotaska
     status: done
     priority: normal
     sort_order: 30
     tags:
-      - is_manual_progress削除
-      - リファクタ
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0023
-    title: is_manual_progress フィールド削除（DB スキーマ・frontmatter）
-    list: 不具合修正
+      - 仕様変更
+      - Agent_Hisyo移管
+      - CHG-075
+    due_date: '2026-05-19'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0021
+    title: 仕様変更：設定画面の実装
+    list: 仕様変更
     status: done
     priority: normal
     sort_order: 31
-    tags:
-      - is_manual_progress削除
-      - スキーマ変更
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0024
-    title: 設計ドキュメント更新（is_manual_progress レガシー処理）
-    list: 不具合修正
+    tags: []
+    due_date: '2026-05-15'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0097
+    title: 仕様変更：バージョン管理
+    list: 仕様変更
     status: done
     priority: normal
     sort_order: 32
     tags:
-      - is_manual_progress削除
-      - ドキュメント
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0025
-    title: AIエージェント運用ルール更新（is_manual_progress 参照削除）
-    list: 不具合修正
+      - CHG-057
+    due_date: '2026-05-16'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0137
+    title: CHG-053-02 ユーザー確認：リスト表示並び替え
+    list: 仕様変更
     status: done
     priority: normal
     sort_order: 33
     tags:
-      - is_manual_progress削除
-      - 運用ルール
+      - CHG-053
+      - ユーザー確認
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0027
-    title: 仕様変更：セクションの折り畳み機能
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0105
+    title: 仕様変更：進捗ステータスに「保留」を追加
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 34
     tags:
-      - CHG-034
+      - CHG-050
+      - 仕様変更
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0029
-    title: 'T-0006-01: AI運用ルール正本の修正・一本化'
-    list: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0102
+    title: CHG-045-DOC 設計書階層記述見直しのユーザ確認
+    list: 仕様変更
     status: done
     priority: normal
     sort_order: 35
     tags:
       - 開発管理
-      - 運用ルール
+      - 仕様変更
+      - CHG-045
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0030
-    title: 'T-0006-02: 個別運用ルールへの同期原則追記'
-    list: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0001
+    title: T-047-07 ユーザ動作確認（ドラッグ＆並び替え確認！）
+    list: 仕様変更
     status: done
     priority: normal
     sort_order: 36
-    tags:
-      - 開発管理
-      - 運用ルール
+    tags: []
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0031
-    title: 'T-0006-03: CURRENT_SPRINT.md の位置づけ整理'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0002
+    title: リリース主要導線の目視確認（タスク一覧・左ナビ・詳細編集・保存）
     list: null
     status: done
     priority: normal
     sort_order: 37
-    tags:
-      - 開発管理
-      - 運用ルール
+    tags: []
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0032
-    title: 仕様変更：画面幅を変更可能とする
-    list: 仕様変更
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0003
+    title: T-054-04 GitHub push 初回実施（PAT準備後）
+    list: null
     status: done
-    priority: medium
+    priority: low
     sort_order: 38
     tags: []
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0033
-    title: 仕様変更：タスクの検索機能
-    list: 仕様変更
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0004
+    title: BUG-20260326-01 リリース版 Cotaska.exe 起動時に画面が表示されない 発生・調査
+    list: 不具合修正
     status: done
-    priority: medium
+    priority: high
     sort_order: 39
-    tags: []
+    tags:
+      - 開発管理
+      - 不具合対応
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0034
-    title: CHG-031 :仕様変更：タスクIDを表示
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0005
+    title: 仕様変更：期限未設定
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 40
     tags:
-      - CHG-031
-      - UI
-      - 画面モック
+      - 開発管理
+      - 仕様変更
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0035
-    title: 仕様変更：画面レイアウトの見直し
-    list: 仕様変更
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0006
+    title: 運用ルールの見直し
+    list: null
     status: done
     priority: normal
     sort_order: 41
-    tags: []
+    tags:
+      - 開発管理
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0036
-    title: 'CHG-032-01: ペイン幅ドラッグリサイズ実装'
-    list: 仕様変更
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0007
+    title: 3/26時点でコミット
+    list: null
     status: done
     priority: normal
     sort_order: 42
     tags:
-      - CHG-032
-      - UI
-    due_date: '2026-03-26'
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0037
-    title: 'CHG-032-02: ペイン幅リサイズ動作確認（ユーザ確認）'
-    list: 仕様変更
+      - 開発管理
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0093
+    title: 仕様変更：ドラッグ＆並び替え
+    list: null
     status: done
     priority: normal
     sort_order: 43
-    tags:
-      - CHG-032
-      - UI
-    due_date: '2026-03-26'
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0038
-    title: CHG-033 詳細ペインレイアウト整理：実装
+    tags: []
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0008
+    title: release-all.ps1 作成・リリース実施
     list: null
     status: done
     priority: normal
     sort_order: 44
     tags:
-      - CHG-033
+      - 開発管理
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0039
-    title: CHG-033 詳細ペインレイアウト整理：ユーザ確認
-    list: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0009
+    title: 仕様変更：タスクIDを表示
+    list: 仕様変更
     status: done
-    priority: normal
+    priority: high
     sort_order: 45
-    tags:
-      - CHG-033
+    tags: []
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0040
-    title: CHG-034 メインペインセクション折りたたみ：実装
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0096
+    title: CHG-046-02 並び替え操作のビルド確認とユーザ確認
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 46
     tags:
-      - CHG-034
+      - 開発管理
+      - 仕様変更
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0041
-    title: CHG-034 メインペインセクション折りたたみ：ユーザ確認
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0011
+    title: CHG-030-01 DetailPane 設計変更
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 47
     tags:
-      - CHG-034
+      - 開発管理
+      - 仕様変更
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0042
-    title: CHG-035-01 シングルインスタンスロックのパス別スコープ化・userData分離
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0012
+    title: CHG-030-02 MainPane 設計変更
     list: 仕様変更
     status: done
     priority: normal
@@ -487,9 +517,9 @@ tasks:
       - 開発管理
       - 仕様変更
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0043
-    title: CHG-035-02 ユーザ確認（多重起動動作確認）
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0013
+    title: CHG-030-03 ビルド・配布物生成・起動確認
     list: 仕様変更
     status: done
     priority: normal
@@ -498,1358 +528,1471 @@ tasks:
       - 開発管理
       - 仕様変更
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0044
-    title: 仕様変更：起動ﾌｧｲﾙの名前を変更
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0014
+    title: CHG-030-04 画面表示のユーザ確認
     list: 仕様変更
     status: done
-    priority: high
+    priority: normal
     sort_order: 50
-    tags: []
-    due_date: '2026-03-30'
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0045
-    title: 仕様変更：サブタスク管理画面の追加
-    list: 仕様変更
+    tags:
+      - 開発管理
+      - 仕様変更
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0015
+    title: テスト！
+    list: null
     status: done
     priority: normal
     sort_order: 51
     tags: []
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0046
-    title: 仕様変更：画面レイアウトの変更
-    list: 仕様変更
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0016
+    title: サブタスク（１）
+    list: null
     status: done
-    priority: high
+    priority: normal
     sort_order: 52
     tags: []
-    due_date: '2026-03-30'
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0048
-    title: 仕様変更：期限に時分を追加
-    list: Cotaska
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0017
+    title: 不具合：子タスク連動で親が完了にならない
+    list: 不具合修正
     status: done
-    priority: high
+    priority: normal
     sort_order: 53
-    tags:
-      - 仕様変更
-      - Agent_Hisyo移管
-    due_date: 2026-03-31T10:30
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0049
-    title: 仕様変更：リストなしを追加
-    list: Cotaska
+    tags: []
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0018
+    title: 仕様変更：ファイルリンク機能
+    list: 仕様変更
     status: done
-    priority: high
+    priority: normal
     sort_order: 54
-    tags:
-      - 仕様変更
-      - Agent_Hisyo移管
-    due_date: '2026-03-30'
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0051
-    title: CHG-036-01 Electron本体EXE名変更・ランチャー参照先変更・再ビルド
+    tags: []
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0020
+    title: 仕様変更：未着/仕掛のフィルター機能
     list: 仕様変更
     status: done
-    priority: high
+    priority: normal
     sort_order: 55
-    tags:
-      - 仕様変更
-      - CHG-036
-    due_date: '2026-03-30'
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0052
-    title: CHG-036-02 ユーザ確認（ランチャー経由の正常起動確認）
-    list: 仕様変更
+    tags: []
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0022
+    title: is_manual_progress フィールド削除（App.jsx / DetailPane.jsx）
+    list: 不具合修正
     status: done
-    priority: high
+    priority: normal
     sort_order: 56
     tags:
-      - 仕様変更
-      - CHG-036
-    due_date: '2026-03-30'
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0053
-    title: 不具合：今日の完了タスクが表示されない
+      - is_manual_progress削除
+      - リファクタ
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0023
+    title: is_manual_progress フィールド削除（DB スキーマ・frontmatter）
     list: 不具合修正
     status: done
     priority: normal
     sort_order: 57
-    tags: []
-    due_date: '2026-03-30'
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0054
-    title: CHG-037-00 設計反映要否の確認（必要なら設計書更新）
-    list: 仕様変更
+    tags:
+      - is_manual_progress削除
+      - スキーマ変更
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0024
+    title: 設計ドキュメント更新（is_manual_progress レガシー処理）
+    list: 不具合修正
     status: done
     priority: normal
     sort_order: 58
     tags:
-      - 仕様変更
-      - CHG-037
-    due_date: '2026-03-30'
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0055
-    title: CHG-037-01 「リストなし」表示と未設定タスク表示の実装
-    list: 仕様変更
+      - is_manual_progress削除
+      - ドキュメント
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0025
+    title: AIエージェント運用ルール更新（is_manual_progress 参照削除）
+    list: 不具合修正
     status: done
-    priority: high
+    priority: normal
     sort_order: 59
     tags:
-      - 仕様変更
-      - CHG-037
-    due_date: '2026-03-30'
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0056
-    title: CHG-037-02 ユーザ確認（リストなし表示と絞り込み確認）
+      - is_manual_progress削除
+      - 運用ルール
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0027
+    title: 仕様変更：セクションの折り畳み機能
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 60
     tags:
-      - 仕様変更
-      - CHG-037
-    due_date: '2026-03-30'
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0057
-    title: CHG-038-00 設計反映要否の確認（必要なら設計書更新）
-    list: 仕様変更
+      - CHG-034
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0029
+    title: 'T-0006-01: AI運用ルール正本の修正・一本化'
+    list: null
     status: done
     priority: normal
     sort_order: 61
     tags:
-      - 仕様変更
-      - CHG-038
-    due_date: '2026-03-30'
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0058
-    title: CHG-038-01 詳細ペインフッターに登録日時・完了日時を追加
-    list: 仕様変更
+      - 開発管理
+      - 運用ルール
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0030
+    title: 'T-0006-02: 個別運用ルールへの同期原則追記'
+    list: null
     status: done
-    priority: high
+    priority: normal
     sort_order: 62
     tags:
-      - 仕様変更
-      - CHG-038
-    due_date: '2026-03-30'
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0059
-    title: CHG-038-02 ユーザ確認（フッター表示と完了日時確認）
-    list: 仕様変更
+      - 開発管理
+      - 運用ルール
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0031
+    title: 'T-0006-03: CURRENT_SPRINT.md の位置づけ整理'
+    list: null
     status: done
     priority: normal
     sort_order: 63
     tags:
-      - 仕様変更
-      - CHG-038
-    due_date: '2026-03-30'
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0060
-    title: CHG-039-00 設計反映要否の確認（必要なら設計書更新）
+      - 開発管理
+      - 運用ルール
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0032
+    title: 仕様変更：画面幅を変更可能とする
     list: 仕様変更
     status: done
-    priority: normal
+    priority: medium
     sort_order: 64
-    tags:
-      - 仕様変更
-      - CHG-039
-    due_date: '2026-03-31'
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0061
-    title: CHG-039-01 期限入力サブ画面と期限時分表示・進捗ステータス位置変更の実装
+    tags: []
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0033
+    title: 仕様変更：タスクの検索機能
     list: 仕様変更
     status: done
-    priority: high
+    priority: medium
     sort_order: 65
-    tags:
-      - 仕様変更
-      - CHG-039
-    due_date: '2026-03-31'
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0062
-    title: CHG-039-02 ユーザ確認（表示形式とレイアウト確認）
+    tags: []
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0034
+    title: CHG-031 :仕様変更：タスクIDを表示
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 66
     tags:
-      - 仕様変更
-      - CHG-039
-    due_date: '2026-03-31'
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0063
-    title: BUG-20260331-01 メイン画面の期限ホバーで画面が真っ暗になる 調査
-    list: 不具合修正
+      - CHG-031
+      - UI
+      - 画面モック
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0035
+    title: 仕様変更：画面レイアウトの見直し
+    list: 仕様変更
     status: done
-    priority: high
+    priority: normal
     sort_order: 67
-    tags:
-      - 開発管理
-      - 不具合対応
-    due_date: '2026-03-31'
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0064
-    title: 不具合：タスクを下のほうで右クリックで見切れる
-    list: Cotaska
+    tags: []
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0036
+    title: 'CHG-032-01: ペイン幅ドラッグリサイズ実装'
+    list: 仕様変更
     status: done
     priority: normal
     sort_order: 68
-    tags: []
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0065
-    title: 仕様変更：通知機能の実装
-    list: Cotaska
+    tags:
+      - CHG-032
+      - UI
+    due_date: '2026-03-26'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0037
+    title: 'CHG-032-02: ペイン幅リサイズ動作確認（ユーザ確認）'
+    list: 仕様変更
     status: done
     priority: normal
     sort_order: 69
-    tags: []
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0075
-    title: 不具合：タスクマネージャ上の表示名がElectronになる
-    list: Cotaska
+    tags:
+      - CHG-032
+      - UI
+    due_date: '2026-03-26'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0038
+    title: CHG-033 詳細ペインレイアウト整理：実装
+    list: null
     status: done
     priority: normal
     sort_order: 70
     tags:
-      - BUG-20260505-03
+      - CHG-033
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0072
-    title: 不具合：タスクバーのアイコンがElectionのものになっている。
-    list: 不具合修正
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0039
+    title: CHG-033 詳細ペインレイアウト整理：ユーザ確認
+    list: null
     status: done
     priority: normal
     sort_order: 71
-    tags: []
+    tags:
+      - CHG-033
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0073
-    title: 不具合：タスクIDで検索できない
-    list: Cotaska
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0040
+    title: CHG-034 メインペインセクション折りたたみ：実装
+    list: 仕様変更
     status: done
     priority: normal
     sort_order: 72
-    tags: []
+    tags:
+      - CHG-034
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0074
-    title: 不具合：孫タスクが表示されない
-    list: Cotaska
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0041
+    title: CHG-034 メインペインセクション折りたたみ：ユーザ確認
+    list: 仕様変更
     status: done
     priority: normal
     sort_order: 73
-    tags: []
+    tags:
+      - CHG-034
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0080
-    title: 'CHG-044-00: 破損タスク検知仕様の詳細化'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0042
+    title: CHG-035-01 シングルインスタンスロックのパス別スコープ化・userData分離
     list: 仕様変更
     status: done
-    priority: high
+    priority: normal
     sort_order: 74
     tags:
       - 開発管理
       - 仕様変更
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0081
-    title: 'CHG-044-01: taskServiceでYAMLパースエラーを破損タスク化'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0043
+    title: CHG-035-02 ユーザ確認（多重起動動作確認）
     list: 仕様変更
     status: done
-    priority: high
+    priority: normal
     sort_order: 75
     tags:
       - 開発管理
       - 仕様変更
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0082
-    title: 'CHG-044-02: 破損タスクがあっても全体読み込みを継続'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0044
+    title: 仕様変更：起動ﾌｧｲﾙの名前を変更
     list: 仕様変更
     status: done
     priority: high
     sort_order: 76
-    tags:
-      - 開発管理
-      - 仕様変更
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0083
-    title: 'CHG-044-03: メインペインに破損タスクの警告表示を追加'
+    tags: []
+    due_date: '2026-03-30'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0045
+    title: 仕様変更：サブタスク管理画面の追加
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 77
-    tags:
-      - 開発管理
-      - 仕様変更
+    tags: []
     due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0094
-    title: CHG-046-00 タスク管理設計へドラッグハンドル並び替え仕様を反映
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0046
+    title: 仕様変更：画面レイアウトの変更
     list: 仕様変更
     status: done
-    priority: normal
+    priority: high
     sort_order: 78
-    tags:
-      - 開発管理
-      - 仕様変更
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0084
-    title: 'CHG-044-04: 詳細ペインに検証エラー表示とファイル起動導線を追加'
-    list: 仕様変更
+    tags: []
+    due_date: '2026-03-30'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0048
+    title: 仕様変更：期限に時分を追加
+    list: Cotaska
     status: done
-    priority: normal
+    priority: high
     sort_order: 79
     tags:
-      - 開発管理
       - 仕様変更
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0095
-    title: CHG-046-01 メインペインのドラッグ開始をハンドルに限定
-    list: 仕様変更
+      - Agent_Hisyo移管
+    due_date: 2026-03-31T10:30
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0049
+    title: 仕様変更：リストなしを追加
+    list: Cotaska
     status: done
-    priority: normal
+    priority: high
     sort_order: 80
     tags:
-      - 開発管理
       - 仕様変更
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0085
-    title: 'CHG-044-05: AI作業後のタスク検証スクリプト追加検討'
+      - Agent_Hisyo移管
+    due_date: '2026-03-30'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0051
+    title: CHG-036-01 Electron本体EXE名変更・ランチャー参照先変更・再ビルド
     list: 仕様変更
     status: done
-    priority: normal
+    priority: high
     sort_order: 81
     tags:
-      - 開発管理
       - 仕様変更
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0086
-    title: 'CHG-044-06: 破損タスク検知と警告表示の手動確認'
+      - CHG-036
+    due_date: '2026-03-30'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0052
+    title: CHG-036-02 ユーザ確認（ランチャー経由の正常起動確認）
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 82
+    tags:
+      - 仕様変更
+      - CHG-036
+    due_date: '2026-03-30'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0053
+    title: 不具合：今日の完了タスクが表示されない
+    list: 不具合修正
+    status: done
+    priority: normal
+    sort_order: 83
+    tags: []
+    due_date: '2026-03-30'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0054
+    title: CHG-037-00 設計反映要否の確認（必要なら設計書更新）
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 82
-    tags:
-      - 開発管理
-      - 仕様変更
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0087
-    title: 'CHG-045-00: 最大5階層タスク仕様を設計書へ反映'
-    list: 仕様変更
-    status: done
-    priority: high
-    sort_order: 83
-    tags:
-      - 開発管理
-      - 仕様変更
-      - CHG-045
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0088
-    title: 'CHG-045-01: メインペインを最大5階層まで再帰表示'
-    list: 仕様変更
-    status: done
-    priority: high
     sort_order: 84
     tags:
-      - 開発管理
       - 仕様変更
-      - CHG-045
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0089
-    title: 'CHG-045-02: 6階層目以上を警告付きルート相当表示'
+      - CHG-037
+    due_date: '2026-03-30'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0055
+    title: CHG-037-01 「リストなし」表示と未設定タスク表示の実装
     list: 仕様変更
     status: done
     priority: high
     sort_order: 85
     tags:
-      - 開発管理
       - 仕様変更
-      - CHG-045
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0090
-    title: 'CHG-045-03: 追加・完了・進捗連動を5階層対応'
+      - CHG-037
+    due_date: '2026-03-30'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0056
+    title: CHG-037-02 ユーザ確認（リストなし表示と絞り込み確認）
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 86
     tags:
-      - 開発管理
       - 仕様変更
-      - CHG-045
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0091
-    title: 'CHG-045-04: 検索・ドラッグ・検証を階層上限対応'
+      - CHG-037
+    due_date: '2026-03-30'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0057
+    title: CHG-038-00 設計反映要否の確認（必要なら設計書更新）
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 87
     tags:
-      - 開発管理
       - 仕様変更
-      - CHG-045
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0092
-    title: 'CHG-045-05: 5階層表示と6階層目警告のユーザ確認'
+      - CHG-038
+    due_date: '2026-03-30'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0058
+    title: CHG-038-01 詳細ペインフッターに登録日時・完了日時を追加
     list: 仕様変更
     status: done
-    priority: normal
+    priority: high
     sort_order: 88
     tags:
-      - 開発管理
       - 仕様変更
-      - CHG-045
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0098
-    title: CHG-047-00 詳細ペインの親タスクリンク・関連サブタスク表示仕様を設計書へ反映
+      - CHG-038
+    due_date: '2026-03-30'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0059
+    title: CHG-038-02 ユーザ確認（フッター表示と完了日時確認）
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 89
     tags:
-      - 開発管理
       - 仕様変更
-      - CHG-047
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0099
-    title: CHG-047-01 詳細ペインに親タスクリンクと関連サブタスクセクションを実装
+      - CHG-038
+    due_date: '2026-03-30'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0060
+    title: CHG-039-00 設計反映要否の確認（必要なら設計書更新）
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 90
     tags:
-      - 開発管理
       - 仕様変更
-      - CHG-047
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0100
-    title: CHG-047-02 親子タスク詳細表示のユーザ確認
+      - CHG-039
+    due_date: '2026-03-31'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0061
+    title: CHG-039-01 期限入力サブ画面と期限時分表示・進捗ステータス位置変更の実装
     list: 仕様変更
     status: done
-    priority: normal
+    priority: high
     sort_order: 91
     tags:
-      - 開発管理
       - 仕様変更
-      - CHG-047
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0101
-    title: CHG-045-DOC 設計書のサブタスク階層記述を最大5階層仕様へ整合
+      - CHG-039
+    due_date: '2026-03-31'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0062
+    title: CHG-039-02 ユーザ確認（表示形式とレイアウト確認）
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 92
     tags:
-      - 開発管理
       - 仕様変更
-      - CHG-045
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0103
-    title: BUG-20260503-01 T-0002配下サブタスクの進捗変更が反映されない
-    list: 不具合対応
+      - CHG-039
+    due_date: '2026-03-31'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0063
+    title: BUG-20260331-01 メイン画面の期限ホバーで画面が真っ暗になる 調査
+    list: 不具合修正
     status: done
     priority: high
     sort_order: 93
     tags:
+      - 開発管理
       - 不具合対応
-      - BUG-20260503-01
-    due_date: null
-    updated_at: '2026-05-03T12:17:17.096Z'
-  - id: T-0108
-    title: 仕様変更：子タスクが右に寄りすぎ問題
-    list: 仕様変更
+    due_date: '2026-03-31'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0064
+    title: 不具合：タスクを下のほうで右クリックで見切れる
+    list: Cotaska
     status: done
     priority: normal
     sort_order: 94
-    tags:
-      - 仕様変更
-      - CHG-048
+    tags: []
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0112
-    title: 仕様変更：期限⇒日付に変更
-    list: 仕様変更
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0065
+    title: 仕様変更：通知機能の実装
+    list: Cotaska
     status: done
-    priority: high
+    priority: normal
     sort_order: 95
-    tags:
-      - CHG-049
-      - 実装
+    tags: []
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0104
-    title: CHG-047-03 詳細ペイン幅変更と関連サブタスク展開サイズ制限
-    list: 仕様変更
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0075
+    title: 不具合：タスクマネージャ上の表示名がElectronになる
+    list: Cotaska
     status: done
     priority: normal
     sort_order: 96
     tags:
-      - 開発管理
-      - 仕様変更
-      - CHG-047
+      - BUG-20260505-03
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0106
-    title: デバッグモード起動スクリプト追加
-    list: 開発管理
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0072
+    title: 不具合：タスクバーのアイコンがElectionのものになっている。
+    list: 不具合修正
     status: done
     priority: normal
     sort_order: 97
-    tags:
-      - 開発管理
+    tags: []
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0107
-    title: CHG-047-04 タスク詳細と関連サブタスク間の高さ調整
-    list: 仕様変更
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0073
+    title: 不具合：タスクIDで検索できない
+    list: Cotaska
     status: done
     priority: normal
     sort_order: 98
-    tags:
-      - 仕様変更
-      - CHG-047
+    tags: []
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0118
-    title: 不具合：親タスクが削除された場合、子タスクが警告表示になってしまう。
-    list: 不具合修正
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0074
+    title: 不具合：孫タスクが表示されない
+    list: Cotaska
     status: done
     priority: normal
     sort_order: 99
-    tags:
-      - BUG-20260505-01
+    tags: []
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0109
-    title: CHG-048-00 サブタスク階層表示のインデント幅仕様を設計書へ反映
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0080
+    title: 'CHG-044-00: 破損タスク検知仕様の詳細化'
     list: 仕様変更
     status: done
-    priority: normal
+    priority: high
     sort_order: 100
     tags:
+      - 開発管理
       - 仕様変更
-      - CHG-048
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0119
-    title: 不具合：子タスクが完了となった親タスクは仕掛⇒保留にできない。
-    list: 不具合修正
-    status: done
-    priority: normal
-    sort_order: 101
-    tags:
-      - BUG-20260505-02
-    due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0110
-    title: CHG-048-01 メインペインの階層インデント幅を実装調整
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0081
+    title: 'CHG-044-01: taskServiceでYAMLパースエラーを破損タスク化'
     list: 仕様変更
     status: done
-    priority: normal
+    priority: high
+    sort_order: 101
+    tags:
+      - 開発管理
+      - 仕様変更
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0082
+    title: 'CHG-044-02: 破損タスクがあっても全体読み込みを継続'
+    list: 仕様変更
+    status: done
+    priority: high
     sort_order: 102
     tags:
+      - 開発管理
       - 仕様変更
-      - CHG-048
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0111
-    title: CHG-048-02 子・孫タスクの表示差分と既存操作への影響をユーザ確認
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0083
+    title: 'CHG-044-03: メインペインに破損タスクの警告表示を追加'
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 103
     tags:
+      - 開発管理
       - 仕様変更
-      - CHG-048
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0113
-    title: CHG-049-00 設計書反映：期限表示を日付表示へ変更
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0094
+    title: CHG-046-00 タスク管理設計へドラッグハンドル並び替え仕様を反映
     list: 仕様変更
     status: done
-    priority: high
+    priority: normal
     sort_order: 104
     tags:
-      - CHG-049
-      - 設計書
+      - 開発管理
+      - 仕様変更
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0114
-    title: CHG-049-02 ユーザー確認：期限表示を日付表示へ変更
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0084
+    title: 'CHG-044-04: 詳細ペインに検証エラー表示とファイル起動導線を追加'
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 105
     tags:
-      - CHG-049
-      - ユーザー確認
+      - 開発管理
+      - 仕様変更
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0115
-    title: CHG-050-00 設計書反映：進捗ステータスに保留を追加
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0095
+    title: CHG-046-01 メインペインのドラッグ開始をハンドルに限定
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 106
     tags:
-      - CHG-050
-      - 設計書
+      - 開発管理
+      - 仕様変更
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0125
-    title: 調査：Cotaska_AIエージェント運用ルール.md
-    list: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0085
+    title: 'CHG-044-05: AI作業後のタスク検証スクリプト追加検討'
+    list: 仕様変更
     status: done
     priority: normal
     sort_order: 107
-    tags: []
+    tags:
+      - 開発管理
+      - 仕様変更
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0116
-    title: CHG-050-01 進捗ステータス「保留」実装
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0086
+    title: 'CHG-044-06: 破損タスク検知と警告表示の手動確認'
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 108
+    tags:
+      - 開発管理
+      - 仕様変更
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0087
+    title: 'CHG-045-00: 最大5階層タスク仕様を設計書へ反映'
     list: 仕様変更
     status: done
     priority: high
-    sort_order: 108
-    tags:
-      - CHG-050
-      - 実装
-    due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0126
-    title: 仕様変更：リリースのフォルダ名変えたい
-    list: 仕様変更
-    status: done
-    priority: normal
     sort_order: 109
-    tags: []
+    tags:
+      - 開発管理
+      - 仕様変更
+      - CHG-045
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0117
-    title: CHG-050-02 ユーザー確認：進捗ステータスに保留を追加
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0088
+    title: 'CHG-045-01: メインペインを最大5階層まで再帰表示'
     list: 仕様変更
     status: done
-    priority: normal
+    priority: high
     sort_order: 110
     tags:
-      - CHG-050
-      - ユーザー確認
+      - 開発管理
+      - 仕様変更
+      - CHG-045
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0127
-    title: 仕様変更：タスクファイルのprogress不要では？
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0089
+    title: 'CHG-045-02: 6階層目以上を警告付きルート相当表示'
     list: 仕様変更
     status: done
-    priority: normal
+    priority: high
     sort_order: 111
-    tags: []
-    due_date: '2026-05-10'
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0128
-    title: 仕様変更：検索時の並び替え
+    tags:
+      - 開発管理
+      - 仕様変更
+      - CHG-045
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0090
+    title: 'CHG-045-03: 追加・完了・進捗連動を5階層対応'
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 112
-    tags: []
+    tags:
+      - 開発管理
+      - 仕様変更
+      - CHG-045
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0129
-    title: 不具合：検索時の不具合
-    list: 不具合修正
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0091
+    title: 'CHG-045-04: 検索・ドラッグ・検証を階層上限対応'
+    list: 仕様変更
     status: done
     priority: normal
     sort_order: 113
-    tags: []
+    tags:
+      - 開発管理
+      - 仕様変更
+      - CHG-045
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0120
-    title: 仕様変更：task_file_path保存廃止
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0092
+    title: 'CHG-045-05: 5階層表示と6階層目警告のユーザ確認'
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 114
     tags:
-      - CHG-051
+      - 開発管理
       - 仕様変更
+      - CHG-045
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0121
-    title: CHG-051-00 設計書反映：task_file_path保存廃止
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0098
+    title: CHG-047-00 詳細ペインの親タスクリンク・関連サブタスク表示仕様を設計書へ反映
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 115
     tags:
-      - CHG-051
-      - 設計書
+      - 開発管理
+      - 仕様変更
+      - CHG-047
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0122
-    title: CHG-051-01 task_file_path保存廃止の実装
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0099
+    title: CHG-047-01 詳細ペインに親タスクリンクと関連サブタスクセクションを実装
     list: 仕様変更
     status: done
-    priority: high
+    priority: normal
     sort_order: 116
     tags:
-      - CHG-051
-      - 実装
+      - 開発管理
+      - 仕様変更
+      - CHG-047
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0123
-    title: CHG-051-02 ユーザー確認：task_file_path保存廃止
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0100
+    title: CHG-047-02 親子タスク詳細表示のユーザ確認
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 117
     tags:
-      - CHG-051
-      - ユーザー確認
+      - 開発管理
+      - 仕様変更
+      - CHG-047
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0138
-    title: 仕様変更：自動で完了日付をセット
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0101
+    title: CHG-045-DOC 設計書のサブタスク階層記述を最大5階層仕様へ整合
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 118
-    tags: []
+    tags:
+      - 開発管理
+      - 仕様変更
+      - CHG-045
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0130
-    title: BUG-20260510-01 検索モードの複数キーワード・タグ・日付検索を修正
-    list: 不具合修正
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0103
+    title: BUG-20260503-01 T-0002配下サブタスクの進捗変更が反映されない
+    list: 不具合対応
     status: done
-    priority: normal
+    priority: high
     sort_order: 119
     tags:
-      - BUG-20260510-01
+      - 不具合対応
+      - BUG-20260503-01
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0131
-    title: BUG-20260510-01 ユーザー確認：検索モード修正
-    list: 不具合修正
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0108
+    title: 仕様変更：子タスクが右に寄りすぎ問題
+    list: 仕様変更
     status: done
     priority: normal
     sort_order: 120
     tags:
-      - BUG-20260510-01
-      - ユーザー確認
+      - 仕様変更
+      - CHG-048
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0132
-    title: CHG-052-00 設計書反映：検索結果並び替え
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0112
+    title: 仕様変更：期限⇒日付に変更
     list: 仕様変更
     status: done
-    priority: normal
+    priority: high
     sort_order: 121
     tags:
-      - CHG-052
-      - 設計書
+      - CHG-049
+      - 実装
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0133
-    title: CHG-052-01 検索結果並び替え UI と表示順切替を実装
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0104
+    title: CHG-047-03 詳細ペイン幅変更と関連サブタスク展開サイズ制限
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 122
     tags:
-      - CHG-052
-      - 実装
+      - 開発管理
+      - 仕様変更
+      - CHG-047
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0134
-    title: CHG-052-02 ユーザー確認：検索結果並び替え
-    list: 仕様変更
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0106
+    title: デバッグモード起動スクリプト追加
+    list: 開発管理
     status: done
     priority: normal
     sort_order: 123
     tags:
-      - CHG-052
-      - ユーザー確認
+      - 開発管理
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0135
-    title: CHG-053-00 設計書反映：リスト表示並び替え
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0107
+    title: CHG-047-04 タスク詳細と関連サブタスク間の高さ調整
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 124
     tags:
-      - CHG-053
-      - 設計書
+      - 仕様変更
+      - CHG-047
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0136
-    title: CHG-053-01 リスト表示並び替え UI と表示順切替を実装
-    list: 仕様変更
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0118
+    title: 不具合：親タスクが削除された場合、子タスクが警告表示になってしまう。
+    list: 不具合修正
     status: done
     priority: normal
     sort_order: 125
     tags:
-      - CHG-053
-      - 実装
+      - BUG-20260505-01
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0139
-    title: CHG-054-00 設計書反映：完了時日付自動設定
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0109
+    title: CHG-048-00 サブタスク階層表示のインデント幅仕様を設計書へ反映
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 126
     tags:
-      - CHG-054
-      - 設計書
+      - 仕様変更
+      - CHG-048
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0140
-    title: CHG-054-01 完了時に日付空欄なら完了日付を自動設定
-    list: 仕様変更
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0119
+    title: 不具合：子タスクが完了となった親タスクは仕掛⇒保留にできない。
+    list: 不具合修正
     status: done
     priority: normal
     sort_order: 127
     tags:
-      - CHG-054
-      - 実装
+      - BUG-20260505-02
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0141
-    title: CHG-054-02 ユーザー確認：完了時日付自動設定
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0110
+    title: CHG-048-01 メインペインの階層インデント幅を実装調整
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 128
     tags:
-      - CHG-054
-      - ユーザー確認
+      - 仕様変更
+      - CHG-048
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0142
-    title: CHG-055-01 設計反映：リリースフォルダ名固定
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0111
+    title: CHG-048-02 子・孫タスクの表示差分と既存操作への影響をユーザ確認
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 129
     tags:
-      - CHG-055
-      - 設計
+      - 仕様変更
+      - CHG-048
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0143
-    title: CHG-055-02 実装：リリース生成・同期スクリプト更新
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0113
+    title: CHG-049-00 設計書反映：期限表示を日付表示へ変更
     list: 仕様変更
     status: done
-    priority: normal
+    priority: high
     sort_order: 130
     tags:
-      - CHG-055
-      - 実装
+      - CHG-049
+      - 設計書
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0144
-    title: CHG-055-03 ユーザー確認：リリースフォルダ名固定
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0114
+    title: CHG-049-02 ユーザー確認：期限表示を日付表示へ変更
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 131
     tags:
-      - CHG-055
+      - CHG-049
       - ユーザー確認
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
-  - id: T-0145
-    title: CHG-056-01 設計反映：progressフィールド廃止
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0115
+    title: CHG-050-00 設計書反映：進捗ステータスに保留を追加
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 132
     tags:
+      - CHG-050
+      - 設計書
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0125
+    title: 調査：Cotaska_AIエージェント運用ルール.md
+    list: null
+    status: done
+    priority: normal
+    sort_order: 133
+    tags: []
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0116
+    title: CHG-050-01 進捗ステータス「保留」実装
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 134
+    tags:
+      - CHG-050
+      - 実装
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0126
+    title: 仕様変更：リリースのフォルダ名変えたい
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 135
+    tags: []
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0117
+    title: CHG-050-02 ユーザー確認：進捗ステータスに保留を追加
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 136
+    tags:
+      - CHG-050
+      - ユーザー確認
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0127
+    title: 仕様変更：タスクファイルのprogress不要では？
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 137
+    tags: []
+    due_date: '2026-05-10'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0128
+    title: 仕様変更：検索時の並び替え
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 138
+    tags: []
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0129
+    title: 不具合：検索時の不具合
+    list: 不具合修正
+    status: done
+    priority: normal
+    sort_order: 139
+    tags: []
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0120
+    title: 仕様変更：task_file_path保存廃止
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 140
+    tags:
+      - CHG-051
+      - 仕様変更
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0121
+    title: CHG-051-00 設計書反映：task_file_path保存廃止
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 141
+    tags:
+      - CHG-051
+      - 設計書
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0122
+    title: CHG-051-01 task_file_path保存廃止の実装
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 142
+    tags:
+      - CHG-051
+      - 実装
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0123
+    title: CHG-051-02 ユーザー確認：task_file_path保存廃止
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 143
+    tags:
+      - CHG-051
+      - ユーザー確認
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0138
+    title: 仕様変更：自動で完了日付をセット
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 144
+    tags: []
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0130
+    title: BUG-20260510-01 検索モードの複数キーワード・タグ・日付検索を修正
+    list: 不具合修正
+    status: done
+    priority: normal
+    sort_order: 145
+    tags:
+      - BUG-20260510-01
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0131
+    title: BUG-20260510-01 ユーザー確認：検索モード修正
+    list: 不具合修正
+    status: done
+    priority: normal
+    sort_order: 146
+    tags:
+      - BUG-20260510-01
+      - ユーザー確認
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0132
+    title: CHG-052-00 設計書反映：検索結果並び替え
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 147
+    tags:
+      - CHG-052
+      - 設計書
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0133
+    title: CHG-052-01 検索結果並び替え UI と表示順切替を実装
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 148
+    tags:
+      - CHG-052
+      - 実装
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0134
+    title: CHG-052-02 ユーザー確認：検索結果並び替え
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 149
+    tags:
+      - CHG-052
+      - ユーザー確認
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0135
+    title: CHG-053-00 設計書反映：リスト表示並び替え
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 150
+    tags:
+      - CHG-053
+      - 設計書
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0136
+    title: CHG-053-01 リスト表示並び替え UI と表示順切替を実装
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 151
+    tags:
+      - CHG-053
+      - 実装
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0139
+    title: CHG-054-00 設計書反映：完了時日付自動設定
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 152
+    tags:
+      - CHG-054
+      - 設計書
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0140
+    title: CHG-054-01 完了時に日付空欄なら完了日付を自動設定
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 153
+    tags:
+      - CHG-054
+      - 実装
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0141
+    title: CHG-054-02 ユーザー確認：完了時日付自動設定
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 154
+    tags:
+      - CHG-054
+      - ユーザー確認
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0142
+    title: CHG-055-01 設計反映：リリースフォルダ名固定
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 155
+    tags:
+      - CHG-055
+      - 設計
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0143
+    title: CHG-055-02 実装：リリース生成・同期スクリプト更新
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 156
+    tags:
+      - CHG-055
+      - 実装
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0144
+    title: CHG-055-03 ユーザー確認：リリースフォルダ名固定
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 157
+    tags:
+      - CHG-055
+      - ユーザー確認
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0145
+    title: CHG-056-01 設計反映：progressフィールド廃止
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 158
+    tags:
       - CHG-056
       - 設計
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0146
     title: CHG-056-02 実装：保存モデル・index出力からprogress削除
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 133
+    sort_order: 159
     tags:
       - CHG-056
       - 実装
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0147
     title: CHG-056-03 データ移行：既存タスクからprogress削除
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 134
+    sort_order: 160
     tags:
       - CHG-056
       - データ移行
     due_date: null
-    updated_at: '2026-05-10T11:59:25.820Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0148
     title: CHG-056-04 ユーザー確認：progressフィールド廃止
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 135
+    sort_order: 161
     tags:
       - CHG-056
       - ユーザー確認
     due_date: '2026-05-10'
-    updated_at: '2026-05-10T11:59:25.820Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0149
     title: CotaskaをGitHub Releasesへアップロード
     list: null
     status: done
     priority: normal
-    sort_order: 139
+    sort_order: 162
     tags: []
     due_date: '2026-05-10'
-    updated_at: '2026-05-10T13:27:06.218Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0150
     title: CHG-057-01 設計反映：バージョン情報表示
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 140
+    sort_order: 163
     tags:
       - CHG-057
       - 設計
     due_date: '2026-05-16'
-    updated_at: '2026-05-16T03:09:30.070Z'
-  - id: T-0154
-    title: CHG-058 Codex SDKチャット連携
-    list: 仕様変更
-    status: todo
-    priority: high
-    sort_order: 140
-    tags:
-      - CHG-058
-      - 仕様変更
-      - AI連携
-      - Codex SDK
-    due_date: null
-    updated_at: '2026-07-01T20:08:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0151
     title: CHG-057-02 実装：現在バージョン取得と表示
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 141
+    sort_order: 164
     tags:
       - CHG-057
       - 実装
     due_date: '2026-05-16'
-    updated_at: '2026-05-16T03:09:31.570Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0155
     title: 'CHG-058-01 設計反映: Codex SDKチャット連携'
     list: 仕様変更
     status: done
     priority: high
-    sort_order: 141
+    sort_order: 165
     tags:
       - CHG-058
       - 設計
       - AI連携
     due_date: null
-    updated_at: '2026-06-28T18:08:59+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0152
     title: CHG-057-03 ユーザー確認：バージョン情報表示
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 142
+    sort_order: 166
     tags:
       - CHG-057
       - ユーザー確認
     due_date: '2026-05-16'
-    updated_at: '2026-05-16T03:10:12.865Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0156
     title: 'CHG-058-02 実装: Codex SDKチャット連携基盤'
     list: 仕様変更
     status: done
     priority: high
-    sort_order: 142
+    sort_order: 167
     tags:
       - CHG-058
       - 実装
       - Codex
       - AI連携
     due_date: null
-    updated_at: '2026-06-28T18:08:59+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0153
     title: タスク１
     list: null
     status: done
     priority: normal
-    sort_order: 143
+    sort_order: 168
     tags: []
     due_date: '2026-05-13'
-    updated_at: '2026-05-13T14:02:45.612Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0157
     title: 'CHG-058-03 ユーザー確認: Codex SDKチャット連携'
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 143
+    sort_order: 169
     tags:
       - CHG-058
       - ユーザー確認
       - AI連携
     due_date: '2026-07-05'
-    updated_at: '2026-07-05T12:50:27.490Z'
-  - id: T-0159
-    title: 'CHG-058-05 調査・設計: Claude連携を見据えたAIプロバイダ拡張'
-    list: 仕様変更
-    status: todo
-    priority: normal
-    sort_order: 145
-    tags:
-      - CHG-058
-      - 設計
-      - Claude
-      - AI連携
-    due_date: null
-    updated_at: '2026-06-28T21:46:05+09:00'
-  - id: T-0160
-    title: 'CHG-058-06 実装: Gemini CLIプロバイダ追加'
-    list: 仕様変更
-    status: todo
-    priority: normal
-    sort_order: 146
-    tags:
-      - CHG-057
-      - 実装
-      - Gemini
-      - AI連携
-    due_date: null
-    updated_at: '2026-05-15T01:44:58.017Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0161
     title: 仕様変更：タスク詳細画面の拡大ボタンの追加
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 151
+    sort_order: 170
     tags:
       - CHG-059
       - 仕様変更
     due_date: '2026-05-15'
-    updated_at: '2026-05-15T11:56:18+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0162
     title: 仕様変更：タスク詳細の文字の強調
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 152
+    sort_order: 171
     tags:
       - CHG-060
       - 仕様変更
     due_date: '2026-05-15'
-    updated_at: '2026-05-15T12:03:22+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0163
     title: 'CHG-059-01 設計反映: タスク詳細ペイン拡大ボタン追加'
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 153
+    sort_order: 172
     tags:
       - CHG-059
       - 設計
     due_date: '2026-05-15'
-    updated_at: '2026-05-15T11:32:01+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0164
     title: 'CHG-059-02 実装: 詳細ペイン拡大トグル追加'
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 154
+    sort_order: 173
     tags:
       - CHG-059
       - 実装
     due_date: '2026-05-15'
-    updated_at: '2026-05-15T11:32:01+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0165
     title: 'CHG-059-03 ユーザー確認: 詳細ペイン拡大ボタン追加'
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 155
+    sort_order: 174
     tags:
       - CHG-059
       - ユーザー確認
     due_date: '2026-05-15'
-    updated_at: '2026-05-15T11:56:18+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0166
     title: 'CHG-060-01 設計反映: タスク詳細 Markdown 編集ハイライト'
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 156
+    sort_order: 175
     tags:
       - CHG-060
       - 設計
     due_date: '2026-05-15'
-    updated_at: '2026-05-15T11:49:16+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0167
     title: 'CHG-060-02 実装: Markdown 対応エディタ導入と詳細本文置換'
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 157
+    sort_order: 176
     tags:
       - CHG-060
       - 実装
     due_date: '2026-05-15'
-    updated_at: '2026-05-15T11:49:16+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0168
     title: 'CHG-060-03 ユーザー確認: Markdown 編集ハイライト'
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 158
+    sort_order: 177
     tags:
       - CHG-060
       - ユーザー確認
     due_date: '2026-05-15'
-    updated_at: '2026-05-15T12:03:22+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0169
     title: Cotaska起動時の画面表示を高速化
     list: Cotaska
     status: done
     priority: high
-    sort_order: 159
+    sort_order: 178
     tags:
       - 起動改善
       - 性能改善
     due_date: 2026-05-15T00:00:00.000Z
-    updated_at: 2026-05-15T03:08:39.000Z
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0171
     title: 仕様変更：文字サイズの変更
     list: null
     status: done
     priority: normal
-    sort_order: 161
+    sort_order: 179
     tags:
       - CHG-061
       - 仕様変更
     due_date: '2026-05-15'
-    updated_at: '2026-05-16T12:08:46+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0172
     title: 'CHG-061-01 設計反映: タスク詳細文字サイズ変更'
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 162
+    sort_order: 180
     tags:
       - CHG-061
       - 設計
     due_date: '2026-05-15'
-    updated_at: '2026-05-16T12:05:35+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0173
     title: 'CHG-061-02 実装: タスク詳細本文のズーム操作'
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 163
+    sort_order: 181
     tags:
       - CHG-061
       - 実装
     due_date: '2026-05-15'
-    updated_at: '2026-05-16T12:05:35+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0174
     title: 'CHG-061-03 ユーザー確認: タスク詳細文字サイズ変更'
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 164
+    sort_order: 182
     tags:
       - CHG-061
       - ユーザー確認
     due_date: '2026-05-15'
-    updated_at: '2026-05-16T12:08:46+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0175
     title: 不具合：プレビューモードでテーブル形式の場合罫線が出ない
     list: 不具合修正
     status: done
     priority: normal
-    sort_order: 165
+    sort_order: 183
     tags:
       - BUG-20260515-01
     due_date: '2026-05-16'
-    updated_at: '2026-05-16T12:22:46+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0170
     title: Cotaska v0.1.1 ビルド・リリース
     list: リリース
     status: done
     priority: high
-    sort_order: 170
+    sort_order: 184
     tags:
       - release
       - v0.1.1
     due_date: 2026-05-15T00:00:00.000Z
-    updated_at: 2026-05-15T03:44:27.000Z
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0176
     title: 仕様変更：設定画面の未実装項目を実装する
-    list: 仕様変更
-    status: done
-    priority: normal
-    sort_order: 176
-    tags:
-      - 設定画面
-      - 仕様変更
-    due_date: null
-    updated_at: '2026-05-16T11:58:27+09:00'
-  - id: T-0177
-    title: 設計反映：設定保存モデルと設定画面未実装項目
-    list: 仕様変更
-    status: done
-    priority: normal
-    sort_order: 177
-    tags:
-      - 設定画面
-      - 設計
-    due_date: null
-    updated_at: '2026-05-15T23:28:00+09:00'
-  - id: T-0178
-    title: 実装：設定値の保存基盤と IPC
-    list: 仕様変更
-    status: done
-    priority: high
-    sort_order: 178
-    tags:
-      - 設定画面
-      - 実装
-      - IPC
-      - CHG-062
-    due_date: null
-    updated_at: '2026-05-16T11:58:27+09:00'
-  - id: T-0179
-    title: 実装：表示名設定の保存とアプリ表示反映
-    list: 仕様変更
-    status: done
-    priority: normal
-    sort_order: 179
-    tags:
-      - 設定画面
-      - 実装
-      - CHG-063
-    due_date: null
-    updated_at: '2026-05-16T11:58:27+09:00'
-  - id: T-0180
-    title: 実装：外部エディタ設定とタスクファイル起動
-    list: 仕様変更
-    status: done
-    priority: high
-    sort_order: 180
-    tags:
-      - 設定画面
-      - 実装
-      - 外部エディタ
-      - CHG-064
-    due_date: null
-    updated_at: '2026-05-16T11:58:27+09:00'
-  - id: T-0181
-    title: 実装：通知時間設定を通知判定へ反映
-    list: 仕様変更
-    status: done
-    priority: normal
-    sort_order: 181
-    tags:
-      - 設定画面
-      - 実装
-      - 通知
-      - CHG-065
-    due_date: null
-    updated_at: '2026-05-16T11:58:27+09:00'
-  - id: T-0182
-    title: 実装：文字サイズ設定をタスク詳細へ反映
-    list: 仕様変更
-    status: done
-    priority: normal
-    sort_order: 182
-    tags:
-      - 設定画面
-      - 実装
-      - 文字サイズ
-      - CHG-066
-    due_date: null
-    updated_at: '2026-05-16T11:58:27+09:00'
-  - id: T-0183
-    title: 実装：アプリ情報の更新確認と手動ダウンロード案内
-    list: 仕様変更
-    status: done
-    priority: normal
-    sort_order: 183
-    tags:
-      - 設定画面
-      - 実装
-      - アプリ情報
-      - CHG-067
-    due_date: null
-    updated_at: '2026-05-16T11:58:27+09:00'
-  - id: T-0184
-    title: 実装：バックアップ画面の初期機能
-    list: 仕様変更
-    status: done
-    priority: normal
-    sort_order: 184
-    tags:
-      - 設定画面
-      - 実装
-      - バックアップ
-      - CHG-068
-    due_date: null
-    updated_at: '2026-05-16T11:58:27+09:00'
-  - id: T-0185
-    title: 確認：設定画面未実装項目のユーザー確認
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 185
     tags:
       - 設定画面
-      - ユーザー確認
+      - 仕様変更
     due_date: null
-    updated_at: '2026-05-16T11:58:27+09:00'
-  - id: T-0186
-    title: CHG-062-01 設計反映：settings.yaml 設定保存基盤
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0177
+    title: 設計反映：設定保存モデルと設定画面未実装項目
     list: 仕様変更
     status: done
-    priority: high
+    priority: normal
     sort_order: 186
     tags:
       - 設定画面
       - 設計
-      - CHG-062
-      - settings.yaml
     due_date: null
-    updated_at: '2026-05-16T10:25:51+09:00'
-  - id: T-0187
-    title: CHG-062-02 実装：settings.yaml 保存基盤と IPC
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0178
+    title: 実装：設定値の保存基盤と IPC
     list: 仕様変更
     status: done
     priority: high
@@ -1859,37 +2002,35 @@ tasks:
       - 実装
       - IPC
       - CHG-062
-      - settings.yaml
     due_date: null
-    updated_at: '2026-05-16T10:25:51+09:00'
-  - id: T-0188
-    title: CHG-062-03 確認：settings.yaml 設定保存基盤
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0179
+    title: 実装：表示名設定の保存とアプリ表示反映
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 188
     tags:
       - 設定画面
-      - ユーザー確認
-      - CHG-062
-      - settings.yaml
+      - 実装
+      - CHG-063
     due_date: null
-    updated_at: '2026-05-16T11:58:27+09:00'
-  - id: T-0189
-    title: CHG-063-01 設計反映：表示名設定の保存と反映
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0180
+    title: 実装：外部エディタ設定とタスクファイル起動
     list: 仕様変更
     status: done
-    priority: normal
+    priority: high
     sort_order: 189
     tags:
       - 設定画面
-      - 設計
-      - CHG-063
-      - 表示名
+      - 実装
+      - 外部エディタ
+      - CHG-064
     due_date: null
-    updated_at: '2026-05-16T10:19:54+09:00'
-  - id: T-0190
-    title: CHG-063-02 実装：表示名設定の保存と反映
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0181
+    title: 実装：通知時間設定を通知判定へ反映
     list: 仕様変更
     status: done
     priority: normal
@@ -1897,51 +2038,51 @@ tasks:
     tags:
       - 設定画面
       - 実装
-      - CHG-063
-      - 表示名
+      - 通知
+      - CHG-065
     due_date: null
-    updated_at: '2026-05-16T10:25:51+09:00'
-  - id: T-0191
-    title: CHG-063-03 確認：表示名設定の保存と反映
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0182
+    title: 実装：文字サイズ設定をタスク詳細へ反映
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 191
     tags:
       - 設定画面
-      - ユーザー確認
-      - CHG-063
-      - 表示名
+      - 実装
+      - 文字サイズ
+      - CHG-066
     due_date: null
-    updated_at: '2026-05-16T11:58:27+09:00'
-  - id: T-0192
-    title: CHG-064-01 設計反映：外部エディタ設定と起動処理
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0183
+    title: 実装：アプリ情報の更新確認と手動ダウンロード案内
     list: 仕様変更
     status: done
-    priority: high
+    priority: normal
     sort_order: 192
     tags:
       - 設定画面
-      - 設計
-      - CHG-064
-      - 外部エディタ
+      - 実装
+      - アプリ情報
+      - CHG-067
     due_date: null
-    updated_at: '2026-05-16T10:19:54+09:00'
-  - id: T-0193
-    title: CHG-064-02 実装：外部エディタ設定と起動処理
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0184
+    title: 実装：バックアップ画面の初期機能
     list: 仕様変更
     status: done
-    priority: high
+    priority: normal
     sort_order: 193
     tags:
       - 設定画面
       - 実装
-      - CHG-064
-      - 外部エディタ
+      - バックアップ
+      - CHG-068
     due_date: null
-    updated_at: '2026-05-16T10:25:51+09:00'
-  - id: T-0194
-    title: CHG-064-03 確認：外部エディタ設定と起動処理
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0185
+    title: 確認：設定画面未実装項目のユーザー確認
     list: 仕様変更
     status: done
     priority: normal
@@ -1949,38 +2090,37 @@ tasks:
     tags:
       - 設定画面
       - ユーザー確認
-      - CHG-064
-      - 外部エディタ
     due_date: null
-    updated_at: '2026-05-16T11:58:27+09:00'
-  - id: T-0195
-    title: CHG-065-01 設計反映：通知時間設定と通知判定
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0186
+    title: CHG-062-01 設計反映：settings.yaml 設定保存基盤
     list: 仕様変更
     status: done
-    priority: normal
+    priority: high
     sort_order: 195
     tags:
       - 設定画面
       - 設計
-      - CHG-065
-      - 通知
+      - CHG-062
+      - settings.yaml
     due_date: null
-    updated_at: '2026-05-16T10:19:54+09:00'
-  - id: T-0196
-    title: CHG-065-02 実装：通知時間設定と通知判定
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0187
+    title: CHG-062-02 実装：settings.yaml 保存基盤と IPC
     list: 仕様変更
     status: done
-    priority: normal
+    priority: high
     sort_order: 196
     tags:
       - 設定画面
       - 実装
-      - CHG-065
-      - 通知
+      - IPC
+      - CHG-062
+      - settings.yaml
     due_date: null
-    updated_at: '2026-05-16T10:25:51+09:00'
-  - id: T-0197
-    title: CHG-065-03 確認：通知時間設定と通知判定
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0188
+    title: CHG-062-03 確認：settings.yaml 設定保存基盤
     list: 仕様変更
     status: done
     priority: normal
@@ -1988,22 +2128,12 @@ tasks:
     tags:
       - 設定画面
       - ユーザー確認
-      - CHG-065
-      - 通知
+      - CHG-062
+      - settings.yaml
     due_date: null
-    updated_at: '2026-05-16T11:58:27+09:00'
-  - id: T-0207
-    title: 不具合：時刻入力が３０分単位しかできない
-    list: 不具合修正
-    status: done
-    priority: normal
-    sort_order: 197
-    tags:
-      - BUG-20260516-01
-    due_date: null
-    updated_at: '2026-05-16T12:03:12+09:00'
-  - id: T-0198
-    title: CHG-066-01 設計反映：文字サイズ設定と詳細表示
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0189
+    title: CHG-063-01 設計反映：表示名設定の保存と反映
     list: 仕様変更
     status: done
     priority: normal
@@ -2011,12 +2141,12 @@ tasks:
     tags:
       - 設定画面
       - 設計
-      - CHG-066
-      - 文字サイズ
+      - CHG-063
+      - 表示名
     due_date: null
-    updated_at: '2026-05-16T10:19:54+09:00'
-  - id: T-0199
-    title: CHG-066-02 実装：文字サイズ設定と詳細表示
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0190
+    title: CHG-063-02 実装：表示名設定の保存と反映
     list: 仕様変更
     status: done
     priority: normal
@@ -2024,12 +2154,12 @@ tasks:
     tags:
       - 設定画面
       - 実装
-      - CHG-066
-      - 文字サイズ
+      - CHG-063
+      - 表示名
     due_date: null
-    updated_at: '2026-05-16T10:25:51+09:00'
-  - id: T-0200
-    title: CHG-066-03 確認：文字サイズ設定と詳細表示
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0191
+    title: CHG-063-03 確認：表示名設定の保存と反映
     list: 仕様変更
     status: done
     priority: normal
@@ -2037,49 +2167,38 @@ tasks:
     tags:
       - 設定画面
       - ユーザー確認
-      - CHG-066
-      - 文字サイズ
+      - CHG-063
+      - 表示名
     due_date: null
-    updated_at: '2026-05-16T11:58:27+09:00'
-  - id: T-0201
-    title: CHG-067-01 設計反映：更新確認と手動ダウンロード案内
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0192
+    title: CHG-064-01 設計反映：外部エディタ設定と起動処理
     list: 仕様変更
     status: done
-    priority: normal
+    priority: high
     sort_order: 201
     tags:
       - 設定画面
       - 設計
-      - CHG-067
-      - アプリ情報
-    due_date: '2026-05-16'
-    updated_at: '2026-05-16T10:19:47+09:00'
-  - id: T-0211
-    title: 仕様変更：自動更新の仕組みつくり
-    list: null
-    status: done
-    priority: normal
-    sort_order: 201
-    tags:
-      - CHG-069
-      - 自動更新
-    due_date: '2026-05-16'
-    updated_at: '2026-05-16T13:30:00+09:00'
-  - id: T-0202
-    title: CHG-067-02 実装：更新確認と手動ダウンロード案内
+      - CHG-064
+      - 外部エディタ
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0193
+    title: CHG-064-02 実装：外部エディタ設定と起動処理
     list: 仕様変更
     status: done
-    priority: normal
+    priority: high
     sort_order: 202
     tags:
       - 設定画面
       - 実装
-      - CHG-067
-      - アプリ情報
+      - CHG-064
+      - 外部エディタ
     due_date: null
-    updated_at: '2026-05-16T10:25:51+09:00'
-  - id: T-0203
-    title: CHG-067-03 確認：更新確認と手動ダウンロード案内
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0194
+    title: CHG-064-03 確認：外部エディタ設定と起動処理
     list: 仕様変更
     status: done
     priority: normal
@@ -2087,12 +2206,12 @@ tasks:
     tags:
       - 設定画面
       - ユーザー確認
-      - CHG-067
-      - アプリ情報
+      - CHG-064
+      - 外部エディタ
     due_date: null
-    updated_at: '2026-05-16T11:58:27+09:00'
-  - id: T-0204
-    title: CHG-068-01 設計反映：バックアップ画面初期機能
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0195
+    title: CHG-065-01 設計反映：通知時間設定と通知判定
     list: 仕様変更
     status: done
     priority: normal
@@ -2100,12 +2219,12 @@ tasks:
     tags:
       - 設定画面
       - 設計
-      - CHG-068
-      - バックアップ
-    due_date: '2026-05-16'
-    updated_at: '2026-05-16T10:22:28.590Z'
-  - id: T-0205
-    title: CHG-068-02 実装：バックアップ画面初期機能
+      - CHG-065
+      - 通知
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0196
+    title: CHG-065-02 実装：通知時間設定と通知判定
     list: 仕様変更
     status: done
     priority: normal
@@ -2113,12 +2232,12 @@ tasks:
     tags:
       - 設定画面
       - 実装
-      - CHG-068
-      - バックアップ
+      - CHG-065
+      - 通知
     due_date: null
-    updated_at: '2026-05-16T10:25:51+09:00'
-  - id: T-0206
-    title: CHG-068-03 確認：バックアップ画面初期機能
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0197
+    title: CHG-065-03 確認：通知時間設定と通知判定
     list: 仕様変更
     status: done
     priority: normal
@@ -2126,468 +2245,606 @@ tasks:
     tags:
       - 設定画面
       - ユーザー確認
-      - CHG-068
-      - バックアップ
+      - CHG-065
+      - 通知
     due_date: null
-    updated_at: '2026-05-16T11:58:27+09:00'
-  - id: T-0208
-    title: CHG-061-04 設計反映：文字サイズ変更時の現在値表示
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0207
+    title: 不具合：時刻入力が３０分単位しかできない
+    list: 不具合修正
+    status: done
+    priority: normal
+    sort_order: 207
+    tags:
+      - BUG-20260516-01
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0198
+    title: CHG-066-01 設計反映：文字サイズ設定と詳細表示
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 208
     tags:
-      - CHG-061
+      - 設定画面
       - 設計
+      - CHG-066
       - 文字サイズ
     due_date: null
-    updated_at: '2026-05-16T12:05:35+09:00'
-  - id: T-0209
-    title: CHG-061-05 実装：文字サイズ変更時の現在値表示
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0199
+    title: CHG-066-02 実装：文字サイズ設定と詳細表示
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 209
     tags:
-      - CHG-061
+      - 設定画面
       - 実装
+      - CHG-066
       - 文字サイズ
     due_date: null
-    updated_at: '2026-05-16T12:05:35+09:00'
-  - id: T-0210
-    title: CHG-061-06 確認：文字サイズ変更時の現在値表示
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0200
+    title: CHG-066-03 確認：文字サイズ設定と詳細表示
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 210
     tags:
-      - CHG-061
+      - 設定画面
       - ユーザー確認
+      - CHG-066
       - 文字サイズ
     due_date: null
-    updated_at: '2026-05-16T12:08:46+09:00'
-  - id: T-0212
-    title: CHG-069-01 設計反映：確認付き自動更新
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0201
+    title: CHG-067-01 設計反映：更新確認と手動ダウンロード案内
     list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 211
+    tags:
+      - 設定画面
+      - 設計
+      - CHG-067
+      - アプリ情報
+    due_date: '2026-05-16'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0211
+    title: 仕様変更：自動更新の仕組みつくり
+    list: null
     status: done
     priority: normal
     sort_order: 212
     tags:
       - CHG-069
+      - 自動更新
+    due_date: '2026-05-16'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0202
+    title: CHG-067-02 実装：更新確認と手動ダウンロード案内
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 213
+    tags:
+      - 設定画面
+      - 実装
+      - CHG-067
+      - アプリ情報
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0203
+    title: CHG-067-03 確認：更新確認と手動ダウンロード案内
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 214
+    tags:
+      - 設定画面
+      - ユーザー確認
+      - CHG-067
+      - アプリ情報
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0204
+    title: CHG-068-01 設計反映：バックアップ画面初期機能
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 215
+    tags:
+      - 設定画面
+      - 設計
+      - CHG-068
+      - バックアップ
+    due_date: '2026-05-16'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0205
+    title: CHG-068-02 実装：バックアップ画面初期機能
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 216
+    tags:
+      - 設定画面
+      - 実装
+      - CHG-068
+      - バックアップ
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0206
+    title: CHG-068-03 確認：バックアップ画面初期機能
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 217
+    tags:
+      - 設定画面
+      - ユーザー確認
+      - CHG-068
+      - バックアップ
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0208
+    title: CHG-061-04 設計反映：文字サイズ変更時の現在値表示
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 218
+    tags:
+      - CHG-061
+      - 設計
+      - 文字サイズ
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0209
+    title: CHG-061-05 実装：文字サイズ変更時の現在値表示
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 219
+    tags:
+      - CHG-061
+      - 実装
+      - 文字サイズ
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0210
+    title: CHG-061-06 確認：文字サイズ変更時の現在値表示
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 220
+    tags:
+      - CHG-061
+      - ユーザー確認
+      - 文字サイズ
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0212
+    title: CHG-069-01 設計反映：確認付き自動更新
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 221
+    tags:
+      - CHG-069
       - 設計
       - 自動更新
     due_date: '2026-05-16'
-    updated_at: '2026-05-16T04:14:30.402Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0213
     title: CHG-069-02 実装：NSIS配布とGitHub publish設定
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 213
+    sort_order: 222
     tags:
       - CHG-069
       - 実装
       - 自動更新
       - 配布
     due_date: '2026-05-16'
-    updated_at: '2026-05-16T04:14:33.828Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0214
     title: CHG-069-03 実装：自動更新IPCとmain process制御
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 214
+    sort_order: 223
     tags:
       - CHG-069
       - 実装
       - IPC
       - 自動更新
     due_date: '2026-05-16'
-    updated_at: '2026-05-16T04:14:37.303Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0215
     title: CHG-069-04 実装：アプリ情報の更新UI
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 215
+    sort_order: 224
     tags:
       - CHG-069
       - 実装
       - UI
       - 自動更新
     due_date: '2026-05-16'
-    updated_at: '2026-05-16T04:14:40.461Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0216
     title: CHG-069-05 確認：確認付き自動更新
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 216
+    sort_order: 225
     tags:
       - CHG-069
       - ユーザー確認
       - 自動更新
     due_date: '2026-05-16'
-    updated_at: '2026-05-16T13:30:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0217
     title: CHG-070-01 設計反映：バックアップ復元機能
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 217
+    sort_order: 226
     tags:
       - CHG-070
       - バックアップ
     due_date: null
-    updated_at: '2026-05-16T12:30:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0218
     title: CHG-070-02 実装：バックアップ復元機能
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 218
+    sort_order: 227
     tags:
       - CHG-070
       - バックアップ
     due_date: null
-    updated_at: '2026-05-16T12:30:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0219
     title: CHG-070-03 確認：バックアップ復元機能
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 219
+    sort_order: 228
     tags:
       - CHG-070
       - バックアップ
     due_date: null
-    updated_at: '2026-05-16T12:30:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0220
     title: 仕様変更：src構成整理
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 220
+    sort_order: 229
     tags:
       - CHG-071
       - リファクタリング
     due_date: null
-    updated_at: '2026-05-16T19:28:54+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0221
     title: CHG-071-00 設計反映要否の確認と構成方針整理
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 221
+    sort_order: 230
     tags:
       - CHG-071
       - 設計
       - リファクタリング
     due_date: null
-    updated_at: '2026-05-16T19:28:54+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0222
     title: CHG-071-01 実装：App.jsx のロジック分離
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 222
+    sort_order: 231
     tags:
       - CHG-071
       - 実装
       - renderer
       - App.jsx
     due_date: null
-    updated_at: '2026-05-16T19:28:54+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0223
     title: CHG-071-02 実装：MainPane.jsx のコンポーネント分割
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 223
+    sort_order: 232
     tags:
       - CHG-071
       - 実装
       - renderer
       - MainPane.jsx
     due_date: null
-    updated_at: '2026-05-16T19:28:54+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0224
     title: CHG-071-03 実装：DetailPane.jsx のコンポーネント分割
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 224
+    sort_order: 233
     tags:
       - CHG-071
       - 実装
       - renderer
       - DetailPane.jsx
     due_date: null
-    updated_at: '2026-05-16T19:28:54+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0225
     title: CHG-071-04 実装：main.js のIPC・サービス分離
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 225
+    sort_order: 234
     tags:
       - CHG-071
       - 実装
       - main
       - IPC
     due_date: null
-    updated_at: '2026-05-16T19:28:54+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0226
     title: CHG-071-05 実装：taskService.js 分割準備とテスト観点整理
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 226
+    sort_order: 235
     tags:
       - CHG-071
       - 実装
       - taskService
       - テスト
     due_date: null
-    updated_at: '2026-05-16T19:28:54+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0227
     title: CHG-071-06 確認：src構成整理後の主要導線確認
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 227
+    sort_order: 236
     tags:
       - CHG-071
       - ユーザー確認
       - リファクタリング
     due_date: null
-    updated_at: '2026-05-16T19:28:54+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0228
     title: 仕様変更：Portable配布フォルダ名変更
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 228
+    sort_order: 237
     tags:
       - CHG-072
       - リリース
       - portable
     due_date: '2026-05-16'
-    updated_at: '2026-05-16T14:10:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0229
     title: CHG-072-01 設計反映：Portable配布フォルダ名
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 229
+    sort_order: 238
     tags:
       - CHG-072
       - 設計
       - リリース
     due_date: '2026-05-16'
-    updated_at: '2026-05-16T14:10:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0230
     title: CHG-072-02 実装：リリースフォルダ名変更
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 230
+    sort_order: 239
     tags:
       - CHG-072
       - 実装
       - リリース
     due_date: '2026-05-16'
-    updated_at: '2026-05-16T14:10:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0231
     title: CHG-072-03 確認：Portable配布フォルダ名
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 231
+    sort_order: 240
     tags:
       - CHG-072
       - ユーザー確認
       - リリース
     due_date: '2026-05-16'
-    updated_at: '2026-05-16T14:20:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0232
     title: CHG-073-01 設計反映：バックアップzip形式化
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 232
+    sort_order: 241
     tags:
       - CHG-073
       - バックアップ
     due_date: null
-    updated_at: '2026-05-16T14:00:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0233
     title: CHG-073-02 実装：バックアップzip形式化
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 233
+    sort_order: 242
     tags:
       - CHG-073
       - バックアップ
     due_date: null
-    updated_at: '2026-05-16T14:00:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0234
     title: CHG-073-03 確認：バックアップzip形式化
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 234
+    sort_order: 243
     tags:
       - CHG-073
       - バックアップ
     due_date: null
-    updated_at: '2026-05-16T14:00:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0235
     title: BUG-20260516-02 Portable版更新確認でapp-update.ymlが見つからない
     list: 不具合対応
     status: done
     priority: normal
-    sort_order: 235
+    sort_order: 244
     tags:
       - BUG-20260516-02
       - 自動更新
       - portable
     due_date: '2026-05-16'
-    updated_at: '2026-05-16T21:16:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0236
     title: 仕様変更：Portable版自動更新
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 236
+    sort_order: 245
     tags:
       - CHG-074
       - 自動更新
       - portable
     due_date: '2026-05-16'
-    updated_at: '2026-05-20T01:03:59.084Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0237
     title: CHG-074-01 設計反映：Portable版自動更新
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 237
+    sort_order: 246
     tags:
       - CHG-074
       - 設計
       - 自動更新
       - portable
     due_date: '2026-05-16'
-    updated_at: '2026-05-16T22:20:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0238
     title: CHG-074-02 実装：Portable版自動更新
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 238
+    sort_order: 247
     tags:
       - CHG-074
       - 実装
       - 自動更新
       - portable
     due_date: '2026-05-16'
-    updated_at: '2026-05-16T22:25:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0248
     title: 不具合：バージョンアップされない
     list: 不具合修正
     status: done
     priority: normal
-    sort_order: 238
+    sort_order: 248
     tags:
       - BUG-20260516-04
       - 自動更新
       - portable
     due_date: '2026-05-16'
-    updated_at: '2026-05-20T01:03:59.794Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0239
     title: CHG-074-03 確認：Portable版自動更新
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 239
+    sort_order: 249
     tags:
       - CHG-074
       - ユーザー確認
       - 自動更新
       - portable
     due_date: '2026-05-16'
-    updated_at: '2026-05-20T01:03:58.363Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0240
     title: BUG-20260516-03 起動時に黒画面のままになる問題を修正
     list: 不具合対応
     status: done
     priority: high
-    sort_order: 240
+    sort_order: 250
     tags:
       - BUG-20260516-03
       - 起動
       - renderer
     due_date: '2026-05-16'
-    updated_at: '2026-05-16T22:05:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0241
     title: CHG-075-01 設計反映：タスク入力補正
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 241
+    sort_order: 251
     tags:
       - CHG-075
       - 設計
       - タスク入力
       - 入力補正
     due_date: null
-    updated_at: '2026-05-16T22:41:08+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0242
     title: CHG-075-02 実装：タスク入力補正
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 242
+    sort_order: 252
     tags:
       - CHG-075
       - 実装
       - タスク入力
       - 入力補正
     due_date: null
-    updated_at: '2026-05-16T22:41:08+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0243
     title: CHG-075-03 確認：タスク入力補正
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 243
+    sort_order: 253
     tags:
       - CHG-075
       - ユーザー確認
       - タスク入力
       - 入力補正
     due_date: '2026-05-19'
-    updated_at: '2026-05-19T11:59:31.239Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0253
     title: CHG-078 今日/明日保留タスク移動
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 243
+    sort_order: 254
     tags:
       - CHG-078
       - 今日
       - 明日
       - 保留
     due_date: '2026-05-20'
-    updated_at: '2026-05-20T11:29:28+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0244
     title: CHG-075-04 実装：日付入力補正の強調表示
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 244
+    sort_order: 255
     tags:
       - CHG-075
       - 実装
@@ -2595,135 +2852,135 @@ tasks:
       - 入力補正
       - 日付
     due_date: null
-    updated_at: '2026-05-16T22:51:45+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0245
     title: CHG-076-01 設計：Portable版のみのリリース運用
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 245
+    sort_order: 256
     tags:
       - CHG-076
       - 設計
       - リリース
       - Portable
     due_date: null
-    updated_at: '2026-05-16T23:07:38+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0246
     title: CHG-076-02 実装：NSIS配布経路の削除
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 246
+    sort_order: 257
     tags:
       - CHG-076
       - 実装
       - リリース
       - Portable
     due_date: null
-    updated_at: '2026-05-16T23:07:38+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0247
     title: CHG-076-03 ユーザー確認：Portable版のみのリリース運用
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 247
+    sort_order: 258
     tags:
       - CHG-076
       - ユーザー確認
       - リリース
       - Portable
     due_date: '2026-05-20'
-    updated_at: '2026-05-20T12:46:35.851Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0258
     title: 仕様変更：アップデートアラート
     list: null
     status: done
     priority: normal
-    sort_order: 248
+    sort_order: 259
     tags:
       - CHG-079
       - 自動更新
     due_date: '2026-05-20'
-    updated_at: '2026-05-20T15:00:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0249
     title: CHG-077 ロード画面追加
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 249
+    sort_order: 260
     tags:
       - CHG-077
       - 起動
       - ロード画面
     due_date: null
-    updated_at: '2026-05-19T22:06:27+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0250
     title: CHG-077-01 設計：起動ロード画面の表示仕様整理
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 250
+    sort_order: 261
     tags:
       - CHG-077
       - 設計
       - 起動
       - ロード画面
     due_date: null
-    updated_at: '2026-05-19T21:50:45+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0251
     title: CHG-077-02 実装：起動ロード画面の追加
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 251
+    sort_order: 262
     tags:
       - CHG-077
       - 実装
       - 起動
       - ロード画面
     due_date: null
-    updated_at: '2026-05-19T21:50:45+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0252
     title: CHG-077-03 ユーザー確認：起動ロード画面の表示確認
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 252
+    sort_order: 263
     tags:
       - CHG-077
       - ユーザー確認
       - 起動
       - ロード画面
     due_date: null
-    updated_at: '2026-05-19T22:06:27+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0262
     title: 仕様変更：パスコピー
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 252
+    sort_order: 264
     tags:
       - CHG-080
       - パスコピー
     due_date: '2026-05-29'
-    updated_at: '2026-05-29T12:53:25.940Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0263
     title: BUG-20260522-01 日付の並び替えで時刻が考慮されていない
     list: 不具合修正
     status: done
     priority: normal
-    sort_order: 253
+    sort_order: 265
     tags:
       - BUG-20260522-01
     due_date: '2026-05-22'
-    updated_at: '2026-05-22T12:17:02+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0254
     title: CHG-078-01 設計：今日/明日保留タスク移動の表示仕様整理
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 254
+    sort_order: 266
     tags:
       - CHG-078
       - 設計
@@ -2731,13 +2988,13 @@ tasks:
       - 明日
       - 保留
     due_date: null
-    updated_at: '2026-05-20T10:18:35+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0255
     title: CHG-078-02 実装：今日/明日の保留タスクを保留セッションへ移動
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 255
+    sort_order: 267
     tags:
       - CHG-078
       - 実装
@@ -2745,13 +3002,13 @@ tasks:
       - 明日
       - 保留
     due_date: null
-    updated_at: '2026-05-20T10:18:35+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0256
     title: CHG-078-03 ユーザー確認：今日/明日保留タスクの表示確認
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 256
+    sort_order: 268
     tags:
       - CHG-078
       - ユーザー確認
@@ -2759,13 +3016,13 @@ tasks:
       - 明日
       - 保留
     due_date: null
-    updated_at: '2026-05-20T11:29:28+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0257
     title: CHG-078-04 実装：日付ビュー保留セクションに遅延保留を表示
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 257
+    sort_order: 269
     tags:
       - CHG-078
       - 実装
@@ -2774,491 +3031,362 @@ tasks:
       - 保留
       - 遅延
     due_date: null
-    updated_at: '2026-05-20T10:42:12+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0259
     title: CHG-079-01 設計：起動時更新アラート仕様反映
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 259
+    sort_order: 270
     tags:
       - CHG-079
       - 設定画面
       - 自動更新
     due_date: '2026-05-20'
-    updated_at: '2026-05-20T15:00:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0260
     title: CHG-079-02 実装：起動時更新確認と通知アイコン導線
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 260
+    sort_order: 271
     tags:
       - CHG-079
       - 設定画面
       - 自動更新
     due_date: '2026-05-20'
-    updated_at: '2026-05-20T15:00:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0270
     title: 不具合：明日のタスクが表示されない
     list: null
     status: done
     priority: normal
-    sort_order: 260
+    sort_order: 272
     tags:
       - BUG-20260527-01
     due_date: '2026-05-28'
-    updated_at: '2026-05-28T12:26:22.597Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0261
     title: CHG-079-03 ユーザー確認：起動時更新アラート表示確認
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 261
+    sort_order: 273
     tags:
       - CHG-079
       - ユーザー確認
       - 自動更新
     due_date: '2026-05-20'
-    updated_at: '2026-05-20T12:46:22.956Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0271
     title: 仕様変更：最新版のダウンロード先の変更
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 261
+    sort_order: 274
     tags:
       - CHG-081
       - 自動更新
       - Cloudflare
     due_date: '2026-05-29'
-    updated_at: '2026-05-29T12:53:21.324Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0272
     title: CHG-081-01 設計：最新版ダウンロード先Cloudflare化の仕様反映
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 262
+    sort_order: 275
     tags:
       - CHG-081
       - 設計
       - 自動更新
       - Cloudflare
     due_date: null
-    updated_at: '2026-05-27T10:27:07+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0273
     title: CHG-081-02 実装：Cloudflare R2更新メタデータ対応
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 263
+    sort_order: 276
     tags:
       - CHG-081
       - 実装
       - 自動更新
       - Cloudflare
     due_date: null
-    updated_at: '2026-05-27T10:27:07+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0264
     title: CHG-080-01 設計：タスクファイルパスコピー仕様反映
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 264
+    sort_order: 277
     tags:
       - CHG-080
       - 設計
       - パスコピー
     due_date: '2026-05-22'
-    updated_at: '2026-05-22T12:35:50+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0274
     title: CHG-081-03 ユーザー確認：Cloudflare更新確認・ダウンロード確認
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 264
+    sort_order: 278
     tags:
       - CHG-081
       - ユーザー確認
       - 自動更新
       - Cloudflare
     due_date: '2026-05-29'
-    updated_at: '2026-05-29T12:53:15.949Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0265
     title: CHG-080-02 実装：タスク一覧と詳細ペインのパスコピー導線
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 265
+    sort_order: 279
     tags:
       - CHG-080
       - 実装
       - パスコピー
     due_date: '2026-05-22'
-    updated_at: '2026-05-22T12:35:50+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0266
     title: CHG-080-03 ユーザー確認：パスコピー動作確認
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 266
+    sort_order: 280
     tags:
       - CHG-080
       - ユーザー確認
       - パスコピー
     due_date: '2026-05-29'
-    updated_at: '2026-05-29T12:53:25.140Z'
-  - id: T-0268
-    title: AI秘書のテンプレートを作成し、Boothに登録する
-    list: 販売戦略
-    status: todo
-    priority: normal
-    sort_order: 268
-    tags:
-      - AI秘書
-      - テンプレート
-      - Booth
-    due_date: null
-    updated_at: '2026-05-24T00:10:00+09:00'
-  - id: T-0269
-    title: AI秘書のnote記事を書く
-    list: 販売戦略
-    status: todo
-    priority: normal
-    sort_order: 269
-    tags:
-      - AI秘書
-      - note
-      - 活用事例
-    due_date: null
-    updated_at: '2026-05-24T00:00:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0275
     title: 仕様変更：タスク表示性能改善
     list: 仕様変更
     status: done
     priority: high
-    sort_order: 275
+    sort_order: 281
     tags:
       - CHG-082
       - 性能改善
     due_date: '2026-05-29'
-    updated_at: '2026-05-29T12:53:34.856Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0276
     title: CHG-082-01 設計：性能改善方針の反映
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 276
+    sort_order: 282
     tags:
       - CHG-082
       - 設計
     due_date: null
-    updated_at: '2026-05-27T12:00:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0277
     title: CHG-082-02 実装：差分更新と_index.yaml batch化
     list: 仕様変更
     status: done
     priority: high
-    sort_order: 277
+    sort_order: 283
     tags:
       - CHG-082
       - 実装
     due_date: null
-    updated_at: '2026-05-27T12:00:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0278
     title: CHG-082-03 実装：表示仮想化と検索軽量化
     list: 仕様変更
     status: done
     priority: high
-    sort_order: 278
+    sort_order: 284
     tags:
       - CHG-082
       - 実装
     due_date: null
-    updated_at: '2026-05-27T12:00:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0279
     title: CHG-082-04 確認：性能改善の動作確認
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 279
+    sort_order: 285
     tags:
       - CHG-082
       - 確認
     due_date: '2026-05-29'
-    updated_at: '2026-05-29T12:53:34.180Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0280
     title: 仕様変更：完了タスク遅延読み込み
     list: 仕様変更
     status: done
     priority: high
-    sort_order: 280
+    sort_order: 286
     tags:
       - CHG-083
       - 性能改善
       - 遅延読み込み
     due_date: null
-    updated_at: '2026-05-27T22:00:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0281
     title: CHG-083-01 設計：完了タスク遅延読み込み方針の反映
     list: 仕様変更
     status: done
     priority: high
-    sort_order: 281
+    sort_order: 287
     tags:
       - CHG-083
       - 設計
     due_date: null
-    updated_at: '2026-05-27T22:00:00+09:00'
-  - id: T-0291
-    title: Cotaskaの知名度を上げたい
-    list: 販売戦略
-    status: todo
-    priority: normal
-    sort_order: 281
-    tags: []
-    due_date: null
-    updated_at: '2026-06-28T13:01:33.340Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0282
     title: CHG-083-02 実装：初期読み込み対象の絞り込み
     list: 仕様変更
     status: done
     priority: high
-    sort_order: 282
+    sort_order: 288
     tags:
       - CHG-083
       - 実装
     due_date: null
-    updated_at: '2026-05-27T22:00:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0283
     title: CHG-083-03 実装：古い完了タスクの追加読み込み
     list: 仕様変更
     status: done
     priority: high
-    sort_order: 283
+    sort_order: 289
     tags:
       - CHG-083
       - 実装
     due_date: null
-    updated_at: '2026-05-27T22:00:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0284
     title: CHG-083-04 実装：検索対象範囲と全履歴検索導線
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 284
+    sort_order: 290
     tags:
       - CHG-083
       - 実装
       - 検索
     due_date: null
-    updated_at: '2026-05-27T22:00:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0285
     title: CHG-083-05 確認：完了タスク遅延読み込みの仕様確認
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 285
+    sort_order: 291
     tags:
       - CHG-083
       - 確認
     due_date: null
-    updated_at: '2026-05-27T22:00:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0286
     title: GitをEbiSenbeiアカウントへ引っ越し
     list: Cotaska
     status: done
     priority: normal
-    sort_order: 286
+    sort_order: 292
     tags: []
     due_date: null
-    updated_at: '2026-05-28T22:23:32+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0287
     title: 仕様変更：編集モードURLリンク化
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 287
+    sort_order: 293
     tags:
       - CHG-084
       - URL
       - 編集モード
     due_date: null
-    updated_at: '2026-05-28T21:27:22+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0288
     title: CHG-084-01 設計：編集モードURLリンク化の仕様反映
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 288
+    sort_order: 294
     tags:
       - CHG-084
       - 設計
       - URL
     due_date: null
-    updated_at: '2026-05-28T20:59:27+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0289
     title: CHG-084-02 実装：編集モードURLの青文字表示とリンク起動
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 289
+    sort_order: 295
     tags:
       - CHG-084
       - 実装
       - URL
     due_date: null
-    updated_at: '2026-05-28T20:59:27+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0290
     title: CHG-084-03 確認：編集モードURLリンク化の動作確認
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 290
+    sort_order: 296
     tags:
       - CHG-084
       - 確認
       - URL
     due_date: null
-    updated_at: '2026-05-28T21:27:22+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0300
     title: 仕様変更：期限項目の追加
     list: null
     status: done
     priority: normal
-    sort_order: 290
+    sort_order: 297
     tags:
       - CHG-085
     due_date: '2026-06-02'
-    updated_at: '2026-06-02T14:02:40.600Z'
-  - id: T-0292
-    title: Cotaska認知向上：価値提案と想定ユーザーを整理する
-    list: 販売戦略
-    status: todo
-    priority: normal
-    sort_order: 292
-    tags:
-      - Cotaska
-      - 知名度向上
-      - ロードマップ
-    due_date: null
-    updated_at: '2026-06-28T13:01:41.257Z'
-  - id: T-0293
-    title: Cotaska認知向上：紹介文とキャッチコピーを作る
-    list: 販売戦略
-    status: todo
-    priority: normal
-    sort_order: 293
-    tags:
-      - Cotaska
-      - 知名度向上
-      - コピー
-    due_date: null
-    updated_at: '2026-06-28T13:01:44.620Z'
-  - id: T-0294
-    title: Cotaska認知向上：スクリーンショットと短い操作動画を用意する
-    list: 販売戦略
-    status: todo
-    priority: normal
-    sort_order: 294
-    tags:
-      - Cotaska
-      - 知名度向上
-      - 素材
-    due_date: null
-    updated_at: '2026-06-28T13:01:48.061Z'
-  - id: T-0295
-    title: Cotaska認知向上：公開・ダウンロード導線を整える
-    list: 販売戦略
-    status: todo
-    priority: normal
-    sort_order: 295
-    tags:
-      - Cotaska
-      - 知名度向上
-      - 配布
-    due_date: null
-    updated_at: '2026-06-28T13:01:52.328Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0305
     title: 仕様変更：期限サブ画面の仕様変更
     list: null
     status: done
     priority: normal
-    sort_order: 295
+    sort_order: 298
     tags:
       - CHG-086
     due_date: '2026-06-02'
-    updated_at: '2026-06-02T14:02:52.650Z'
-  - id: T-0296
-    title: Cotaska認知向上：noteとSNSの発信計画を作る
-    list: 販売戦略
-    status: todo
-    priority: normal
-    sort_order: 296
-    tags:
-      - Cotaska
-      - 知名度向上
-      - 発信
-    due_date: null
-    updated_at: '2026-06-28T13:01:55.153Z'
-  - id: T-0297
-    title: Cotaska認知向上：ユーザー反応と改善要望の受け皿を作る
-    list: 販売戦略
-    status: todo
-    priority: normal
-    sort_order: 297
-    tags:
-      - Cotaska
-      - 知名度向上
-      - フィードバック
-    due_date: null
-    updated_at: '2026-06-28T13:01:57.823Z'
-  - id: T-0298
-    title: Cotaska認知向上：流入と反応の確認指標を決める
-    list: 販売戦略
-    status: todo
-    priority: normal
-    sort_order: 298
-    tags:
-      - Cotaska
-      - 知名度向上
-      - 効果測定
-    due_date: null
-    updated_at: '2026-06-28T13:02:00.104Z'
-  - id: T-0299
-    title: Cotaska認知向上：初回公開キャンペーンを実施する
-    list: 販売戦略
-    status: todo
-    priority: normal
-    sort_order: 299
-    tags:
-      - Cotaska
-      - 知名度向上
-      - 初回公開
-    due_date: null
-    updated_at: '2026-06-28T13:02:02.425Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0310
     title: 不具合：タスク更新時に画面がちらちらする
     list: 不具合修正
     status: done
     priority: normal
-    sort_order: 300
+    sort_order: 299
     tags:
       - BUG-20260625-01
     due_date: '2026-06-25'
-    updated_at: '2026-06-25T22:03:18+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0301
     title: CHG-085-01 設計：詳細メタ情報の期限項目追加を画面モックへ反映
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 301
+    sort_order: 300
     tags:
       - CHG-085
       - 設計
       - 画面モック
     due_date: '2026-06-02'
-    updated_at: '2026-06-02T14:14:30+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0311
     title: BUG-20260625-02 不具合：タスクが100件以上あると古いファイルが読み込めない
     list: 不具合修正
@@ -3310,171 +3438,171 @@ tasks:
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 306
+    sort_order: 305
     tags:
       - CHG-086
       - 設計
       - 日付
     due_date: '2026-06-02'
-    updated_at: '2026-06-02T21:20:13+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0307
     title: CHG-086-02 実装：日付ショートカットを即時確定にする
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 306
+    tags:
+      - CHG-086
+      - 実装
+      - 日付
+    due_date: '2026-06-02'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0308
+    title: CHG-086-03 確認：日付ショートカット即時確定の動作確認
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 307
     tags:
       - CHG-086
-      - 実装
-      - 日付
-    due_date: '2026-06-02'
-    updated_at: '2026-06-02T23:01:03+09:00'
-  - id: T-0308
-    title: CHG-086-03 確認：日付ショートカット即時確定の動作確認
-    list: 仕様変更
-    status: done
-    priority: normal
-    sort_order: 308
-    tags:
-      - CHG-086
       - 確認
       - 日付
     due_date: '2026-06-02'
-    updated_at: '2026-06-02T14:02:51.346Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0309
     title: BUG-20260603-01 設定 > アプリ情報 > 更新確認で fetch failed になる
     list: 不具合対応
     status: done
     priority: normal
-    sort_order: 309
+    sort_order: 308
     tags:
       - BUG-20260603-01
       - 更新確認
       - ネットワーク
     due_date: '2026-06-03'
-    updated_at: '2026-06-03T15:30:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0312
     title: CHG-087-01 実装：すべてビュー完了セクションの追加読み込み
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 312
+    sort_order: 309
     tags:
       - CHG-087
       - 実装
       - 完了タスク
     due_date: '2026-06-25'
-    updated_at: '2026-06-25T22:25:21+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0322
     title: 仕様変更：タスク最大化した時の戻り方
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 312
+    sort_order: 310
     tags:
       - CHG-089
       - 詳細ペイン
     due_date: null
-    updated_at: '2026-06-27T17:48:07+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0313
     title: CHG-087-02 確認：すべてビュー完了タスク追加読み込み
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 313
+    sort_order: 311
     tags:
       - CHG-087
       - 確認
       - 完了タスク
     due_date: '2026-06-25'
-    updated_at: '2026-06-25T22:25:21+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0314
     title: CHG-088-01 設計：ドラッグ親子紐づけ仕様を具体化
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 312
+    tags:
+      - CHG-088
+      - 設計
+      - 親子タスク
+      - ドラッグ
+    due_date: '2026-06-25'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0315
+    title: CHG-088-02 実装：ドラッグによる親子紐づけ保存
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 313
+    tags:
+      - CHG-088
+      - 実装
+      - 親子タスク
+      - ドラッグ
+    due_date: '2026-06-25'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0316
+    title: CHG-088-03 ユーザー確認：ドラッグ親子紐づけ操作
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 314
     tags:
       - CHG-088
-      - 設計
+      - ユーザー確認
       - 親子タスク
       - ドラッグ
-    due_date: '2026-06-25'
-    updated_at: '2026-06-25T23:05:34+09:00'
-  - id: T-0315
-    title: CHG-088-02 実装：ドラッグによる親子紐づけ保存
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0317
+    title: CHG-088-04 設計再整理：ドロップ位置で親子関係を決める
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 315
     tags:
       - CHG-088
-      - 実装
+      - 設計
       - 親子タスク
       - ドラッグ
-    due_date: '2026-06-25'
-    updated_at: '2026-06-27T00:20:00+09:00'
-  - id: T-0316
-    title: CHG-088-03 ユーザー確認：ドラッグ親子紐づけ操作
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0318
+    title: CHG-088-05 実装修正：ドロップ位置による親子解除・付け替え
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 316
     tags:
       - CHG-088
-      - ユーザー確認
-      - 親子タスク
-      - ドラッグ
-    due_date: null
-    updated_at: '2026-06-27T13:40:00+09:00'
-  - id: T-0317
-    title: CHG-088-04 設計再整理：ドロップ位置で親子関係を決める
-    list: 仕様変更
-    status: done
-    priority: normal
-    sort_order: 317
-    tags:
-      - CHG-088
-      - 設計
-      - 親子タスク
-      - ドラッグ
-    due_date: null
-    updated_at: '2026-06-27T12:15:00+09:00'
-  - id: T-0318
-    title: CHG-088-05 実装修正：ドロップ位置による親子解除・付け替え
-    list: 仕様変更
-    status: done
-    priority: normal
-    sort_order: 318
-    tags:
-      - CHG-088
       - 実装
       - 親子タスク
       - ドラッグ
     due_date: null
-    updated_at: '2026-06-27T12:15:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0328
     title: 不具合：AI初期画面
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 318
+    sort_order: 317
     tags: []
     due_date: '2026-06-28'
-    updated_at: '2026-06-28T13:04:40.059Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0319
     title: CHG-088-06 ユーザー確認：ドロップ位置による親子変更
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 319
+    sort_order: 318
     tags:
       - CHG-088
       - ユーザー確認
       - 親子タスク
       - ドラッグ
     due_date: null
-    updated_at: '2026-06-27T13:40:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0329
     title: 不具合：チャットの表示をマークダウンに
     list: 仕様変更
@@ -3502,294 +3630,242 @@ tasks:
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 320
+    sort_order: 321
     tags: []
     due_date: '2026-06-28'
-    updated_at: '2026-06-28T13:04:19.933Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0321
     title: BUG-20260627-02 子タスク保留で親タスクも保留になる問題を修正
     list: 不具合対応
     status: done
     priority: high
-    sort_order: 321
+    sort_order: 322
     tags:
       - BUG-20260627-02
       - 親子タスク
       - 保留
     due_date: null
-    updated_at: '2026-06-27T16:23:56+09:00'
-  - id: T-0331
-    title: 不具合：検索画面でタスク修正しても反映されない
-    list: 不具合修正
-    status: todo
-    priority: normal
-    sort_order: 321
-    tags: []
-    due_date: null
-    updated_at: '2026-06-29T15:08:18.243Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0332
     title: 不具合：権限設定の項目がない
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 322
+    sort_order: 323
     tags: []
     due_date: '2026-06-28'
-    updated_at: '2026-06-28T14:09:58.596Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0323
     title: CHG-089-01 設計：タスク詳細拡大解除導線を設計へ反映
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 323
+    sort_order: 324
     tags:
       - CHG-089
       - 設計
       - 詳細ペイン
     due_date: null
-    updated_at: '2026-06-27T17:04:24+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0333
     title: 不具合：添付ファイルがつけられない
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 323
+    sort_order: 325
     tags: []
     due_date: '2026-06-28'
-    updated_at: '2026-06-28T23:20:43+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0324
     title: CHG-089-02 実装：サイドバーアイコン押下で詳細拡大を解除
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 324
+    sort_order: 326
     tags:
       - CHG-089
       - 実装
       - 詳細ペイン
     due_date: null
-    updated_at: '2026-06-27T17:16:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0334
     title: 仕様変更：タスク詳細に「AIへチャット」を追加
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 324
+    sort_order: 327
     tags: []
     due_date: '2026-06-30'
-    updated_at: '2026-06-30T14:15:36.100Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0325
     title: CHG-089-03 確認：詳細拡大解除導線の動作確認
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 325
+    sort_order: 328
     tags:
       - CHG-089
       - ユーザー確認
       - 詳細ペイン
     due_date: null
-    updated_at: '2026-06-27T17:48:07+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0335
     title: 不具合：画面左が作業フォルダ⇒ファイルになっている
-    list: 仕様変更
-    status: done
-    priority: normal
-    sort_order: 325
-    tags: []
-    due_date: '2026-06-30'
-    updated_at: '2026-06-29T15:31:28.769Z'
-  - id: T-0326
-    title: 'CHG-058-03 実装: Codex応答からアクション提案を自動抽出する'
-    list: 仕様変更
-    status: todo
-    priority: normal
-    sort_order: 326
-    tags:
-      - CHG-058
-      - Codex SDK
-      - AIチャット
-    due_date: null
-    updated_at: '2026-06-28T18:24:56+09:00'
-  - id: T-0327
-    title: 'CHG-058-04 実装: Codex SDKチャットのストリーミング表示に対応する'
-    list: 仕様変更
-    status: todo
-    priority: normal
-    sort_order: 327
-    tags:
-      - CHG-058
-      - Codex SDK
-      - AIチャット
-    due_date: null
-    updated_at: '2026-06-28T18:24:56+09:00'
-  - id: T-0337
-    title: 仕様変更：チャット投稿直後は一番下に移動してほしい
-    list: 仕様変更
-    status: done
-    priority: normal
-    sort_order: 327
-    tags: []
-    due_date: '2026-06-28'
-    updated_at: '2026-06-28T23:28:39+09:00'
-  - id: T-0338
-    title: 仕様変更：CodexSDKからの処理待ちの時間表示を追加
-    list: 仕様変更
-    status: done
-    priority: normal
-    sort_order: 328
-    tags: []
-    due_date: '2026-06-28'
-    updated_at: '2026-06-28T23:30:36+09:00'
-  - id: T-0339
-    title: 仕様変更：画面右のコンテキストパネル
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 329
     tags: []
     due_date: '2026-06-30'
-    updated_at: '2026-06-30T14:13:59.897Z'
-  - id: T-0340
-    title: 仕様変更：ファイルツリーからドラッグ
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0337
+    title: 仕様変更：チャット投稿直後は一番下に移動してほしい
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 330
     tags: []
-    due_date: '2026-06-30'
-    updated_at: '2026-06-30T00:40:09+09:00'
-  - id: T-0341
-    title: 仕様変更：外部からファイルのドラッグ対応
+    due_date: '2026-06-28'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0338
+    title: 仕様変更：CodexSDKからの処理待ちの時間表示を追加
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 331
     tags: []
-    due_date: '2026-06-30'
-    updated_at: '2026-06-30T01:05:30+09:00'
-  - id: T-0342
-    title: 仕様変更：添付ファイル対応
+    due_date: '2026-06-28'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0339
+    title: 仕様変更：画面右のコンテキストパネル
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 332
     tags: []
-    due_date: null
-    updated_at: '2026-07-09T23:09:28+09:00'
-  - id: T-0343
-    title: 仕様変更：起動時に「すべて」「今日」
+    due_date: '2026-06-30'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0340
+    title: 仕様変更：ファイルツリーからドラッグ
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 333
     tags: []
-    due_date: null
-    updated_at: '2026-06-29T15:08:09.836Z'
-  - id: T-0344
-    title: 仕様変更：ファイルツリーのファイルクリック処理をなくす
+    due_date: '2026-06-30'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0341
+    title: 仕様変更：外部からファイルのドラッグ対応
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 334
     tags: []
     due_date: '2026-06-30'
-    updated_at: '2026-06-30T14:14:12.578Z'
-  - id: T-0345
-    title: 不具合：検索が利かない
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0342
+    title: 仕様変更：添付ファイル対応
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 335
     tags: []
-    due_date: '2026-06-30'
-    updated_at: '2026-06-30T13:29:12.642Z'
-  - id: T-0346
-    title: 不具合：下にいかない
+    due_date: null
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0344
+    title: 仕様変更：ファイルツリーのファイルクリック処理をなくす
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 336
     tags: []
     due_date: '2026-06-30'
-    updated_at: '2026-06-29T16:07:15.375Z'
-  - id: T-0347
-    title: 仕様変更：処理中に中断できるようにしてほしい
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0345
+    title: 不具合：検索が利かない
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 337
     tags: []
     due_date: '2026-06-30'
-    updated_at: '2026-06-30T14:26:11.413Z'
-  - id: T-0348
-    title: 仕様変更：画面右のコンテキストパネルの幅を変更できるようにしてほしい
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0346
+    title: 不具合：下にいかない
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 338
     tags: []
-    due_date: '2026-07-01'
-    updated_at: '2026-07-01T03:14:53.403Z'
-  - id: T-0349
-    title: 不具合：新しいスレッドでAIチャットができない
+    due_date: '2026-06-30'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0347
+    title: 仕様変更：処理中に中断できるようにしてほしい
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 339
     tags: []
-    due_date: '2026-07-01'
-    updated_at: '2026-07-01T00:56:24.279Z'
-  - id: T-0350
-    title: 仕様変更：処理中のチャットが見れないか？
+    due_date: '2026-06-30'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0348
+    title: 仕様変更：画面右のコンテキストパネルの幅を変更できるようにしてほしい
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 340
     tags: []
-    due_date: '2026-06-30'
-    updated_at: '2026-06-30T14:41:18.861Z'
-  - id: T-0351
-    title: 不具合：アーカイブボタンを変えたい＋スレッドをアーカイブにできない
+    due_date: '2026-07-01'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0349
+    title: 不具合：新しいスレッドでAIチャットができない
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 341
     tags: []
     due_date: '2026-07-01'
-    updated_at: '2026-07-01T00:56:32.900Z'
-  - id: T-0353
-    title: 仕様変更：Codex認証状態確認とログイン案内を設定画面に追加
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0350
+    title: 仕様変更：処理中のチャットが見れないか？
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 342
+    tags: []
+    due_date: '2026-06-30'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0351
+    title: 不具合：アーカイブボタンを変えたい＋スレッドをアーカイブにできない
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 343
-    tags:
-      - CHG-058
-    due_date: '2026-07-05'
-    updated_at: '2026-07-05T12:50:16.572Z'
-  - id: T-0354
-    title: 調査：Codex SDK/CLIの認証状態確認方法を整理
+    tags: []
+    due_date: '2026-07-01'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0353
+    title: 仕様変更：Codex認証状態確認とログイン案内を設定画面に追加
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 344
     tags:
       - CHG-058
-    due_date: '2026-07-01'
-    updated_at: '2026-07-05T05:32:15.519Z'
-  - id: T-0355
-    title: 実装：main processにCodex認証診断IPCを追加
+    due_date: '2026-07-05'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0354
+    title: 調査：Codex SDK/CLIの認証状態確認方法を整理
     list: 仕様変更
     status: done
     priority: normal
     sort_order: 345
     tags:
       - CHG-058
-    due_date: '2026-07-05'
-    updated_at: '2026-07-05T14:39:42.488+09:00'
-  - id: T-0356
-    title: 実装：設定画面にCodex認証状態表示と再確認ボタンを追加
+    due_date: '2026-07-01'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0355
+    title: 実装：main processにCodex認証診断IPCを追加
     list: 仕様変更
     status: done
     priority: normal
@@ -3797,9 +3873,9 @@ tasks:
     tags:
       - CHG-058
     due_date: '2026-07-05'
-    updated_at: '2026-07-05T14:39:42.488+09:00'
-  - id: T-0357
-    title: 実装：AIチャット画面の認証エラー時に設定画面へ誘導
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0356
+    title: 実装：設定画面にCodex認証状態表示と再確認ボタンを追加
     list: 仕様変更
     status: done
     priority: normal
@@ -3807,9 +3883,9 @@ tasks:
     tags:
       - CHG-058
     due_date: '2026-07-05'
-    updated_at: '2026-07-05T14:39:42.488+09:00'
-  - id: T-0358
-    title: 確認：未認証/認証済み/SDK未検出時の表示確認
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0357
+    title: 実装：AIチャット画面の認証エラー時に設定画面へ誘導
     list: 仕様変更
     status: done
     priority: normal
@@ -3817,25 +3893,26 @@ tasks:
     tags:
       - CHG-058
     due_date: '2026-07-05'
-    updated_at: '2026-07-05T12:50:15.494Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0358
+    title: 確認：未認証/認証済み/SDK未検出時の表示確認
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 349
+    tags:
+      - CHG-058
+    due_date: '2026-07-05'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0359
     title: 調査：チャットの応答速度が速くならないか？
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 349
-    tags: []
-    due_date: '2026-07-02'
-    updated_at: '2026-07-05T12:43:29.275Z'
-  - id: T-0360
-    title: 仕様変更：添付ファイルをクリックしたときの挙動
-    list: 仕様変更
-    status: todo
-    priority: normal
     sort_order: 350
     tags: []
-    due_date: '2026-07-05'
-    updated_at: '2026-07-09T14:30:59.507Z'
+    due_date: '2026-07-02'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0361
     title: 設計：これまでを振り返って
     list: 仕様変更
@@ -3851,67 +3928,94 @@ tasks:
     list: 仕様変更
     status: done
     priority: high
-    sort_order: 354
+    sort_order: 352
     tags:
       - CHG-058
       - AIチャット
       - 応答速度
     due_date: '2026-07-02'
-    updated_at: '2026-07-05T15:10:04.207+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0365
     title: '実装: Codex SDKインスタンスの使い回しを検討・実装する'
     list: 仕様変更
     status: done
     priority: high
-    sort_order: 355
+    sort_order: 353
     tags:
       - CHG-058
       - AIチャット
       - 応答速度
       - Codex SDK
     due_date: '2026-07-02'
-    updated_at: '2026-07-05T12:43:29.286Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0366
     title: '実装: 単純質問時の参照ファイル送信抑制を追加する'
     list: 仕様変更
     status: done
     priority: high
-    sort_order: 356
+    sort_order: 354
     tags:
       - CHG-058
       - AIチャット
       - 応答速度
       - 参照ファイル
     due_date: '2026-07-02'
-    updated_at: '2026-07-05T12:43:29.296Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0367
     title: '調査・実装: 速度優先モードとFast mode利用可否を整理する'
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 357
+    sort_order: 355
     tags:
       - CHG-058
       - AIチャット
       - 応答速度
       - 設定
     due_date: '2026-07-02'
-    updated_at: '2026-07-05T15:10:04.207+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0368
     title: '実装: agent_messageの途中本文をチャット欄へ逐次表示する'
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 358
+    sort_order: 356
     tags:
       - CHG-058
       - AIチャット
       - 応答速度
       - UI
     due_date: '2026-07-02'
-    updated_at: '2026-07-05T15:10:04.207+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0369
     title: '調査: AIチャット入力トークン肥大化の原因を確認する'
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 357
+    tags:
+      - CHG-058
+      - AIチャット
+      - 応答速度
+      - トークン
+    due_date: '2026-07-02'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0370
+    title: '調査・実装: 速度優先時の推論強度設定を検証する'
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 358
+    tags:
+      - CHG-058
+      - AIチャット
+      - 応答速度
+      - Codex SDK
+      - 設定
+    due_date: '2026-07-02'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0371
+    title: '実装: 速度優先モード用の軽量Codex実行プロファイルを追加する'
     list: 仕様変更
     status: done
     priority: high
@@ -3920,11 +4024,12 @@ tasks:
       - CHG-058
       - AIチャット
       - 応答速度
-      - トークン
+      - Codex SDK
+      - 設定
     due_date: '2026-07-02'
-    updated_at: '2026-07-05T15:10:04.207+09:00'
-  - id: T-0370
-    title: '調査・実装: 速度優先時の推論強度設定を検証する'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0372
+    title: '調査: 新規スレッド初回と継続投稿のキャッシュ効果を測定する'
     list: 仕様変更
     status: done
     priority: high
@@ -3933,12 +4038,11 @@ tasks:
       - CHG-058
       - AIチャット
       - 応答速度
-      - Codex SDK
-      - 設定
-    due_date: '2026-07-02'
-    updated_at: '2026-07-05T15:10:04.207+09:00'
-  - id: T-0371
-    title: '実装: 速度優先モード用の軽量Codex実行プロファイルを追加する'
+      - キャッシュ
+    due_date: '2026-07-03'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0373
+    title: '実装: タスク単位の既存AIスレッド継続利用を優先する'
     list: 仕様変更
     status: done
     priority: high
@@ -3947,39 +4051,38 @@ tasks:
       - CHG-058
       - AIチャット
       - 応答速度
-      - Codex SDK
-      - 設定
-    due_date: '2026-07-02'
-    updated_at: '2026-07-05T15:10:04.207+09:00'
-  - id: T-0372
-    title: '調査: 新規スレッド初回と継続投稿のキャッシュ効果を測定する'
+      - UI
+    due_date: '2026-07-03'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0374
+    title: '調査: 新規AIスレッド初回遅延のプリウォーム可否を確認する'
     list: 仕様変更
     status: done
-    priority: high
+    priority: normal
     sort_order: 362
     tags:
       - CHG-058
       - AIチャット
       - 応答速度
-      - キャッシュ
+      - Codex SDK
     due_date: '2026-07-03'
-    updated_at: '2026-07-05T15:10:04.207+09:00'
-  - id: T-0373
-    title: '実装: タスク単位の既存AIスレッド継続利用を優先する'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0375
+    title: '後処理: AI応答速度調査ログを削除または設定化する'
     list: 仕様変更
     status: done
-    priority: high
+    priority: normal
     sort_order: 363
     tags:
       - CHG-058
       - AIチャット
       - 応答速度
-      - UI
+      - 後処理
     due_date: '2026-07-03'
-    updated_at: '2026-07-05T15:10:04.207+09:00'
-  - id: T-0374
-    title: '調査: 新規AIスレッド初回遅延のプリウォーム可否を確認する'
-    list: 仕様変更
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0376
+    title: '不具合: ai_messages.token_countでcached_input_tokensを二重計上している'
+    list: 不具合修正
     status: done
     priority: normal
     sort_order: 364
@@ -3987,41 +4090,15 @@ tasks:
       - CHG-058
       - AIチャット
       - 応答速度
-      - Codex SDK
-    due_date: '2026-07-03'
-    updated_at: '2026-07-05T15:10:04.207+09:00'
-  - id: T-0375
-    title: '後処理: AI応答速度調査ログを削除または設定化する'
-    list: 仕様変更
-    status: done
-    priority: normal
-    sort_order: 365
-    tags:
-      - CHG-058
-      - AIチャット
-      - 応答速度
-      - 後処理
-    due_date: '2026-07-03'
-    updated_at: '2026-07-05T15:10:04.207+09:00'
-  - id: T-0376
-    title: '不具合: ai_messages.token_countでcached_input_tokensを二重計上している'
-    list: 不具合修正
-    status: done
-    priority: normal
-    sort_order: 366
-    tags:
-      - CHG-058
-      - AIチャット
-      - 応答速度
       - ログ
     due_date: '2026-07-04'
-    updated_at: '2026-07-05T15:10:04.207+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0377
     title: '仕様変更: 速度優先モードではCodexスレッドを継続しない/ローテーションする'
     list: 仕様変更
     status: done
     priority: high
-    sort_order: 367
+    sort_order: 365
     tags:
       - CHG-058
       - AIチャット
@@ -4029,73 +4106,167 @@ tasks:
       - Codex SDK
       - スレッド
     due_date: '2026-07-04'
-    updated_at: '2026-07-05T15:10:04.207+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0378
     title: 設計反映：CHG-058 Codex認証状態確認と未反映仕様を設計書へ追記
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 378
+    sort_order: 366
     tags:
       - CHG-058
     due_date: '2026-07-05'
-    updated_at: '2026-07-05T14:57:48.393+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0379
     title: 調査：CHG-058関連の設計書反映漏れを最新実装から洗い出す
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 379
+    sort_order: 367
     tags:
       - CHG-058
     due_date: '2026-07-05'
-    updated_at: '2026-07-05T14:45:19.173+09:00'
-  - id: T-0380
-    title: 不具合：起動時main process JavaScript errorのログ未出力を修正
-    list: 不具合対応
-    status: todo
-    priority: high
-    sort_order: 380
-    tags:
-      - 起動時エラー
-      - ログ
-      - main process
-    due_date: null
-    updated_at: '2026-07-09T17:35:00+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0381
     title: CHG-090-01 設計反映：AI作業フォルダ初期値空欄化
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 381
+    sort_order: 368
     tags:
       - CHG-090
       - 設計
     due_date: null
-    updated_at: '2026-07-09T13:36:07.000Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0382
     title: CHG-090-02 実装：AI作業フォルダ初期値空欄化
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 382
+    sort_order: 369
     tags:
       - CHG-090
       - 実装
     due_date: null
-    updated_at: '2026-07-09T13:36:07.000Z'
+    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0383
     title: CHG-090-03 確認：AI作業フォルダ初期値空欄化
     list: 仕様変更
     status: done
     priority: normal
-    sort_order: 383
+    sort_order: 370
     tags:
       - CHG-090
       - ユーザー確認
     due_date: null
-    updated_at: '2026-07-09T23:29:41+09:00'
+    updated_at: '2026-07-10T00:26:52.658Z'
+  - id: T-0390
+    title: CHG-091-04 設計更新：コマンドライン途中経過の折り畳み
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 371
+    tags:
+      - CHG-091
+      - 設計
+      - AIチャット
+      - コマンドライン
+      - 折り畳み
+    due_date: null
+    updated_at: '2026-07-10T12:15:00+09:00'
+  - id: T-0391
+    title: CHG-091-05 実装：コマンドライン途中経過の折り畳み
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 372
+    tags:
+      - CHG-091
+      - 実装
+      - AIチャット
+      - コマンドライン
+      - 折り畳み
+    due_date: null
+    updated_at: '2026-07-10T12:15:00+09:00'
+  - id: T-0392
+    title: CHG-091-06 確認：コマンドライン途中経過の折り畳み
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 373
+    tags:
+      - CHG-091
+      - ユーザー確認
+      - AIチャット
+      - コマンドライン
+      - 折り畳み
+    due_date: '2026-07-10'
+    updated_at: '2026-07-10T03:04:28.933Z'
+  - id: T-0393
+    title: CHG-092-01 設計：AIチャットMarkdownリンクの右サイドパネル表示
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 374
+    tags:
+      - CHG-092
+      - BUG-20260710-02
+      - AIチャット
+      - リンク
+      - 右サイドパネル
+    due_date: '2026-07-10'
+    updated_at: '2026-07-10T12:35:00+09:00'
+  - id: T-0394
+    title: CHG-092-02 実装：リンク先解決と右サイドパネル表示
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 375
+    tags:
+      - CHG-092
+      - BUG-20260710-02
+      - AIチャット
+      - リンク
+      - 右サイドパネル
+    due_date: '2026-07-10'
+    updated_at: '2026-07-10T12:35:00+09:00'
+  - id: T-0395
+    title: CHG-092-03 確認：AIチャットリンククリックの右サイドパネル表示
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 376
+    tags:
+      - CHG-092
+      - BUG-20260710-02
+      - AIチャット
+      - リンク
+      - 右サイドパネル
+    due_date: '2026-07-10'
+    updated_at: '2026-07-10T03:27:59.392Z'
+  - id: T-0396
+    title: 仕様変更：処理中のAIチャットを途中で中断させない
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 386
+    tags: []
+    due_date: '2026-07-10'
+    updated_at: '2026-07-10T03:06:26.172Z'
+  - id: T-0397
+    title: BUG-20260710-03 AIスレッドDB保存先が_app配下になり更新で初期化される
+    list: null
+    status: todo
+    priority: high
+    sort_order: 387
+    tags:
+      - BUG-20260710-03
+      - AIチャット
+      - Portable更新
+      - ai.sqlite
+    due_date: '2026-07-10'
+    updated_at: '2026-07-10T03:30:57.917Z'
 task_file_roots:
   - .
-next_task_id: 384
-last_updated: '2026-07-09T14:31:00.124Z'
+next_task_id: 398
+last_updated: '2026-07-10T03:30:58.517Z'
