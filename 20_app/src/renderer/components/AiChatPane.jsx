@@ -165,6 +165,7 @@ function AiChatPane({
   const messageScrollRef = useRef(null);
   const pendingAutoScrollRef = useRef(false);
   const activeSendRequestRef = useRef(null);
+  const activeRunHydrationKeyRef = useRef("");
   const [sideTab, setSideTab] = useState("threads");
   const [contextPanel, setContextPanel] = useState(null);
   const [selectedThreadId, setSelectedThreadId] = useState(null);
@@ -174,6 +175,7 @@ function AiChatPane({
   const [sideSearchQuery, setSideSearchQuery] = useState("");
   const [filePreviewMode, setFilePreviewMode] = useState(false);
   const [threads, setThreads] = useState([]);
+  const [activeRuns, setActiveRuns] = useState([]);
   const [messages, setMessages] = useState([]);
   const [references, setReferences] = useState([]);
   const [workdirTree, setWorkdirTree] = useState({ rows: [], root: "", truncated: false });
@@ -197,6 +199,14 @@ function AiChatPane({
 
   const aiChatApi = useMemo(() => getAiChatApi(), []);
   const selectedThread = threads.find((thread) => thread.id === selectedThreadId) || null;
+  const activeRunByThreadId = useMemo(() => {
+    const map = new Map();
+    activeRuns.forEach((run) => {
+      if (run?.thread_id) map.set(run.thread_id, run);
+    });
+    return map;
+  }, [activeRuns]);
+  const selectedActiveRun = selectedThreadId ? activeRunByThreadId.get(selectedThreadId) || null : null;
   const chatTitle = selectedThread?.title || "新しいAIチャット";
 
   const mapThread = (thread) => ({
@@ -255,16 +265,17 @@ function AiChatPane({
       return null;
     }
     if (item.type === "reasoning") {
-      return { id, title: "考えを整理しています", detail: item.text || "", status };
+      return { id, title: "考えを整理しています", detail: item.text || "", status, displayKind: "narrative" };
     }
     if (item.type === "command_execution") {
       const command = item.command ? `$ ${item.command}` : "コマンド実行";
       return {
         id,
-        title: item.status === "completed" ? "コマンド実行が完了しました" : "コマンドを実行しています",
+        title: item.status === "completed" ? "コマンドを実行しました" : "コマンドを実行中です",
         detail: [command, item.aggregated_output].filter(Boolean).join("\n"),
         status: item.status || status,
         detailKind: "command",
+        displayKind: "command",
       };
     }
     if (item.type === "file_change") {
@@ -276,6 +287,7 @@ function AiChatPane({
         title: item.status === "completed" ? "ファイル変更が完了しました" : "ファイルを変更しています",
         detail: changes,
         status: item.status || status,
+        displayKind: "activity",
       };
     }
     if (item.type === "mcp_tool_call") {
@@ -284,16 +296,17 @@ function AiChatPane({
         title: item.status === "completed" ? "ツール実行が完了しました" : "ツールを実行しています",
         detail: [item.server, item.tool].filter(Boolean).join(" / "),
         status: item.status || status,
+        displayKind: "activity",
       };
     }
     if (item.type === "todo_list") {
       const todoText = Array.isArray(item.items)
         ? item.items.map((todo) => `${todo.completed ? "[x]" : "[ ]"} ${todo.text}`).join("\n")
         : "";
-      return { id, title: "作業リストを更新しました", detail: todoText, status };
+      return { id, title: "作業リストを更新しました", detail: todoText, status, displayKind: "activity" };
     }
     if (item.type === "web_search") {
-      return { id, title: "Web検索を実行しています", detail: item.query || "", status };
+      return { id, title: "Web検索を実行しています", detail: item.query || "", status, displayKind: "activity" };
     }
     if (item.type === "error") {
       return { id, title: "エラーが発生しました", detail: item.message || "", status: "failed" };
@@ -308,6 +321,53 @@ function AiChatPane({
       id: `${nextEvent.id}-${Date.now()}-${current.length}`,
     };
     return [...current, renderEvent].slice(-50);
+  };
+
+  const streamEventsFromPayloads = (payloads) => {
+    const events = [];
+    (payloads || []).forEach((payload) => {
+      const agentText = getAgentMessageText(payload);
+      if (agentText) {
+        events.push({
+          id: `${payload?.event?.item?.id || "agent-message"}-${events.length}`,
+          title: "",
+          detail: agentText,
+          status: payload?.event?.item?.status || payload?.event?.type || "in_progress",
+          displayKind: "narrative",
+        });
+      }
+      const nextEvent = summarizeStreamEvent(payload);
+      if (nextEvent) {
+        events.push({
+          ...nextEvent,
+          id: `${nextEvent.id}-${events.length}`,
+        });
+      }
+    });
+    return events.slice(-50);
+  };
+
+  const appendRunEventPayload = (payload) => {
+    const agentText = getAgentMessageText(payload);
+    let appendedStreamEvent = false;
+    if (agentText) {
+      setStreamEvents((current) => appendStreamEvent(current, {
+        id: payload?.event?.item?.id || "agent-message",
+        title: "",
+        detail: agentText,
+        status: payload?.event?.item?.status || payload?.event?.type || "in_progress",
+        displayKind: "narrative",
+      }));
+      appendedStreamEvent = true;
+    }
+    const nextEvent = summarizeStreamEvent(payload);
+    if (nextEvent) {
+      setStreamEvents((current) => appendStreamEvent(current, nextEvent));
+      appendedStreamEvent = true;
+    }
+    if (appendedStreamEvent) {
+      requestScrollMessagesToBottom();
+    }
   };
 
   const toggleStreamEventDetail = (eventId) => {
@@ -465,6 +525,17 @@ function AiChatPane({
     return mapped;
   };
 
+  const refreshActiveRuns = async () => {
+    if (!aiChatApi?.listActiveRuns) {
+      setActiveRuns([]);
+      return [];
+    }
+    const rows = await aiChatApi.listActiveRuns();
+    const mapped = Array.isArray(rows) ? rows.filter((run) => run?.thread_id && !run?.canceled) : [];
+    setActiveRuns(mapped);
+    return mapped;
+  };
+
   const refreshWorkdirTree = async () => {
     if (!aiChatApi?.listWorkdirTree) {
       setWorkdirTree({ rows: [], root: "", truncated: false });
@@ -541,6 +612,7 @@ function AiChatPane({
             : `Codex SDK連携を利用できます。AI DB: ${result?.path || "未確認"}`,
         });
         const mapped = await refreshThreads();
+        await refreshActiveRuns();
         if (isWorkdirConfigured) {
           await refreshWorkdirTree();
         } else {
@@ -570,29 +642,91 @@ function AiChatPane({
   useEffect(() => {
     if (!aiChatApi?.onRunEvent) return undefined;
     return aiChatApi.onRunEvent((payload) => {
+      if (payload?.thread_id) {
+        setActiveRuns((current) => {
+          if (current.some((run) => run.request_id === payload.request_id)) {
+            return current.map((run) => (
+              run.request_id === payload.request_id
+                ? {
+                  ...run,
+                  thread_id: payload.thread_id || run.thread_id,
+                  run_id: payload.run_id || run.run_id,
+                  last_event_at: new Date().toISOString(),
+                  event_count: Number(run.event_count || 0) + 1,
+                }
+                : run
+            ));
+          }
+          return [
+            ...current,
+            {
+              request_id: payload.request_id,
+              thread_id: payload.thread_id,
+              run_id: payload.run_id || null,
+              last_event_at: new Date().toISOString(),
+              event_count: 1,
+            },
+          ];
+        });
+      }
       const activeRequest = activeSendRequestRef.current;
       if (!activeRequest?.id || payload?.request_id !== activeRequest.id || activeRequest.canceled) return;
-      const agentText = getAgentMessageText(payload);
-      let appendedStreamEvent = false;
-      if (agentText) {
-        setStreamEvents((current) => appendStreamEvent(current, {
-          id: payload?.event?.item?.id || "agent-message",
-          title: "応答本文を受信しています",
-          detail: agentText,
-          status: payload?.event?.item?.status || payload?.event?.type || "in_progress",
-        }));
-        appendedStreamEvent = true;
-      }
-      const nextEvent = summarizeStreamEvent(payload);
-      if (nextEvent) {
-        setStreamEvents((current) => appendStreamEvent(current, nextEvent));
-        appendedStreamEvent = true;
-      }
-      if (appendedStreamEvent) {
-        requestScrollMessagesToBottom();
-      }
+      appendRunEventPayload(payload);
     });
   }, [aiChatApi]);
+
+  useEffect(() => {
+    if (!aiChatApi?.listActiveRuns) return undefined;
+    const timer = window.setInterval(() => {
+      refreshActiveRuns().catch(() => {});
+    }, 2500);
+    return () => window.clearInterval(timer);
+  }, [aiChatApi]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const hydrateActiveRun = async () => {
+      if (!selectedActiveRun?.request_id) {
+        const currentActive = activeSendRequestRef.current;
+        if (currentActive && (currentActive.thread_id || selectedThreadId)) {
+          activeSendRequestRef.current = null;
+          setIsSending(false);
+          setStreamEvents([]);
+          setExpandedStreamEventIds(new Set());
+        }
+        activeRunHydrationKeyRef.current = "";
+        return;
+      }
+
+      const hydrateKey = `${selectedActiveRun.request_id}:${selectedThreadId}`;
+      activeSendRequestRef.current = {
+        id: selectedActiveRun.request_id,
+        run_id: selectedActiveRun.run_id || null,
+        thread_id: selectedThreadId,
+        canceled: false,
+      };
+      setIsSending(true);
+      if (activeRunHydrationKeyRef.current === hydrateKey && streamEvents.length > 0) return;
+      activeRunHydrationKeyRef.current = hydrateKey;
+      try {
+        const payloads = await aiChatApi?.listRunEvents?.({
+          request_id: selectedActiveRun.request_id,
+          run_id: selectedActiveRun.run_id,
+          thread_id: selectedThreadId,
+        });
+        if (cancelled) return;
+        setStreamEvents(streamEventsFromPayloads(Array.isArray(payloads) ? payloads : []));
+        setExpandedStreamEventIds(new Set());
+        requestScrollMessagesToBottom();
+      } catch (_error) {
+        if (!cancelled) setStreamEvents([]);
+      }
+    };
+    hydrateActiveRun();
+    return () => {
+      cancelled = true;
+    };
+  }, [aiChatApi, selectedActiveRun?.request_id, selectedActiveRun?.run_id, selectedThreadId]);
 
   useEffect(() => {
     if (sideTab === "files" && workdirTree.rows.length === 0 && !isLoadingWorkdirTree) {
@@ -743,10 +877,14 @@ function AiChatPane({
   }, [aiChatApi, taskChatRequest]);
 
   const handleNewThread = () => {
+    activeSendRequestRef.current = null;
     setSelectedThreadId(null);
     setMessages([]);
     setReferences([]);
     setDraft("");
+    setIsSending(false);
+    setStreamEvents([]);
+    setExpandedStreamEventIds(new Set());
   };
 
   const handleArchiveThread = async (threadId) => {
@@ -1232,6 +1370,7 @@ function AiChatPane({
     ]);
     try {
       const result = await aiChatApi?.cancelRun?.(currentRequest.id);
+      await refreshActiveRuns();
       if (result?.ok === false) {
         setRuntimeState((current) => ({
           ...current,
@@ -1284,7 +1423,7 @@ function AiChatPane({
 
     const requestId = `ai-send-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const streamingAssistantMessageId = `stream-assistant-${Date.now()}`;
-    activeSendRequestRef.current = { id: requestId, canceled: false, streamingAssistantMessageId };
+    activeSendRequestRef.current = { id: requestId, canceled: false, streamingAssistantMessageId, thread_id: selectedThreadId || null };
     const pendingUserMessage = {
       id: `pending-user-${Date.now()}`,
       role: "user",
@@ -1295,6 +1434,19 @@ function AiChatPane({
 
     setDraft("");
     setIsSending(true);
+    if (selectedThreadId) {
+      setActiveRuns((current) => [
+        ...current.filter((run) => run.request_id !== requestId && run.thread_id !== selectedThreadId),
+        {
+          request_id: requestId,
+          thread_id: selectedThreadId,
+          run_id: null,
+          started_at: new Date().toISOString(),
+          last_event_at: null,
+          event_count: 0,
+        },
+      ]);
+    }
     setStreamEvents([]);
     setExpandedStreamEventIds(new Set());
     requestScrollMessagesToBottom();
@@ -1353,6 +1505,7 @@ function AiChatPane({
       }
 
       const mappedThreads = await refreshThreads();
+      await refreshActiveRuns();
       const nextThreadId = result?.thread?.thread_id || mappedThreads[0]?.id || selectedThreadId || null;
       setSelectedThreadId(nextThreadId);
     } catch (error) {
@@ -1382,6 +1535,7 @@ function AiChatPane({
         setIsSending(false);
         setStreamEvents([]);
         setExpandedStreamEventIds(new Set());
+        refreshActiveRuns().catch(() => {});
       }
     }
   };
@@ -1424,40 +1578,52 @@ function AiChatPane({
                 <strong>{sideSearchText ? "一致するスレッドはありません" : "スレッドはまだありません"}</strong>
                 <span>{sideSearchText ? "検索条件を変更してください。" : "中央の入力欄から送信すると、新しいAIスレッドを作成します。"}</span>
               </div>
-            ) : filteredThreads.map((thread) => (
-              <div
-                key={thread.id}
-                className={`ai-thread-item${selectedThreadId === thread.id ? " active" : ""}`}
-                onClick={() => setSelectedThreadId(thread.id)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    setSelectedThreadId(thread.id);
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-              >
-                <span className="ai-thread-main">
-                  <span className="ai-thread-name">{thread.title}</span>
-                  <span className="ai-thread-sub">{thread.subtitle}</span>
-                </span>
-                <span className="ai-thread-actions" onClick={(event) => event.stopPropagation()}>
-                  <button
-                    type="button"
-                    className="ai-thread-action-btn ai-thread-action-btn--archive"
-                    title="チャットをアーカイブ"
-                    aria-label={`${thread.title}をアーカイブ`}
-                    onClick={() => handleArchiveThread(thread.id)}
-                  >
-                    <span className="ai-thread-archive-icon" aria-hidden="true" />
-                  </button>
-                </span>
-                <span className="ai-mini-badges">
-                  {thread.badges.map((badge) => <span key={badge}>{badge}</span>)}
-                </span>
-              </div>
-            ))}
+            ) : filteredThreads.map((thread) => {
+              const isThreadRunning = activeRunByThreadId.has(thread.id);
+              return (
+                <div
+                  key={thread.id}
+                  className={`ai-thread-item${selectedThreadId === thread.id ? " active" : ""}${isThreadRunning ? " is-running" : ""}`}
+                  onClick={() => setSelectedThreadId(thread.id)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setSelectedThreadId(thread.id);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <span className="ai-thread-main">
+                    <span className="ai-thread-name">{thread.title}</span>
+                    <span className="ai-thread-sub">{thread.subtitle}</span>
+                  </span>
+                  <span className="ai-thread-status" aria-live="polite">
+                    {isThreadRunning && (
+                      <span
+                        className="ai-thread-running-spinner"
+                        title="AI処理中"
+                        aria-label="AI処理中"
+                      />
+                    )}
+                  </span>
+                  <span className="ai-thread-actions" onClick={(event) => event.stopPropagation()}>
+                    <button
+                      type="button"
+                      className="ai-thread-action-btn ai-thread-action-btn--archive"
+                      title="チャットをアーカイブ"
+                      aria-label={`${thread.title}をアーカイブ`}
+                      onClick={() => handleArchiveThread(thread.id)}
+                    >
+                      <span className="ai-thread-archive-icon" aria-hidden="true" />
+                    </button>
+                  </span>
+                  <span className="ai-mini-badges">
+                    {thread.badges.map((badge) => <span key={badge}>{badge}</span>)}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         ) : (
           <div className="ai-file-list">
@@ -1591,15 +1757,21 @@ function AiChatPane({
               {streamEvents.length > 0 && (
                 <div className="ai-stream-event-list" aria-label="処理中イベント">
                   {streamEvents.map((event) => (
-                    <div key={event.id} className={`ai-stream-event ai-stream-event--${event.status || "active"}`}>
-                      <div className="ai-stream-event-title">{event.title}</div>
-                      {event.detailKind === "command" && event.detail ? (
+                    <div key={event.id} className={`ai-stream-event ai-stream-event--${event.displayKind || "activity"} ai-stream-event--${event.status || "active"}`}>
+                      {event.title && <div className="ai-stream-event-title">{event.title}</div>}
+                      {event.displayKind === "narrative" && event.detail ? (
+                        <MarkdownPreview
+                          content={event.detail}
+                          onOpenTask={openTaskContext}
+                          onOpenLink={handleOpenMarkdownLink}
+                        />
+                      ) : event.detailKind === "command" && event.detail ? (
                         <details
                           className="ai-stream-event-detail"
                           open={expandedStreamEventIds.has(event.id)}
                           onToggle={() => toggleStreamEventDetail(event.id)}
                         >
-                          <summary>コマンドライン詳細</summary>
+                          <summary>詳細を表示</summary>
                           <pre>{event.detail}</pre>
                         </details>
                       ) : event.detail && <pre>{event.detail}</pre>}

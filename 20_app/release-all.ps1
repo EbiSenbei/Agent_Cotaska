@@ -8,10 +8,10 @@
 # 追加: CotaskaCore.exe にアイコンと表示名メタデータを後書き
 #
 # 使い方:  cd 20_app  ;  .\release-all.ps1
-#          .\release-all.ps1 -Version "0.2.0"
+#          .\release-all.ps1 -Version "0.3.0"
 
 param(
-    [string]$Version = "0.2.9"
+    [string]$Version = "0.3.0"
 )
 
 $ErrorActionPreference = "Stop"

@@ -1854,6 +1854,26 @@ ipcMain.handle("aiChat:listRuns", async (_e, threadId) => {
   }
 });
 
+ipcMain.handle("aiChat:listActiveRuns", async () => {
+  await servicesReady;
+  try {
+    return codexSdkService.listActiveRuns();
+  } catch (err) {
+    logger.error("aiChat:listActiveRuns failed", err);
+    return [];
+  }
+});
+
+ipcMain.handle("aiChat:listRunEvents", async (_e, input) => {
+  await servicesReady;
+  try {
+    return codexSdkService.listRunEvents(input || {});
+  } catch (err) {
+    logger.error("aiChat:listRunEvents failed", err);
+    return [];
+  }
+});
+
 ipcMain.handle("aiChat:purgeOldData", async (_e, days) => {
   await servicesReady;
   try {

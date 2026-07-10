@@ -87,6 +87,7 @@ function createBackupService({
     addIfExists(path.join(dataDir, "tasks"), path.join("data", "tasks"));
     addIfExists(path.join(dataDir, "lists.yaml"), path.join("data", "lists.yaml"));
     addIfExists(settingsService.getSettingsPath(), path.join("data", "settings.yaml"));
+    addIfExists(path.join(dataDir, "ai.sqlite"), path.join("data", "ai.sqlite"));
 
     zip.writeZip(backupPath);
 
@@ -182,6 +183,7 @@ function createBackupService({
       replaceDirectoryContents(backupTasksDir, path.join(dataDir, "tasks"));
       restoreFile(path.join(backupDataDir, "lists.yaml"), path.join(dataDir, "lists.yaml"));
       restoreFile(path.join(backupDataDir, "settings.yaml"), settingsService.getSettingsPath());
+      restoreFile(path.join(backupDataDir, "ai.sqlite"), path.join(dataDir, "ai.sqlite"));
 
       const rebuild = taskService.rebuildCache();
       if (!rebuild.success) {

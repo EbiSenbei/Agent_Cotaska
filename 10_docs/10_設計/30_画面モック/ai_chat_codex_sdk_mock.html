@@ -173,7 +173,7 @@
       padding: 9px 10px;
       border-radius: 8px;
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: minmax(0, 1fr) 18px auto;
       gap: 6px 8px;
       min-height: 58px;
       position: relative;
@@ -205,6 +205,24 @@
       border-radius: 6px;
       background: rgba(255, 255, 255, 0.04);
       color: #aaa;
+    }
+    .thread-status {
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .thread-spinner {
+      width: 11px;
+      height: 11px;
+      border: 2px solid rgba(255, 255, 255, 0.22);
+      border-top-color: #d8dee8;
+      border-radius: 999px;
+      animation: thread-spin .85s linear infinite;
+    }
+    @keyframes thread-spin {
+      to { transform: rotate(360deg); }
     }
     .mini-badges {
       grid-column: 1 / -1;
@@ -435,16 +453,19 @@
       gap: 7px;
     }
     .ai-stream-event {
-      border: 1px solid #e2e8f0;
-      border-radius: 7px;
-      padding: 7px 9px;
-      background: #fff;
-      font-size: 12px;
-      color: #526174;
+      min-width: 0;
     }
-    .ai-stream-event.completed {
-      border-color: #cfe7d8;
-      background: #f4fbf6;
+    .ai-stream-event.narrative {
+      color: #1f2c3d;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+    .ai-stream-event.command {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #7b8797;
+      font-size: 11px;
     }
     .ai-stream-event-title {
       font-weight: 700;
@@ -771,6 +792,7 @@
           <div class="ai-thread-list">
             <div class="ai-thread-item active">
               <div class="ai-thread-name">CHG-058 Codex SDK連携の画面調整</div>
+              <div class="thread-status"><span class="thread-spinner" title="AI処理中"></span></div>
               <button class="archive-btn" title="チャットをアーカイブ">□</button>
               <div class="ai-thread-sub">T-0356 / 設定画面とAIモードの確認</div>
               <div class="mini-badges">
@@ -864,28 +886,23 @@
               <span class="ai-thinking-elapsed">待機 12秒</span>
             </div>
             <div class="ai-stream-event-list">
-              <div class="ai-stream-event completed">
+              <div class="ai-stream-event">
                 <div class="ai-stream-event-title">処理を開始しました</div>
               </div>
-              <div class="ai-stream-event">
-                <div class="ai-stream-event-title">ファイルを変更しています</div>
-                <pre>update: 10_docs/10_設計/30_画面モック/ai_chat_codex_sdk_mock.html</pre>
+              <div class="ai-stream-event narrative">
+                <div class="ai-stream-event-title">考えを整理しています</div>
+                <div>まずログと直近の renderer/main 側エラーを確認します。あわせて、AIチャット内リンククリック時の処理がどこで画面遷移や例外を起こし得るかを追います。</div>
               </div>
-              <div class="ai-stream-event completed">
-                <div class="ai-stream-event-title">コマンド実行が完了しました</div>
+              <div class="ai-stream-event command">
+                <div class="ai-stream-event-title">› コマンドを実行しました</div>
                 <details class="ai-stream-event-detail">
-                  <summary>コマンドライン詳細</summary>
+                  <summary>詳細を表示</summary>
                   <pre>$ npm run build
 stdout: build completed</pre>
                 </details>
               </div>
-              <div class="ai-stream-event">
-                <div class="ai-stream-event-title">応答本文を受信しています</div>
-                <pre>まず現在のAIチャット表示仕様を確認しています。</pre>
-              </div>
-              <div class="ai-stream-event">
-                <div class="ai-stream-event-title">応答本文を受信しています</div>
-                <pre>途中イベントは上書きせず、下方向へ累積表示します。</pre>
+              <div class="ai-stream-event narrative">
+                <div>ログの当たりは見えています。白画面化した時刻付近に `ERR_FILE_NOT_FOUND` が出ているため、リンク処理と画面遷移ガードを確認します。</div>
               </div>
             </div>
           </article>

@@ -4201,7 +4201,7 @@ tasks:
       - コマンドライン
       - 折り畳み
     due_date: '2026-07-10'
-    updated_at: '2026-07-10T03:04:28.933Z'
+    updated_at: '2026-07-10T03:45:28.748Z'
   - id: T-0393
     title: CHG-092-01 設計：AIチャットMarkdownリンクの右サイドパネル表示
     list: 仕様変更
@@ -4246,13 +4246,17 @@ tasks:
     updated_at: '2026-07-10T03:27:59.392Z'
   - id: T-0396
     title: 仕様変更：処理中のAIチャットを途中で中断させない
-    list: null
+    list: 仕様変更
     status: todo
     priority: normal
     sort_order: 386
-    tags: []
+    tags:
+      - CHG-094
+      - AIチャット
+      - 画面遷移
+      - バックグラウンド処理
     due_date: '2026-07-10'
-    updated_at: '2026-07-10T03:06:26.172Z'
+    updated_at: '2026-07-10T04:02:35.668Z'
   - id: T-0397
     title: BUG-20260710-03 AIスレッドDB保存先が_app配下になり更新で初期化される
     list: null
@@ -4265,8 +4269,89 @@ tasks:
       - Portable更新
       - ai.sqlite
     due_date: '2026-07-10'
-    updated_at: '2026-07-10T03:30:57.917Z'
+    updated_at: '2026-07-10T15:40:25+09:00'
+  - id: T-0398
+    title: CHG-093-01 設計：AIチャット途中経過の可読性改善
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 388
+    tags:
+      - CHG-093
+      - 設計
+      - AIチャット
+      - 途中経過
+    due_date: '2026-07-10'
+    updated_at: '2026-07-10T12:45:00+09:00'
+  - id: T-0399
+    title: CHG-093-02 実装：AIチャット途中経過の文章・コマンド表示分離
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 389
+    tags:
+      - CHG-093
+      - 実装
+      - AIチャット
+      - 途中経過
+    due_date: '2026-07-10'
+    updated_at: '2026-07-10T12:45:00+09:00'
+  - id: T-0400
+    title: CHG-093-03 確認：AIチャット途中経過の可読性改善
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 390
+    tags:
+      - CHG-093
+      - ユーザー確認
+      - AIチャット
+      - 途中経過
+    due_date: '2026-07-10'
+    updated_at: '2026-07-10T19:12:38+09:00'
+  - id: T-0401
+    title: CHG-094-01 設計：AIチャット画面遷移時の処理継続
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 401
+    tags:
+      - CHG-094
+      - 設計
+      - AIチャット
+      - 画面遷移
+      - バックグラウンド処理
+    due_date: '2026-07-10'
+    updated_at: '2026-07-10T13:02:16+09:00'
+  - id: T-0402
+    title: CHG-094-02 実装：AIチャット処理のバックグラウンド継続
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 402
+    tags:
+      - CHG-094
+      - 実装
+      - AIチャット
+      - 画面遷移
+      - バックグラウンド処理
+    due_date: '2026-07-10'
+    updated_at: '2026-07-10T13:02:16+09:00'
+  - id: T-0403
+    title: CHG-094-03 確認：AIチャット画面遷移時の処理継続
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 403
+    tags:
+      - CHG-094
+      - ユーザー確認
+      - AIチャット
+      - 画面遷移
+      - バックグラウンド処理
+    due_date: '2026-07-10'
+    updated_at: '2026-07-10T19:11:45+09:00'
 task_file_roots:
   - .
-next_task_id: 398
-last_updated: '2026-07-10T03:30:58.517Z'
+next_task_id: 404
+last_updated: '2026-07-10T10:12:51.833Z'

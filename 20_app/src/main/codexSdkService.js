@@ -10,6 +10,7 @@ const PERFORMANCE_MODES = new Set(["standard", "speed"]);
 const REFERENCE_SEND_MODES = new Set(["always", "manual", "skip-in-speed"]);
 const activeRequests = new Map();
 const codexClientCache = new Map();
+const MAX_CACHED_RUN_EVENTS = 80;
 const SPEED_PROFILE = {
   webSearchMode: "disabled",
   multiAgentEnabled: false,
@@ -572,18 +573,48 @@ function sanitizeThreadEvent(event) {
 
 function emitRunEvent(input, payload) {
   const callback = typeof input.onEvent === "function" ? input.onEvent : null;
-  if (!callback) return;
   const requestId = getRequestId(input);
+  const eventPayload = {
+    request_id: requestId,
+    thread_id: payload.thread_id,
+    run_id: payload.run_id,
+    ...payload,
+  };
+  const active = requestId ? activeRequests.get(requestId) : null;
+  if (active) {
+    active.events = [...(active.events || []), eventPayload].slice(-MAX_CACHED_RUN_EVENTS);
+    active.last_event_at = new Date().toISOString();
+  }
+  if (!callback) return;
   try {
-    callback({
-      request_id: requestId,
-      thread_id: payload.thread_id,
-      run_id: payload.run_id,
-      ...payload,
-    });
+    callback(eventPayload);
   } catch (_err) {
     // UI更新イベントの失敗でSDK実行本体を止めない。
   }
+}
+
+function listActiveRuns() {
+  return Array.from(activeRequests.entries()).map(([requestId, active]) => ({
+    request_id: requestId,
+    run_id: active.run_id || null,
+    thread_id: active.thread_id || null,
+    started_at: active.started_at || null,
+    last_event_at: active.last_event_at || null,
+    event_count: Array.isArray(active.events) ? active.events.length : 0,
+    canceled: Boolean(active.cancelled),
+  }));
+}
+
+function listRunEvents(input = {}) {
+  const requestId = input.request_id || input.requestId;
+  const runId = input.run_id || input.runId;
+  const threadId = input.thread_id || input.threadId;
+  const active = requestId
+    ? activeRequests.get(String(requestId))
+    : Array.from(activeRequests.values()).find((entry) => (
+      (runId && entry.run_id === runId) || (threadId && entry.thread_id === threadId)
+    ));
+  return active?.events || [];
 }
 
 // CHG-058 AI_DIAGNOSTICS:
@@ -648,6 +679,9 @@ async function sendMessage(input = {}) {
       cancelled: false,
       run_id: null,
       thread_id: null,
+      started_at: new Date(startedAt).toISOString(),
+      last_event_at: null,
+      events: [],
     });
   }
 
@@ -897,5 +931,7 @@ async function sendMessage(input = {}) {
 module.exports = {
   checkAuthStatus,
   cancelRun,
+  listActiveRuns,
+  listRunEvents,
   sendMessage,
 };

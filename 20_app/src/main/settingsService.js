@@ -2,8 +2,24 @@ const fs = require("fs");
 const path = require("path");
 const yaml = require("js-yaml");
 
-const COTASKA_ROOT_DIR = path.resolve(__dirname, "../../..");
+const COTASKA_RESOURCE_ROOT_DIR = path.resolve(__dirname, "../../..");
+
+function resolveCotaskaRootDir(resourceRoot = COTASKA_RESOURCE_ROOT_DIR) {
+  const normalized = path.resolve(resourceRoot);
+  if (
+    path.basename(normalized).toLowerCase() === "resources"
+    && path.basename(path.dirname(normalized)).toLowerCase() === "_app"
+  ) {
+    return path.dirname(path.dirname(normalized));
+  }
+  return normalized;
+}
+
+const COTASKA_ROOT_DIR = resolveCotaskaRootDir();
 const COTASKA_DATA_DIR = path.join(COTASKA_ROOT_DIR, "data");
+const LEGACY_RESOURCE_DATA_DIR = COTASKA_RESOURCE_ROOT_DIR === COTASKA_ROOT_DIR
+  ? null
+  : path.join(COTASKA_RESOURCE_ROOT_DIR, "data");
 
 const DEFAULT_SETTINGS = {
   displayName: "Cotaska",
@@ -88,7 +104,7 @@ function isLegacyGeneratedWorkdir(value) {
   const normalized = String(value || "").trim();
   if (!normalized) return false;
   const resolved = path.resolve(normalized);
-  const generatedResourceRoot = path.resolve(COTASKA_ROOT_DIR);
+  const generatedResourceRoot = path.resolve(COTASKA_RESOURCE_ROOT_DIR);
   const resourceRootPattern = new RegExp(`[\\\\/]_app[\\\\/]resources$`, "i");
   return resourceRootPattern.test(generatedResourceRoot) && resolved.toLowerCase() === generatedResourceRoot.toLowerCase();
 }
@@ -116,6 +132,26 @@ function validateAiWorkdir(workdir) {
 
 function getDataDir() {
   return COTASKA_DATA_DIR;
+}
+
+function copyLegacyEntryIfMissing(entryName) {
+  if (!LEGACY_RESOURCE_DATA_DIR || !fs.existsSync(LEGACY_RESOURCE_DATA_DIR)) return false;
+  const source = path.join(LEGACY_RESOURCE_DATA_DIR, entryName);
+  const target = path.join(COTASKA_DATA_DIR, entryName);
+  if (!fs.existsSync(source) || fs.existsSync(target)) return false;
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.cpSync(source, target, { recursive: true, force: false });
+  return true;
+}
+
+function migrateLegacyResourceData() {
+  if (!LEGACY_RESOURCE_DATA_DIR || !fs.existsSync(LEGACY_RESOURCE_DATA_DIR)) {
+    return { migrated: false, entries: [] };
+  }
+  fs.mkdirSync(COTASKA_DATA_DIR, { recursive: true });
+  const entries = fs.readdirSync(LEGACY_RESOURCE_DATA_DIR);
+  const copied = entries.filter((entry) => copyLegacyEntryIfMissing(entry));
+  return { migrated: copied.length > 0, entries: copied };
 }
 
 function getSettingsPath() {
@@ -246,6 +282,7 @@ function renderSettingsYaml(settings) {
 }
 
 function ensureSettingsFile() {
+  migrateLegacyResourceData();
   fs.mkdirSync(getDataDir(), { recursive: true });
   const settingsPath = getSettingsPath();
   if (!fs.existsSync(settingsPath)) {
@@ -324,6 +361,8 @@ function updateSettings(patch) {
 module.exports = {
   DEFAULT_SETTINGS,
   getDataDir,
+  migrateLegacyResourceData,
+  resolveCotaskaRootDir,
   getSettingsPath,
   getSettings,
   updateSettings,

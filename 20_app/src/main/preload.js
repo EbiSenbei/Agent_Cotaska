@@ -78,6 +78,8 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
     updateProposal: (proposalId, updates) => ipcRenderer.invoke("aiChat:updateProposal", proposalId, updates),
     applyProposal: (proposalId) => ipcRenderer.invoke("aiChat:applyProposal", proposalId),
     listRuns: (threadId) => ipcRenderer.invoke("aiChat:listRuns", threadId),
+    listActiveRuns: () => ipcRenderer.invoke("aiChat:listActiveRuns"),
+    listRunEvents: (input) => ipcRenderer.invoke("aiChat:listRunEvents", input),
     purgeOldData: (days) => ipcRenderer.invoke("aiChat:purgeOldData", days),
     sendMessage: (input) => ipcRenderer.invoke("aiChat:sendMessage", input),
     cancelRun: (requestId) => ipcRenderer.invoke("aiChat:cancelRun", requestId),

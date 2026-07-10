@@ -204,6 +204,7 @@ function migrate() {
 
 async function openAiService() {
   if (db) return { ok: true, path: dbPath };
+  settingsService.migrateLegacyResourceData();
   dbPath = getAiDbPath();
   fs.mkdirSync(path.dirname(dbPath), { recursive: true });
   try {
