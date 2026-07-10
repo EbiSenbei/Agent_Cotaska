@@ -7,6 +7,12 @@ const PRIORITY_LABEL = { normal: "低", medium: "中", high: "高" };
 const PRIORITY_COLOR = { normal: "#aaa", medium: "#f39c12", high: "#e74c3c" };
 const SUBTASK_PANEL_MIN_HEIGHT = 120;
 const SUBTASK_PANEL_MAX_HEIGHT = 520;
+
+function formatCompactDate(value) {
+  const match = String(value || "").match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (!match) return "";
+  return `${match[2].padStart(2, "0")}/${match[3].padStart(2, "0")}`;
+}
 const SUBTASK_PANEL_DEFAULT_HEIGHT = 260;
 const SUBTASK_PANEL_STORAGE_KEY = "cotaska.detailSubtasksHeight";
 const DETAIL_CONTENT_FONT_MIN = 10;
@@ -794,8 +800,8 @@ function DetailPaneBody({
         {metaOpen && (
           <>
             {/* Row 1: 進捗 + 日付 + 期限 + 優先度 */}
-            <div className="meta-row">
-              <div className="meta-item">
+            <div className="meta-row meta-row--primary">
+              <div className="meta-item meta-item--progress">
                 <span className="meta-item-label">進捗:</span>
                 <select className="meta-select" value={progressStatus} onChange={handleProgressStatusChange} disabled={isInvalid}>
                   {isInvalid && <option value="要確認">要確認</option>}
@@ -807,14 +813,19 @@ function DetailPaneBody({
               </div>
               <span className="meta-due-anchor meta-due-anchor--compact" onClick={(e) => e.stopPropagation()}>
                 <span className="meta-item-label">日付:</span>
-                <span
-                  className={`meta-due${task.overdue ? " overdue" : ""}`}
+                <button
+                  type="button"
+                  className={`meta-date-field${task.overdue ? " overdue" : ""}${task.due_date ? "" : " unset"}`}
                   onClick={() => {
                     if (!isInvalid) setDueEditorOpen("date");
                   }}
+                  title={task.due || "日付を設定"}
+                  aria-label="日付を編集"
+                  disabled={isInvalid}
                 >
-                  {task.due || "未設定"}
-                </span>
+                  <span>{formatCompactDate(task.due_date) || "未設定"}</span>
+                  <span className="meta-date-field-icon" aria-hidden="true">▣</span>
+                </button>
                 {dueEditorOpen === "date" && (
                   <DueDatePopover
                     className="due-dialog--detail"
@@ -827,14 +838,19 @@ function DetailPaneBody({
               </span>
               <span className="meta-due-anchor meta-due-anchor--compact" onClick={(e) => e.stopPropagation()}>
                 <span className="meta-item-label">期限:</span>
-                <span
-                  className={`meta-due${task.deadlineOverdue ? " overdue" : ""}`}
+                <button
+                  type="button"
+                  className={`meta-date-field${task.deadlineOverdue ? " overdue" : ""}${task.deadline_date ? "" : " unset"}`}
                   onClick={() => {
                     if (!isInvalid) setDueEditorOpen("deadline");
                   }}
+                  title={task.deadline || "期限を設定"}
+                  aria-label="期限を編集"
+                  disabled={isInvalid}
                 >
-                  {task.deadline || "未設定"}
-                </span>
+                  <span>{formatCompactDate(task.deadline_date) || "未設定"}</span>
+                  <span className="meta-date-field-icon" aria-hidden="true">▣</span>
+                </button>
                 {dueEditorOpen === "deadline" && (
                   <DueDatePopover
                     className="due-dialog--detail"
@@ -845,7 +861,7 @@ function DetailPaneBody({
                   />
                 )}
               </span>
-              <div className="meta-item">
+              <div className="meta-item meta-item--priority">
                 <span className="meta-item-label">優先度:</span>
                 <select
                   className="meta-select"

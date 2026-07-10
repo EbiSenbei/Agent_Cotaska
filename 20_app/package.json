@@ -1,6 +1,6 @@
 {
   "name": "cotaska",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Cotaska - ローカルタスク管理システム",
   "main": "src/main/main.js",
   "scripts": {
@@ -65,7 +65,7 @@
     }
   },
   "dependencies": {
-    "@openai/codex-sdk": "^0.142.3",
+    "@openai/codex-sdk": "^0.144.1",
     "adm-zip": "^0.5.17",
     "chokidar": "^3.6.0",
     "gray-matter": "^4.0.3",

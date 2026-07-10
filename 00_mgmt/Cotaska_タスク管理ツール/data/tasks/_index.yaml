@@ -38,18 +38,6 @@ tasks:
       - AI連携
     due_date: null
     updated_at: '2026-07-10T00:26:52.658Z'
-  - id: T-0268
-    title: AI秘書のテンプレートを作成し、Boothに登録する
-    list: 販売戦略
-    status: todo
-    priority: normal
-    sort_order: 4
-    tags:
-      - AI秘書
-      - テンプレート
-      - Booth
-    due_date: null
-    updated_at: '2026-07-10T00:26:52.658Z'
   - id: T-0269
     title: AI秘書のnote記事を書く
     list: 販売戦略
@@ -175,7 +163,7 @@ tasks:
     sort_order: 15
     tags: []
     due_date: null
-    updated_at: '2026-07-10T00:26:52.658Z'
+    updated_at: '2026-07-10T19:46:00+09:00'
   - id: T-0326
     title: 'CHG-058-03 実装: Codex応答からアクション提案を自動抽出する'
     list: 仕様変更
@@ -203,12 +191,13 @@ tasks:
   - id: T-0343
     title: 仕様変更：起動時に「すべて」「今日」
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 18
-    tags: []
-    due_date: null
-    updated_at: '2026-07-10T00:26:52.658Z'
+    tags:
+      - CHG-096
+    due_date: '2026-07-11'
+    updated_at: '2026-07-10T16:22:18.945Z'
   - id: T-0360
     title: 仕様変更：添付ファイルをクリックしたときの挙動
     list: 仕様変更
@@ -221,26 +210,26 @@ tasks:
   - id: T-0384
     title: 不具合：アプリ更新時のバックアップパスが長すぎる
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 20
     tags:
       - BUG-20260710-01
     due_date: '2026-07-10'
-    updated_at: '2026-07-10T00:26:52.658Z'
+    updated_at: '2026-07-10T15:29:33.704Z'
   - id: T-0389
     title: 仕様変更：AIチャット処理途中表示の累積化
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 21
     tags: []
     due_date: '2026-07-10'
-    updated_at: '2026-07-10T03:04:04.223Z'
+    updated_at: '2026-07-10T10:27:12.187Z'
   - id: T-0388
     title: CHG-091-03 確認：AIチャット処理途中表示の累積化
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 22
     tags:
@@ -248,7 +237,7 @@ tasks:
       - ユーザー確認
       - AIチャット
     due_date: '2026-07-10'
-    updated_at: '2026-07-10T03:04:16.602Z'
+    updated_at: '2026-07-10T10:26:55.627Z'
   - id: T-0387
     title: CHG-091-02 実装：AIチャット処理途中表示の累積化
     list: 仕様変更
@@ -4191,7 +4180,7 @@ tasks:
   - id: T-0392
     title: CHG-091-06 確認：コマンドライン途中経過の折り畳み
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 373
     tags:
@@ -4201,7 +4190,7 @@ tasks:
       - コマンドライン
       - 折り畳み
     due_date: '2026-07-10'
-    updated_at: '2026-07-10T03:45:28.748Z'
+    updated_at: '2026-07-10T10:26:51.024Z'
   - id: T-0393
     title: CHG-092-01 設計：AIチャットMarkdownリンクの右サイドパネル表示
     list: 仕様変更
@@ -4247,7 +4236,7 @@ tasks:
   - id: T-0396
     title: 仕様変更：処理中のAIチャットを途中で中断させない
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 386
     tags:
@@ -4256,11 +4245,11 @@ tasks:
       - 画面遷移
       - バックグラウンド処理
     due_date: '2026-07-10'
-    updated_at: '2026-07-10T04:02:35.668Z'
+    updated_at: '2026-07-10T10:27:14.926Z'
   - id: T-0397
     title: BUG-20260710-03 AIスレッドDB保存先が_app配下になり更新で初期化される
     list: null
-    status: todo
+    status: done
     priority: high
     sort_order: 387
     tags:
@@ -4269,7 +4258,7 @@ tasks:
       - Portable更新
       - ai.sqlite
     due_date: '2026-07-10'
-    updated_at: '2026-07-10T15:40:25+09:00'
+    updated_at: '2026-07-10T10:27:33.257Z'
   - id: T-0398
     title: CHG-093-01 設計：AIチャット途中経過の可読性改善
     list: 仕様変更
@@ -4309,6 +4298,43 @@ tasks:
       - 途中経過
     due_date: '2026-07-10'
     updated_at: '2026-07-10T19:12:38+09:00'
+  - id: T-0404
+    title: 不具合：タスク詳細のAIボタンが利かない
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 394
+    tags:
+      - BUG-20260710-04
+    due_date: null
+    updated_at: '2026-07-10T19:35:42+09:00'
+  - id: T-0405
+    title: 調査：設定の作業フォルダの参照先
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 395
+    tags: []
+    due_date: null
+    updated_at: '2026-07-10T10:31:12.777Z'
+  - id: T-0406
+    title: 仕様変更：AIの処理途中に自動で下にスクロールしてほしい
+    list: null
+    status: done
+    priority: normal
+    sort_order: 396
+    tags: []
+    due_date: '2026-07-11'
+    updated_at: '2026-07-10T16:27:10.474Z'
+  - id: T-0410
+    title: 不具合：タスクが入力できない
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 400
+    tags: []
+    due_date: null
+    updated_at: '2026-07-10T12:56:17.019Z'
   - id: T-0401
     title: CHG-094-01 設計：AIチャット画面遷移時の処理継続
     list: 仕様変更
@@ -4323,6 +4349,15 @@ tasks:
       - バックグラウンド処理
     due_date: '2026-07-10'
     updated_at: '2026-07-10T13:02:16+09:00'
+  - id: T-0411
+    title: 仕様変更：サイドパネルの表示非表示のボタンが欲しい
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 401
+    tags: []
+    due_date: null
+    updated_at: '2026-07-10T12:54:35.465Z'
   - id: T-0402
     title: CHG-094-02 実装：AIチャット処理のバックグラウンド継続
     list: 仕様変更
@@ -4337,6 +4372,15 @@ tasks:
       - バックグラウンド処理
     due_date: '2026-07-10'
     updated_at: '2026-07-10T13:02:16+09:00'
+  - id: T-0412
+    title: 仕様変更：日付の入力欄を見やすくした方が良い
+    list: null
+    status: done
+    priority: normal
+    sort_order: 402
+    tags: []
+    due_date: '2026-07-11'
+    updated_at: '2026-07-10T16:23:53.407Z'
   - id: T-0403
     title: CHG-094-03 確認：AIチャット画面遷移時の処理継続
     list: 仕様変更
@@ -4351,7 +4395,196 @@ tasks:
       - バックグラウンド処理
     due_date: '2026-07-10'
     updated_at: '2026-07-10T19:11:45+09:00'
+  - id: T-0413
+    title: 要望：タスク詳細をポップアップにしたい
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 403
+    tags: []
+    due_date: null
+    updated_at: '2026-07-10T13:02:24.380Z'
+  - id: T-0417
+    title: 仕様変更：Enterでチャット投稿できるようにしたい
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 407
+    tags: []
+    due_date: null
+    updated_at: '2026-07-10T13:26:56.900Z'
+  - id: T-0407
+    title: CHG-095-01 設計確認：AI処理途中の自動下スクロール
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 407
+    tags:
+      - CHG-095
+      - 設計
+      - AIチャット
+      - 自動スクロール
+    due_date: '2026-07-11'
+    updated_at: '2026-07-10T16:24:27.067Z'
+  - id: T-0408
+    title: CHG-095-02 実装：AI処理途中イベント追加時の自動スクロール
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 408
+    tags:
+      - CHG-095
+      - 実装
+      - AIチャット
+      - 自動スクロール
+    due_date: '2026-07-11'
+    updated_at: '2026-07-10T16:24:28.107Z'
+  - id: T-0409
+    title: CHG-095-03 確認：AI処理途中の自動スクロール
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 409
+    tags:
+      - CHG-095
+      - 確認
+      - AIチャット
+      - 自動スクロール
+    due_date: '2026-07-11'
+    updated_at: '2026-07-11T01:25:21+09:00'
+  - id: T-0414
+    title: CHG-096-01 設計反映：起動時リスト選択設定
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 414
+    tags:
+      - CHG-096
+      - 設計
+    due_date: '2026-07-10'
+    updated_at: '2026-07-10T16:22:19.033Z'
+  - id: T-0415
+    title: CHG-096-02 実装：設定保存と起動時ビュー反映
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 415
+    tags:
+      - CHG-096
+      - 実装
+    due_date: '2026-07-10'
+    updated_at: '2026-07-10T16:22:19.040Z'
+  - id: T-0416
+    title: CHG-096-03 確認：起動時リスト選択設定
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 416
+    tags:
+      - CHG-096
+      - 確認
+    due_date: '2026-07-10'
+    updated_at: '2026-07-10T16:22:19.044Z'
+  - id: T-0419
+    title: BUG-20260711-01 AIモード再表示時にAIスレッドが重複作成される
+    list: 不具合修正
+    status: done
+    priority: high
+    sort_order: 417
+    tags:
+      - BUG-20260711-01
+      - AIチャット
+      - AIスレッド
+      - 重複
+    due_date: '2026-07-11'
+    updated_at: '2026-07-11T01:24:01+09:00'
+  - id: T-0420
+    title: BUG-20260711-02 gpt-5.6-sol選択時にCodex更新要求エラーでチャットできない
+    list: 不具合修正
+    status: done
+    priority: high
+    sort_order: 418
+    tags:
+      - BUG-20260711-02
+      - AIチャット
+      - Codex
+      - gpt-5.6-sol
+      - モデル互換性
+    due_date: '2026-07-11'
+    updated_at: '2026-07-11T01:26:12+09:00'
+  - id: T-0421
+    title: CHG-097 設計：日付入力欄の視認性改善
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 419
+    tags:
+      - CHG-097
+      - 設計
+    due_date: '2026-07-11'
+    updated_at: '2026-07-11T01:32:00+09:00'
+  - id: T-0422
+    title: CHG-097 実装：日付入力欄をテキストボックス風に改善
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 420
+    tags:
+      - CHG-097
+      - 実装
+    due_date: '2026-07-11'
+    updated_at: '2026-07-11T01:02:31+09:00'
+  - id: T-0423
+    title: CHG-097 確認：日付入力欄の視認性改善
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 421
+    tags:
+      - CHG-097
+      - ユーザー確認
+    due_date: '2026-07-11'
+    updated_at: '2026-07-10T16:23:52.363Z'
+  - id: T-0424
+    title: CHG-098-01 設計反映：AIチャット標準モデルTerra化
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 422
+    tags:
+      - CHG-098
+      - 設計
+      - AIチャット
+      - GPT-5.6-Terra
+    due_date: '2026-07-11'
+    updated_at: '2026-07-11T00:49:43+09:00'
+  - id: T-0425
+    title: CHG-098-02 実装：Codex SDK標準モデルにTerraを指定
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 423
+    tags:
+      - CHG-098
+      - 実装
+      - AIチャット
+      - GPT-5.6-Terra
+    due_date: '2026-07-11'
+    updated_at: '2026-07-11T00:49:43+09:00'
+  - id: T-0426
+    title: CHG-098-03 確認：TerraによるAIチャット動作確認
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 424
+    tags:
+      - CHG-098
+      - ユーザー確認
+      - AIチャット
+      - GPT-5.6-Terra
+    due_date: '2026-07-11'
+    updated_at: '2026-07-11T01:23:59+09:00'
 task_file_roots:
   - .
-next_task_id: 404
-last_updated: '2026-07-10T10:12:51.833Z'
+next_task_id: 427
+last_updated: '2026-07-10T16:27:11.072Z'

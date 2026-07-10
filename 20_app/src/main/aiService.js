@@ -241,6 +241,18 @@ function getThread(threadId) {
   return getOne("SELECT * FROM ai_threads WHERE thread_id = ?", [threadId]);
 }
 
+function findActiveThreadByPrimaryTaskId(taskId) {
+  const normalizedTaskId = String(taskId || "").trim();
+  if (!normalizedTaskId) return null;
+  return getOne(
+    `SELECT * FROM ai_threads
+     WHERE primary_task_id = ? AND thread_status != 'archived'
+     ORDER BY COALESCE(last_message_at, updated_at, created_at) DESC
+     LIMIT 1`,
+    [normalizedTaskId],
+  );
+}
+
 function createThread(input = {}) {
   const timestamp = nowIso();
   const thread = {
@@ -530,6 +542,7 @@ module.exports = {
   getDbInfo,
   listThreads,
   getThread,
+  findActiveThreadByPrimaryTaskId,
   createThread,
   updateThread,
   archiveThread,

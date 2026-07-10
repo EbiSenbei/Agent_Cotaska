@@ -17,6 +17,9 @@ const DEFAULT_APP_INFO = {
 const DEFAULT_SETTINGS = {
   displayName: "Cotaska",
   externalEditorPath: "",
+  startup: {
+    initialView: "今日",
+  },
   notification: {
     minutesBefore: 5,
   },
@@ -44,6 +47,10 @@ function normalizeSettings(settings) {
     notification: {
       ...DEFAULT_SETTINGS.notification,
       ...((settings || {}).notification || {}),
+    },
+    startup: {
+      ...DEFAULT_SETTINGS.startup,
+      ...((settings || {}).startup || {}),
     },
     taskLoading: {
       ...DEFAULT_SETTINGS.taskLoading,
@@ -113,6 +120,7 @@ function SettingsPane({ focusRequest }) {
     needsLogin: false,
   });
   const [checkingAuth, setCheckingAuth] = useState(false);
+  const workdirSectionRef = useRef(null);
   const authSectionRef = useRef(null);
 
   const refreshAppInfo = async () => {
@@ -149,10 +157,11 @@ function SettingsPane({ focusRequest }) {
   }, []);
 
   useEffect(() => {
-    if (focusRequest?.target !== "codex-auth") return;
+    if (focusRequest?.target !== "codex-auth" && focusRequest?.target !== "ai-workdir") return;
     setActiveTab("settings");
     window.setTimeout(() => {
-      authSectionRef.current?.scrollIntoView?.({ block: "center", behavior: "smooth" });
+      const target = focusRequest.target === "ai-workdir" ? workdirSectionRef.current : authSectionRef.current;
+      target?.scrollIntoView?.({ block: "center", behavior: "smooth" });
     }, 80);
   }, [focusRequest]);
 
@@ -180,6 +189,10 @@ function SettingsPane({ focusRequest }) {
       notification: {
         ...current.notification,
         ...(patch.notification || {}),
+      },
+      startup: {
+        ...current.startup,
+        ...(patch.startup || {}),
       },
       taskLoading: {
         ...current.taskLoading,
@@ -522,6 +535,23 @@ function SettingsPane({ focusRequest }) {
                     </td>
                   </tr>
                   <tr>
+                    <th>起動時リスト</th>
+                    <td>
+                      <select
+                        className="settings-select-input"
+                        value={settings.startup.initialView}
+                        aria-label="起動時に最初に開くリスト"
+                        onChange={(e) => updateSettingState({ startup: { initialView: e.target.value } })}
+                      >
+                        <option value="すべて">すべて</option>
+                        <option value="今日">今日</option>
+                        <option value="明日">明日</option>
+                        <option value="次の7日間">次の7日間</option>
+                      </select>
+                      <div className="settings-help-text">Cotaska 起動時に最初に表示する固定ビュー。</div>
+                    </td>
+                  </tr>
+                  <tr>
                     <th>文字サイズ</th>
                     <td>
                       <div className="settings-unit-field">
@@ -575,7 +605,7 @@ function SettingsPane({ focusRequest }) {
                       </div>
                     </td>
                   </tr>
-                  <tr>
+                  <tr ref={workdirSectionRef} id="ai-workdir-settings">
                     <th>作業フォルダ</th>
                     <td>
                       <div className="settings-field-row">

@@ -30,6 +30,12 @@ const DATE_VIEWS_WITH_ON_HOLD_SECTION = new Set(["今日", "明日", "次の7日
 const DETAIL_PANE_MIN_WIDTH = 320;
 const DETAIL_PANE_MAX_WIDTH = 720;
 const DETAIL_PANE_DEFAULT_WIDTH = 380;
+const STARTUP_INITIAL_VIEWS = new Set(["すべて", "今日", "明日", "次の7日間"]);
+
+function normalizeStartupInitialView(value) {
+  const view = String(value || "").trim();
+  return STARTUP_INITIAL_VIEWS.has(view) ? view : "今日";
+}
 
 function getOnHoldTasksForDateView(tasks, view, sortState) {
   const today = localDateString();
@@ -85,6 +91,8 @@ function App() {
   const [aiTaskChatRequest, setAiTaskChatRequest] = useState(null);
   const [settingsFocusRequest, setSettingsFocusRequest] = useState(null);
   const startupUpdateCheckRef = useRef(false);
+  const startupInitialViewAppliedRef = useRef(false);
+  const isSearchMode = activeIcon === "検索";
 
   // CHG-032: ペイン幅リサイズ
   const [navWidth,    setNavWidth]    = useState(240);
@@ -158,6 +166,10 @@ function App() {
       const settingsResult = await window.cotaskaAPI?.settings?.get?.();
       const initialCompletedLimit = Number(settingsResult?.settings?.taskLoading?.completedInitialLimit);
       if (Number.isFinite(initialCompletedLimit)) setCompletedLimit(initialCompletedLimit);
+      if (shouldShowLoading && !startupInitialViewAppliedRef.current) {
+        setActiveNav(normalizeStartupInitialView(settingsResult?.settings?.startup?.initialView));
+        startupInitialViewAppliedRef.current = true;
+      }
       let rows = providedRows ?? await window.cotaskaAPI?.tasks?.getAll() ?? [];
       if (shouldShowLoading) {
         setStartupProgress({
@@ -351,6 +363,16 @@ function App() {
   }, [loadTasks]);
 
   // T-005-04: 完了 / 完了取消
+  const refreshSearchResults = useCallback(async (keyword = searchKeyword) => {
+    const normalizedKeyword = String(keyword || "").trim();
+    if (!isSearchMode || !normalizedKeyword) {
+      setSearchResults([]);
+      return;
+    }
+    const rows = await window.cotaskaAPI?.tasks?.search?.(normalizedKeyword) ?? [];
+    setSearchResults(enrichTaskHierarchy(rows.map(mapFileTask)));
+  }, [isSearchMode, searchKeyword]);
+
   const handleToggleComplete = useCallback(async (task) => {
     const newStatus = task.status === "done" ? "todo" : "done";
     const newProgressStatus = newStatus === "done" ? "完了" : "仕掛";
@@ -376,10 +398,14 @@ function App() {
     }
 
     await loadTasks();
-  }, [loadTasks, tasks]);
+    await refreshSearchResults();
+  }, [loadTasks, refreshSearchResults, tasks]);
 
   // T-005-05: 詳細ペイン保存後にリスト再取得
-  const handleSaved = useCallback(() => loadTasks(), [loadTasks]);
+  const handleSaved = useCallback(async () => {
+    await loadTasks();
+    await refreshSearchResults();
+  }, [loadTasks, refreshSearchResults]);
 
   // T-014-03: タスク複製
   const handleDuplicateTask = useCallback(async (task) => {
@@ -400,14 +426,16 @@ function App() {
   const handleSetTaskList = useCallback(async (task, newList) => {
     await window.cotaskaAPI?.tasks?.update(toFileTaskPayload(task, { list: newList }));
     await loadTasks();
-  }, [loadTasks]);
+    await refreshSearchResults();
+  }, [loadTasks, refreshSearchResults]);
 
   const handleSetTaskDue = useCallback(async (task, dueDate) => {
     await window.cotaskaAPI?.tasks?.update(
       toFileTaskPayload(task, { due_date: dueDate || null })
     );
     await loadTasks();
-  }, [loadTasks]);
+    await refreshSearchResults();
+  }, [loadTasks, refreshSearchResults]);
 
   const getSubtreeDepth = useCallback((taskId, seen = new Set()) => {
     if (!taskId || seen.has(taskId)) return 0;
@@ -565,8 +593,9 @@ function App() {
   const handleSetTaskTags = useCallback(async (task, nextTags) => {
     await window.cotaskaAPI?.taskTags?.set(task.id, nextTags);
     await loadTasks();
+    await refreshSearchResults();
     await loadTags();
-  }, [loadTasks, loadTags]);
+  }, [loadTasks, refreshSearchResults, loadTags]);
 
   const executeTrashTask = useCallback(async (task, descendants = [], directChildren = [], mode = "parent-only") => {
     const trashDescendants = mode === "all";
@@ -644,7 +673,6 @@ function App() {
   }, []);
 
   // T-007-04: 検索モードを離れたときにキーワードをリセット
-  const isSearchMode = activeIcon === "検索";
   useEffect(() => {
     if (!isSearchMode) setSearchKeyword("");
   }, [isSearchMode]);
@@ -722,6 +750,12 @@ function App() {
       taskId: task.id,
       requestedAt: Date.now(),
     });
+  }, []);
+
+  const handleTaskChatRequestProcessed = useCallback((requestedAt) => {
+    setAiTaskChatRequest((current) => (
+      current?.requestedAt === requestedAt ? null : current
+    ));
   }, []);
 
   const tagCounts = useMemo(() => {
@@ -884,6 +918,7 @@ function App() {
           tasks={tasks}
           onOpenTask={handleOpenTaskFromAi}
           taskChatRequest={aiTaskChatRequest}
+          onTaskChatRequestProcessed={handleTaskChatRequestProcessed}
           lists={lists}
           tags={tags}
           onTaskUpdated={loadTasks}

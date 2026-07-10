@@ -451,6 +451,12 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-wrap: wrap;
+      row-gap: 8px;
+    }
+    .meta-row--primary {
+      gap: 5px;
+      flex-wrap: nowrap;
     }
     .meta-item {
       display: flex;
@@ -484,14 +490,55 @@
       color: #444;
     }
     .meta-select { min-width: 66px; }
-    .meta-date-value {
-      min-width: 38px;
-      font-size: 12px;
-      color: #666;
+    .meta-item--progress,
+    .meta-item--priority {
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .meta-item--progress .meta-item-label { min-width: 32px; }
+    .meta-item--priority .meta-item-label { min-width: 38px; }
+    .meta-item--progress .meta-select { min-width: 48px; padding: 4px 5px; }
+    .meta-item--priority .meta-select { min-width: 42px; padding: 4px 5px; }
+    .meta-date-field {
+      width: 70px;
+      min-height: 28px;
+      border: 1px solid #b8c6d8;
+      border-radius: 5px;
+      background: #fff;
+      color: #344054;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 3px;
+      padding: 4px 3px 4px 5px;
+      font-size: 12px;
       white-space: nowrap;
     }
-    .meta-date-value.unset { color: #999; }
+    .meta-date-field:hover,
+    .meta-date-field:focus-visible {
+      border-color: #4f86c6;
+      box-shadow: 0 0 0 3px rgba(79, 134, 198, 0.15);
+      outline: none;
+    }
+    .meta-date-field.unset {
+      border-style: dashed;
+      color: #8793a5;
+      background: #fbfcfe;
+    }
+    .meta-date-field .calendar-icon {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #edf3fa;
+      color: #41698e;
+      font-size: 10px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
     .meta-tag-select { min-width: 80px; font-size: 11px; padding: 2px 6px; }
     .meta-tag-input { flex: 1; min-width: 50px; font-size: 11px; padding: 2px 6px; }
     .meta-tag-add-btn {
@@ -844,8 +891,8 @@
       <div class="detail-meta">
         <div class="meta-section-header">▼ メタ情報</div>
         <!-- Row 1: 進捗 + 日付 + 期限 + 優先度（CHG-085確認案） -->
-        <div class="meta-row">
-          <div class="meta-item">
+        <div class="meta-row meta-row--primary">
+          <div class="meta-item meta-item--progress">
             <span class="meta-item-label">進捗:</span>
             <select class="meta-select">
               <option>未着</option>
@@ -855,13 +902,19 @@
           </div>
           <div class="meta-item compact-date">
             <span class="meta-item-label">日付:</span>
-            <span class="meta-date-value">3/24</span>
+            <button class="meta-date-field" type="button" title="日付を編集">
+              <span>03/24</span>
+              <span class="calendar-icon" aria-hidden="true">▣</span>
+            </button>
           </div>
           <div class="meta-item compact-date">
             <span class="meta-item-label">期限:</span>
-            <span class="meta-date-value unset">未設定</span>
+            <button class="meta-date-field unset" type="button" title="期限を設定">
+              <span>未設定</span>
+              <span class="calendar-icon" aria-hidden="true">▣</span>
+            </button>
           </div>
-          <div class="meta-item">
+          <div class="meta-item meta-item--priority">
             <span class="meta-item-label">優先度:</span>
             <select class="meta-select" style="color:#f39c12;">
               <option>低</option>

@@ -1,369 +1,81 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cotaska - 日付選択サブ画面モック</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cotaska 日付入力欄モック</title>
   <style>
     * { box-sizing: border-box; }
-    html, body { min-height: 100%; margin: 0; }
-    body {
-      font-family: "Segoe UI", "Meiryo", sans-serif;
-      background: #f5f5f5;
-      color: #333;
-      display: grid;
-      place-items: center;
-      padding: 32px;
-    }
-    .mock-stage {
-      width: min(760px, 100%);
-      display: grid;
-      grid-template-columns: minmax(260px, 1fr) 340px;
-      gap: 28px;
-      align-items: start;
-    }
-    .context-panel {
-      border: 1px solid #e5e8ef;
-      background: #fff;
-      border-radius: 8px;
-      padding: 18px;
-      box-shadow: 0 10px 28px rgba(30, 42, 60, 0.08);
-    }
-    .context-title {
-      font-size: 15px;
-      font-weight: 700;
-      margin-bottom: 14px;
-    }
-    .meta-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      font-size: 12px;
-      color: #666;
-    }
-    .meta-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .meta-item-label { color: #888; white-space: nowrap; }
-    .meta-date-value {
-      min-width: 38px;
-      color: #666;
-      white-space: nowrap;
-      cursor: pointer;
-    }
-    .meta-date-value.unset { color: #999; }
-    .meta-select {
-      border: 1px solid #d0d7e2;
-      border-radius: 6px;
-      padding: 4px 8px;
-      font-size: 12px;
-      background: #fff;
-      color: #444;
-      min-width: 66px;
-    }
-    .due-dialog {
-      width: min(340px, 100%);
-      background: #242424;
-      color: #f2f2f2;
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      box-shadow: 0 22px 48px rgba(0, 0, 0, 0.36);
-      padding: 14px;
-    }
-    .due-dialog-shortcuts {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
-    .due-dialog-shortcut {
-      border: 1px solid #414141;
-      background: #2b2b2b;
-      color: #fff;
-      border-radius: 14px;
-      padding: 8px 4px;
-      min-height: 54px;
-      display: grid;
-      place-items: center;
-      gap: 2px;
-      cursor: pointer;
-      font-family: inherit;
-    }
-    .due-dialog-shortcut:hover { background: #333; }
-    .due-dialog-shortcut.is-immediate {
-      border-color: rgba(74, 116, 255, 0.7);
-      box-shadow: inset 0 0 0 1px rgba(74, 116, 255, 0.15);
-    }
-    .due-dialog-shortcut-icon { font-size: 20px; line-height: 1; }
-    .due-dialog-shortcut-label { font-size: 12px; color: #c3c3c3; }
-    .due-dialog-calendar { margin-top: 14px; }
-    .due-dialog-calendar-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-    .due-dialog-calendar-title { font-size: 15px; font-weight: 700; }
-    .due-dialog-calendar-nav { display: flex; gap: 6px; }
-    .due-dialog-icon-btn {
-      width: 30px;
-      height: 30px;
-      border-radius: 999px;
-      border: 1px solid #414141;
-      background: #2b2b2b;
-      color: #fff;
-      font-size: 18px;
-      cursor: pointer;
-    }
-    .due-dialog-weekdays,
-    .due-dialog-days {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 6px;
-    }
-    .due-dialog-weekday {
-      text-align: center;
-      color: #a7a7a7;
-      font-size: 12px;
-    }
-    .due-dialog-days { margin-top: 8px; }
-    .due-dialog-day {
-      aspect-ratio: 1;
-      border: none;
-      border-radius: 999px;
-      background: transparent;
-      color: #f2f2f2;
-      font-size: 15px;
-      cursor: pointer;
-    }
-    .due-dialog-day:hover { background: #323232; }
-    .due-dialog-day.is-muted { color: #6d6d6d; }
-    .due-dialog-day.is-today { background: #20366e; }
-    .due-dialog-day.is-selected { background: #4a74ff; font-weight: 700; }
-    .due-dialog-summary {
-      margin-top: 14px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: rgba(74, 116, 255, 0.12);
-      border: 1px solid rgba(74, 116, 255, 0.32);
-    }
-    .due-dialog-summary-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .due-dialog-summary-label {
-      color: #b7c7ff;
-      font-size: 12px;
-      flex-shrink: 0;
-    }
-    .due-dialog-summary-input {
-      width: 100%;
-      border: 1px solid rgba(74, 116, 255, 0.25);
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.04);
-      color: #fff;
-      padding: 8px 10px;
-      font-size: 13px;
-    }
-    .due-dialog-time-block { margin-top: 12px; position: relative; }
-    .due-dialog-time-row {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 9px 12px;
-      border-radius: 12px;
-      border: 1px solid #414141;
-      background: transparent;
-      color: #fff;
-      cursor: pointer;
-      font-family: inherit;
-    }
-    .due-dialog-time-row:hover { background: #2b2b2b; }
-    .due-dialog-time-row-main {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .due-dialog-time-icon { color: #4a74ff; font-size: 18px; }
-    .due-dialog-time-labels {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      text-align: left;
-    }
-    .due-dialog-time-labels strong { font-size: 14px; }
-    .due-dialog-time-labels span {
-      color: #b7b7b7;
-      font-size: 12px;
-      white-space: nowrap;
-    }
-    .due-dialog-footer {
-      margin-top: 14px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .due-dialog-btn {
-      border-radius: 12px;
-      padding: 10px 14px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      font-family: inherit;
-    }
-    .due-dialog-btn--clear {
-      border: 1px solid #414141;
-      background: transparent;
-      color: #b7b7b7;
-    }
-    .due-dialog-btn--ok {
-      border: 1px solid transparent;
-      background: linear-gradient(180deg, #4a74ff 0%, #355be0 100%);
-      color: #fff;
-    }
-    @media (max-width: 760px) {
-      body { padding: 18px; }
-      .mock-stage { grid-template-columns: 1fr; }
-    }
+    body { margin: 0; min-width: 900px; background: #f4f6f8; color: #223047; font-family: "Segoe UI", "Meiryo", sans-serif; }
+    .app { display: grid; grid-template-columns: 72px 280px minmax(540px, 1fr); height: 760px; }
+    .rail { background: #202124; color: #dbe2ed; padding: 20px 14px; display: grid; align-content: start; gap: 18px; }
+    .brand { width: 36px; height: 36px; border-radius: 7px; background: #465a73; display: grid; place-items: center; font-weight: 700; }
+    .rail-item { width: 44px; padding: 10px 0; border-radius: 7px; text-align: center; background: #303338; color: #fff; font-weight: 700; }
+    .sidebar { background: #2a2b2d; color: #f4f6f8; padding: 22px 18px; }
+    .sidebar h1 { margin: 0 0 18px; font-size: 18px; }
+    .search { border: 1px solid #505156; border-radius: 6px; color: #a9afb9; padding: 10px; font-size: 13px; }
+    .section { margin-top: 32px; color: #98a2b3; font-size: 12px; }
+    .task { margin-top: 10px; border-radius: 6px; padding: 12px; background: #3b3d40; }
+    .task strong { display: block; font-size: 14px; }
+    .task span { display: block; margin-top: 5px; color: #b6bfca; font-size: 12px; }
+    .content { background: #fff; padding: 30px 38px; position: relative; }
+    .content h2 { margin: 0; font-size: 23px; }
+    .content p { color: #64748b; }
+    .meta { margin-top: 30px; border-top: 1px solid #e5e9ef; border-bottom: 1px solid #e5e9ef; padding: 16px 0; }
+    .meta-title { color: #667085; font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+    .meta-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .meta-label { color: #667085; font-size: 12px; font-weight: 700; }
+    .select { min-width: 70px; border: 1px solid #cbd5e1; border-radius: 5px; padding: 7px 10px; color: #344054; font-size: 13px; background: #fff; }
+    .date-group { display: flex; align-items: center; gap: 6px; }
+    .date-field { width: 150px; height: 34px; border: 1px solid #b8c6d8; border-radius: 5px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 9px 0 10px; color: #243b53; font-size: 13px; box-shadow: inset 0 1px 1px rgba(16, 24, 40, .03); }
+    .date-field--unset { color: #7c8a9d; border-style: dashed; background: #fbfcfe; }
+    .calendar-button { width: 24px; height: 24px; border: 0; border-radius: 4px; background: #edf3fa; color: #3f638b; font-size: 15px; line-height: 1; }
+    .date-field--active { border-color: #4f86c6; box-shadow: 0 0 0 3px rgba(79, 134, 198, .15); }
+    .popover { position: absolute; z-index: 2; top: 238px; left: 434px; width: 332px; padding: 14px; border: 1px solid #3b4149; border-radius: 8px; background: #25282c; color: #f8fafc; box-shadow: 0 18px 36px rgba(15, 23, 42, .25); }
+    .popover::before { content: ""; position: absolute; top: -7px; left: 48px; width: 12px; height: 12px; background: #25282c; border-left: 1px solid #3b4149; border-top: 1px solid #3b4149; transform: rotate(45deg); }
+    .quick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .quick button { min-height: 47px; border: 1px solid #4a4f57; border-radius: 5px; background: #30343a; color: #e5e7eb; font-size: 12px; }
+    .month { display: flex; justify-content: space-between; align-items: center; margin: 16px 0 9px; font-size: 14px; font-weight: 700; }
+    .nav { display: flex; gap: 6px; }
+    .nav button { width: 26px; height: 26px; border: 1px solid #4a4f57; border-radius: 4px; background: #30343a; color: #fff; }
+    .week, .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; text-align: center; }
+    .week { color: #9ca3af; font-size: 11px; }
+    .days { margin-top: 5px; }
+    .days span { width: 33px; height: 27px; display: grid; place-items: center; border-radius: 4px; font-size: 12px; }
+    .days .selected { background: #4f86c6; color: #fff; font-weight: 700; }
+    .result { margin-top: 13px; padding: 10px; border: 1px solid #426789; border-radius: 6px; background: #293744; }
+    .result label { display: block; margin-bottom: 6px; color: #bcd1e6; font-size: 11px; }
+    .result input { width: 100%; border: 1px solid #7ca2c8; border-radius: 4px; padding: 8px; background: #fff; color: #1f2937; font-size: 13px; }
+    .actions { display: flex; gap: 8px; margin-top: 13px; }
+    .actions button { flex: 1; border-radius: 5px; padding: 9px; font-weight: 700; }
+    .clear { border: 1px solid #5b626d; background: transparent; color: #d1d5db; }
+    .confirm { border: 1px solid #4f86c6; background: #4f86c6; color: #fff; }
+    .note { position: absolute; right: 36px; bottom: 34px; width: 310px; border-left: 3px solid #4f86c6; background: #f0f6fc; padding: 14px; color: #49647e; font-size: 12px; line-height: 1.65; }
+    .note strong { color: #274c77; }
   </style>
 </head>
 <body>
-  <main class="mock-stage">
-    <section class="context-panel">
-      <div class="context-title">タスク詳細 / メタ情報</div>
-      <div class="meta-row">
-        <span class="meta-item">
-          <span class="meta-item-label">進捗:</span>
-          <select class="meta-select">
-            <option>未着</option>
-            <option selected>仕掛</option>
-            <option>完了</option>
-          </select>
-        </span>
-        <span class="meta-item">
-          <span class="meta-item-label">日付:</span>
-          <span class="meta-date-value">3/24</span>
-        </span>
-        <span class="meta-item">
-          <span class="meta-item-label">期限:</span>
-          <span class="meta-date-value unset">未設定</span>
-        </span>
-        <span class="meta-item">
-          <span class="meta-item-label">優先度:</span>
-          <select class="meta-select" style="color:#f39c12;">
-            <option>低</option>
-            <option selected>中</option>
-            <option>高</option>
-          </select>
-        </span>
-      </div>
-    </section>
-
-    <section class="due-dialog" aria-label="日付選択サブ画面モック">
-      <div class="due-dialog-shortcuts" aria-label="日付ショートカット">
-        <button type="button" class="due-dialog-shortcut is-immediate" title="押下時に即時保存">
-          <span class="due-dialog-shortcut-icon">☀</span>
-          <span class="due-dialog-shortcut-label">今日</span>
-        </button>
-        <button type="button" class="due-dialog-shortcut is-immediate" title="押下時に即時保存">
-          <span class="due-dialog-shortcut-icon">⇢</span>
-          <span class="due-dialog-shortcut-label">明日</span>
-        </button>
-        <button type="button" class="due-dialog-shortcut is-immediate" title="押下時に即時保存">
-          <span class="due-dialog-shortcut-icon">＋7</span>
-          <span class="due-dialog-shortcut-label">1週間後</span>
-        </button>
-        <button type="button" class="due-dialog-shortcut is-immediate" title="押下時に即時保存">
-          <span class="due-dialog-shortcut-icon">◐</span>
-          <span class="due-dialog-shortcut-label">日付のみ</span>
-        </button>
-      </div>
-
-      <div class="due-dialog-calendar">
-        <div class="due-dialog-calendar-header">
-          <div class="due-dialog-calendar-title">2026年6月</div>
-          <div class="due-dialog-calendar-nav">
-            <button type="button" class="due-dialog-icon-btn" aria-label="前月">‹</button>
-            <button type="button" class="due-dialog-icon-btn" aria-label="次月">›</button>
-          </div>
-        </div>
-        <div class="due-dialog-weekdays">
-          <span class="due-dialog-weekday">日</span>
-          <span class="due-dialog-weekday">月</span>
-          <span class="due-dialog-weekday">火</span>
-          <span class="due-dialog-weekday">水</span>
-          <span class="due-dialog-weekday">木</span>
-          <span class="due-dialog-weekday">金</span>
-          <span class="due-dialog-weekday">土</span>
-        </div>
-        <div class="due-dialog-days">
-          <button type="button" class="due-dialog-day is-muted">31</button>
-          <button type="button" class="due-dialog-day">1</button>
-          <button type="button" class="due-dialog-day is-today is-selected">2</button>
-          <button type="button" class="due-dialog-day">3</button>
-          <button type="button" class="due-dialog-day">4</button>
-          <button type="button" class="due-dialog-day">5</button>
-          <button type="button" class="due-dialog-day">6</button>
-          <button type="button" class="due-dialog-day">7</button>
-          <button type="button" class="due-dialog-day">8</button>
-          <button type="button" class="due-dialog-day">9</button>
-          <button type="button" class="due-dialog-day">10</button>
-          <button type="button" class="due-dialog-day">11</button>
-          <button type="button" class="due-dialog-day">12</button>
-          <button type="button" class="due-dialog-day">13</button>
-          <button type="button" class="due-dialog-day">14</button>
-          <button type="button" class="due-dialog-day">15</button>
-          <button type="button" class="due-dialog-day">16</button>
-          <button type="button" class="due-dialog-day">17</button>
-          <button type="button" class="due-dialog-day">18</button>
-          <button type="button" class="due-dialog-day">19</button>
-          <button type="button" class="due-dialog-day">20</button>
-          <button type="button" class="due-dialog-day">21</button>
-          <button type="button" class="due-dialog-day">22</button>
-          <button type="button" class="due-dialog-day">23</button>
-          <button type="button" class="due-dialog-day">24</button>
-          <button type="button" class="due-dialog-day">25</button>
-          <button type="button" class="due-dialog-day">26</button>
-          <button type="button" class="due-dialog-day">27</button>
-          <button type="button" class="due-dialog-day">28</button>
-          <button type="button" class="due-dialog-day">29</button>
-          <button type="button" class="due-dialog-day">30</button>
-          <button type="button" class="due-dialog-day is-muted">1</button>
-          <button type="button" class="due-dialog-day is-muted">2</button>
-          <button type="button" class="due-dialog-day is-muted">3</button>
-          <button type="button" class="due-dialog-day is-muted">4</button>
-        </div>
-      </div>
-
-      <div class="due-dialog-summary">
-        <div class="due-dialog-summary-row">
-          <div class="due-dialog-summary-label">選択結果</div>
-          <input class="due-dialog-summary-input" type="text" value="2026-06-02" />
-        </div>
-      </div>
-
-      <div class="due-dialog-time-block">
-        <button type="button" class="due-dialog-time-row">
-          <span class="due-dialog-time-row-main">
-            <span class="due-dialog-time-icon">◷</span>
-            <span class="due-dialog-time-labels">
-              <strong>時刻なし</strong>
-              <span>時刻設定</span>
-            </span>
-          </span>
-          <span>›</span>
-        </button>
-      </div>
-
-      <div class="due-dialog-footer">
-        <button type="button" class="due-dialog-btn due-dialog-btn--clear">クリア</button>
-        <button type="button" class="due-dialog-btn due-dialog-btn--ok">OK</button>
-      </div>
+  <main class="app">
+    <nav class="rail"><div class="brand">C</div><div class="rail-item">AI</div></nav>
+    <aside class="sidebar"><h1>タスク一覧</h1><div class="search">タスクを検索</div><div class="section">今日</div><div class="task"><strong>CHG-097 日付入力欄の視認性改善</strong><span>進行中</span></div></aside>
+    <section class="content">
+      <h2>CHG-097 日付入力欄の視認性改善</h2>
+      <p>日付と期限を、編集可能であることが分かる表示にします。</p>
+      <section class="meta"><div class="meta-title">▼ メタ情報</div><div class="meta-row">
+        <span class="meta-label">進捗:</span><span class="select">仕掛</span>
+        <span class="meta-label">日付:</span><button class="date-field date-field--active" type="button"><span>2026/07/11</span><span class="calendar-button">▣</span></button>
+        <span class="meta-label">期限:</span><button class="date-field date-field--unset" type="button"><span>未設定</span><span class="calendar-button">▣</span></button>
+        <span class="meta-label">優先度:</span><span class="select">通常</span>
+      </div></section>
+      <section class="popover" aria-label="日付入力ポップオーバー">
+        <div class="quick"><button>今日</button><button>明日</button><button>1週間後</button><button>日付のみ</button></div>
+        <div class="month"><span>2026年7月</span><span class="nav"><button>‹</button><button>›</button></span></div>
+        <div class="week"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div>
+        <div class="days"><span>28</span><span>29</span><span>30</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span class="selected">11</span></div>
+        <div class="result"><label>選択結果（直接入力可）</label><input value="2026-07-11" readonly></div>
+        <div class="actions"><button class="clear">クリア</button><button class="confirm">OK</button></div>
+      </section>
+      <aside class="note"><strong>設計ポイント</strong><br>日付値・未設定状態・カレンダー操作を一つの入力フィールドに集約します。実際の編集は、既存の日付変更 UI 内の直接入力欄とカレンダーで行います。</aside>
     </section>
   </main>
 </body>

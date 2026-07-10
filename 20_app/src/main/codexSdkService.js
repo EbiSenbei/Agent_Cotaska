@@ -8,6 +8,7 @@ const appLogger = require("./appLogger");
 const SANDBOX_MODES = new Set(["read-only", "workspace-write", "danger-full-access"]);
 const PERFORMANCE_MODES = new Set(["standard", "speed"]);
 const REFERENCE_SEND_MODES = new Set(["always", "manual", "skip-in-speed"]);
+const DEFAULT_CODEX_MODEL = "gpt-5.6-terra";
 const activeRequests = new Map();
 const codexClientCache = new Map();
 const MAX_CACHED_RUN_EVENTS = 80;
@@ -349,6 +350,10 @@ function normalizeReferenceSendMode(value, fallback = "always") {
   return REFERENCE_SEND_MODES.has(mode) ? mode : fallbackMode;
 }
 
+function resolveCodexModel(value) {
+  return String(value || "").trim() || DEFAULT_CODEX_MODEL;
+}
+
 function buildCodexOptions(settings, options = {}) {
   const performanceMode = normalizePerformanceMode(
     options.performanceMode || options.performance_mode,
@@ -376,7 +381,7 @@ function buildThreadOptions(thread, options = {}) {
     sandboxMode,
     approvalPolicy: "never",
     skipGitRepoCheck: true,
-    model: options.model || undefined,
+    model: resolveCodexModel(options.model),
     modelReasoningEffort: performanceMode === "speed" ? SPEED_PROFILE.modelReasoningEffort : undefined,
   };
 }
@@ -518,7 +523,19 @@ function isAuthRelatedErrorMessage(message) {
   return /auth|login|sign in|signin|credential|token|unauthorized|forbidden|expired|api key|access denied|not authenticated/.test(text);
 }
 
+function isCodexUpgradeRequiredErrorMessage(message) {
+  const text = String(message || "").toLowerCase();
+  return /requires a newer version of codex|upgrade to the latest (?:app or )?cli/.test(text);
+}
+
 function buildUserFacingError(message) {
+  if (isCodexUpgradeRequiredErrorMessage(message)) {
+    return {
+      error: "選択されたモデルは、このCotaskaに同梱されているCodexでは利用できません。最新版のCotaskaへ更新してください。更新後も解消しない場合は、別の利用可能なモデルを選択してください。",
+      error_kind: "codex_upgrade_required",
+      original_error: message,
+    };
+  }
   if (isAuthRelatedErrorMessage(message)) {
     return {
       error: "Codexの認証が必要、または認証情報が期限切れの可能性があります。設定画面でCodex認証状態を確認してください。",
@@ -689,6 +706,7 @@ async function sendMessage(input = {}) {
   const workdir = resolveRequiredWorkdir(input.workdir || settings.workdir);
   const sandboxMode = normalizeSandboxMode(input.sandboxMode || input.sandbox_mode || input.sandbox, settings.sandboxMode);
   const performanceMode = normalizePerformanceMode(input.performanceMode || input.performance_mode, settings.performanceMode);
+  const model = resolveCodexModel(input.model);
   const usePersistentCodexThread = shouldUsePersistentCodexThread(performanceMode);
   const codexThreadIdForRun = usePersistentCodexThread ? thread.codex_thread_id : null;
   const codexThreadStrategy = usePersistentCodexThread ? "persistent" : "transient";
@@ -704,7 +722,7 @@ async function sendMessage(input = {}) {
     codex_thread_id: codexThreadIdForRun,
     sandbox: sandboxMode,
     workdir,
-    model: input.model,
+    model,
   });
   if (requestId && activeRequests.has(requestId)) {
     activeRequests.set(requestId, {
@@ -731,7 +749,7 @@ async function sendMessage(input = {}) {
     sandbox: sandboxMode,
     ...buildPerformanceDiagnostics(performanceMode),
     workdir,
-    model: input.model || null,
+    model,
     prompt_chars: prompt.length,
     user_input_chars: text.length,
     reference_files: referenceContext.usedCount,
@@ -745,7 +763,7 @@ async function sendMessage(input = {}) {
   try {
     const { codex, reused: codexClientReused } = await getCodexClient(settings, { ...input, performanceMode });
     const sdkLoadedAt = Date.now();
-    const threadOptions = buildThreadOptions(thread, { ...input, workdir, performanceMode });
+    const threadOptions = buildThreadOptions(thread, { ...input, workdir, performanceMode, model });
     const codexThread = codexThreadIdForRun
       ? codex.resumeThread(codexThreadIdForRun, threadOptions)
       : codex.startThread(threadOptions);

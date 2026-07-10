@@ -24,6 +24,9 @@ const LEGACY_RESOURCE_DATA_DIR = COTASKA_RESOURCE_ROOT_DIR === COTASKA_ROOT_DIR
 const DEFAULT_SETTINGS = {
   displayName: "Cotaska",
   externalEditorPath: "",
+  startup: {
+    initialView: "今日",
+  },
   notification: {
     minutesBefore: 5,
   },
@@ -90,6 +93,11 @@ function normalizeReferenceSendMode(value, fallback = DEFAULT_SETTINGS.aiChat.re
 function normalizeLogLevel(value, fallback = DEFAULT_SETTINGS.logging.level) {
   const level = String(value || fallback).trim().toLowerCase();
   return ["debug", "info", "warn", "error"].includes(level) ? level : fallback;
+}
+
+function normalizeStartupInitialView(value, fallback = DEFAULT_SETTINGS.startup.initialView) {
+  const view = String(value || fallback).trim();
+  return ["すべて", "今日", "明日", "次の7日間"].includes(view) ? view : fallback;
 }
 
 function hasOwn(object, key) {
@@ -168,6 +176,11 @@ function mergeSettings(raw) {
     ...source,
     displayName: String(source.displayName || DEFAULT_SETTINGS.displayName).trim() || DEFAULT_SETTINGS.displayName,
     externalEditorPath: String(source.externalEditorPath || ""),
+    startup: {
+      ...DEFAULT_SETTINGS.startup,
+      ...(source.startup || {}),
+      initialView: normalizeStartupInitialView(source.startup?.initialView),
+    },
     notification: {
       ...DEFAULT_SETTINGS.notification,
       ...(source.notification || {}),
@@ -226,6 +239,10 @@ function renderSettingsYaml(settings) {
     "# 外部エディタ: タスクファイルを開くときに使うエディタの実行ファイルパス",
     "# 空欄の場合は .md ファイルの既定アプリで開きます",
     `externalEditorPath: ${escaped(normalized.externalEditorPath)}`,
+    "",
+    "startup:",
+    "  # 起動時に最初に開くビュー: すべて / 今日 / 明日 / 次の7日間",
+    `  initialView: ${escaped(normalized.startup.initialView)}`,
     "",
     "notification:",
     "  # 通知時間: 予定時刻の何分前に通知するか",
@@ -326,6 +343,10 @@ function updateSettings(patch) {
     notification: {
       ...current.notification,
       ...((patch || {}).notification || {}),
+    },
+    startup: {
+      ...current.startup,
+      ...((patch || {}).startup || {}),
     },
     taskLoading: {
       ...current.taskLoading,

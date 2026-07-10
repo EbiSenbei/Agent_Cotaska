@@ -1726,18 +1726,26 @@ ipcMain.handle("aiChat:createTaskChatThread", async (_e, taskId) => {
     const relativePath = path.relative(workdir, taskFilePath);
     const isInsideWorkdir = relativePath && !relativePath.startsWith("..") && !path.isAbsolute(relativePath);
     const filePath = isInsideWorkdir ? relativePath : taskFilePath;
-    const thread = aiService.createThread({
-      title: `${task.id} ${task.title || "タスク相談"}`,
-      primary_task_id: task.id,
-    });
-    const reference = aiService.addReference({
-      thread_id: thread.thread_id,
-      ref_type: "file",
-      ref_id: task.id,
-      file_path: filePath,
-      label: `${task.id}.md`,
-    });
-    return { ok: true, thread: aiService.getThread(thread.thread_id), reference };
+    let thread = aiService.findActiveThreadByPrimaryTaskId(task.id);
+    const created = !thread;
+    if (!thread) {
+      thread = aiService.createThread({
+        title: `${task.id} ${task.title || "タスク相談"}`,
+        primary_task_id: task.id,
+      });
+    }
+    let reference = aiService.listReferences(thread.thread_id)
+      .find((item) => item.ref_type === "file" && item.ref_id === task.id);
+    if (!reference) {
+      reference = aiService.addReference({
+        thread_id: thread.thread_id,
+        ref_type: "file",
+        ref_id: task.id,
+        file_path: filePath,
+        label: `${task.id}.md`,
+      });
+    }
+    return { ok: true, thread: aiService.getThread(thread.thread_id), reference, created };
   } catch (err) {
     logger.error("aiChat:createTaskChatThread failed", err);
     return { ok: false, error: err.message || String(err) };

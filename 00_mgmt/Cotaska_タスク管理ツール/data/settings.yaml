@@ -8,6 +8,10 @@ displayName: "Cotaska~アプリ開発のタスク正本環境~"
 # 空欄の場合は .md ファイルの既定アプリで開きます
 externalEditorPath: ""
 
+startup:
+  # 起動時に最初に開くビュー: すべて / 今日 / 明日 / 次の7日間
+  initialView: "すべて"
+
 notification:
   # 通知時間: 予定時刻の何分前に通知するか
   minutesBefore: 5
@@ -26,6 +30,31 @@ logging:
   # App log level: debug / info / warn / error.
   # Default info writes INFO, WARN, and ERROR to app-YYYY-MM-DD.log.
   level: "info"
+
+aiChat:
+  # Working directory passed to Codex SDK.
+  workdir: "D:\\Development\\Git\\EbiSenbei_dev\\Agent_Cotaska"
+
+  # Codex SDK sandbox mode: read-only / workspace-write / danger-full-access.
+  sandboxMode: "danger-full-access"
+
+  # AI response performance mode: standard / speed.
+  performanceMode: "standard"
+
+  # Reference file send mode: always / manual / skip-in-speed.
+  referenceSendMode: "always"
+
+  # Enable detailed AI diagnostics logs for response time investigation.
+  diagnosticsEnabled: false
+
+  # Days to keep archived AI data before cleanup.
+  retentionDays: 90
+
+  # Maximum reference files attached to one Codex turn.
+  maxReferenceFiles: 10
+
+  # Maximum total reference characters attached to one Codex turn.
+  maxReferenceChars: 100000
 
 update:
   # 最新版確認に使うURL。Cloudflare R2 の version.json または GitHub Releases latest API 互換JSONを想定します

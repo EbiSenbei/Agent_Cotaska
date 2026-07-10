@@ -83,6 +83,10 @@ function openCodexAuthSettings() {
   window.dispatchEvent(new CustomEvent("cotaska:openSettings", { detail: { target: "codex-auth" } }));
 }
 
+function openAiWorkdirSettings() {
+  window.dispatchEvent(new CustomEvent("cotaska:openSettings", { detail: { target: "ai-workdir" } }));
+}
+
 function clampContextPanelWidth(value) {
   const numeric = Number(value);
   if (!Number.isFinite(numeric)) return CONTEXT_PANEL_DEFAULT_WIDTH;
@@ -154,6 +158,7 @@ function AiChatPane({
   tasks = [],
   onOpenTask,
   taskChatRequest = null,
+  onTaskChatRequestProcessed,
   lists = [],
   tags = [],
   onTaskUpdated,
@@ -785,7 +790,7 @@ function AiChatPane({
       updateScrollBottomButton();
     });
     return () => cancelAnimationFrame(frame);
-  }, [messages.length, isSending]);
+  }, [messages.length, isSending, streamEvents]);
 
   useEffect(() => {
     if (!isSending) {
@@ -859,8 +864,11 @@ function AiChatPane({
         setRuntimeState((current) => ({
           ...current,
           status: "ready",
-          message: `${taskChatRequest.taskId} を参照ファイルに追加したAIチャットを作成しました。`,
+          message: result.created
+            ? `${taskChatRequest.taskId} を参照ファイルに追加したAIチャットを作成しました。`
+            : `${taskChatRequest.taskId} の既存AIチャットを開きました。`,
         }));
+        onTaskChatRequestProcessed?.(taskChatRequest.requestedAt);
       } catch (error) {
         if (cancelled) return;
         setRuntimeState({
@@ -868,13 +876,14 @@ function AiChatPane({
           status: "error",
           message: error?.message || "タスク用AIチャットを作成できませんでした。",
         });
+        onTaskChatRequestProcessed?.(taskChatRequest.requestedAt);
       }
     };
     startTaskChat();
     return () => {
       cancelled = true;
     };
-  }, [aiChatApi, taskChatRequest]);
+  }, [aiChatApi, taskChatRequest, onTaskChatRequestProcessed]);
 
   const handleNewThread = () => {
     activeSendRequestRef.current = null;
@@ -1711,6 +1720,20 @@ function AiChatPane({
             <button className="ai-icon-button" type="button" title="メニュー">⋯</button>
           </div>
         </header>
+
+        {runtimeState.message && runtimeState.status !== "ready" && (
+          <div
+            className={`ai-runtime-banner ai-runtime-banner--${runtimeState.status || "info"}`}
+            role={runtimeState.status === "error" ? "alert" : "status"}
+          >
+            <span>{runtimeState.message}</span>
+            {runtimeState.message.includes("作業フォルダ") && (
+              <button type="button" onClick={openAiWorkdirSettings}>
+                設定を開く
+              </button>
+            )}
+          </div>
+        )}
 
         <section
           ref={messageScrollRef}
