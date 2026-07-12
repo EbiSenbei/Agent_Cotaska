@@ -13,7 +13,8 @@
 #   .\sync-task-master-release.ps1
 
 param(
-    [bool]$StopRunningCotaska = $true
+    [bool]$StopRunningCotaska = $true,
+    [ValidateRange(1, 100)][int]$BackupRetentionCount = 3
 )
 
 $ErrorActionPreference = "Stop"
@@ -221,6 +222,24 @@ function Compress-BackupAndRemoveFolder {
     return $backupZip
 }
 
+function Remove-ExpiredBackupArchives {
+    param(
+        [Parameter(Mandatory = $true)][string]$BackupDir,
+        [Parameter(Mandatory = $true)][int]$RetentionCount
+    )
+
+    # このスクリプトが作成するバックアップZIPだけを対象にし、他用途のファイルは保持する。
+    $backupArchives = Get-ChildItem -LiteralPath $BackupDir -File -Filter "Cotaska-0.1.0-dist_*.zip" |
+        Where-Object { $_.Name -match '^Cotaska-0\.1\.0-dist_\d{8}_\d{6}\.zip$' } |
+        Sort-Object LastWriteTime, Name -Descending
+
+    $expiredArchives = @($backupArchives | Select-Object -Skip $RetentionCount)
+    foreach ($archive in $expiredArchives) {
+        Remove-Item -LiteralPath $archive.FullName -Force -ErrorAction Stop
+        Write-Host "  削除: 保持世代数を超えたバックアップ -> $($archive.Name)" -ForegroundColor Yellow
+    }
+}
+
 function Assert-PathExists {
     param(
         [Parameter(Mandatory = $true)][string]$Path,
@@ -312,6 +331,7 @@ Invoke-RobocopyChecked -Source $taskMasterRoot -Destination $backupRoot
 Write-Host "[4/6] バックアップをZIP化し、一時フォルダを削除しています..."
 # 退避フォルダは zip にまとめ、圧縮成功後はフォルダを削除して backup 配下を軽く保つ。
 $backupZip = Compress-BackupAndRemoveFolder -BackupRoot $backupRoot -BackupDir $backupDir
+Remove-ExpiredBackupArchives -BackupDir $backupDir -RetentionCount $BackupRetentionCount
 
 Write-Host "[5/6] Cotaska.exe とAIエージェント運用ルールを置き換えています..."
 # 実行ファイルとAIエージェント運用ルールを最新リリースから上書きする。

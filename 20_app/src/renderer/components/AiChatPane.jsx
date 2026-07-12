@@ -1829,7 +1829,9 @@ function AiChatPane({
             disabled={isSending}
             onChange={(event) => setDraft(event.target.value)}
             onKeyDown={(event) => {
-              if ((event.ctrlKey || event.metaKey) && event.key === "Enter") handleSend();
+              if (event.key !== "Enter" || event.shiftKey || event.isComposing) return;
+              event.preventDefault();
+              handleSend();
             }}
             placeholder="フォローアップの変更を求める"
           />

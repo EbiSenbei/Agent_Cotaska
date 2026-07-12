@@ -158,12 +158,12 @@ tasks:
   - id: T-0331
     title: 不具合：検索画面でタスク修正しても反映されない
     list: 不具合修正
-    status: todo
+    status: done
     priority: normal
     sort_order: 15
     tags: []
-    due_date: null
-    updated_at: '2026-07-10T19:46:00+09:00'
+    due_date: '2026-07-11'
+    updated_at: '2026-07-10T16:34:15.101Z'
   - id: T-0326
     title: 'CHG-058-03 実装: Codex応答からアクション提案を自動抽出する'
     list: 仕様変更
@@ -4301,22 +4301,22 @@ tasks:
   - id: T-0404
     title: 不具合：タスク詳細のAIボタンが利かない
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 394
     tags:
       - BUG-20260710-04
-    due_date: null
-    updated_at: '2026-07-10T19:35:42+09:00'
+    due_date: '2026-07-11'
+    updated_at: '2026-07-10T16:33:06.388Z'
   - id: T-0405
     title: 調査：設定の作業フォルダの参照先
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 395
     tags: []
-    due_date: null
-    updated_at: '2026-07-10T10:31:12.777Z'
+    due_date: '2026-07-11'
+    updated_at: '2026-07-10T16:34:29.859Z'
   - id: T-0406
     title: 仕様変更：AIの処理途中に自動で下にスクロールしてほしい
     list: null
@@ -4404,15 +4404,6 @@ tasks:
     tags: []
     due_date: null
     updated_at: '2026-07-10T13:02:24.380Z'
-  - id: T-0417
-    title: 仕様変更：Enterでチャット投稿できるようにしたい
-    list: null
-    status: todo
-    priority: normal
-    sort_order: 407
-    tags: []
-    due_date: null
-    updated_at: '2026-07-10T13:26:56.900Z'
   - id: T-0407
     title: CHG-095-01 設計確認：AI処理途中の自動下スクロール
     list: 仕様変更
@@ -4426,6 +4417,15 @@ tasks:
       - 自動スクロール
     due_date: '2026-07-11'
     updated_at: '2026-07-10T16:24:27.067Z'
+  - id: T-0417
+    title: 仕様変更：Enterでチャット投稿できるようにしたい
+    list: null
+    status: done
+    priority: normal
+    sort_order: 407
+    tags: []
+    due_date: '2026-07-12'
+    updated_at: '2026-07-12T21:00:00+09:00'
   - id: T-0408
     title: CHG-095-02 実装：AI処理途中イベント追加時の自動スクロール
     list: 仕様変更
@@ -4498,6 +4498,18 @@ tasks:
       - 重複
     due_date: '2026-07-11'
     updated_at: '2026-07-11T01:24:01+09:00'
+  - id: T-0427
+    title: CHG-099 設定画面のAI参照上限設定を日本語化
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 417
+    tags:
+      - CHG-099
+      - 設定画面
+      - AI参照上限
+    due_date: '2026-07-12'
+    updated_at: '2026-07-12T20:56:00+09:00'
   - id: T-0420
     title: BUG-20260711-02 gpt-5.6-sol選択時にCodex更新要求エラーでチャットできない
     list: 不具合修正
@@ -4512,6 +4524,19 @@ tasks:
       - モデル互換性
     due_date: '2026-07-11'
     updated_at: '2026-07-11T01:26:12+09:00'
+  - id: T-0428
+    title: CHG-099-01 実装：AI参照上限設定を日本語化
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 418
+    tags:
+      - CHG-099
+      - 実装
+      - 設定画面
+      - AI参照上限
+    due_date: null
+    updated_at: '2026-07-12T19:45:38+09:00'
   - id: T-0421
     title: CHG-097 設計：日付入力欄の視認性改善
     list: 仕様変更
@@ -4523,6 +4548,19 @@ tasks:
       - 設計
     due_date: '2026-07-11'
     updated_at: '2026-07-11T01:32:00+09:00'
+  - id: T-0429
+    title: CHG-099-02 確認：AI参照上限設定の画面表示を確認
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 419
+    tags:
+      - CHG-099
+      - ユーザー確認
+      - 設定画面
+      - AI参照上限
+    due_date: '2026-07-12'
+    updated_at: '2026-07-12T20:56:00+09:00'
   - id: T-0422
     title: CHG-097 実装：日付入力欄をテキストボックス風に改善
     list: 仕様変更
@@ -4584,7 +4622,79 @@ tasks:
       - GPT-5.6-Terra
     due_date: '2026-07-11'
     updated_at: '2026-07-11T01:23:59+09:00'
+  - id: T-0430
+    title: CHG-100 AIチャットのEnter送信
+    list: 実装予定
+    status: doing
+    priority: normal
+    sort_order: 430
+    tags:
+      - CHG-100
+      - AIチャット
+      - 操作性
+    due_date: '2026-07-12'
+    updated_at: '2026-07-12T20:05:00+09:00'
+  - id: T-0431
+    title: CHG-100-01 AIチャット入力欄のEnter送信を実装
+    list: 実装予定
+    status: done
+    priority: normal
+    sort_order: 431
+    tags:
+      - CHG-100
+      - 実装
+      - AIチャット
+    due_date: '2026-07-12'
+    updated_at: '2026-07-12T20:05:00+09:00'
+  - id: T-0432
+    title: CHG-100-02 AIチャット入力欄のEnter送信を確認
+    list: 実装予定
+    status: todo
+    priority: normal
+    sort_order: 432
+    tags:
+      - CHG-100
+      - ユーザー確認
+      - AIチャット
+    due_date: '2026-07-12'
+    updated_at: '2026-07-12T20:00:00+09:00'
+  - id: T-0433
+    title: CHG-101 設計：同期バックアップの世代管理
+    list: 実装予定
+    status: done
+    priority: normal
+    sort_order: 433
+    tags:
+      - CHG-101
+      - 設計
+      - リリース
+    due_date: '2026-07-12'
+    updated_at: '2026-07-12T20:50:08+09:00'
+  - id: T-0434
+    title: CHG-101 実装：同期バックアップを3世代で整理
+    list: 実装予定
+    status: done
+    priority: normal
+    sort_order: 434
+    tags:
+      - CHG-101
+      - 実装
+      - リリース
+    due_date: '2026-07-12'
+    updated_at: '2026-07-12T20:50:08+09:00'
+  - id: T-0435
+    title: CHG-101 確認：同期バックアップ世代管理
+    list: 実装予定
+    status: todo
+    priority: normal
+    sort_order: 435
+    tags:
+      - CHG-101
+      - ユーザー確認
+      - リリース
+    due_date: '2026-07-12'
+    updated_at: '2026-07-12T20:50:08+09:00'
 task_file_roots:
   - .
-next_task_id: 427
-last_updated: '2026-07-10T16:27:11.072Z'
+next_task_id: 436
+last_updated: '2026-07-12T12:32:43.844Z'

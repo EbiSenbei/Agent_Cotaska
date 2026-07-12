@@ -1,5 +1,22 @@
 # DECISIONS
 
+## 2026-07-12 CHG-101 タスクマスター同期バックアップの世代管理
+
+- `sync-task-master-release.ps1` が作成する `Cotaska-0.1.0-dist_YYYYMMDD_HHMMSS.zip` だけを管理対象にし、最新3世代を保持する。
+- バックアップフォルダ内の他用途ファイル、ZIP、一時フォルダは削除対象にせず、誤削除を防ぐ。
+- 保持数は `BackupRetentionCount` の既定値3として、必要時のみ実行パラメータで変更できるようにする。
+
+## 2026-07-12 CHG-100 AIチャットのEnter送信
+
+- AIチャット入力欄は、Shiftキーを押さないEnterで送信し、Shift+Enterはtextarea標準の改行として維持する。
+- 日本語IMEの変換確定Enterを誤送信しないよう、`event.isComposing` 中は送信処理を開始しない。
+- DBおよびIPCには影響しないrenderer内の入力操作変更のため、既存設計書の更新は不要と判断した。
+
+## 2026-07-12 CHG-099 AI参照上限設定日本語化
+
+- 表示文言のみを日本語化し、設定値の `always`、`manual`、`skip-in-speed` は変更しない。これにより既存の `settings.yaml` と保存処理の互換性を維持する。
+- 基本設計にはAI参照上限の機能仕様が定義済みのため、設計書更新は不要と判断した。
+
 ## 2026-07-10 CHG-095 AI処理途中の自動下スクロール
 
 - AIチャットの処理途中イベントは `streamEvents` として表示されるため、メッセージ件数ではなく `streamEvents` の参照更新もスクロール処理 effect の発火条件に含める。
