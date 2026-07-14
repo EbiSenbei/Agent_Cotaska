@@ -1,9 +1,12 @@
 {
   "name": "cotaska",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Cotaska - ローカルタスク管理システム",
   "main": "src/main/main.js",
   "scripts": {
+    "check:runtime": "node scripts/verify-runtime.js",
+    "predev": "npm run check:runtime",
+    "prebuild": "npm run check:runtime",
     "dev": "vite",
     "build": "vite build",
     "start": "electron .",
@@ -13,6 +16,11 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "packageManager": "npm@10.9.2",
+  "engines": {
+    "node": ">=22.14.0 <23",
+    "npm": ">=10.9.2 <11"
+  },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.0.1",
     "electron": "^41.0.2",

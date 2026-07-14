@@ -2,7 +2,7 @@ tasks:
   - id: T-0154
     title: CHG-058 Codex SDKチャット連携
     list: 仕様変更
-    status: todo
+    status: done
     priority: high
     sort_order: 1
     tags:
@@ -10,12 +10,12 @@ tasks:
       - 仕様変更
       - AI連携
       - Codex SDK
-    due_date: null
-    updated_at: '2026-07-10T00:26:52.658Z'
+    due_date: '2026-07-14'
+    updated_at: '2026-07-14T07:19:04.276Z'
   - id: T-0159
     title: 'CHG-058-05 調査・設計: Claude連携を見据えたAIプロバイダ拡張'
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 2
     tags:
@@ -23,12 +23,12 @@ tasks:
       - 設計
       - Claude
       - AI連携
-    due_date: null
-    updated_at: '2026-07-10T00:26:52.658Z'
+    due_date: '2026-07-14'
+    updated_at: '2026-07-14T07:18:14.860Z'
   - id: T-0160
     title: 'CHG-058-06 実装: Gemini CLIプロバイダ追加'
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 3
     tags:
@@ -36,8 +36,8 @@ tasks:
       - 実装
       - Gemini
       - AI連携
-    due_date: null
-    updated_at: '2026-07-10T00:26:52.658Z'
+    due_date: '2026-07-14'
+    updated_at: '2026-07-14T07:19:04.312Z'
   - id: T-0269
     title: AI秘書のnote記事を書く
     list: 販売戦略
@@ -167,27 +167,27 @@ tasks:
   - id: T-0326
     title: 'CHG-058-03 実装: Codex応答からアクション提案を自動抽出する'
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 16
     tags:
       - CHG-058
       - Codex SDK
       - AIチャット
-    due_date: null
-    updated_at: '2026-07-10T00:26:52.658Z'
+    due_date: '2026-07-14'
+    updated_at: '2026-07-14T07:18:48.220Z'
   - id: T-0327
     title: 'CHG-058-04 実装: Codex SDKチャットのストリーミング表示に対応する'
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 17
     tags:
       - CHG-058
       - Codex SDK
       - AIチャット
-    due_date: null
-    updated_at: '2026-07-10T00:26:52.658Z'
+    due_date: '2026-07-14'
+    updated_at: '2026-07-14T07:18:54.604Z'
   - id: T-0343
     title: 仕様変更：起動時に「すべて」「今日」
     list: 仕様変更
@@ -4861,7 +4861,7 @@ tasks:
   - id: T-0450
     title: CHG-104-03 ユーザー確認：AIスレッドのタスクID表示
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 450
     tags:
@@ -4869,8 +4869,20 @@ tasks:
       - ユーザー確認
       - AIチャット
     due_date: null
-    updated_at: '2026-07-14T12:30:00+09:00'
+    updated_at: '2026-07-14T16:19:57+09:00'
+  - id: T-0452
+    title: 開発環境のNode.jsとnpmバージョンを統一する
+    list: null
+    status: done
+    priority: normal
+    sort_order: 452
+    tags:
+      - 開発環境
+      - Node.js
+      - npm
+    due_date: null
+    updated_at: '2026-07-14T16:24:00+09:00'
 task_file_roots:
   - .
-next_task_id: 452
-last_updated: '2026-07-14T07:14:08.603Z'
+next_task_id: 453
+last_updated: '2026-07-14T07:20:11.995Z'
