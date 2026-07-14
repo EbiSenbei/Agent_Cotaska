@@ -9,6 +9,18 @@ const markdown = new MarkdownIt({
 });
 
 const TASK_ID_PATTERN = /\bT-\d{4}\b/g;
+
+const getThreadDisplayTitle = (title, primaryTaskId) => {
+  const normalizedTitle = String(title || "").trim();
+  const normalizedTaskId = String(primaryTaskId || "").trim();
+  if (!normalizedTaskId || !normalizedTitle.startsWith(normalizedTaskId)) return normalizedTitle;
+  const suffix = normalizedTitle.slice(normalizedTaskId.length);
+  if (suffix && !/^[\s:：\-–—]/.test(suffix)) return normalizedTitle;
+  const remainder = suffix
+    .replace(/^\s*[:：\-–—]?\s*/, "")
+    .trim();
+  return remainder || normalizedTitle;
+};
 const SANDBOX_OPTIONS = [
   { value: "read-only", label: "読み取り専用" },
   { value: "workspace-write", label: "作業フォルダ" },
@@ -194,6 +206,9 @@ function AiChatPane({
   const [referenceSendMode, setReferenceSendMode] = useState("default");
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   const [workdirContextMenu, setWorkdirContextMenu] = useState(null);
+  const [threadContextMenu, setThreadContextMenu] = useState(null);
+  const [threadRenameTarget, setThreadRenameTarget] = useState(null);
+  const [threadRenameValue, setThreadRenameValue] = useState("");
   const [isComposeDragOver, setIsComposeDragOver] = useState(false);
   const [runtimeState, setRuntimeState] = useState({
     ready: false,
@@ -218,11 +233,10 @@ function AiChatPane({
 
   const mapThread = (thread) => ({
     id: thread.thread_id,
-    title: thread.title || "無題のAIチャット",
-    subtitle: thread.primary_task_id || thread.change_id || "AIスレッド",
+    title: getThreadDisplayTitle(thread.title || "無題のAIチャット", thread.primary_task_id),
     status: thread.thread_status || "active",
     time: thread.thread_status === "archived" ? "アーカイブ" : "",
-    badges: [thread.change_id, thread.primary_task_id].filter(Boolean).slice(0, 3),
+    badges: [thread.primary_task_id || thread.change_id].filter(Boolean),
   });
 
   const mapMessage = (message) => ({
@@ -430,6 +444,7 @@ function AiChatPane({
   const visibleWorkdirRows = filteredWorkdirRows.filter(isWorkdirEntryVisible);
 
   const closeWorkdirContextMenu = () => setWorkdirContextMenu(null);
+  const closeThreadContextMenu = () => setThreadContextMenu(null);
 
   const updateContextPanelWidth = (nextWidth) => {
     const clamped = clampContextPanelWidth(nextWidth);
@@ -831,6 +846,20 @@ function AiChatPane({
   }, [workdirContextMenu]);
 
   useEffect(() => {
+    if (!threadContextMenu) return undefined;
+    const close = () => closeThreadContextMenu();
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") closeThreadContextMenu();
+    };
+    window.addEventListener("click", close);
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      window.removeEventListener("click", close);
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [threadContextMenu]);
+
+  useEffect(() => {
     if (contextPanel?.type !== "task" || !contextPanel.taskId) return;
     const latestTask = findTask(contextPanel.taskId);
     if (!latestTask || latestTask === contextPanel.task) return;
@@ -935,6 +964,29 @@ function AiChatPane({
         status: "error",
         message: error?.message || "AIスレッドをアーカイブできませんでした。",
       });
+    }
+  };
+
+  const openThreadRename = (thread) => {
+    closeThreadContextMenu();
+    setThreadRenameTarget(thread);
+    setThreadRenameValue(thread?.title || "");
+  };
+
+  const handleRenameThread = async () => {
+    const title = threadRenameValue.trim();
+    if (!threadRenameTarget?.id || !title || !aiChatApi?.updateThread) return;
+    try {
+      const result = await aiChatApi.updateThread(threadRenameTarget.id, { title });
+      if (!result?.ok || !result.thread) {
+        throw new Error(result?.error || "スレッド名を変更できませんでした。");
+      }
+      await refreshThreads();
+      setThreadRenameTarget(null);
+      setThreadRenameValue("");
+      setRuntimeState((current) => ({ ...current, status: "ready", message: "スレッド名を変更しました。" }));
+    } catch (error) {
+      setRuntimeState({ ready: false, status: "error", message: error?.message || "スレッド名を変更できませんでした。" });
     }
   };
 
@@ -1605,6 +1657,11 @@ function AiChatPane({
                   key={thread.id}
                   className={`ai-thread-item${selectedThreadId === thread.id ? " active" : ""}${isThreadRunning ? " is-running" : ""}`}
                   onClick={() => setSelectedThreadId(thread.id)}
+                  onContextMenu={(event) => {
+                    event.preventDefault();
+                    setSelectedThreadId(thread.id);
+                    setThreadContextMenu({ thread, x: event.clientX, y: event.clientY });
+                  }}
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
@@ -1616,7 +1673,6 @@ function AiChatPane({
                 >
                   <span className="ai-thread-main">
                     <span className="ai-thread-name">{thread.title}</span>
-                    <span className="ai-thread-sub">{thread.subtitle}</span>
                   </span>
                   <span className="ai-thread-status" aria-live="polite">
                     {isThreadRunning && (
@@ -1927,6 +1983,56 @@ function AiChatPane({
           </div>
         </footer>
       </main>
+
+      {threadContextMenu && (
+        <div
+          className="ai-workdir-context-menu ai-thread-context-menu"
+          style={{ left: threadContextMenu.x, top: threadContextMenu.y }}
+          role="menu"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <button type="button" role="menuitem" onClick={() => openThreadRename(threadContextMenu.thread)}>
+            スレッドの名前を変更する
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            className="danger"
+            onClick={() => {
+              const threadId = threadContextMenu.thread.id;
+              closeThreadContextMenu();
+              handleArchiveThread(threadId);
+            }}
+          >
+            スレッドをアーカイブにする
+          </button>
+        </div>
+      )}
+
+      {threadRenameTarget && (
+        <div className="trash-confirm-overlay" role="presentation">
+          <form
+            className="trash-confirm-dialog ai-thread-rename-dialog"
+            onSubmit={(event) => {
+              event.preventDefault();
+              handleRenameThread();
+            }}
+          >
+            <h2>スレッドの名前を変更する</h2>
+            <input
+              className="ai-thread-rename-input"
+              value={threadRenameValue}
+              onChange={(event) => setThreadRenameValue(event.target.value)}
+              autoFocus
+              aria-label="スレッド名"
+            />
+            <div className="trash-confirm-actions">
+              <button type="button" onClick={() => setThreadRenameTarget(null)}>キャンセル</button>
+              <button type="submit" disabled={!threadRenameValue.trim()}>変更する</button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {contextPanel && (
       <aside className="ai-right-pane">

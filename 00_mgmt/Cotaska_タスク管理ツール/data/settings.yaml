@@ -32,29 +32,51 @@ logging:
   level: "info"
 
 aiChat:
-  # Working directory passed to Codex SDK.
+  # 連携先プロバイダ: codex / claude
+  provider: "codex"
+
+  # 作業フォルダ（両プロバイダ共通）。未設定時はAI画面で警告する
   workdir: "D:\\Development\\Git\\EbiSenbei_dev\\Agent_Cotaska"
 
-  # Codex SDK sandbox mode: read-only / workspace-write / danger-full-access.
-  sandboxMode: "danger-full-access"
-
-  # AI response performance mode: standard / speed.
-  performanceMode: "standard"
-
-  # Reference file send mode: always / manual / skip-in-speed.
+  # 参照ファイルの送信方法: always / manual / skip-in-speed（共通）
   referenceSendMode: "always"
 
-  # Enable detailed AI diagnostics logs for response time investigation.
+  # 応答時間・トークン数などの診断ログ。既定OFF（共通）
   diagnosticsEnabled: false
 
-  # Days to keep archived AI data before cleanup.
+  # AI関連SQLiteデータの削除既定日数（共通）
   retentionDays: 90
 
-  # Maximum reference files attached to one Codex turn.
+  # 参照ファイルの初期上限（共通）
   maxReferenceFiles: 10
-
-  # Maximum total reference characters attached to one Codex turn.
   maxReferenceChars: 100000
+
+  # --- Codex 固有 ---
+  codex:
+    # Codexモデル名（空欄はアプリ既定）
+    model: ""
+    # sandbox mode: read-only / workspace-write / danger-full-access
+    sandboxMode: "danger-full-access"
+    # performance mode: standard / speed
+    performanceMode: "standard"
+
+  # --- Claude Code 固有 ---
+  claude:
+    # Claudeモデル名
+    model: "claude-opus-4"
+    # performance mode: standard / speed
+    performanceMode: "standard"
+    # 認証方式: local（ローカルサブスク・個人利用限定） / bedrock（クラウドプロバイダ・配布可）
+    authMode: "local"
+    # 権限モード: plan / acceptEdits / bypassPermissions
+    permissionMode: "acceptEdits"
+    bedrock:
+      # AWSリージョン（authMode=bedrock時 必須）
+      region: ""
+      # BedrockモデルID（authMode=bedrock時 必須）
+      modelId: ""
+      # AWSプロファイル名のみ保存（authMode=bedrock時 必須）。実資格情報は ~/.aws に委ねる
+      awsProfile: ""
 
 update:
   # 最新版確認に使うURL。Cloudflare R2 の version.json または GitHub Releases latest API 互換JSONを想定します

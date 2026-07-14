@@ -828,7 +828,8 @@ function DetailPaneBody({
                 </button>
                 {dueEditorOpen === "date" && (
                   <DueDatePopover
-                    className="due-dialog--detail"
+                    className="due-dialog--floating"
+                    placementMode="main-auto"
                     value={task.due_date}
                     onChange={handleDueDateChange}
                     onClear={() => handleDueDateChange(null)}
@@ -853,7 +854,8 @@ function DetailPaneBody({
                 </button>
                 {dueEditorOpen === "deadline" && (
                   <DueDatePopover
-                    className="due-dialog--detail"
+                    className="due-dialog--floating"
+                    placementMode="main-auto"
                     value={task.deadline_date}
                     onChange={handleDeadlineDateChange}
                     onClear={() => handleDeadlineDateChange(null)}

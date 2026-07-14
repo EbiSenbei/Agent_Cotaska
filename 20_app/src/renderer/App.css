@@ -1387,6 +1387,31 @@ body.is-resizing-detail-sections * {
   color: #fff;
 }
 
+.ai-thread-context-menu {
+  min-width: 228px;
+}
+
+.ai-thread-rename-dialog {
+  display: grid;
+  gap: 16px;
+}
+
+.ai-thread-rename-input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #4b5565;
+  border-radius: 6px;
+  background: #181a1e;
+  color: #f2f2f2;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.ai-thread-rename-input:focus {
+  outline: 2px solid #4a74ff;
+  outline-offset: 1px;
+}
+
 .ai-reference-list {
   display: grid;
   gap: 4px;
@@ -4007,13 +4032,6 @@ body.is-resizing-detail-sections * {
 .due-dialog--floating {
   top: auto;
   right: auto;
-}
-
-.due-dialog--detail {
-  top: -12px;
-  left: auto;
-  right: calc(100% + 12px);
-  width: min(320px, calc(100vw - 32px));
 }
 
 .due-dialog-shortcuts {
