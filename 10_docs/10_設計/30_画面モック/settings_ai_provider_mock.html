@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cotaska - 設定画面モック（AI連携先グループ / CHG-102）</title>
+  <style>
+    :root {
+      --dark-0: #15181d;
+      --dark-1: #202630;
+      --dark-2: #263342;
+      --line: #e3e8ef;
+      --text: #253044;
+      --muted: #6f7d91;
+      --blue: #1f6fb2;
+      --blue-soft: #eaf3ff;
+      --green: #1f7a44;
+      --green-soft: #e9f7ef;
+      --red: #b42318;
+      --red-soft: #fff1f0;
+      --amber: #946200;
+      --amber-soft: #fff7e6;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Meiryo", sans-serif;
+      background: #f4f6f8;
+      color: var(--text);
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .app {
+      height: 100vh;
+      display: grid;
+      grid-template-columns: 52px 256px minmax(620px, 1fr);
+      overflow: hidden;
+    }
+    .sidebar {
+      background: #20242b;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 0;
+      gap: 8px;
+    }
+    .avatar,
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: #d9e1ea;
+    }
+    .avatar { background: #3a414d; font-weight: 700; }
+    .icon-btn { border: 0; background: transparent; opacity: .58; }
+    .icon-btn.active { opacity: 1; background: #343b47; color: #fff; }
+    .spacer { flex: 1; }
+
+    .settings-nav {
+      background: var(--dark-0);
+      border-right: 1px solid #252b34;
+      padding: 22px 14px;
+      overflow-y: auto;
+    }
+    .settings-title { font-size: 20px; font-weight: 700; margin: 0 0 18px; color: #f5f7fb; }
+    .nav-group-label { margin: 22px 10px 8px; font-size: 11px; font-weight: 700; color: #7f8a9b; letter-spacing: .08em; }
+    .settings-item {
+      width: 100%; height: 40px; display: flex; align-items: center; gap: 10px;
+      padding: 0 10px; border: 0; border-radius: 7px; background: transparent;
+      color: #c3ccd8; font-size: 13px; text-align: left;
+    }
+    .settings-item:hover { background: var(--dark-1); color: #fff; }
+    .settings-item.active { background: var(--dark-2); color: #fff; font-weight: 700; box-shadow: inset 3px 0 0 #62a8ff; }
+
+    .content { overflow-y: auto; padding: 28px 36px 48px; }
+    .page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 18px; }
+    .page-title { margin: 0; font-size: 24px; line-height: 1.3; }
+    .page-subtitle { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .section { background: #fff; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 16px; overflow: hidden; }
+    .section-head { padding: 16px 18px 12px; border-bottom: 1px solid #eef2f6; }
+    .section-head.grouped { display: flex; align-items: center; gap: 10px; }
+    .section-title { margin: 0; font-size: 15px; font-weight: 700; }
+    .section-note { margin: 4px 0 0; color: #718095; font-size: 12px; }
+    .group-badge {
+      display: inline-flex; align-items: center; height: 22px; padding: 0 10px;
+      border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: .02em;
+    }
+    .group-badge.common { background: #eef1f5; color: #4a5568; }
+    .group-badge.codex { background: var(--green-soft); color: var(--green); }
+    .group-badge.claude { background: #f3ecff; color: #6b3fb0; }
+
+    .setting-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .setting-table th {
+      width: 168px; padding: 13px 18px; color: #718095; font-weight: 600; text-align: left;
+      vertical-align: top; border-top: 1px solid #eef2f6; background: #fbfcfe;
+    }
+    .setting-table td { padding: 12px 18px; border-top: 1px solid #eef2f6; vertical-align: middle; }
+    .text-input, .number-input, .select-input {
+      height: 34px; border: 1px solid #ccd6e3; border-radius: 7px; background: #fff;
+      color: #253044; font-size: 13px; padding: 0 10px; outline: none;
+    }
+    .text-input, .select-input { width: 100%; }
+    .path-input { font-family: "Consolas", "Courier New", monospace; font-size: 12px; }
+    .text-input:focus, .number-input:focus, .select-input:focus {
+      border-color: var(--blue); box-shadow: 0 0 0 3px rgba(31, 111, 178, .12);
+    }
+    .provider-select { max-width: 280px; font-weight: 700; }
+    .field-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
+    /* 実装(App.css)準拠:
+       .settings-unit-field         = 通知時間/文字サイズ (4.5em入力 + 単位, 右寄せ)
+       .settings-task-loading-row   = 複数unit-fieldを横並び (gap 18px)
+       .settings-compact-unit-field = 完了タスク読込/参照上限 (ラベル + 76px入力 + 単位, 左寄せ) */
+    .unit-field { display: inline-grid; grid-template-columns: 4.5em auto; gap: 8px; align-items: center; }
+    .unit-field.compact { grid-template-columns: auto 76px auto; gap: 6px; }
+    .task-loading-row { display: flex; align-items: center; justify-content: flex-start; gap: 18px; flex-wrap: wrap; }
+    .number-input { width: 100%; text-align: right; }
+    .compact-number-input { width: 76px; text-align: left; }
+    .inline-label, .unit-label { color: #516073; font-size: 13px; font-weight: 600; white-space: nowrap; }
+    .checkbox-row { display: inline-flex; align-items: center; gap: 8px; min-height: 30px; }
+    .checkbox-row input { width: 16px; height: 16px; }
+    .help-text { margin-top: 6px; color: #7b8798; font-size: 12px; line-height: 1.5; }
+    .primary-btn, .secondary-btn { height: 34px; border-radius: 7px; font-size: 13px; font-weight: 700; padding: 0 14px; white-space: nowrap; }
+    .primary-btn { border: 1px solid var(--blue); background: var(--blue); color: #fff; }
+    .secondary-btn { border: 1px solid #d8e0ea; background: #fff; color: #435166; }
+    .message { margin-bottom: 16px; padding: 10px 12px; border-radius: 8px; font-size: 12px; line-height: 1.55; }
+    .message.success { border: 1px solid #cce6d5; background: var(--green-soft); color: #23643b; }
+    .note-card {
+      margin: 0 18px 14px; padding: 10px 12px; border-radius: 8px; font-size: 12px; line-height: 1.55;
+      border: 1px solid #f2e2b8; background: var(--amber-soft); color: #7a5600;
+    }
+    .auth-panel {
+      display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: start;
+      border: 1px solid #d9e3ee; border-radius: 8px; padding: 12px; background: #fbfdff;
+    }
+    .auth-badge {
+      display: inline-flex; align-items: center; min-height: 26px; padding: 4px 10px;
+      border-radius: 999px; background: var(--green-soft); color: var(--green); font-size: 12px; font-weight: 700;
+    }
+    .auth-badge.warn { background: var(--amber-soft); color: var(--amber); }
+    .auth-message { font-weight: 700; color: #354153; }
+    .file-path { margin-top: 10px; color: #7b8798; font-family: "Consolas", "Courier New", monospace; font-size: 11px; }
+    .req-mark { color: var(--red); font-weight: 700; margin-left: 4px; }
+    .req-note { color: var(--red); font-weight: 600; }
+    .field-error { margin-top: 6px; color: var(--red); font-size: 12px; font-weight: 600; display: none; }
+    .text-input.invalid { border-color: var(--red); box-shadow: 0 0 0 3px rgba(180, 35, 24, .12); }
+    .save-error { border: 1px solid #ffd0cc; background: var(--red-soft); color: var(--red); }
+    .radio-row { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; }
+    .radio-row label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+    /* provider による出し分け */
+    .provider-codex, .provider-claude { display: none; }
+    body[data-provider="codex"] .provider-codex { display: block; }
+    body[data-provider="claude"] .provider-claude { display: block; }
+    /* claude 認証方式による出し分け */
+    .claude-bedrock-only { display: none; }
+    body[data-claude-auth="bedrock"] .claude-bedrock-only { display: table-row; }
+    body[data-claude-auth="local"] .claude-local-note { display: block; }
+    .claude-local-note { display: none; }
+
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 52px 1fr; }
+      .settings-nav { display: none; }
+      .content { padding: 22px 18px; }
+      .setting-table, .setting-table tbody, .setting-table tr, .setting-table th, .setting-table td { display: block; width: 100%; }
+      .field-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-provider="claude" data-claude-auth="bedrock">
+  <div class="app">
+    <aside class="sidebar" aria-label="サイドバー">
+      <div class="avatar">C</div>
+      <button class="icon-btn" title="タスク">✓</button>
+      <button class="icon-btn" title="検索">⌕</button>
+      <button class="icon-btn" title="AI">AI</button>
+      <div class="spacer"></div>
+      <button class="icon-btn active" title="設定">⚙</button>
+    </aside>
+
+    <nav class="settings-nav" aria-label="設定メニュー">
+      <h1 class="settings-title">設定</h1>
+      <div class="nav-group-label">MENU</div>
+      <button class="settings-item" type="button">アプリ情報</button>
+      <button class="settings-item active" type="button">設定</button>
+      <button class="settings-item" type="button">バックアップと復元</button>
+    </nav>
+
+    <main class="content">
+      <section class="panel active" id="settings">
+        <div class="page-head">
+          <div>
+            <h2 class="page-title">設定</h2>
+            <p class="page-subtitle">AI連携先を選び、共通設定と選択中プロバイダの設定を行います。（CHG-102 モック）</p>
+          </div>
+          <button class="primary-btn" type="button" id="save-btn">保存</button>
+        </div>
+
+        <div class="message save-error" id="save-error" style="display:none;"></div>
+
+        <!-- デモ用の切替（実装では不要。モック確認用） -->
+        <div class="message success" style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+          <strong style="color:#23643b;">モック切替:</strong>
+          <label><input type="radio" name="demo-provider" value="codex" onclick="document.body.dataset.provider='codex'"> Codex表示</label>
+          <label><input type="radio" name="demo-provider" value="claude" checked onclick="document.body.dataset.provider='claude'"> ClaudeCode表示</label>
+          <span style="color:#718095;">（連携先セレクトと連動する想定）</span>
+        </div>
+
+        <!-- ===== 基本設定（AI以外・参考表示） ===== -->
+        <div class="section">
+          <div class="section-head">
+            <h3 class="section-title">基本設定</h3>
+            <p class="section-note">表示名・外部エディタ・通知時間・起動時リスト・文字サイズ・完了タスク読込（既存項目）。</p>
+          </div>
+          <table class="setting-table">
+            <tbody>
+              <tr>
+                <th>表示名</th>
+                <td>
+                  <input class="text-input" type="text" value="Cotaska" aria-label="表示名" />
+                  <div class="help-text">Cotaska の画面タイトルやアプリ情報に表示する名前。</div>
+                </td>
+              </tr>
+              <tr>
+                <th>外部エディタ</th>
+                <td>
+                  <div class="field-row">
+                    <input class="text-input path-input" type="text" value="C:\Program Files\Microsoft VS Code\Code.exe" aria-label="外部エディタ" />
+                    <button class="secondary-btn" type="button">参照</button>
+                  </div>
+                  <div class="help-text">空欄の場合は .md ファイルの既定のアプリが起動します。</div>
+                </td>
+              </tr>
+              <tr>
+                <th>通知時間</th>
+                <td>
+                  <div class="unit-field">
+                    <input class="number-input" type="number" value="5" min="0" max="1440" step="1" aria-label="通知時間" />
+                    <span class="unit-label">分</span>
+                  </div>
+                  <div class="help-text">タスクの日時が近い場合の、事前通知の時間。</div>
+                </td>
+              </tr>
+              <tr>
+                <th>起動時リスト</th>
+                <td>
+                  <select class="select-input" aria-label="起動時リスト">
+                    <option>すべて</option>
+                    <option selected>今日</option>
+                    <option>明日</option>
+                    <option>次の7日間</option>
+                  </select>
+                  <div class="help-text">Cotaska 起動時に最初に開く固定ビュー。</div>
+                </td>
+              </tr>
+              <tr>
+                <th>文字サイズ</th>
+                <td>
+                  <div class="unit-field">
+                    <input class="number-input" type="number" value="14" min="10" max="28" step="1" aria-label="文字サイズ" />
+                    <span class="unit-label">px</span>
+                  </div>
+                  <div class="help-text">タスク詳細の文字サイズ。ショートカット操作でも同じ設定値を更新します。</div>
+                </td>
+              </tr>
+              <tr>
+                <th>完了タスク読込</th>
+                <td>
+                  <div class="task-loading-row">
+                    <div class="unit-field compact">
+                      <span class="inline-label">起動時</span>
+                      <input class="number-input compact-number-input" type="number" value="100" min="0" max="1000" step="10" aria-label="起動時に読み込む完了タスク件数" />
+                      <span class="unit-label">件</span>
+                    </div>
+                    <div class="unit-field compact">
+                      <span class="inline-label">追加読込</span>
+                      <input class="number-input compact-number-input" type="number" value="100" min="1" max="1000" step="10" aria-label="次を読み込む件数" />
+                      <span class="unit-label">件</span>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ===== AI共通 ===== -->
+        <div class="section">
+          <div class="section-head grouped">
+            <span class="group-badge common">AI共通</span>
+            <div>
+              <h3 class="section-title">AI連携（共通設定）</h3>
+              <p class="section-note">連携先の選択と、Codex / ClaudeCode で共用する設定。</p>
+            </div>
+          </div>
+          <table class="setting-table">
+            <tbody>
+              <tr>
+                <th>連携先</th>
+                <td>
+                  <select class="select-input provider-select" aria-label="AI連携先"
+                          onchange="document.body.dataset.provider = this.value;">
+                    <option value="codex">Codex（OpenAI）</option>
+                    <option value="claude" selected>Claude Code（Anthropic）</option>
+                  </select>
+                  <div class="help-text">AIチャットで使う連携先。選択に応じて下の「Codex関連」「ClaudeCode関連」を切り替えます。</div>
+                </td>
+              </tr>
+              <tr>
+                <th>作業フォルダ</th>
+                <td>
+                  <div class="field-row">
+                    <input class="text-input path-input" type="text" value="C:\WorkDevelop\Agent_Cotaska\Cotaska" aria-label="作業フォルダ" />
+                    <button class="secondary-btn" type="button">参照</button>
+                  </div>
+                  <div class="help-text">AIモードのファイルツリー表示とAI実行時の作業フォルダ。両プロバイダ共通。</div>
+                </td>
+              </tr>
+              <tr>
+                <th>AI参照上限</th>
+                <td>
+                  <select class="select-input" aria-label="AI参照ファイルの送信方法">
+                    <option selected>常に送信</option>
+                    <option>手動指定時のみ送信</option>
+                    <option>高速モードでは送信しない</option>
+                  </select>
+                  <div class="task-loading-row" style="margin-top: 8px;">
+                    <div class="unit-field compact">
+                      <span class="inline-label">ファイル</span>
+                      <input class="number-input compact-number-input" type="number" value="10" min="1" max="100" step="1" aria-label="AI参照ファイル最大件数" />
+                      <span class="unit-label">件</span>
+                    </div>
+                    <div class="unit-field compact">
+                      <span class="inline-label">合計</span>
+                      <input class="number-input compact-number-input" type="number" value="100000" min="1000" max="1000000" step="1000" aria-label="AI参照ファイル合計文字数" />
+                      <span class="unit-label">文字</span>
+                    </div>
+                  </div>
+                  <div class="help-text">添付した参照ファイルの内容をAIへ送る方法と上限。初期値は10件、100,000文字。</div>
+                </td>
+              </tr>
+              <tr>
+                <th>AI診断ログ</th>
+                <td>
+                  <label class="checkbox-row">
+                    <input type="checkbox" />
+                    <span>応答速度調査用の詳細ログを出力する</span>
+                  </label>
+                  <div class="help-text">通常はOFF。ONにするとAI応答時間、トークン数などをアプリログへ出力します。</div>
+                </td>
+              </tr>
+              <tr>
+                <th>AIデータ削除</th>
+                <td>
+                  <div class="task-loading-row">
+                    <div class="unit-field compact">
+                      <span class="inline-label">保持</span>
+                      <input class="number-input compact-number-input" type="number" value="90" min="1" max="3650" step="1" aria-label="AIデータ保持日数" />
+                      <span class="unit-label">日</span>
+                    </div>
+                    <button class="secondary-btn" type="button">古いAIデータを削除</button>
+                  </div>
+                  <div class="help-text">指定日数以前のアーカイブ済みAIスレッドと関連履歴を削除します。タスク本体は削除しません。</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ===== AI-Codex関連 ===== -->
+        <div class="section provider-codex">
+          <div class="section-head grouped">
+            <span class="group-badge codex">AI-Codex関連</span>
+            <div>
+              <h3 class="section-title">Codex（OpenAI）設定</h3>
+              <p class="section-note">連携先が Codex のときに使う設定。</p>
+            </div>
+          </div>
+          <table class="setting-table">
+            <tbody>
+              <tr>
+                <th>Codexモデル</th>
+                <td>
+                  <select class="select-input" aria-label="Codexモデル">
+                    <option selected>gpt-5.6-terra（標準）</option>
+                    <option>gpt-5.6</option>
+                  </select>
+                  <div class="help-text">AIチャットの標準モデル。チャット入力欄でも送信前に一時変更できます。</div>
+                </td>
+              </tr>
+              <tr>
+                <th>権限</th>
+                <td>
+                  <select class="select-input" aria-label="Codex実行権限">
+                    <option>読み取り専用</option>
+                    <option selected>作業フォルダへ書き込み可</option>
+                    <option>フルアクセス</option>
+                  </select>
+                  <div class="help-text">Codex SDK実行時の既定権限（sandboxMode）。</div>
+                </td>
+              </tr>
+              <tr>
+                <th>AI速度</th>
+                <td>
+                  <select class="select-input" aria-label="Codex AI速度モード">
+                    <option selected>標準</option>
+                    <option>速度優先</option>
+                  </select>
+                  <div class="help-text">速度優先ではFast mode設定と短命Codex実行を使います。</div>
+                </td>
+              </tr>
+              <tr>
+                <th>Codex認証状態</th>
+                <td>
+                  <div class="auth-panel">
+                    <span class="auth-badge">利用可能</span>
+                    <div>
+                      <div class="auth-message">Codexを利用できる認証状態です。</div>
+                      <div class="help-text">最終確認: 2026/07/13 17:30:00 / Codex CLI: 0.142.3</div>
+                      <div class="help-text">CotaskaはOpenAI APIキー、Codex access token、認証ファイルの内容を保存しません。</div>
+                    </div>
+                    <button class="secondary-btn" type="button">再確認</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ===== AI-ClaudeCode関連 ===== -->
+        <div class="section provider-claude">
+          <div class="section-head grouped">
+            <span class="group-badge claude">AI-ClaudeCode関連</span>
+            <div>
+              <h3 class="section-title">Claude Code（Anthropic）設定</h3>
+              <p class="section-note">連携先が Claude Code のときに使う設定。</p>
+            </div>
+          </div>
+          <div class="note-card claude-local-note">
+            ⚠ ローカルサブスク認証は<strong>個人利用限定</strong>です。配布ビルドではこのモードは選択できません（クラウドプロバイダ(Bedrock)のみ）。
+          </div>
+          <table class="setting-table">
+            <tbody>
+              <tr>
+                <th>認証方式</th>
+                <td>
+                  <div class="radio-row">
+                    <label><input type="radio" name="claude-auth" value="local"
+                                  onclick="document.body.dataset.claudeAuth='local'"> ローカルサブスク認証（個人利用）</label>
+                    <label><input type="radio" name="claude-auth" value="bedrock" checked
+                                  onclick="document.body.dataset.claudeAuth='bedrock'"> クラウドプロバイダ（Amazon Bedrock）</label>
+                  </div>
+                  <div class="help-text">ローカル: `~/.claude/` のログインを利用（配布不可）。Bedrock: AWS資格情報で利用（配布可・従量課金）。</div>
+                </td>
+              </tr>
+              <tr>
+                <th>Claudeモデル</th>
+                <td>
+                  <select class="select-input" aria-label="Claudeモデル">
+                    <option selected>claude-opus-4</option>
+                    <option>claude-sonnet-4</option>
+                  </select>
+                  <div class="help-text">AIチャットで使う Claude モデル。</div>
+                </td>
+              </tr>
+              <tr>
+                <th>権限</th>
+                <td>
+                  <select class="select-input" aria-label="Claude実行権限">
+                    <option>計画のみ（read-only 相当 / plan）</option>
+                    <option selected>編集を承認（acceptEdits）</option>
+                    <option>フルアクセス（bypassPermissions）</option>
+                  </select>
+                  <div class="help-text">Claude 実行時の権限（permissionMode）。sandboxMode から変換した表記。</div>
+                </td>
+              </tr>
+              <tr>
+                <th>AI速度</th>
+                <td>
+                  <select class="select-input" aria-label="Claude AI速度モード">
+                    <option selected>標準</option>
+                    <option>速度優先</option>
+                  </select>
+                  <div class="help-text">Claude 側の応答プロファイル。</div>
+                </td>
+              </tr>
+              <!-- Bedrock 選択時のみ表示（すべて必須） -->
+              <tr class="claude-bedrock-only">
+                <th>Bedrockリージョン<span class="req-mark">*</span></th>
+                <td>
+                  <input class="text-input bedrock-required" id="bedrock-region" type="text" value="ap-northeast-1" aria-label="Bedrockリージョン" aria-required="true" />
+                  <div class="help-text">例: ap-northeast-1 / us-east-1。<span class="req-note">認証方式がクラウドプロバイダ（Amazon Bedrock）の場合は必須です。</span></div>
+                  <div class="field-error" id="err-bedrock-region">Bedrockリージョンは必須です。</div>
+                </td>
+              </tr>
+              <tr class="claude-bedrock-only">
+                <th>BedrockモデルID<span class="req-mark">*</span></th>
+                <td>
+                  <input class="text-input path-input bedrock-required" id="bedrock-model" type="text" value="apac.anthropic.claude-opus-4-..." aria-label="BedrockモデルID" aria-required="true" />
+                  <div class="help-text"><span class="req-note">認証方式がクラウドプロバイダ（Amazon Bedrock）の場合は必須です。</span></div>
+                  <div class="field-error" id="err-bedrock-model">BedrockモデルIDは必須です。</div>
+                </td>
+              </tr>
+              <tr class="claude-bedrock-only">
+                <th>AWS資格情報<span class="req-mark">*</span></th>
+                <td>
+                  <input class="text-input bedrock-required" id="bedrock-creds" type="text" value="AWS_PROFILE: claude-code" aria-label="AWS資格情報" aria-required="true" />
+                  <div class="help-text">AWSプロファイル名または資格情報。<strong>平文保存はせず</strong>、OS資格情報ストア（safeStorage）等で保管します。<span class="req-note">認証方式がクラウドプロバイダ（Amazon Bedrock）の場合は必須です。</span></div>
+                  <div class="field-error" id="err-bedrock-creds">AWS資格情報は必須です。</div>
+                </td>
+              </tr>
+              <tr>
+                <th>Claude認証状態</th>
+                <td>
+                  <div class="auth-panel">
+                    <span class="auth-badge">利用可能</span>
+                    <div>
+                      <div class="auth-message">Claude Code を利用できる認証状態です。（Bedrock: ap-northeast-1）</div>
+                      <div class="help-text">最終確認: 2026/07/13 17:33:00 / claude CLI: 2.1.204</div>
+                      <div class="help-text">専用の認証確認コマンドがないため、軽いテストクエリで判定します。</div>
+                    </div>
+                    <button class="secondary-btn" type="button">再確認</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="file-path">設定ファイル: (Cotaskaルート)\data\settings.yaml</div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // 認証方式＝クラウドプロバイダ（Amazon Bedrock）の場合、Bedrock3項目を必須とする検証。
+    // provider="claude" かつ claudeAuth="bedrock" のときのみ必須。
+    const BEDROCK_FIELDS = [
+      { id: "bedrock-region", err: "err-bedrock-region" },
+      { id: "bedrock-model",  err: "err-bedrock-model" },
+      { id: "bedrock-creds",  err: "err-bedrock-creds" },
+    ];
+
+    function isBedrockRequired() {
+      return document.body.dataset.provider === "claude"
+        && document.body.dataset.claudeAuth === "bedrock";
+    }
+
+    function clearFieldError(field) {
+      const input = document.getElementById(field.id);
+      const err = document.getElementById(field.err);
+      if (input) input.classList.remove("invalid");
+      if (err) err.style.display = "none";
+    }
+
+    function validateBedrock() {
+      const saveError = document.getElementById("save-error");
+      // 対象外なら常にOK・エラー表示クリア
+      if (!isBedrockRequired()) {
+        BEDROCK_FIELDS.forEach(clearFieldError);
+        saveError.style.display = "none";
+        return { ok: true, missing: [] };
+      }
+      const missing = [];
+      BEDROCK_FIELDS.forEach((field) => {
+        const input = document.getElementById(field.id);
+        const err = document.getElementById(field.err);
+        const empty = !input || input.value.trim() === "";
+        if (empty) {
+          missing.push(field.id);
+          if (input) input.classList.add("invalid");
+          if (err) err.style.display = "block";
+        } else {
+          clearFieldError(field);
+        }
+      });
+      if (missing.length > 0) {
+        saveError.textContent =
+          "認証方式がクラウドプロバイダ（Amazon Bedrock）の場合、Bedrockリージョン・BedrockモデルID・AWS資格情報はすべて必須です。未入力の項目を入力してください。";
+        saveError.style.display = "block";
+      } else {
+        saveError.style.display = "none";
+      }
+      return { ok: missing.length === 0, missing };
+    }
+
+    // 保存時に検証。NGなら保存を中断する想定。
+    document.getElementById("save-btn").addEventListener("click", () => {
+      const result = validateBedrock();
+      if (!result.ok) return; // 実装では保存処理を実行しない
+      const saved = document.getElementById("save-error");
+      saved.className = "message success";
+      saved.textContent = "設定を保存しました。";
+      saved.style.display = "block";
+    });
+
+    // 入力・認証方式変更時にリアルタイムでエラー解消
+    BEDROCK_FIELDS.forEach((field) => {
+      const input = document.getElementById(field.id);
+      if (input) input.addEventListener("input", () => { if (input.value.trim() !== "") clearFieldError(field); });
+    });
+    document.querySelectorAll('input[name="claude-auth"]').forEach((r) => {
+      r.addEventListener("change", () => {
+        const saveError = document.getElementById("save-error");
+        saveError.style.display = "none";
+        if (!isBedrockRequired()) BEDROCK_FIELDS.forEach(clearFieldError);
+      });
+    });
+  </script>
+</body>
+</html>

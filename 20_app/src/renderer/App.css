@@ -614,6 +614,49 @@ body.is-resizing-detail-sections * {
   font-weight: 600;
 }
 
+.settings-group-row th {
+  background: #eef2f7;
+  padding-top: 16px;
+  padding-bottom: 10px;
+}
+
+.settings-group-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+
+.settings-group-badge--common {
+  background: #dfe6ef;
+  color: #43526a;
+}
+
+.settings-group-badge--codex {
+  background: #e2f3ea;
+  color: #1f7a44;
+}
+
+.settings-group-badge--claude {
+  background: #efe6fb;
+  color: #6b3fb0;
+}
+
+.settings-required-mark {
+  color: #c0392b;
+  font-weight: 700;
+  margin-left: 3px;
+}
+
+.settings-input-invalid {
+  border-color: #c0392b !important;
+  box-shadow: 0 0 0 3px rgba(192, 57, 43, .12);
+}
+
 .settings-auth-panel {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;

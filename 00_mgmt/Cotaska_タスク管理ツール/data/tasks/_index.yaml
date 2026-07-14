@@ -4646,6 +4646,15 @@ tasks:
       - AIチャット
     due_date: '2026-07-12'
     updated_at: '2026-07-12T20:05:00+09:00'
+  - id: T-0441
+    title: 不具合：Claude認証状態の項目に「Codexの認証情報が構成されています。」
+    list: 実装予定
+    status: done
+    priority: normal
+    sort_order: 431
+    tags: []
+    due_date: '2026-07-13'
+    updated_at: '2026-07-14T02:43:26.261Z'
   - id: T-0432
     title: CHG-100-02 AIチャット入力欄のEnter送信を確認
     list: 実装予定
@@ -4670,6 +4679,15 @@ tasks:
       - リリース
     due_date: '2026-07-12'
     updated_at: '2026-07-12T20:50:08+09:00'
+  - id: T-0443
+    title: 仕様変更：スレッドの名前を変更できるようにしたい
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 433
+    tags: []
+    due_date: null
+    updated_at: '2026-07-14T03:20:50.809Z'
   - id: T-0434
     title: CHG-101 実装：同期バックアップを3世代で整理
     list: 実装予定
@@ -4685,7 +4703,7 @@ tasks:
   - id: T-0435
     title: CHG-101 確認：同期バックアップ世代管理
     list: 実装予定
-    status: todo
+    status: done
     priority: normal
     sort_order: 435
     tags:
@@ -4693,8 +4711,82 @@ tasks:
       - ユーザー確認
       - リリース
     due_date: '2026-07-12'
-    updated_at: '2026-07-12T20:50:08+09:00'
+    updated_at: '2026-07-14T03:19:30.074Z'
+  - id: T-0439
+    title: CHG-102 Claude Codeチャット連携（個人利用/Bedrock）
+    list: 実装予定
+    status: done
+    priority: normal
+    sort_order: 436
+    tags:
+      - CHG-102
+      - Claude
+      - AI連携
+    due_date: '2026-07-13'
+    updated_at: '2026-07-14T02:43:32.214Z'
+  - id: T-0436
+    title: CHG-102 設計：AIプロバイダ抽象化とClaude連携（個人利用限定）
+    list: 実装予定
+    status: done
+    priority: normal
+    sort_order: 437
+    tags:
+      - CHG-102
+      - 設計
+      - Claude
+      - AI連携
+    due_date: '2026-07-13'
+    updated_at: '2026-07-14T02:43:30.789Z'
+  - id: T-0437
+    title: CHG-102 実装：claudeCodeService新設とプロバイダ切替
+    list: 実装予定
+    status: done
+    priority: normal
+    sort_order: 438
+    tags:
+      - CHG-102
+      - 実装
+      - Claude
+      - AI連携
+    due_date: '2026-07-13'
+    updated_at: '2026-07-13T21:23:41+09:00'
+  - id: T-0438
+    title: CHG-102 ユーザ確認：Codex/Claude切替とチャット動作・配布除外
+    list: 実装予定
+    status: done
+    priority: normal
+    sort_order: 439
+    tags:
+      - CHG-102
+      - ユーザー確認
+      - Claude
+      - AI連携
+    due_date: '2026-07-13'
+    updated_at: '2026-07-14T02:43:27.222Z'
+  - id: T-0440
+    title: CHG-102 設計PoC：Claude Agent SDKローカル認証の動作検証
+    list: 実装予定
+    status: done
+    priority: normal
+    sort_order: 440
+    tags:
+      - CHG-102
+      - 設計
+      - PoC
+      - Claude
+      - AI連携
+    due_date: '2026-07-13'
+    updated_at: '2026-07-13T17:33:39+09:00'
+  - id: T-0442
+    title: 不具合：ClaudeCode連携でも画面上部にCodexの文言が残っている
+    list: 実装予定
+    status: done
+    priority: normal
+    sort_order: 442
+    tags: []
+    due_date: '2026-07-14'
+    updated_at: '2026-07-14T02:43:25.563Z'
 task_file_roots:
   - .
-next_task_id: 436
-last_updated: '2026-07-12T12:32:43.844Z'
+next_task_id: 444
+last_updated: '2026-07-14T03:20:51.354Z'

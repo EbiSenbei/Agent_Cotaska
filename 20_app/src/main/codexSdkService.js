@@ -355,9 +355,10 @@ function resolveCodexModel(value) {
 }
 
 function buildCodexOptions(settings, options = {}) {
+  const codexSettings = settings.codex || settings;
   const performanceMode = normalizePerformanceMode(
     options.performanceMode || options.performance_mode,
-    settings.performanceMode,
+    codexSettings.performanceMode,
   );
   if (performanceMode !== "speed") return {};
   return {
@@ -374,14 +375,15 @@ function buildCodexOptions(settings, options = {}) {
 
 function buildThreadOptions(thread, options = {}) {
   const settings = settingsService.getSettings().settings.aiChat || {};
-  const sandboxMode = normalizeSandboxMode(options.sandboxMode || options.sandbox_mode || options.sandbox, settings.sandboxMode);
-  const performanceMode = normalizePerformanceMode(options.performanceMode || options.performance_mode, settings.performanceMode);
+  const codexSettings = settings.codex || settings;
+  const sandboxMode = normalizeSandboxMode(options.sandboxMode || options.sandbox_mode || options.sandbox, codexSettings.sandboxMode);
+  const performanceMode = normalizePerformanceMode(options.performanceMode || options.performance_mode, codexSettings.performanceMode);
   return {
     workingDirectory: resolveRequiredWorkdir(options.workdir || settings.workdir),
     sandboxMode,
     approvalPolicy: "never",
     skipGitRepoCheck: true,
-    model: resolveCodexModel(options.model),
+    model: resolveCodexModel(options.model || codexSettings.model),
     modelReasoningEffort: performanceMode === "speed" ? SPEED_PROFILE.modelReasoningEffort : undefined,
   };
 }
@@ -438,7 +440,7 @@ function formatReferencePath(workdir, filePath) {
 }
 
 function buildReferenceContext(threadId, workdir, settings, options = {}) {
-  const performanceMode = normalizePerformanceMode(options.performanceMode || options.performance_mode, settings.performanceMode);
+  const performanceMode = normalizePerformanceMode(options.performanceMode || options.performance_mode, (settings.codex || settings).performanceMode);
   const configuredMode = normalizeReferenceSendMode(settings.referenceSendMode);
   const requestedMode = options.referenceSendMode || options.reference_send_mode;
   const referenceSendMode = requestedMode === "force"
@@ -703,10 +705,11 @@ async function sendMessage(input = {}) {
   }
 
   const settings = settingsService.getSettings().settings.aiChat || {};
+  const codexSettings = settings.codex || settings;
   const workdir = resolveRequiredWorkdir(input.workdir || settings.workdir);
-  const sandboxMode = normalizeSandboxMode(input.sandboxMode || input.sandbox_mode || input.sandbox, settings.sandboxMode);
-  const performanceMode = normalizePerformanceMode(input.performanceMode || input.performance_mode, settings.performanceMode);
-  const model = resolveCodexModel(input.model);
+  const sandboxMode = normalizeSandboxMode(input.sandboxMode || input.sandbox_mode || input.sandbox, codexSettings.sandboxMode);
+  const performanceMode = normalizePerformanceMode(input.performanceMode || input.performance_mode, codexSettings.performanceMode);
+  const model = resolveCodexModel(input.model || codexSettings.model);
   const usePersistentCodexThread = shouldUsePersistentCodexThread(performanceMode);
   const codexThreadIdForRun = usePersistentCodexThread ? thread.codex_thread_id : null;
   const codexThreadStrategy = usePersistentCodexThread ? "persistent" : "transient";

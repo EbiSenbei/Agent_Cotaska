@@ -200,7 +200,9 @@ function AiChatPane({
     status: "unavailable",
     message: "cotaskaAPI.aiChat はまだ接続されていません。",
   });
+  const [aiProvider, setAiProvider] = useState("codex");
   const lastTaskChatRequestRef = useRef(null);
+  const providerLabel = aiProvider === "claude" ? "Claude Code" : "Codex SDK";
 
   const aiChatApi = useMemo(() => getAiChatApi(), []);
   const selectedThread = threads.find((thread) => thread.id === selectedThreadId) || null;
@@ -226,7 +228,7 @@ function AiChatPane({
   const mapMessage = (message) => ({
     id: message.message_id,
     role: message.role === "assistant" ? "assistant" : "user",
-    author: message.role === "assistant" ? "Codex SDK" : "ユーザー",
+    author: message.role === "assistant" ? providerLabel : "ユーザー",
     body: message.error_message || message.content || "",
     error: Boolean(message.error_message),
     createdAt: message.created_at,
@@ -597,8 +599,13 @@ function AiChatPane({
       if (!aiChatApi) return;
       try {
         const settingsResult = await window.cotaskaAPI?.settings?.get?.();
-        if (!cancelled && settingsResult?.settings?.aiChat?.sandboxMode) {
-          setSandboxMode(normalizeSandboxMode(settingsResult.settings.aiChat.sandboxMode));
+        const aiChatSettings = settingsResult?.settings?.aiChat || {};
+        if (!cancelled) {
+          setAiProvider(aiChatSettings.provider === "claude" ? "claude" : "codex");
+        }
+        const initialSandboxMode = aiChatSettings.codex?.sandboxMode || aiChatSettings.sandboxMode;
+        if (!cancelled && initialSandboxMode) {
+          setSandboxMode(normalizeSandboxMode(initialSandboxMode));
         }
         if (!cancelled && settingsResult?.settings?.aiChat?.referenceSendMode === "manual") {
           setReferenceSendMode("skip");
@@ -614,7 +621,7 @@ function AiChatPane({
             ? "設定の作業フォルダが未設定です。設定画面で作業フォルダを選択してください。"
             : result?.ok === false
             ? (result.error || "AIデータベースの状態確認に失敗しました。")
-            : `Codex SDK連携を利用できます。AI DB: ${result?.path || "未確認"}`,
+            : `${providerLabel}連携を利用できます。AI DB: ${result?.path || "未確認"}`,
         });
         const mapped = await refreshThreads();
         await refreshActiveRuns();
@@ -634,7 +641,7 @@ function AiChatPane({
         setRuntimeState({
           ready: false,
           status: "error",
-          message: error?.message || "Codex SDKの状態確認に失敗しました。",
+          message: error?.message || `${providerLabel}の状態確認に失敗しました。`,
         });
       }
     };
@@ -741,8 +748,12 @@ function AiChatPane({
 
   useEffect(() => {
     const handleAiChatSettingsChanged = (event) => {
-      if (event.detail?.sandboxMode) {
-        setSandboxMode(normalizeSandboxMode(event.detail.sandboxMode));
+      if (event.detail?.provider) {
+        setAiProvider(event.detail.provider === "claude" ? "claude" : "codex");
+      }
+      const changedSandboxMode = event.detail?.codex?.sandboxMode || event.detail?.sandboxMode;
+      if (changedSandboxMode) {
+        setSandboxMode(normalizeSandboxMode(changedSandboxMode));
       }
     };
     window.addEventListener("cotaska:aiChatSettingsChanged", handleAiChatSettingsChanged);
@@ -1341,7 +1352,7 @@ function AiChatPane({
       {
         id: `error-${Date.now()}`,
         role: "assistant",
-        author: "Codex SDK",
+        author: providerLabel,
         body: message,
         error: true,
       },
@@ -1373,7 +1384,7 @@ function AiChatPane({
       {
         id: `cancel-${Date.now()}`,
         role: "assistant",
-        author: "Codex SDK",
+        author: providerLabel,
         body: "AI処理の中断を要求しました。",
       },
     ]);
@@ -1463,7 +1474,7 @@ function AiChatPane({
     setRuntimeState((current) => ({
       ...current,
       status: "ready",
-      message: "Codex SDKへ送信しました。応答を待っています...",
+      message: `${providerLabel}へ送信しました。応答を待っています...`,
     }));
 
     try {
@@ -1500,7 +1511,7 @@ function AiChatPane({
         setRuntimeState({
           ready: true,
           status: "ready",
-          message: "Codex SDKの応答を保存しました。",
+          message: `${providerLabel}の応答を保存しました。`,
           action: null,
         });
       }
@@ -1533,7 +1544,7 @@ function AiChatPane({
         {
           id: `error-${Date.now()}`,
           role: "assistant",
-          author: "Codex SDK",
+          author: providerLabel,
           body: error?.message || "メッセージ送信に失敗しました。",
           error: true,
         },
@@ -1711,7 +1722,7 @@ function AiChatPane({
             <div className="ai-chat-title">{chatTitle}</div>
             <div className="ai-chat-meta">
               <span className={`ai-status-dot ai-status-dot--${runtimeState.ready ? "ready" : "warn"}`} />
-              <span>{runtimeState.ready ? "Codex SDK 接続済み" : "Codex SDK 未接続"}</span>
+              <span>{runtimeState.ready ? `${providerLabel} 接続済み` : `${providerLabel} 未接続`}</span>
               {selectedThreadId && <span>{selectedThreadId}</span>}
             </div>
           </div>
@@ -1771,10 +1782,10 @@ function AiChatPane({
           ))}
           {isSending && (
             <article className="ai-message ai-message--assistant ai-message--thinking">
-              <div className="ai-message-author">Codex SDK</div>
+              <div className="ai-message-author">{providerLabel}</div>
               <div className="ai-thinking">
                 <span className="ai-thinking-dot" />
-                <span>{streamEvents.length > 0 ? "処理中の内容を受信しています..." : "処理中です。Codex SDKからの応答を待っています..."}</span>
+                <span>{streamEvents.length > 0 ? "処理中の内容を受信しています..." : `処理中です。${providerLabel}からの応答を待っています...`}</span>
                 <span className="ai-thinking-elapsed">待機 {waitingSeconds}秒</span>
               </div>
               {streamEvents.length > 0 && (

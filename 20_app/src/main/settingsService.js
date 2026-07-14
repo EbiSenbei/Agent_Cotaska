@@ -39,14 +39,36 @@ const DEFAULT_SETTINGS = {
     level: "info",
   },
   aiChat: {
+    // 連携先プロバイダ: codex / claude
+    provider: "codex",
+    // --- 共通項目（両プロバイダで共用） ---
     workdir: "",
-    sandboxMode: "read-only",
-    performanceMode: "standard",
     diagnosticsEnabled: false,
     retentionDays: 90,
     maxReferenceFiles: 10,
     maxReferenceChars: 100000,
     referenceSendMode: "always",
+    // --- Codex 固有 ---
+    codex: {
+      model: "",
+      sandboxMode: "read-only",
+      performanceMode: "standard",
+    },
+    // --- Claude Code 固有 ---
+    claude: {
+      model: "claude-opus-4",
+      performanceMode: "standard",
+      // 認証方式: local（ローカルサブスク・個人利用限定） / bedrock（クラウドプロバイダ・配布可）
+      authMode: "local",
+      // 権限モード（sandboxMode 相当）: plan / acceptEdits / bypassPermissions
+      permissionMode: "acceptEdits",
+      bedrock: {
+        region: "",
+        modelId: "",
+        // AWSプロファイル名のみ保存。実資格情報は ~/.aws に委ねる
+        awsProfile: "",
+      },
+    },
   },
   update: {
     latestVersionUrl: "https://pub-d671fdad660b43a8a4b99ede58b7c092.r2.dev/latest/version.json",
@@ -75,12 +97,12 @@ function clampNumber(value, min, max, fallback) {
   return Math.max(min, Math.min(max, Math.round(numeric)));
 }
 
-function normalizeSandboxMode(value, fallback = DEFAULT_SETTINGS.aiChat.sandboxMode) {
+function normalizeSandboxMode(value, fallback = DEFAULT_SETTINGS.aiChat.codex.sandboxMode) {
   const mode = String(value || fallback).trim();
   return ["read-only", "workspace-write", "danger-full-access"].includes(mode) ? mode : fallback;
 }
 
-function normalizePerformanceMode(value, fallback = DEFAULT_SETTINGS.aiChat.performanceMode) {
+function normalizePerformanceMode(value, fallback = "standard") {
   const mode = String(value || fallback).trim();
   return ["standard", "speed"].includes(mode) ? mode : fallback;
 }
@@ -88,6 +110,21 @@ function normalizePerformanceMode(value, fallback = DEFAULT_SETTINGS.aiChat.perf
 function normalizeReferenceSendMode(value, fallback = DEFAULT_SETTINGS.aiChat.referenceSendMode) {
   const mode = String(value || fallback).trim();
   return ["always", "manual", "skip-in-speed"].includes(mode) ? mode : fallback;
+}
+
+function normalizeAiProvider(value, fallback = DEFAULT_SETTINGS.aiChat.provider) {
+  const provider = String(value || fallback).trim();
+  return ["codex", "claude"].includes(provider) ? provider : fallback;
+}
+
+function normalizeClaudeAuthMode(value, fallback = DEFAULT_SETTINGS.aiChat.claude.authMode) {
+  const mode = String(value || fallback).trim();
+  return ["local", "bedrock"].includes(mode) ? mode : fallback;
+}
+
+function normalizeClaudePermissionMode(value, fallback = DEFAULT_SETTINGS.aiChat.claude.permissionMode) {
+  const mode = String(value || fallback).trim();
+  return ["plan", "acceptEdits", "bypassPermissions"].includes(mode) ? mode : fallback;
 }
 
 function normalizeLogLevel(value, fallback = DEFAULT_SETTINGS.logging.level) {
@@ -166,6 +203,64 @@ function getSettingsPath() {
   return path.join(getDataDir(), "settings.yaml");
 }
 
+// aiChat 設定をネスト構造へマージする。
+// 旧フラットキー（aiChat.sandboxMode / performanceMode / model）が存在し、
+// 新ネスト（aiChat.codex）が無い場合は codex 配下へ後方互換移行する。
+function mergeAiChat(rawAiChat) {
+  const src = rawAiChat && typeof rawAiChat === "object" ? rawAiChat : {};
+  const def = DEFAULT_SETTINGS.aiChat;
+  const legacyCodex = !src.codex || typeof src.codex !== "object";
+  const codexSrc = legacyCodex ? {} : src.codex;
+  const claudeSrc = src.claude && typeof src.claude === "object" ? src.claude : {};
+  const bedrockSrc = claudeSrc.bedrock && typeof claudeSrc.bedrock === "object" ? claudeSrc.bedrock : {};
+
+  // 旧フラットキーからの移行元（codex ネストが無い場合のみ参照）
+  const legacySandbox = legacyCodex ? src.sandboxMode : undefined;
+  const legacyPerformance = legacyCodex ? src.performanceMode : undefined;
+  const legacyModel = legacyCodex ? src.model : undefined;
+
+  return {
+    provider: normalizeAiProvider(src.provider),
+    workdir: hasOwn(src, "workdir") ? normalizeAiWorkdir(src.workdir) : def.workdir,
+    referenceSendMode: normalizeReferenceSendMode(src.referenceSendMode),
+    diagnosticsEnabled: src.diagnosticsEnabled === true,
+    retentionDays: clampNumber(src.retentionDays, 1, 3650, def.retentionDays),
+    maxReferenceFiles: clampNumber(src.maxReferenceFiles, 1, 100, def.maxReferenceFiles),
+    maxReferenceChars: clampNumber(src.maxReferenceChars, 1000, 1000000, def.maxReferenceChars),
+    codex: {
+      model: String(codexSrc.model ?? legacyModel ?? def.codex.model),
+      sandboxMode: normalizeSandboxMode(codexSrc.sandboxMode ?? legacySandbox),
+      performanceMode: normalizePerformanceMode(codexSrc.performanceMode ?? legacyPerformance),
+    },
+    claude: {
+      model: String(claudeSrc.model || def.claude.model),
+      performanceMode: normalizePerformanceMode(claudeSrc.performanceMode),
+      authMode: normalizeClaudeAuthMode(claudeSrc.authMode),
+      permissionMode: normalizeClaudePermissionMode(claudeSrc.permissionMode),
+      bedrock: {
+        region: String(bedrockSrc.region || ""),
+        modelId: String(bedrockSrc.modelId || ""),
+        awsProfile: String(bedrockSrc.awsProfile || ""),
+      },
+    },
+  };
+}
+
+// Bedrock 認証時の必須項目を検証する。
+// provider=claude かつ claude.authMode=bedrock のとき region/modelId/awsProfile を必須とする。
+function validateAiChatBedrock(aiChat) {
+  if (!aiChat || aiChat.provider !== "claude") return;
+  if (aiChat.claude?.authMode !== "bedrock") return;
+  const bedrock = aiChat.claude.bedrock || {};
+  const missing = [];
+  if (!String(bedrock.region || "").trim()) missing.push("Bedrockリージョン");
+  if (!String(bedrock.modelId || "").trim()) missing.push("BedrockモデルID");
+  if (!String(bedrock.awsProfile || "").trim()) missing.push("AWSプロファイル名");
+  if (missing.length > 0) {
+    throw new Error(`認証方式がクラウドプロバイダ（Amazon Bedrock）の場合、次の項目は必須です: ${missing.join(" / ")}`);
+  }
+}
+
 function mergeSettings(raw) {
   const source = raw && typeof raw === "object" ? raw : {};
   const sourceUpdate = source.update || {};
@@ -198,20 +293,7 @@ function mergeSettings(raw) {
       ...(source.logging || {}),
       level: normalizeLogLevel(source.logging?.level),
     },
-    aiChat: {
-      ...DEFAULT_SETTINGS.aiChat,
-      ...(source.aiChat || {}),
-      workdir: hasOwn(source.aiChat, "workdir")
-        ? normalizeAiWorkdir(source.aiChat?.workdir)
-        : DEFAULT_SETTINGS.aiChat.workdir,
-      sandboxMode: normalizeSandboxMode(source.aiChat?.sandboxMode),
-      performanceMode: normalizePerformanceMode(source.aiChat?.performanceMode),
-      referenceSendMode: normalizeReferenceSendMode(source.aiChat?.referenceSendMode),
-      diagnosticsEnabled: source.aiChat?.diagnosticsEnabled === true,
-      retentionDays: clampNumber(source.aiChat?.retentionDays, 1, 3650, DEFAULT_SETTINGS.aiChat.retentionDays),
-      maxReferenceFiles: clampNumber(source.aiChat?.maxReferenceFiles, 1, 100, DEFAULT_SETTINGS.aiChat.maxReferenceFiles),
-      maxReferenceChars: clampNumber(source.aiChat?.maxReferenceChars, 1000, 1000000, DEFAULT_SETTINGS.aiChat.maxReferenceChars),
-    },
+    aiChat: mergeAiChat(source.aiChat),
     update: {
       ...DEFAULT_SETTINGS.update,
       ...sourceUpdate,
@@ -264,29 +346,51 @@ function renderSettingsYaml(settings) {
     `  level: ${escaped(normalized.logging.level)}`,
     "",
     "aiChat:",
-    "  # Working directory passed to Codex SDK.",
+    "  # 連携先プロバイダ: codex / claude",
+    `  provider: ${escaped(normalized.aiChat.provider)}`,
+    "",
+    "  # 作業フォルダ（両プロバイダ共通）。未設定時はAI画面で警告する",
     `  workdir: ${escaped(normalized.aiChat.workdir)}`,
     "",
-    "  # Codex SDK sandbox mode: read-only / workspace-write / danger-full-access.",
-    `  sandboxMode: ${escaped(normalized.aiChat.sandboxMode)}`,
-    "",
-    "  # AI response performance mode: standard / speed.",
-    `  performanceMode: ${escaped(normalized.aiChat.performanceMode)}`,
-    "",
-    "  # Reference file send mode: always / manual / skip-in-speed.",
+    "  # 参照ファイルの送信方法: always / manual / skip-in-speed（共通）",
     `  referenceSendMode: ${escaped(normalized.aiChat.referenceSendMode)}`,
     "",
-    "  # Enable detailed AI diagnostics logs for response time investigation.",
+    "  # 応答時間・トークン数などの診断ログ。既定OFF（共通）",
     `  diagnosticsEnabled: ${normalized.aiChat.diagnosticsEnabled ? "true" : "false"}`,
     "",
-    "  # Days to keep archived AI data before cleanup.",
+    "  # AI関連SQLiteデータの削除既定日数（共通）",
     `  retentionDays: ${normalized.aiChat.retentionDays}`,
     "",
-    "  # Maximum reference files attached to one Codex turn.",
+    "  # 参照ファイルの初期上限（共通）",
     `  maxReferenceFiles: ${normalized.aiChat.maxReferenceFiles}`,
-    "",
-    "  # Maximum total reference characters attached to one Codex turn.",
     `  maxReferenceChars: ${normalized.aiChat.maxReferenceChars}`,
+    "",
+    "  # --- Codex 固有 ---",
+    "  codex:",
+    "    # Codexモデル名（空欄はアプリ既定）",
+    `    model: ${escaped(normalized.aiChat.codex.model)}`,
+    "    # sandbox mode: read-only / workspace-write / danger-full-access",
+    `    sandboxMode: ${escaped(normalized.aiChat.codex.sandboxMode)}`,
+    "    # performance mode: standard / speed",
+    `    performanceMode: ${escaped(normalized.aiChat.codex.performanceMode)}`,
+    "",
+    "  # --- Claude Code 固有 ---",
+    "  claude:",
+    "    # Claudeモデル名",
+    `    model: ${escaped(normalized.aiChat.claude.model)}`,
+    "    # performance mode: standard / speed",
+    `    performanceMode: ${escaped(normalized.aiChat.claude.performanceMode)}`,
+    "    # 認証方式: local（ローカルサブスク・個人利用限定） / bedrock（クラウドプロバイダ・配布可）",
+    `    authMode: ${escaped(normalized.aiChat.claude.authMode)}`,
+    "    # 権限モード: plan / acceptEdits / bypassPermissions",
+    `    permissionMode: ${escaped(normalized.aiChat.claude.permissionMode)}`,
+    "    bedrock:",
+    "      # AWSリージョン（authMode=bedrock時 必須）",
+    `      region: ${escaped(normalized.aiChat.claude.bedrock.region)}`,
+    "      # BedrockモデルID（authMode=bedrock時 必須）",
+    `      modelId: ${escaped(normalized.aiChat.claude.bedrock.modelId)}`,
+    "      # AWSプロファイル名のみ保存（authMode=bedrock時 必須）。実資格情報は ~/.aws に委ねる",
+    `      awsProfile: ${escaped(normalized.aiChat.claude.bedrock.awsProfile)}`,
     "",
     "update:",
     "  # 最新版確認に使うURL。Cloudflare R2 の version.json または GitHub Releases latest API 互換JSONを想定します",
@@ -335,6 +439,26 @@ function getSettings() {
   }
 }
 
+// updateSettings 用の aiChat 深いマージ。
+// 部分パッチ（例: { provider } や { claude: { authMode } }）を現在値へ深くマージする。
+function mergeAiChatPatch(current, patch) {
+  const cur = current || {};
+  const p = patch || {};
+  return {
+    ...cur,
+    ...p,
+    codex: { ...(cur.codex || {}), ...(p.codex || {}) },
+    claude: {
+      ...(cur.claude || {}),
+      ...(p.claude || {}),
+      bedrock: {
+        ...((cur.claude || {}).bedrock || {}),
+        ...((p.claude || {}).bedrock || {}),
+      },
+    },
+  };
+}
+
 function updateSettings(patch) {
   const current = getSettings().settings;
   const next = mergeSettings({
@@ -356,16 +480,14 @@ function updateSettings(patch) {
       ...current.logging,
       ...((patch || {}).logging || {}),
     },
-    aiChat: {
-      ...current.aiChat,
-      ...((patch || {}).aiChat || {}),
-    },
+    aiChat: mergeAiChatPatch(current.aiChat, (patch || {}).aiChat),
     update: {
       ...current.update,
       ...((patch || {}).update || {}),
     },
   });
   validateAiWorkdir(next.aiChat?.workdir);
+  validateAiChatBedrock(next.aiChat);
 
   fs.mkdirSync(getDataDir(), { recursive: true });
   fs.writeFileSync(getSettingsPath(), renderSettingsYaml(next), "utf8");

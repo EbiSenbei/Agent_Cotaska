@@ -14,6 +14,7 @@ const reminderService = require("./reminderService");
 const settingsService = require("./settingsService");
 const aiService = require("./aiService");
 const codexSdkService = require("./codexSdkService");
+const aiProviderRegistry = require("./aiProviderRegistry");
 const logger     = require("./logger");
 const appLogger  = require("./appLogger");
 earlyStartupLogger.setSecondaryLogger(appLogger);
@@ -1282,17 +1283,17 @@ ipcMain.handle("aiChat:getDbInfo", async () => {
   }
 });
 
-ipcMain.handle("aiChat:checkAuthStatus", async () => {
+ipcMain.handle("aiChat:checkAuthStatus", async (_e, provider) => {
   await servicesReady;
   try {
-    return await codexSdkService.checkAuthStatus();
+    return await aiProviderRegistry.resolveProvider(provider).checkAuthStatus();
   } catch (err) {
     logger.error("aiChat:checkAuthStatus failed", err);
     return {
       ok: false,
       status: "error",
       label: "確認失敗",
-      message: "Codex認証状態を確認できませんでした。",
+      message: "AI認証状態を確認できませんでした。",
       checkedAt: new Date().toISOString(),
       needsLogin: false,
     };
@@ -1865,7 +1866,7 @@ ipcMain.handle("aiChat:listRuns", async (_e, threadId) => {
 ipcMain.handle("aiChat:listActiveRuns", async () => {
   await servicesReady;
   try {
-    return codexSdkService.listActiveRuns();
+    return aiProviderRegistry.resolveProvider().listActiveRuns();
   } catch (err) {
     logger.error("aiChat:listActiveRuns failed", err);
     return [];
@@ -1875,7 +1876,7 @@ ipcMain.handle("aiChat:listActiveRuns", async () => {
 ipcMain.handle("aiChat:listRunEvents", async (_e, input) => {
   await servicesReady;
   try {
-    return codexSdkService.listRunEvents(input || {});
+    return aiProviderRegistry.resolveProvider().listRunEvents(input || {});
   } catch (err) {
     logger.error("aiChat:listRunEvents failed", err);
     return [];
@@ -1895,7 +1896,7 @@ ipcMain.handle("aiChat:purgeOldData", async (_e, days) => {
 ipcMain.handle("aiChat:sendMessage", async (_e, input) => {
   await servicesReady;
   try {
-    return await codexSdkService.sendMessage({
+    return await aiProviderRegistry.resolveProvider().sendMessage({
       ...(input || {}),
       onEvent: (payload) => {
         if (mainWindow && !mainWindow.isDestroyed()) {
@@ -1912,7 +1913,7 @@ ipcMain.handle("aiChat:sendMessage", async (_e, input) => {
 ipcMain.handle("aiChat:cancelRun", async (_e, requestId) => {
   await servicesReady;
   try {
-    return codexSdkService.cancelRun(requestId);
+    return aiProviderRegistry.resolveProvider().cancelRun(requestId);
   } catch (err) {
     logger.error("aiChat:cancelRun failed", err);
     return { ok: false, error: err.message || String(err) };

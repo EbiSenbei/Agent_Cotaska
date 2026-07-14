@@ -29,14 +29,29 @@ const DEFAULT_SETTINGS = {
     completedLoadMoreLimit: 100,
   },
   aiChat: {
+    provider: "codex",
     workdir: "",
-    sandboxMode: "read-only",
-    performanceMode: "standard",
     referenceSendMode: "always",
     diagnosticsEnabled: false,
     retentionDays: 90,
     maxReferenceFiles: 10,
     maxReferenceChars: 100000,
+    codex: {
+      model: "",
+      sandboxMode: "read-only",
+      performanceMode: "standard",
+    },
+    claude: {
+      model: "claude-opus-4",
+      performanceMode: "standard",
+      authMode: "local",
+      permissionMode: "acceptEdits",
+      bedrock: {
+        region: "",
+        modelId: "",
+        awsProfile: "",
+      },
+    },
   },
 };
 
@@ -56,9 +71,22 @@ function normalizeSettings(settings) {
       ...DEFAULT_SETTINGS.taskLoading,
       ...((settings || {}).taskLoading || {}),
     },
-    aiChat: {
-      ...DEFAULT_SETTINGS.aiChat,
-      ...((settings || {}).aiChat || {}),
+    aiChat: mergeAiChat((settings || {}).aiChat),
+  };
+}
+
+function mergeAiChat(rawAiChat) {
+  const src = rawAiChat || {};
+  const def = DEFAULT_SETTINGS.aiChat;
+  const claudeSrc = src.claude || {};
+  return {
+    ...def,
+    ...src,
+    codex: { ...def.codex, ...(src.codex || {}) },
+    claude: {
+      ...def.claude,
+      ...claudeSrc,
+      bedrock: { ...def.claude.bedrock, ...(claudeSrc.bedrock || {}) },
     },
   };
 }
@@ -120,6 +148,7 @@ function SettingsPane({ focusRequest }) {
     needsLogin: false,
   });
   const [checkingAuth, setCheckingAuth] = useState(false);
+  const [bedrockErrors, setBedrockErrors] = useState({ region: false, modelId: false, awsProfile: false });
   const workdirSectionRef = useRef(null);
   const authSectionRef = useRef(null);
 
@@ -198,16 +227,41 @@ function SettingsPane({ focusRequest }) {
         ...current.taskLoading,
         ...(patch.taskLoading || {}),
       },
-      aiChat: {
-        ...current.aiChat,
-        ...(patch.aiChat || {}),
-      },
+      aiChat: (() => {
+        const cur = current.aiChat || {};
+        const p = patch.aiChat || {};
+        return {
+          ...cur,
+          ...p,
+          codex: { ...(cur.codex || {}), ...(p.codex || {}) },
+          claude: {
+            ...(cur.claude || {}),
+            ...(p.claude || {}),
+            bedrock: { ...((cur.claude || {}).bedrock || {}), ...((p.claude || {}).bedrock || {}) },
+          },
+        };
+      })(),
     }));
   };
 
   const saveSettings = async () => {
     setStatusMessage("");
     setErrorMessage("");
+    // Bedrock必須チェック（provider=claude かつ authMode=bedrock のとき region/modelId/awsProfile 必須）
+    if (settings.aiChat.provider === "claude" && settings.aiChat.claude.authMode === "bedrock") {
+      const bedrock = settings.aiChat.claude.bedrock || {};
+      const errors = {
+        region: !String(bedrock.region || "").trim(),
+        modelId: !String(bedrock.modelId || "").trim(),
+        awsProfile: !String(bedrock.awsProfile || "").trim(),
+      };
+      if (errors.region || errors.modelId || errors.awsProfile) {
+        setBedrockErrors(errors);
+        setErrorMessage("認証方式がクラウドプロバイダ（Amazon Bedrock）の場合、Bedrockリージョン・BedrockモデルID・AWSプロファイル名はすべて必須です。");
+        return;
+      }
+    }
+    setBedrockErrors({ region: false, modelId: false, awsProfile: false });
     const result = await window.cotaskaAPI?.settings?.update?.(settings);
     if (!result?.ok) {
       setErrorMessage(result?.error || "設定を保存できませんでした。");
@@ -254,12 +308,16 @@ function SettingsPane({ focusRequest }) {
   const checkCodexAuthStatus = async () => {
     setCheckingAuth(true);
     setErrorMessage("");
+    const provider = settings.aiChat.provider === "claude" ? "claude" : "codex";
+    const fallbackMessage = provider === "claude"
+      ? "Claude認証状態を確認できませんでした。"
+      : "Codex認証状態を確認できませんでした。";
     try {
-      const result = await window.cotaskaAPI?.aiChat?.checkAuthStatus?.();
+      const result = await window.cotaskaAPI?.aiChat?.checkAuthStatus?.(provider);
       setAuthStatus({
         status: result?.status || "error",
         label: result?.label || "確認失敗",
-        message: result?.message || "Codex認証状態を確認できませんでした。",
+        message: result?.message || fallbackMessage,
         checkedAt: result?.checkedAt || new Date().toISOString(),
         needsLogin: Boolean(result?.needsLogin),
         version: result?.version || null,
@@ -268,7 +326,7 @@ function SettingsPane({ focusRequest }) {
       setAuthStatus({
         status: "error",
         label: "確認失敗",
-        message: error?.message || "Codex認証状態を確認できませんでした。",
+        message: error?.message || fallbackMessage,
         checkedAt: new Date().toISOString(),
         needsLogin: false,
       });
@@ -605,6 +663,25 @@ function SettingsPane({ focusRequest }) {
                       </div>
                     </td>
                   </tr>
+                  {/* ===== AI共通 ===== */}
+                  <tr className="settings-group-row">
+                    <th colSpan={2}><span className="settings-group-badge settings-group-badge--common">AI共通</span></th>
+                  </tr>
+                  <tr>
+                    <th>連携先</th>
+                    <td>
+                      <select
+                        className="settings-select-input"
+                        value={settings.aiChat.provider}
+                        aria-label="AI連携先"
+                        onChange={(e) => updateSettingState({ aiChat: { provider: e.target.value } })}
+                      >
+                        <option value="codex">Codex（OpenAI）</option>
+                        <option value="claude">Claude Code（Anthropic）</option>
+                      </select>
+                      <div className="settings-help-text">AIチャットで使う連携先。選択に応じて下の設定グループが切り替わります。</div>
+                    </td>
+                  </tr>
                   <tr ref={workdirSectionRef} id="ai-workdir-settings">
                     <th>作業フォルダ</th>
                     <td>
@@ -622,76 +699,6 @@ function SettingsPane({ focusRequest }) {
                     </td>
                   </tr>
                   <tr>
-                    <th>権限</th>
-                    <td>
-                      <select
-                        className="settings-select-input"
-                        value={settings.aiChat.sandboxMode}
-                        aria-label="AI実行権限"
-                        onChange={(e) => updateSettingState({ aiChat: { sandboxMode: e.target.value } })}
-                      >
-                        <option value="read-only">読み取り専用</option>
-                        <option value="workspace-write">作業フォルダへ書き込み可</option>
-                        <option value="danger-full-access">フルアクセス</option>
-                      </select>
-                      <div className="settings-help-text">Codex SDK実行時の既定権限。チャット入力欄でも送信前に一時変更できます。</div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>AI速度</th>
-                    <td>
-                      <select
-                        className="settings-select-input"
-                        value={settings.aiChat.performanceMode}
-                        aria-label="AI速度モード"
-                        onChange={(e) => updateSettingState({ aiChat: { performanceMode: e.target.value } })}
-                      >
-                        <option value="standard">標準</option>
-                        <option value="speed">速度優先</option>
-                      </select>
-                      <div className="settings-help-text">速度優先ではFast mode設定と短命Codex実行を使い、Codex側の履歴肥大化を抑えます。</div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>AI診断ログ</th>
-                    <td>
-                      <label className="settings-checkbox-row">
-                        <input
-                          type="checkbox"
-                          checked={Boolean(settings.aiChat.diagnosticsEnabled)}
-                          onChange={(e) => updateSettingState({ aiChat: { diagnosticsEnabled: e.target.checked } })}
-                        />
-                        <span>応答速度調査用の詳細ログを出力する</span>
-                      </label>
-                      <div className="settings-help-text">通常はOFF。ONにするとAI応答時間、トークン数、Codexスレッド戦略などをアプリログへ出力します。</div>
-                    </td>
-                  </tr>
-                  <tr ref={authSectionRef} id="codex-auth-settings">
-                    <th>Codex認証状態</th>
-                    <td>
-                      <div className="settings-auth-panel">
-                        <div className={`settings-auth-badge settings-auth-badge--${authStatus.status}`}>
-                          {authStatus.label}
-                        </div>
-                        <div className="settings-auth-body">
-                          <div className="settings-auth-message">{authStatus.message}</div>
-                          <div className="settings-help-text">最終確認: {formatCheckedAt(authStatus.checkedAt)}</div>
-                          {authStatus.version && <div className="settings-help-text">Codex CLI: {authStatus.version}</div>}
-                          <div className="settings-help-text">{getAuthGuide(authStatus.status)}</div>
-                          <div className="settings-help-text">CotaskaはOpenAI APIキー、Codex access token、Codex認証ファイルの内容を保存しません。</div>
-                        </div>
-                        <button
-                          type="button"
-                          className="settings-secondary-btn"
-                          onClick={checkCodexAuthStatus}
-                          disabled={checkingAuth}
-                        >
-                          {checkingAuth ? "確認中..." : "再確認"}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
                     <th>AI参照上限</th>
                     <td>
                       <select
@@ -704,7 +711,7 @@ function SettingsPane({ focusRequest }) {
                         <option value="manual">手動指定時のみ送信</option>
                         <option value="skip-in-speed">高速モードでは送信しない</option>
                       </select>
-                      <div className="settings-help-text">添付した参照ファイルの内容をCodexへ送信する方法を設定します。</div>
+                      <div className="settings-help-text">添付した参照ファイルの内容をAIへ送信する方法を設定します。</div>
                       <div className="settings-task-loading-row">
                         <div className="settings-unit-field settings-compact-unit-field">
                           <span className="settings-inline-label">ファイル</span>
@@ -735,7 +742,21 @@ function SettingsPane({ focusRequest }) {
                           <span className="settings-unit-label">文字</span>
                         </div>
                       </div>
-                      <div className="settings-help-text">Codexへ渡す参照ファイルの上限。初期値は10件、100,000文字。</div>
+                      <div className="settings-help-text">AIへ渡す参照ファイルの上限。初期値は10件、100,000文字。</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>AI診断ログ</th>
+                    <td>
+                      <label className="settings-checkbox-row">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(settings.aiChat.diagnosticsEnabled)}
+                          onChange={(e) => updateSettingState({ aiChat: { diagnosticsEnabled: e.target.checked } })}
+                        />
+                        <span>応答速度調査用の詳細ログを出力する</span>
+                      </label>
+                      <div className="settings-help-text">通常はOFF。ONにするとAI応答時間、トークン数などをアプリログへ出力します。</div>
                     </td>
                   </tr>
                   <tr>
@@ -768,6 +789,220 @@ function SettingsPane({ focusRequest }) {
                       )}
                     </td>
                   </tr>
+
+                  {/* ===== AI-Codex関連 ===== */}
+                  {settings.aiChat.provider === "codex" && (
+                    <>
+                      <tr className="settings-group-row">
+                        <th colSpan={2}><span className="settings-group-badge settings-group-badge--codex">AI-Codex関連</span></th>
+                      </tr>
+                      <tr>
+                        <th>権限</th>
+                        <td>
+                          <select
+                            className="settings-select-input"
+                            value={settings.aiChat.codex.sandboxMode}
+                            aria-label="Codex実行権限"
+                            onChange={(e) => updateSettingState({ aiChat: { codex: { sandboxMode: e.target.value } } })}
+                          >
+                            <option value="read-only">読み取り専用</option>
+                            <option value="workspace-write">作業フォルダへ書き込み可</option>
+                            <option value="danger-full-access">フルアクセス</option>
+                          </select>
+                          <div className="settings-help-text">Codex SDK実行時の既定権限。チャット入力欄でも送信前に一時変更できます。</div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>AI速度</th>
+                        <td>
+                          <select
+                            className="settings-select-input"
+                            value={settings.aiChat.codex.performanceMode}
+                            aria-label="Codex AI速度モード"
+                            onChange={(e) => updateSettingState({ aiChat: { codex: { performanceMode: e.target.value } } })}
+                          >
+                            <option value="standard">標準</option>
+                            <option value="speed">速度優先</option>
+                          </select>
+                          <div className="settings-help-text">速度優先ではFast mode設定と短命Codex実行を使い、Codex側の履歴肥大化を抑えます。</div>
+                        </td>
+                      </tr>
+                      <tr ref={authSectionRef} id="codex-auth-settings">
+                        <th>Codex認証状態</th>
+                        <td>
+                          <div className="settings-auth-panel">
+                            <div className={`settings-auth-badge settings-auth-badge--${authStatus.status}`}>
+                              {authStatus.label}
+                            </div>
+                            <div className="settings-auth-body">
+                              <div className="settings-auth-message">{authStatus.message}</div>
+                              <div className="settings-help-text">最終確認: {formatCheckedAt(authStatus.checkedAt)}</div>
+                              {authStatus.version && <div className="settings-help-text">Codex CLI: {authStatus.version}</div>}
+                              <div className="settings-help-text">{getAuthGuide(authStatus.status)}</div>
+                              <div className="settings-help-text">CotaskaはOpenAI APIキー、Codex access token、Codex認証ファイルの内容を保存しません。</div>
+                            </div>
+                            <button
+                              type="button"
+                              className="settings-secondary-btn"
+                              onClick={checkCodexAuthStatus}
+                              disabled={checkingAuth}
+                            >
+                              {checkingAuth ? "確認中..." : "再確認"}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </>
+                  )}
+
+                  {/* ===== AI-ClaudeCode関連 ===== */}
+                  {settings.aiChat.provider === "claude" && (
+                    <>
+                      <tr className="settings-group-row">
+                        <th colSpan={2}><span className="settings-group-badge settings-group-badge--claude">AI-ClaudeCode関連</span></th>
+                      </tr>
+                      <tr>
+                        <th>認証方式</th>
+                        <td>
+                          <select
+                            className="settings-select-input"
+                            value={settings.aiChat.claude.authMode}
+                            aria-label="Claude認証方式"
+                            onChange={(e) => updateSettingState({ aiChat: { claude: { authMode: e.target.value } } })}
+                          >
+                            <option value="local">ローカルサブスク認証（個人利用）</option>
+                            <option value="bedrock">クラウドプロバイダ（Amazon Bedrock）</option>
+                          </select>
+                          <div className="settings-help-text">
+                            ローカル: ~/.claude のログインを利用（個人利用限定・配布不可）。Bedrock: AWS資格情報で利用（配布可・従量課金）。
+                          </div>
+                          {settings.aiChat.claude.authMode === "local" && (
+                            <div className="settings-message settings-message--error" style={{ marginTop: 8 }}>
+                              ⚠ ローカルサブスク認証は個人利用限定です。配布ビルドでは選択できません（Bedrockのみ）。
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>Claudeモデル</th>
+                        <td>
+                          <input
+                            className="settings-text-input"
+                            type="text"
+                            value={settings.aiChat.claude.model}
+                            aria-label="Claudeモデル"
+                            onChange={(e) => updateSettingState({ aiChat: { claude: { model: e.target.value } } })}
+                          />
+                          <div className="settings-help-text">AIチャットで使う Claude モデル。Bedrock選択時は下のモデルIDを使用します。</div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>権限</th>
+                        <td>
+                          <select
+                            className="settings-select-input"
+                            value={settings.aiChat.claude.permissionMode}
+                            aria-label="Claude実行権限"
+                            onChange={(e) => updateSettingState({ aiChat: { claude: { permissionMode: e.target.value } } })}
+                          >
+                            <option value="plan">計画のみ（読み取り相当 / plan）</option>
+                            <option value="acceptEdits">編集を承認（acceptEdits）</option>
+                            <option value="bypassPermissions">フルアクセス（bypassPermissions）</option>
+                          </select>
+                          <div className="settings-help-text">Claude 実行時の権限モード。</div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>AI速度</th>
+                        <td>
+                          <select
+                            className="settings-select-input"
+                            value={settings.aiChat.claude.performanceMode}
+                            aria-label="Claude AI速度モード"
+                            onChange={(e) => updateSettingState({ aiChat: { claude: { performanceMode: e.target.value } } })}
+                          >
+                            <option value="standard">標準</option>
+                            <option value="speed">速度優先</option>
+                          </select>
+                        </td>
+                      </tr>
+                      {settings.aiChat.claude.authMode === "bedrock" && (
+                        <>
+                          <tr>
+                            <th>Bedrockリージョン<span className="settings-required-mark">*</span></th>
+                            <td>
+                              <input
+                                className={`settings-text-input${bedrockErrors.region ? " settings-input-invalid" : ""}`}
+                                type="text"
+                                value={settings.aiChat.claude.bedrock.region}
+                                placeholder="例: ap-northeast-1"
+                                aria-label="Bedrockリージョン"
+                                onChange={(e) => updateSettingState({ aiChat: { claude: { bedrock: { region: e.target.value } } } })}
+                              />
+                              <div className="settings-help-text">認証方式がクラウドプロバイダ（Amazon Bedrock）の場合は必須です。</div>
+                              {bedrockErrors.region && <div className="settings-message settings-message--error" style={{ marginTop: 6 }}>Bedrockリージョンは必須です。</div>}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>BedrockモデルID<span className="settings-required-mark">*</span></th>
+                            <td>
+                              <input
+                                className={`settings-text-input settings-path-input${bedrockErrors.modelId ? " settings-input-invalid" : ""}`}
+                                type="text"
+                                value={settings.aiChat.claude.bedrock.modelId}
+                                placeholder="例: apac.anthropic.claude-..."
+                                aria-label="BedrockモデルID"
+                                onChange={(e) => updateSettingState({ aiChat: { claude: { bedrock: { modelId: e.target.value } } } })}
+                              />
+                              <div className="settings-help-text">認証方式がクラウドプロバイダ（Amazon Bedrock）の場合は必須です。</div>
+                              {bedrockErrors.modelId && <div className="settings-message settings-message--error" style={{ marginTop: 6 }}>BedrockモデルIDは必須です。</div>}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>AWSプロファイル名<span className="settings-required-mark">*</span></th>
+                            <td>
+                              <input
+                                className={`settings-text-input${bedrockErrors.awsProfile ? " settings-input-invalid" : ""}`}
+                                type="text"
+                                value={settings.aiChat.claude.bedrock.awsProfile}
+                                placeholder="例: claude-code"
+                                aria-label="AWSプロファイル名"
+                                onChange={(e) => updateSettingState({ aiChat: { claude: { bedrock: { awsProfile: e.target.value } } } })}
+                              />
+                              <div className="settings-help-text">
+                                プロファイル名のみ保存し、実資格情報は ~/.aws に委ねます。認証方式がクラウドプロバイダ（Amazon Bedrock）の場合は必須です。
+                              </div>
+                              {bedrockErrors.awsProfile && <div className="settings-message settings-message--error" style={{ marginTop: 6 }}>AWSプロファイル名は必須です。</div>}
+                            </td>
+                          </tr>
+                        </>
+                      )}
+                      <tr>
+                        <th>Claude認証状態</th>
+                        <td>
+                          <div className="settings-auth-panel">
+                            <div className={`settings-auth-badge settings-auth-badge--${authStatus.status}`}>
+                              {authStatus.label}
+                            </div>
+                            <div className="settings-auth-body">
+                              <div className="settings-auth-message">{authStatus.message}</div>
+                              <div className="settings-help-text">最終確認: {formatCheckedAt(authStatus.checkedAt)}</div>
+                              {authStatus.version && <div className="settings-help-text">claude CLI: {authStatus.version}</div>}
+                              <div className="settings-help-text">専用の認証確認コマンドがないため、軽いテストクエリで判定します。</div>
+                            </div>
+                            <button
+                              type="button"
+                              className="settings-secondary-btn"
+                              onClick={checkCodexAuthStatus}
+                              disabled={checkingAuth}
+                            >
+                              {checkingAuth ? "確認中..." : "再確認"}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </>
+                  )}
                 </tbody>
               </table>
             </div>

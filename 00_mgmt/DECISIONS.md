@@ -1,5 +1,15 @@
 # DECISIONS
 
+## 2026-07-13 CHG-102 Claude Codeチャット連携（認証2系統）
+
+- AIチャットの連携先を設定画面で「Codex / Claude Code」から選択できるようにし、`aiProviderRegistry` によるプロバイダ切替とする。既存のDB(aiService)・UI・参照ファイルは両プロバイダで共用する。
+- Claude は認証方式を2系統持つ（設定画面で選択）:
+  - **ローカルサブスク認証**(`~/.claude/`) … サブスク認証を第三者**配布**アプリで使うことは規約で禁止のため、**個人利用限定・配布ビルドで無効化/非表示**。Cotaskaは認証情報を保持しない。
+  - **クラウドプロバイダ(Amazon Bedrock)**(`CLAUDE_CODE_USE_BEDROCK=1` + AWS資格情報) … Anthropic公式の第三者向け認証パスで**配布可・規約クリーン**。従量課金・AWSセットアップ要。当初要件「APIキー不要」は満たさない。
+- provider 未設定/不正値は "codex"、claudeAuthMode 未設定/不正値は "local" にフォールバックする。返却スキーマは両プロバイダで統一。AWS資格情報は平文保存しない。
+- 検討経緯・ToS調査は `00_mgmt/91_検討事項/20260713_01_ClaudeCode連携（個人利用前提）.md`、`workspace/temp/20260713_01_ClaudeCode連携の検討/認証方式とToS調査結果.md` を参照。
+- 実装(T-0437完了): settings.yaml の aiChat はプロバイダ別ネスト（provider/共通/codex/claude.bedrock）。旧フラットキーは mergeAiChat で codex 配下へ後方互換移行する。Claude のキャンセルは Codex と異なり例外を投げず result 未受信で終了するため「result未受信で終了＝中断」と判定する（PoC発見）。配布判定は `app.isPackaged` で、パッケージ版はローカル認証を bedrock へ矯正する。設計本体は `data/tasks/T-0436.md`。
+
 ## 2026-07-12 CHG-101 タスクマスター同期バックアップの世代管理
 
 - `sync-task-master-release.ps1` が作成する `Cotaska-0.1.0-dist_YYYYMMDD_HHMMSS.zip` だけを管理対象にし、最新3世代を保持する。
