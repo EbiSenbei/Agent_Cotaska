@@ -101,6 +101,40 @@ function Test-RequiredEsmDependency {
     }
 }
 
+function Test-ZipEntryHash {
+    param(
+        [Parameter(Mandatory = $true)][string]$ZipPath,
+        [Parameter(Mandatory = $true)][string]$EntryName,
+        [Parameter(Mandatory = $true)][string]$ExpectedHash
+    )
+
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $archive = [System.IO.Compression.ZipFile]::OpenRead($ZipPath)
+    try {
+        $entry = $archive.GetEntry($EntryName)
+        if ($null -eq $entry) {
+            return $false
+        }
+        $stream = $entry.Open()
+        try {
+            $sha256 = [System.Security.Cryptography.SHA256]::Create()
+            try {
+                $actualHash = ([System.BitConverter]::ToString($sha256.ComputeHash($stream))).Replace("-", "").ToLowerInvariant()
+            }
+            finally {
+                $sha256.Dispose()
+            }
+        }
+        finally {
+            $stream.Dispose()
+        }
+    }
+    finally {
+        $archive.Dispose()
+    }
+    return $actualHash -eq $ExpectedHash.ToLowerInvariant()
+}
+
 Write-Host ""
 Write-Host "=======================================" -ForegroundColor Green
 Write-Host " Cotaska リリース一括作成  v$Version" -ForegroundColor Green
@@ -167,19 +201,21 @@ if (-not (Test-Path $buildPs1)) {
 Write-Host "`n[ステップ 2.5] アップデーターをビルドしています..." -ForegroundColor Cyan
 $updaterBuildPs1 = Join-Path $updaterDir "build.ps1"
 if (-not (Test-Path $updaterBuildPs1)) {
-    Write-Host "  [警告] $updaterBuildPs1 が見つかりません。アップデータービルドをスキップします。" -ForegroundColor Yellow
+    Write-Host "[失敗] $updaterBuildPs1 が見つかりません。" -ForegroundColor Red
+    exit 1
 } else {
     & powershell -ExecutionPolicy Bypass -File $updaterBuildPs1
     $updaterBuildExitCode = $LASTEXITCODE
     if ($updaterBuildExitCode -ne 0) {
-        Write-Host "  [警告] アップデータービルドに失敗しました。PowerShell版アップデーターは引き続き利用できます。" -ForegroundColor Yellow
-        $global:LASTEXITCODE = 0
+        Write-Host "[失敗] アップデータービルドに失敗しました。" -ForegroundColor Red
+        exit 1
     }
     elseif (Test-Path -LiteralPath $sourceUpdaterExe) {
         Write-Host "  完了: アップデータービルド完了" -ForegroundColor Green
     }
     else {
-        Write-Host "  [警告] アップデーターが生成されませんでした。PowerShell版アップデーターは引き続き利用できます。" -ForegroundColor Yellow
+        Write-Host "[失敗] アップデーターが生成されませんでした: $sourceUpdaterExe" -ForegroundColor Red
+        exit 1
     }
 }
 
@@ -368,6 +404,7 @@ $checks = @(
     @{ Path = (Join-Path $distRoot "data\tasks");              Label = "data/tasks/" },
     @{ Path = (Join-Path $distRoot "tools\validate-tasks.ps1"); Label = "tools/validate-tasks.ps1" },
     @{ Path = (Join-Path $distRoot "tools\remove-progress-field.cmd"); Label = "tools/remove-progress-field.cmd" },
+    @{ Path = (Join-Path $distRoot "tools\CotaskaUpdater.exe"); Label = "tools/CotaskaUpdater.exe" },
     @{ Path = (Join-Path $distRoot $aiAgentRuleFileName);       Label = $aiAgentRuleFileName },
     @{ Path = (Join-Path $distRoot "README.md");                Label = "README.md" },
     @{ Path = (Join-Path $distRoot "logs");                    Label = "logs/" }
@@ -379,6 +416,17 @@ foreach ($c in $checks) {
         Write-Host ("  正常  " + $c.Label) -ForegroundColor Green
     } else {
         Write-Host ("  異常  " + $c.Label) -ForegroundColor Red
+        $allOk = $false
+    }
+}
+
+if ((Test-Path -LiteralPath $sourceUpdaterExe) -and (Test-Path -LiteralPath (Join-Path $distRoot "tools\CotaskaUpdater.exe"))) {
+    $sourceUpdaterHash = (Get-FileHash -LiteralPath $sourceUpdaterExe -Algorithm SHA256).Hash
+    $distUpdaterHash = (Get-FileHash -LiteralPath (Join-Path $distRoot "tools\CotaskaUpdater.exe") -Algorithm SHA256).Hash
+    if ($sourceUpdaterHash -eq $distUpdaterHash) {
+        Write-Host "  正常  CotaskaUpdater.exe はビルド成果物と一致" -ForegroundColor Green
+    } else {
+        Write-Host "  異常  CotaskaUpdater.exe がビルド成果物と一致しません" -ForegroundColor Red
         $allOk = $false
     }
 }
@@ -489,6 +537,13 @@ if ($allOk) {
             exit 1
         }
     }
+    $updaterZipEntry = "Cotaska-Portable/tools/CotaskaUpdater.exe"
+    $updaterHash = (Get-FileHash -LiteralPath $sourceUpdaterExe -Algorithm SHA256).Hash
+    if (-not (Test-ZipEntryHash -ZipPath $distZip -EntryName $updaterZipEntry -ExpectedHash $updaterHash)) {
+        Write-Host "[失敗] リリースZIP内のCotaskaUpdater.exeがビルド成果物と一致しません" -ForegroundColor Red
+        exit 1
+    }
+    Write-Host "  正常  リリースZIP内のCotaskaUpdater.exe はビルド成果物と一致" -ForegroundColor Green
     Restore-CoreExeIfMissing
     if (-not (Test-Path -LiteralPath $distCoreExe)) {
         Write-Host "[失敗] ZIP作成後の配布フォルダに CotaskaCore.exe がありません" -ForegroundColor Red
