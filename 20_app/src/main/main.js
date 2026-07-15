@@ -637,6 +637,9 @@ try {
         Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $BackupPath $_.Name) -Force
     }
     Copy-IfExists (Join-Path $PortableRoot "README.md") (Join-Path $BackupPath "README.md")
+    $BackupZipPath = $BackupPath + ".zip"
+    Write-UpdateLog ("Creating recovery ZIP: " + $BackupZipPath)
+    Compress-Archive -LiteralPath (Join-Path $BackupPath "*") -DestinationPath $BackupZipPath -Force
 
     Write-UpdateLog "Replacing application files"
     Copy-Item -LiteralPath (Join-Path $SourceRoot "Cotaska.exe") -Destination (Join-Path $PortableRoot "Cotaska.exe") -Force

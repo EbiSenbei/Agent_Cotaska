@@ -25,7 +25,10 @@ $args = @(
     "/nologo",
     "/target:winexe",
     "/out:$outputExe",
-    "/reference:System.Windows.Forms.dll"
+    "/reference:System.Windows.Forms.dll",
+    "/reference:System.Drawing.dll",
+    "/reference:System.IO.Compression.dll",
+    "/reference:System.IO.Compression.FileSystem.dll"
 )
 if (Test-Path $iconPath) {
     $args += "/win32icon:$iconPath"
