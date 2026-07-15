@@ -1564,7 +1564,16 @@ function resolveAiChatLinkTarget(target, baseFilePath) {
 
   const resolvedPath = path.normalize(stripFileLineSuffixIfExists(candidatePath));
   if (!fs.existsSync(resolvedPath)) throw new Error("対象のファイルまたはフォルダが見つかりません。");
-  if (!fs.statSync(resolvedPath).isFile()) throw new Error("フォルダは右サイドパネルで開けません。");
+  const stat = fs.statSync(resolvedPath);
+  if (stat.isDirectory()) {
+    return {
+      ok: true,
+      target_type: "folder",
+      folder_path: resolvedPath,
+      label: path.basename(resolvedPath),
+    };
+  }
+  if (!stat.isFile()) throw new Error("対応していないリンク先です。");
 
   return {
     ok: true,

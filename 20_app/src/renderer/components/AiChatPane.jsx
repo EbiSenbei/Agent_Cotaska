@@ -37,6 +37,7 @@ const CONTEXT_PANEL_WIDTH_KEY = "cotaska.aiChat.contextPanelWidth";
 const CONTEXT_PANEL_MIN_WIDTH = 320;
 const CONTEXT_PANEL_MAX_WIDTH = 720;
 const CONTEXT_PANEL_DEFAULT_WIDTH = 410;
+const MESSAGE_BOTTOM_PROXIMITY_PX = 96;
 const WORKDIR_REQUIRED_MESSAGE = "作業フォルダを設定してください。設定画面で作業フォルダを選択してから送信してください。";
 
 markdown.core.ruler.after("inline", "cotaska_task_links", (state) => {
@@ -389,7 +390,7 @@ function AiChatPane({
       setStreamEvents((current) => appendStreamEvent(current, nextEvent));
       appendedStreamEvent = true;
     }
-    if (appendedStreamEvent) {
+    if (appendedStreamEvent && isNearMessagesBottom()) {
       requestScrollMessagesToBottom();
     }
   };
@@ -596,7 +597,14 @@ function AiChatPane({
     const element = messageScrollRef.current;
     if (!element) return;
     const distanceFromBottom = element.scrollHeight - element.scrollTop - element.clientHeight;
-    setShowScrollBottom(distanceFromBottom > 96);
+    setShowScrollBottom(distanceFromBottom > MESSAGE_BOTTOM_PROXIMITY_PX);
+  };
+
+  const isNearMessagesBottom = () => {
+    const element = messageScrollRef.current;
+    if (!element) return true;
+    const distanceFromBottom = element.scrollHeight - element.scrollTop - element.clientHeight;
+    return distanceFromBottom <= MESSAGE_BOTTOM_PROXIMITY_PX;
   };
 
   const scrollMessagesToBottom = (behavior = "smooth") => {
@@ -1413,6 +1421,16 @@ function AiChatPane({
           file_path: resolved.file_path,
           label: resolved.label || resolved.file_path,
         });
+        return;
+      }
+      if (resolved?.target_type === "folder") {
+        const result = await window.cotaskaAPI?.shell?.openPath?.(resolved.folder_path);
+        if (result?.ok === false) throw new Error(result.error || "フォルダを開けませんでした。");
+        setRuntimeState((current) => ({
+          ...current,
+          status: "ready",
+          message: "フォルダをエクスプローラーで開きました。",
+        }));
         return;
       }
       if (resolved?.target_type !== "url") throw new Error("リンク先の種類を判定できませんでした。");
