@@ -4882,6 +4882,15 @@ tasks:
       - npm
     due_date: null
     updated_at: '2026-07-14T16:24:00+09:00'
+  - id: T-0462
+    title: 仕様変更：AIチャットが返ってきたら通知してほしい
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 452
+    tags: []
+    due_date: null
+    updated_at: '2026-07-15T07:05:56.341Z'
   - id: T-0453
     title: CHG-105 ランチャー起動診断と確認付き自動復元
     list: 仕様変更
@@ -4951,11 +4960,11 @@ tasks:
       - 更新
       - ダイアログ
     due_date: null
-    updated_at: '2026-07-15T02:59:47.695Z'
+    updated_at: '2026-07-15T06:07:07.661Z'
   - id: T-0458
     title: CHG-106-01 設計：CotaskaUpdaterの更新中ダイアログと配布検証を設計する
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 458
     tags:
@@ -4965,11 +4974,11 @@ tasks:
       - 更新
       - ダイアログ
     due_date: null
-    updated_at: '2026-07-15T02:59:47.695Z'
+    updated_at: '2026-07-15T15:06:28+09:00'
   - id: T-0459
     title: CHG-106-02 実装：CotaskaUpdaterの更新中ダイアログを配布物へ反映する
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 459
     tags:
@@ -4979,7 +4988,7 @@ tasks:
       - 更新
       - ダイアログ
     due_date: null
-    updated_at: '2026-07-15T02:59:47.695Z'
+    updated_at: '2026-07-15T15:06:28+09:00'
   - id: T-0460
     title: CHG-106-03 ユーザー確認：Portable更新中ダイアログを確認する
     list: 仕様変更
@@ -4994,7 +5003,46 @@ tasks:
       - ダイアログ
     due_date: null
     updated_at: '2026-07-15T02:59:47.695Z'
+  - id: T-0463
+    title: CHG-107-01 設計：AI返信Windows通知の設計反映
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 463
+    tags:
+      - CHG-107
+      - 設計
+      - AIチャット
+      - Windows通知
+    due_date: '2026-07-15'
+    updated_at: '2026-07-15T07:05:56.341Z'
+  - id: T-0464
+    title: CHG-107-02 実装：AI返信時のWindows通知とスレッド遷移
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 464
+    tags:
+      - CHG-107
+      - 実装
+      - AIチャット
+      - Windows通知
+    due_date: '2026-07-15'
+    updated_at: '2026-07-15T07:12:04.938Z'
+  - id: T-0465
+    title: CHG-107-03 ユーザー確認：AI返信Windows通知
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 465
+    tags:
+      - CHG-107
+      - ユーザー確認
+      - AIチャット
+      - Windows通知
+    due_date: null
+    updated_at: '2026-07-15T07:05:56.341Z'
 task_file_roots:
   - .
-next_task_id: 462
-last_updated: '2026-07-15T04:17:50.921Z'
+next_task_id: 466
+last_updated: '2026-07-15T07:12:24.346Z'

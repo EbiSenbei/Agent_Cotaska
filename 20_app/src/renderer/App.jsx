@@ -89,6 +89,7 @@ function App() {
     latestVersion: "",
   });
   const [aiTaskChatRequest, setAiTaskChatRequest] = useState(null);
+  const [aiThreadOpenRequest, setAiThreadOpenRequest] = useState(null);
   const [settingsFocusRequest, setSettingsFocusRequest] = useState(null);
   const startupUpdateCheckRef = useRef(false);
   const startupInitialViewAppliedRef = useRef(false);
@@ -119,6 +120,14 @@ function App() {
       removeStartupProgressListener?.();
     };
   }, []);
+
+  useEffect(() => window.cotaskaAPI?.aiChat?.onOpenThread?.((payload) => {
+    const threadId = String(payload?.thread_id || "").trim();
+    if (!threadId) return;
+    setDetailPaneExpanded(false);
+    setActiveIcon("AI");
+    setAiThreadOpenRequest({ threadId, requestedAt: Date.now() });
+  }), []);
 
   // CHG-032: ペイン幅ドラッグリサイズ
   useEffect(() => {
@@ -919,6 +928,7 @@ function App() {
           onOpenTask={handleOpenTaskFromAi}
           taskChatRequest={aiTaskChatRequest}
           onTaskChatRequestProcessed={handleTaskChatRequestProcessed}
+          threadOpenRequest={aiThreadOpenRequest}
           lists={lists}
           tags={tags}
           onTaskUpdated={loadTasks}

@@ -171,6 +171,7 @@ function AiChatPane({
   onOpenTask,
   taskChatRequest = null,
   onTaskChatRequestProcessed,
+  threadOpenRequest = null,
   lists = [],
   tags = [],
   onTaskUpdated,
@@ -664,6 +665,30 @@ function AiChatPane({
     return () => {
       cancelled = true;
     };
+  }, [aiChatApi]);
+
+  useEffect(() => {
+    const threadId = String(threadOpenRequest?.threadId || "").trim();
+    if (!threadId) return undefined;
+    let cancelled = false;
+    const openThread = async () => {
+      const mappedThreads = await refreshThreads();
+      if (!cancelled && mappedThreads.some((thread) => thread.id === threadId)) {
+        setSelectedThreadId(threadId);
+      }
+    };
+    openThread().catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [threadOpenRequest?.requestedAt]);
+
+  useEffect(() => {
+    aiChatApi?.setActiveThread?.(selectedThreadId).catch(() => {});
+  }, [aiChatApi, selectedThreadId]);
+
+  useEffect(() => () => {
+    aiChatApi?.setActiveThread?.(null).catch(() => {});
   }, [aiChatApi]);
 
   useEffect(() => {

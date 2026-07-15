@@ -83,6 +83,13 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
     purgeOldData: (days) => ipcRenderer.invoke("aiChat:purgeOldData", days),
     sendMessage: (input) => ipcRenderer.invoke("aiChat:sendMessage", input),
     cancelRun: (requestId) => ipcRenderer.invoke("aiChat:cancelRun", requestId),
+    setActiveThread: (threadId) => ipcRenderer.invoke("aiChat:setActiveThread", threadId),
+    onOpenThread: (callback) => {
+      if (typeof callback !== "function") return () => {};
+      const listener = (_event, payload) => callback(payload);
+      ipcRenderer.on("aiChat:openThread", listener);
+      return () => ipcRenderer.removeListener("aiChat:openThread", listener);
+    },
     onRunEvent: (callback) => {
       if (typeof callback !== "function") return () => {};
       const listener = (_event, payload) => callback(payload);

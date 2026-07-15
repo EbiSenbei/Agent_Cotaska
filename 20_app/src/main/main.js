@@ -11,6 +11,7 @@ const taskService = require("./taskService");
 const listService = require("./listService");
 const watcher = require("./watcher");
 const reminderService = require("./reminderService");
+const aiResponseNotificationService = require("./aiResponseNotificationService");
 const settingsService = require("./settingsService");
 const aiService = require("./aiService");
 const codexSdkService = require("./codexSdkService");
@@ -1896,10 +1897,15 @@ ipcMain.handle("aiChat:purgeOldData", async (_e, days) => {
   }
 });
 
+ipcMain.handle("aiChat:setActiveThread", (_e, threadId) => {
+  aiResponseNotificationService.setActiveThread(threadId);
+  return { ok: true };
+});
+
 ipcMain.handle("aiChat:sendMessage", async (_e, input) => {
   await servicesReady;
   try {
-    return await aiProviderRegistry.resolveProvider().sendMessage({
+    const result = await aiProviderRegistry.resolveProvider().sendMessage({
       ...(input || {}),
       onEvent: (payload) => {
         if (mainWindow && !mainWindow.isDestroyed()) {
@@ -1907,6 +1913,21 @@ ipcMain.handle("aiChat:sendMessage", async (_e, input) => {
         }
       },
     });
+    if (result?.ok !== false && !result?.canceled && result?.thread && result?.assistantMessage) {
+      aiResponseNotificationService.notifyAiResponse({
+        requestId: input?.request_id || input?.requestId,
+        thread: result.thread,
+        assistantMessage: result.assistantMessage,
+        onClick: (threadId) => {
+          if (!mainWindow || mainWindow.isDestroyed()) return;
+          if (mainWindow.isMinimized()) mainWindow.restore();
+          mainWindow.show();
+          mainWindow.focus();
+          mainWindow.webContents.send("aiChat:openThread", { thread_id: threadId });
+        },
+      });
+    }
+    return result;
   } catch (err) {
     logger.error("aiChat:sendMessage failed", err);
     return { ok: false, error: err.message || String(err) };
