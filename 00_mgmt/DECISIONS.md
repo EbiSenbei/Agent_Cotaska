@@ -1,5 +1,9 @@
 # DECISIONS
 
+## 2026-07-16 BUG-20260715-01 Claude Code native binary の展開
+
+- Claude Agent SDK の実行バイナリは SDK 本体とは別のプラットフォーム別 optional dependency に含まれるため、Electron Builder の `asarUnpack` に `node_modules/@anthropic-ai/claude-agent-sdk-win32-*/**` を追加する。これにより Windows 配布物では `claude.exe` が `app.asar.unpacked` 側に配置され、asar 内からの実行を回避する。
+
 ## 2026-07-15 BUG-20260715-02 AIモードのタスク復帰
 
 - AIスレッドの `primary_task_id` を表示用スレッドデータにも保持し、「タスクへ戻る」操作は親コンポーネントの既存タスク遷移処理へ委譲する。元タスクを持たない通常スレッドではボタンを無効化する。

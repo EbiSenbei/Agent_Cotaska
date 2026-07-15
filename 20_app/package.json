@@ -50,7 +50,8 @@
     "asar": true,
     "asarUnpack": [
       "node_modules/@openai/codex-*/vendor/**",
-      "node_modules/@anthropic-ai/claude-agent-sdk/**"
+      "node_modules/@anthropic-ai/claude-agent-sdk/**",
+      "node_modules/@anthropic-ai/claude-agent-sdk-win32-*/**"
     ],
     "publish": [
       {
