@@ -48,6 +48,35 @@ let updaterState = {
 const APP_DISPLAY_NAME = "CotaskaCore";
 const APP_USER_MODEL_ID_BASE = "com.cotaska.app";
 const APP_USER_MODEL_ID_REVISION = "v3";
+const WINDOWS_TOAST_ACTIVATOR_CLSID = "{9B25AF9E-88B9-4F5E-9E9A-B70AA75B7E07}";
+
+function configureWindowsToastNotifications() {
+  if (process.platform !== "win32") return;
+  try {
+    const startMenuDir = path.join(app.getPath("startMenu"), "Programs", "Cotaska");
+    const shortcutPath = path.join(startMenuDir, "CotaskaCore.lnk");
+    const executablePath = process.env.PORTABLE_EXECUTABLE_FILE || process.execPath;
+    fs.mkdirSync(startMenuDir, { recursive: true });
+    const created = shell.writeShortcutLink(shortcutPath, "replace", {
+      target: executablePath,
+      cwd: path.dirname(executablePath),
+      description: "Cotaska",
+      icon: executablePath,
+      iconIndex: 0,
+      appUserModelId: APP_USER_MODEL_ID_BASE,
+    });
+    appLogger.logInfo("Windows toast notification identity configured", { shortcutPath, created });
+  } catch (error) {
+    appLogger.logWarning("Windows toast notification identity setup failed", {
+      error: error?.message || String(error),
+    });
+  }
+}
+
+if (process.platform === "win32") {
+  app.setAppUserModelId(APP_USER_MODEL_ID_BASE);
+  app.setToastActivatorCLSID(WINDOWS_TOAST_ACTIVATOR_CLSID);
+}
 
 const CLOUD_SYNC_PATH_MARKERS = [
   { token: "\\\\box\\\\", provider: "Box" },
@@ -2763,12 +2792,14 @@ app.whenReady().then(async () => {
   }
 
   app.setName(APP_DISPLAY_NAME);
+  configureWindowsToastNotifications();
   publishStartupProgress({
     percent: 8,
     label: "アプリを初期化しています...",
     detail: "Cotaska の実行環境を確認しています。",
   });
-  const appUserModelId = getAppUserModelId();
+  // Windows通知の送信元はスタートメニューのショートカットと同じ固定IDにする。
+  const appUserModelId = APP_USER_MODEL_ID_BASE;
   app.setAppUserModelId(appUserModelId);
   logger.info("AppUserModelID configured", { appUserModelId, appName: app.getName(), instanceHash });
   appLogger.logInfo("AppUserModelID configured", { appUserModelId, appName: app.getName(), instanceHash });

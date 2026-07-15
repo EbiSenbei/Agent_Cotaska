@@ -4682,12 +4682,12 @@ tasks:
   - id: T-0443
     title: 仕様変更：スレッドの名前を変更できるようにしたい
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 433
     tags: []
-    due_date: null
-    updated_at: '2026-07-14T04:56:28.222Z'
+    due_date: '2026-07-14'
+    updated_at: '2026-07-14T12:51:03.795Z'
   - id: T-0434
     title: CHG-101 実装：同期バックアップを3世代で整理
     list: 実装予定
@@ -4780,15 +4780,15 @@ tasks:
   - id: T-0451
     title: BUG-20260714-01 AIモードで日付ポップアップが途切れる
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 441
     tags:
       - BUG-20260714-01
       - AIモード
       - 日付ポップアップ
-    due_date: null
-    updated_at: '2026-07-14T16:30:00+09:00'
+    due_date: '2026-07-14'
+    updated_at: '2026-07-14T12:51:02.065Z'
   - id: T-0442
     title: 不具合：ClaudeCode連携でも画面上部にCodexの文言が残っている
     list: 実装予定
@@ -4885,12 +4885,12 @@ tasks:
   - id: T-0462
     title: 仕様変更：AIチャットが返ってきたら通知してほしい
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 452
     tags: []
     due_date: null
-    updated_at: '2026-07-15T07:05:56.341Z'
+    updated_at: '2026-07-15T14:59:00.000Z'
   - id: T-0453
     title: CHG-105 ランチャー起動診断と確認付き自動復元
     list: 仕様変更
@@ -4947,6 +4947,15 @@ tasks:
       - 自動復元
     due_date: null
     updated_at: '2026-07-15T02:45:27.570Z'
+  - id: T-0466
+    title: 不具合：AIモードのタスクに戻るボタンが利かない
+    list: null
+    status: done
+    priority: normal
+    sort_order: 456
+    tags: []
+    due_date: null
+    updated_at: '2026-07-15T16:30:00+09:00'
   - id: T-0457
     title: CHG-106 CotaskaUpdaterの更新中ダイアログ表示
     list: 仕様変更
@@ -4961,6 +4970,15 @@ tasks:
       - ダイアログ
     due_date: null
     updated_at: '2026-07-15T06:07:07.661Z'
+  - id: T-0467
+    title: 仕様変更：↑で前の投稿を引用してほしい
+    list: null
+    status: done
+    priority: normal
+    sort_order: 457
+    tags: []
+    due_date: null
+    updated_at: '2026-07-15T22:44:09+09:00'
   - id: T-0458
     title: CHG-106-01 設計：CotaskaUpdaterの更新中ダイアログと配布検証を設計する
     list: 仕様変更
@@ -5016,6 +5034,15 @@ tasks:
       - Windows通知
     due_date: '2026-07-15'
     updated_at: '2026-07-15T07:05:56.341Z'
+  - id: T-0473
+    title: 仕様変更：フォルダを開く
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 463
+    tags: []
+    due_date: null
+    updated_at: '2026-07-15T14:52:35.048Z'
   - id: T-0464
     title: CHG-107-02 実装：AI返信時のWindows通知とスレッド遷移
     list: 仕様変更
@@ -5032,7 +5059,7 @@ tasks:
   - id: T-0465
     title: CHG-107-03 ユーザー確認：AI返信Windows通知
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 465
     tags:
@@ -5040,9 +5067,72 @@ tasks:
       - ユーザー確認
       - AIチャット
       - Windows通知
+    due_date: '2026-07-15'
+    updated_at: '2026-07-15T14:59:00.000Z'
+  - id: T-0468
+    title: CHG-108-01 設計：AIチャット入力履歴の仕様を更新
+    list: null
+    status: done
+    priority: normal
+    sort_order: 468
+    tags:
+      - CHG-108
+      - 設計
+      - AIチャット
     due_date: null
-    updated_at: '2026-07-15T07:05:56.341Z'
+    updated_at: '2026-07-15T16:00:00+09:00'
+  - id: T-0469
+    title: CHG-108-02 実装：AIチャットの入力履歴呼び出し
+    list: null
+    status: done
+    priority: normal
+    sort_order: 469
+    tags:
+      - CHG-108
+      - 実装
+      - AIチャット
+    due_date: null
+    updated_at: '2026-07-15T16:00:00+09:00'
+  - id: T-0470
+    title: CHG-108-03 ユーザー確認：AIチャット入力履歴
+    list: null
+    status: done
+    priority: normal
+    sort_order: 470
+    tags:
+      - CHG-108
+      - ユーザー確認
+      - AIチャット
+    due_date: null
+    updated_at: '2026-07-15T22:44:09+09:00'
+  - id: T-0471
+    title: BUG-20260715-01 調査・実装：Claude Code認証確認でnative binaryを起動できない問題を修正
+    list: 不具合修正
+    status: todo
+    priority: high
+    sort_order: 471
+    tags:
+      - BUG-20260715-01
+      - Claude Code
+      - Claude認証
+      - Electron Builder
+      - native binary
+    due_date: null
+    updated_at: '2026-07-15T22:54:52.708Z'
+  - id: T-0472
+    title: BUG-20260715-01 ユーザー確認：Claude Code認証確認とチャット送受信
+    list: 不具合修正
+    status: todo
+    priority: normal
+    sort_order: 472
+    tags:
+      - BUG-20260715-01
+      - ユーザー確認
+      - Claude Code
+      - Claude認証
+    due_date: null
+    updated_at: '2026-07-15T22:54:52.708Z'
 task_file_roots:
   - .
-next_task_id: 466
-last_updated: '2026-07-15T07:12:24.346Z'
+next_task_id: 474
+last_updated: '2026-07-15T14:59:01.411Z'

@@ -184,6 +184,7 @@ function AiChatPane({
   const pendingAutoScrollRef = useRef(false);
   const activeSendRequestRef = useRef(null);
   const activeRunHydrationKeyRef = useRef("");
+  const draftHistoryIndexRef = useRef(-1);
   const [sideTab, setSideTab] = useState("threads");
   const [contextPanel, setContextPanel] = useState(null);
   const [selectedThreadId, setSelectedThreadId] = useState(null);
@@ -235,6 +236,7 @@ function AiChatPane({
   const mapThread = (thread) => ({
     id: thread.thread_id,
     title: getThreadDisplayTitle(thread.title || "無題のAIチャット", thread.primary_task_id),
+    primaryTaskId: thread.primary_task_id || null,
     status: thread.thread_status || "active",
     time: thread.thread_status === "archived" ? "アーカイブ" : "",
     badges: [thread.primary_task_id || thread.change_id].filter(Boolean),
@@ -691,6 +693,14 @@ function AiChatPane({
     aiChatApi?.setActiveThread?.(null).catch(() => {});
   }, [aiChatApi]);
 
+  const handleSelectThread = (threadId) => {
+    const normalizedThreadId = String(threadId || "").trim() || null;
+    // useEffect を待つと、並行して完了したAI返信の通知判定に切替後の状態が間に合わない。
+    // 選択操作の時点でmain processにも反映する。
+    aiChatApi?.setActiveThread?.(normalizedThreadId).catch(() => {});
+    setSelectedThreadId(normalizedThreadId);
+  };
+
   useEffect(() => {
     if (!aiChatApi?.onRunEvent) return undefined;
     return aiChatApi.onRunEvent((payload) => {
@@ -802,6 +812,7 @@ function AiChatPane({
 
   useEffect(() => {
     let cancelled = false;
+    draftHistoryIndexRef.current = -1;
     const loadThreadData = async () => {
       if (!aiChatApi || !selectedThreadId) {
         setMessages([]);
@@ -1484,6 +1495,42 @@ function AiChatPane({
     }
   };
 
+  const handleDraftKeyDown = (event) => {
+    if (event.isComposing) return;
+
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleSend();
+      return;
+    }
+
+    if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+
+    const userMessageHistory = messages
+      .filter((message) => message.role === "user" && !message.pending)
+      .map((message) => String(message.body || "").trim())
+      .filter(Boolean)
+      .reverse();
+    if (userMessageHistory.length === 0) return;
+
+    const isNavigatingHistory = draftHistoryIndexRef.current >= 0;
+    if (draft && !isNavigatingHistory) return;
+
+    if (event.key === "ArrowUp") {
+      const nextIndex = Math.min(draftHistoryIndexRef.current + 1, userMessageHistory.length - 1);
+      draftHistoryIndexRef.current = nextIndex;
+      setDraft(userMessageHistory[nextIndex]);
+      event.preventDefault();
+      return;
+    }
+
+    if (!isNavigatingHistory) return;
+    const nextIndex = draftHistoryIndexRef.current - 1;
+    draftHistoryIndexRef.current = nextIndex;
+    setDraft(nextIndex < 0 ? "" : userMessageHistory[nextIndex]);
+    event.preventDefault();
+  };
+
   const handleSend = async () => {
     const text = draft.trim();
     if (!text || isSending) return;
@@ -1681,16 +1728,16 @@ function AiChatPane({
                 <div
                   key={thread.id}
                   className={`ai-thread-item${selectedThreadId === thread.id ? " active" : ""}${isThreadRunning ? " is-running" : ""}`}
-                  onClick={() => setSelectedThreadId(thread.id)}
+                  onClick={() => handleSelectThread(thread.id)}
                   onContextMenu={(event) => {
                     event.preventDefault();
-                    setSelectedThreadId(thread.id);
+                    handleSelectThread(thread.id);
                     setThreadContextMenu({ thread, x: event.clientX, y: event.clientY });
                   }}
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
-                      setSelectedThreadId(thread.id);
+                      handleSelectThread(thread.id);
                     }
                   }}
                   role="button"
@@ -1808,7 +1855,15 @@ function AiChatPane({
             </div>
           </div>
           <div className="ai-chat-actions">
-            <button className="ai-icon-button" type="button" title="タスクへ戻る">↩</button>
+            <button
+              className="ai-icon-button"
+              type="button"
+              title="タスクへ戻る"
+              disabled={!selectedThread?.primaryTaskId}
+              onClick={() => onOpenTask?.(selectedThread.primaryTaskId)}
+            >
+              ↩
+            </button>
             <button className="ai-icon-button" type="button" title="メニュー">⋯</button>
           </div>
         </header>
@@ -1919,12 +1974,11 @@ function AiChatPane({
           <textarea
             value={draft}
             disabled={isSending}
-            onChange={(event) => setDraft(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key !== "Enter" || event.shiftKey || event.isComposing) return;
-              event.preventDefault();
-              handleSend();
+            onChange={(event) => {
+              draftHistoryIndexRef.current = -1;
+              setDraft(event.target.value);
             }}
+            onKeyDown={handleDraftKeyDown}
             placeholder="フォローアップの変更を求める"
           />
           {references.length > 0 && (
