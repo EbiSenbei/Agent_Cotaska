@@ -144,7 +144,7 @@ async function copyTextToClipboard(text) {
   }
 }
 
-function MarkdownPreview({ content, error, onOpenTask, onOpenLink }) {
+function MarkdownPreview({ content, error, onOpenTask, onOpenLink, onOpenLinkContextMenu }) {
   const html = useMemo(() => markdown.render(String(content || "")), [content]);
   return (
     <div
@@ -161,6 +161,12 @@ function MarkdownPreview({ content, error, onOpenTask, onOpenLink }) {
         if (!anchor) return;
         event.preventDefault();
         onOpenLink?.(anchor.getAttribute("href"));
+      }}
+      onContextMenu={(event) => {
+        const anchor = event.target.closest?.("a[href]");
+        if (!anchor) return;
+        event.preventDefault();
+        onOpenLinkContextMenu?.(anchor.getAttribute("href"), event.clientX, event.clientY);
       }}
       dangerouslySetInnerHTML={{ __html: html }}
     />
@@ -188,8 +194,25 @@ function AiChatPane({
   const draftHistoryIndexRef = useRef(-1);
   const [sideTab, setSideTab] = useState("threads");
   const [contextPanel, setContextPanel] = useState(null);
+  const [linkContextMenu, setLinkContextMenu] = useState(null);
   const [selectedThreadId, setSelectedThreadId] = useState(null);
   const [contextPanelWidth, setContextPanelWidth] = useState(loadContextPanelWidth);
+
+  useEffect(() => {
+    if (!linkContextMenu) return undefined;
+    const close = () => setLinkContextMenu(null);
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") close();
+    };
+    window.addEventListener("mousedown", close);
+    window.addEventListener("resize", close);
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      window.removeEventListener("mousedown", close);
+      window.removeEventListener("resize", close);
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [linkContextMenu]);
   const [isResizingContextPanel, setIsResizingContextPanel] = useState(false);
   const [draft, setDraft] = useState("");
   const [sideSearchQuery, setSideSearchQuery] = useState("");
@@ -1451,6 +1474,43 @@ function AiChatPane({
     }
   };
 
+  const openLinkContextMenu = (href, x, y, baseFilePath = "") => {
+    const target = String(href || "").trim();
+    if (target) setLinkContextMenu({ href: target, x, y, baseFilePath });
+  };
+
+  const handleOpenLinkExternal = async () => {
+    const menu = linkContextMenu;
+    setLinkContextMenu(null);
+    if (!menu?.href) return;
+    try {
+      const resolved = await aiChatApi?.resolveLinkTarget?.(menu.href, menu.baseFilePath);
+      if (!resolved || resolved.ok === false) throw new Error(resolved?.error || "リンク先を解決できませんでした。");
+      const target = resolved.target_type === "url" ? resolved.url : (resolved.file_path || resolved.folder_path);
+      const result = await window.cotaskaAPI?.shell?.openTarget?.(target);
+      if (!result || result.ok === false) throw new Error(result?.error || "外部アプリでリンクを開けませんでした。");
+      setRuntimeState((current) => ({ ...current, status: "ready", message: "リンクを外部アプリで開きました。" }));
+    } catch (error) {
+      setRuntimeState({ ready: false, status: "error", message: error?.message || "外部アプリでリンクを開けませんでした。" });
+    }
+  };
+
+  const handleCopyLink = async () => {
+    const menu = linkContextMenu;
+    setLinkContextMenu(null);
+    if (!menu?.href) return;
+    try {
+      const resolved = await aiChatApi?.resolveLinkTarget?.(menu.href, menu.baseFilePath);
+      if (!resolved || resolved.ok === false) throw new Error(resolved?.error || "リンク先を解決できませんでした。");
+      const target = resolved.target_type === "url" ? resolved.url : (resolved.file_path || resolved.folder_path);
+      if (!target) throw new Error("コピーするリンク先がありません。");
+      await copyTextToClipboard(target);
+      setRuntimeState((current) => ({ ...current, status: "ready", message: "リンクをコピーしました。" }));
+    } catch (error) {
+      setRuntimeState({ ready: false, status: "error", message: error?.message || "リンクをコピーできませんでした。" });
+    }
+  };
+
   const appendAssistantErrorMessage = (message) => {
     requestScrollMessagesToBottom();
     setMessages((current) => [
@@ -1919,6 +1979,7 @@ function AiChatPane({
                 error={message.error}
                 onOpenTask={openTaskContext}
                 onOpenLink={handleOpenMarkdownLink}
+                onOpenLinkContextMenu={openLinkContextMenu}
               />
               <div className="ai-message-hover-actions" aria-label="メッセージ操作">
                 {message.time && <time dateTime={message.createdAt}>{message.time}</time>}
@@ -1952,6 +2013,7 @@ function AiChatPane({
                           content={event.detail}
                           onOpenTask={openTaskContext}
                           onOpenLink={handleOpenMarkdownLink}
+                          onOpenLinkContextMenu={openLinkContextMenu}
                         />
                       ) : event.detailKind === "command" && event.detail ? (
                         <details
@@ -2212,6 +2274,7 @@ function AiChatPane({
                     content={contextPanel.file.content || ""}
                     onOpenTask={openTaskContext}
                     onOpenLink={(href) => handleOpenMarkdownLink(href, contextPanel.file?.path || "")}
+                    onOpenLinkContextMenu={(href, x, y) => openLinkContextMenu(href, x, y, contextPanel.file?.path || "")}
                   />
                 </div>
               )}
@@ -2228,6 +2291,29 @@ function AiChatPane({
           )}
         </div>
       </aside>
+      )}
+      {linkContextMenu && (
+        <div
+          className="context-menu"
+          role="menu"
+          style={{ top: Math.min(linkContextMenu.y, window.innerHeight - 120), left: Math.min(linkContextMenu.x, window.innerWidth - 190) }}
+          onMouseDown={(event) => event.stopPropagation()}
+          onContextMenu={(event) => event.preventDefault()}
+        >
+          <button
+            type="button"
+            className="ctx-item"
+            onClick={() => {
+              const menu = linkContextMenu;
+              setLinkContextMenu(null);
+              handleOpenMarkdownLink(menu.href, menu.baseFilePath);
+            }}
+          >
+            このアプリで開く
+          </button>
+          <button type="button" className="ctx-item" onClick={handleOpenLinkExternal}>外部アプリで開く</button>
+          <button type="button" className="ctx-item" onClick={handleCopyLink}>リンクをコピー</button>
+        </div>
       )}
     </div>
   );
