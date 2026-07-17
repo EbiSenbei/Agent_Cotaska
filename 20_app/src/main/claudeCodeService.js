@@ -1,6 +1,7 @@
 // Claude Code 連携（@anthropic-ai/claude-agent-sdk）。
 // codexSdkService と同一シグネチャ・同一返却スキーマを実装する共通インターフェース。
 // 認証は2系統: local（ローカルサブスク・個人利用限定） / bedrock（AWS・配布可）。
+const path = require("path");
 const { app } = require("electron");
 const aiService = require("./aiService");
 const settingsService = require("./settingsService");
@@ -27,6 +28,47 @@ async function loadClaudeSdk() {
   } catch (err) {
     throw new Error(`Claude Agent SDK is not available: ${err.message || err}`);
   }
+}
+
+// 配布ビルドでの native binary 起動失敗対策。
+// SDK は自身（app.asar 内）を基準に claude.exe を require.resolve するため、
+// asar 内のパスを返す。asar 内の exe は Windows プロセスとして起動できず spawn に失敗する。
+// asarUnpack で app.asar.unpacked へ展開済みの実 exe パスを算出し、
+// options.pathToClaudeCodeExecutable で明示的に SDK へ渡す。
+// 開発時（非パッケージ）は require.resolve が正しく解決できるため null を返して SDK 既定に委ねる。
+let cachedClaudeExecutablePath;
+function resolveClaudeExecutablePath() {
+  if (cachedClaudeExecutablePath !== undefined) return cachedClaudeExecutablePath;
+
+  let isPackaged = false;
+  try { isPackaged = Boolean(app?.isPackaged); } catch (_e) { isPackaged = false; }
+  if (!isPackaged) {
+    cachedClaudeExecutablePath = null;
+    return cachedClaudeExecutablePath;
+  }
+
+  const exeName = process.platform === "win32" ? "claude.exe" : "claude";
+  const pkgName = `@anthropic-ai/claude-agent-sdk-${process.platform}-${process.arch}`;
+  const candidate = path.join(
+    process.resourcesPath,
+    "app.asar.unpacked",
+    "node_modules",
+    ...pkgName.split("/"),
+    exeName,
+  );
+
+  try {
+    const fs = require("fs");
+    if (fs.existsSync(candidate)) {
+      cachedClaudeExecutablePath = candidate;
+      return cachedClaudeExecutablePath;
+    }
+    appLogger.logError("Claude native binary not found at expected unpacked path", { candidate });
+  } catch (err) {
+    appLogger.logError("Failed to resolve Claude native binary path", err);
+  }
+  cachedClaudeExecutablePath = null;
+  return cachedClaudeExecutablePath;
 }
 
 function getClaudeSettings() {
@@ -264,6 +306,7 @@ async function checkAuthStatus() {
     const env = buildClaudeEnv(authMode, claude);
     const prevEnv = applyEnv(env);
     try {
+      const pathToClaudeCodeExecutable = resolveClaudeExecutablePath();
       const q = sdk.query({
         prompt: "ping",
         options: {
@@ -271,6 +314,7 @@ async function checkAuthStatus() {
           permissionMode: "plan",
           maxTurns: 1,
           model: resolveEffectiveModel(authMode, claude),
+          ...(pathToClaudeCodeExecutable ? { pathToClaudeCodeExecutable } : {}),
         },
       });
       let gotResult = false;
@@ -417,6 +461,7 @@ async function sendMessage(input = {}) {
   try {
     const sdk = await loadClaudeSdk();
     const sdkLoadedAt = Date.now();
+    const pathToClaudeCodeExecutable = resolveClaudeExecutablePath();
     const q = sdk.query({
       prompt,
       options: {
@@ -425,6 +470,7 @@ async function sendMessage(input = {}) {
         model,
         maxTurns: Number(input.maxTurns || 20),
         abortController,
+        ...(pathToClaudeCodeExecutable ? { pathToClaudeCodeExecutable } : {}),
       },
     });
 

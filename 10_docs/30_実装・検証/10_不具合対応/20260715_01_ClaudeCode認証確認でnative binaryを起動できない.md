@@ -41,6 +41,17 @@ Claude Code認証確認に失敗しました: Claude Code native binary at C:\Wo
 - 開発環境の `node_modules/@anthropic-ai/claude-agent-sdk-win32-x64/claude.exe` を直接実行すると `2.1.207 (Claude Code)` が返り、実行ファイル自体は現在のWindows x64環境で動作した。
 - 以上から、CPUアーキテクチャ不一致やLinuxのmusl/glibc問題ではなく、Electron Builderの展開対象不足が原因と判断する。エラー内のlibc説明はSDKの汎用メッセージであり、本件の直接原因ではない。
 
+### 再調査（2026-07-16）
+
+- `asarUnpack` へ `claude-agent-sdk-win32-*/**` を追加する修正は適用済みで、パッケージ版の `resources/app.asar.unpacked/node_modules/@anthropic-ai/claude-agent-sdk-win32-x64/claude.exe` に実行ファイルが展開されていることを確認した（展開自体は成功している）。
+- それにもかかわらず不具合が再現するのは、SDK（`app.asar` 内の `sdk.mjs`）が自身の位置を基準に `require.resolve` で `claude.exe` を解決するため、返るパスが `app.asar` **内**（`...\app.asar\node_modules\...\claude.exe`）のままになるためである。
+- asar内に見えるexeは `existsSync` では真になるが、Windowsのプロセスとしてspawnできず起動に失敗する。このためSDKは「found（未検出）」ではなく「exists but failed to launch（存在するが起動失敗）」を返している。エラーメッセージ末尾も `options.pathToClaudeCodeExecutable` の指定を促している。
+- 結論: 「ファイルを展開する」だけでは不十分で、展開済み（`app.asar.unpacked` 側）の実exeパスを `options.pathToClaudeCodeExecutable` でSDKへ明示的に渡す必要がある。
+
+## 追加修正方針（2026-07-16）
+
+`claudeCodeService.js` に、配布ビルド時のみ `process.resourcesPath/app.asar.unpacked/node_modules/@anthropic-ai/claude-agent-sdk-<platform>-<arch>/claude(.exe)` を算出するヘルパー `resolveClaudeExecutablePath()` を追加し、`checkAuthStatus` とチャット送信双方の `sdk.query()` の `options.pathToClaudeCodeExecutable` に渡す。開発環境（非パッケージ）ではSDK既定の解決に委ねるため `null` を返す。
+
 ## 修正方針
 
 `20_app/package.json` の `asarUnpack` にプラットフォーム別Claude Agent SDKパッケージを追加し、`claude.exe` を `resources/app.asar.unpacked` 配下へ展開する。
@@ -72,6 +83,10 @@ Windows向けの修正候補は次のとおり。
 | 開発環境の同梱 `claude.exe --version` | 成功（`2.1.207 (Claude Code)`） |
 | 修正後の配布ビルド | 未実施 |
 | パッケージ版の認証状態確認 | 未実施 |
+| `asarUnpack` 修正後の `claude.exe` 展開 | 成功（`app.asar.unpacked/.../claude-agent-sdk-win32-x64/claude.exe` を確認） |
+| SDKのパス解決挙動 | `require.resolve` により `app.asar` 内パスを返し起動失敗することをSDK実装（`sdk.mjs` の `IA()`/`eZ()`）で確認 |
+| `resolveClaudeExecutablePath()` の算出パス | 実配置の展開済みexeと一致することを確認 |
+| `pathToClaudeCodeExecutable` 明示指定の追加 | 実装済み（構文チェック成功） |
 
 ## 関連ファイル
 
