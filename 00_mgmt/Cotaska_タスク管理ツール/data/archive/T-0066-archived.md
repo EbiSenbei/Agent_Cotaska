@@ -23,4 +23,4 @@ https://www.google.com/
 C:\Users\boming-hu\Box\胡博明-BOX\90_Work\20260415_01_タスク管理ツール_Cotaska\Cotaska-0.1.0-dist\README.txt
 
 関連仕様変更票:
-[CHG-042_通知機能の実装](C:/WorkDevelop/Agent_Cotaska/Cotaska/10_docs/20_実装準備/40_仕様変更管理/20260420_CHG-042_通知機能の実装.md)
+[CHG-042_通知機能の実装](C:/WorkDevelop/Agent_Cotaska/Cotaska/10_docs/30_変更管理/10_仕様変更/20260420_CHG-042_通知機能の実装.md)
