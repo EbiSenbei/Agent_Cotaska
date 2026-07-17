@@ -96,6 +96,12 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
       ipcRenderer.on("aiChat:runEvent", listener);
       return () => ipcRenderer.removeListener("aiChat:runEvent", listener);
     },
+    onThreadUpdated: (callback) => {
+      if (typeof callback !== "function") return () => {};
+      const listener = (_event, payload) => callback(payload);
+      ipcRenderer.on("aiChat:threadUpdated", listener);
+      return () => ipcRenderer.removeListener("aiChat:threadUpdated", listener);
+    },
   },
 
   // タスク操作（ファイルベース）

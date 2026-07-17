@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cotaska Release to R2"
+  short_description: "Build Cotaska and publish the latest release to R2"
+  default_prompt: "Use $cotaska-release-r2 to build the current Cotaska release and publish it to R2."

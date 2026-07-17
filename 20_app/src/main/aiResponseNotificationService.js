@@ -17,6 +17,10 @@ function setActiveThread(threadId) {
   activeThreadId = typeof threadId === "string" && threadId.trim() ? threadId.trim() : null;
 }
 
+function isActiveThread(threadId) {
+  return Boolean(threadId) && threadId === activeThreadId;
+}
+
 function notifyAiResponse({ requestId, thread, assistantMessage, onClick } = {}) {
   const threadId = String(thread?.thread_id || thread?.id || "").trim();
   const notificationKey = String(requestId || assistantMessage?.message_id || "").trim();
@@ -49,5 +53,6 @@ function notifyAiResponse({ requestId, thread, assistantMessage, onClick } = {})
 
 module.exports = {
   setActiveThread,
+  isActiveThread,
   notifyAiResponse,
 };

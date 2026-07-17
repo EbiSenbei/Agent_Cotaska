@@ -1937,7 +1937,12 @@ ipcMain.handle("aiChat:purgeOldData", async (_e, days) => {
 
 ipcMain.handle("aiChat:setActiveThread", (_e, threadId) => {
   aiResponseNotificationService.setActiveThread(threadId);
-  return { ok: true };
+  try {
+    return { ok: true, thread: aiService.markThreadRead(threadId) };
+  } catch (err) {
+    logger.error("aiChat:setActiveThread failed", err);
+    return { ok: false, error: err.message || String(err) };
+  }
 });
 
 ipcMain.handle("aiChat:sendMessage", async (_e, input) => {
@@ -1952,6 +1957,15 @@ ipcMain.handle("aiChat:sendMessage", async (_e, input) => {
       },
     });
     if (result?.ok !== false && !result?.canceled && result?.thread && result?.assistantMessage) {
+      if (!aiResponseNotificationService.isActiveThread(result.thread.thread_id)) {
+        const unreadThread = aiService.markThreadUnread(result.thread.thread_id);
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send("aiChat:threadUpdated", {
+            thread_id: unreadThread.thread_id,
+            reason: "assistant-response",
+          });
+        }
+      }
       aiResponseNotificationService.notifyAiResponse({
         requestId: input?.request_id || input?.requestId,
         thread: result.thread,

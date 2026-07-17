@@ -118,7 +118,10 @@ function formatMessageTime(value) {
   if (!value) return "";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleTimeString("ja-JP", {
+  return date.toLocaleString("ja-JP", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
@@ -262,6 +265,7 @@ function AiChatPane({
     title: getThreadDisplayTitle(thread.title || "無題のAIチャット", thread.primary_task_id),
     primaryTaskId: thread.primary_task_id || null,
     status: thread.thread_status || "active",
+    isUnread: Number(thread.unread_status) === 1,
     time: thread.thread_status === "archived" ? "アーカイブ" : "",
     badges: [thread.primary_task_id || thread.change_id].filter(Boolean),
   });
@@ -729,6 +733,9 @@ function AiChatPane({
     // useEffect を待つと、並行して完了したAI返信の通知判定に切替後の状態が間に合わない。
     // 選択操作の時点でmain processにも反映する。
     aiChatApi?.setActiveThread?.(normalizedThreadId).catch(() => {});
+    setThreads((current) => current.map((thread) => (
+      thread.id === normalizedThreadId ? { ...thread, isUnread: false } : thread
+    )));
     setSelectedThreadId(normalizedThreadId);
   };
 
@@ -765,6 +772,13 @@ function AiChatPane({
       const activeRequest = activeSendRequestRef.current;
       if (!activeRequest?.id || payload?.request_id !== activeRequest.id || activeRequest.canceled) return;
       appendRunEventPayload(payload);
+    });
+  }, [aiChatApi]);
+
+  useEffect(() => {
+    if (!aiChatApi?.onThreadUpdated) return undefined;
+    return aiChatApi.onThreadUpdated(() => {
+      refreshThreads().catch(() => {});
     });
   }, [aiChatApi]);
 
@@ -1643,9 +1657,26 @@ function AiChatPane({
       return;
     }
 
+    // Persist a new thread before the provider request begins. This makes the
+    // user's first post visible in the thread list while the AI is responding.
+    let threadId = selectedThreadId;
+    if (!threadId) {
+      try {
+        threadId = await ensureThreadForReferences();
+      } catch (error) {
+        setRuntimeState({
+          ready: false,
+          status: "error",
+          message: error?.message || "AIスレッドを作成できませんでした。",
+          action: null,
+        });
+        return;
+      }
+    }
+
     const requestId = `ai-send-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const streamingAssistantMessageId = `stream-assistant-${Date.now()}`;
-    activeSendRequestRef.current = { id: requestId, canceled: false, streamingAssistantMessageId, thread_id: selectedThreadId || null };
+    activeSendRequestRef.current = { id: requestId, canceled: false, streamingAssistantMessageId, thread_id: threadId };
     const pendingUserMessage = {
       id: `pending-user-${Date.now()}`,
       role: "user",
@@ -1656,12 +1687,12 @@ function AiChatPane({
 
     setDraft("");
     setIsSending(true);
-    if (selectedThreadId) {
+    if (threadId) {
       setActiveRuns((current) => [
-        ...current.filter((run) => run.request_id !== requestId && run.thread_id !== selectedThreadId),
+        ...current.filter((run) => run.request_id !== requestId && run.thread_id !== threadId),
         {
           request_id: requestId,
-          thread_id: selectedThreadId,
+          thread_id: threadId,
           run_id: null,
           started_at: new Date().toISOString(),
           last_event_at: null,
@@ -1683,7 +1714,7 @@ function AiChatPane({
       const effectiveSandboxMode = normalizeSandboxMode(sandboxMode);
       const effectiveReferenceSendMode = normalizeReferenceSendMode(referenceSendMode);
       const result = await aiChatApi.sendMessage({
-        thread_id: selectedThreadId || undefined,
+        thread_id: threadId,
         content: text,
         title: selectedThread?.title || createDraftThreadTitle(text),
         sandboxMode: effectiveSandboxMode,
@@ -1728,8 +1759,10 @@ function AiChatPane({
 
       const mappedThreads = await refreshThreads();
       await refreshActiveRuns();
-      const nextThreadId = result?.thread?.thread_id || mappedThreads[0]?.id || selectedThreadId || null;
-      setSelectedThreadId(nextThreadId);
+      const nextThreadId = result?.thread?.thread_id || threadId || mappedThreads[0]?.id || null;
+      setSelectedThreadId((currentThreadId) => (
+        !currentThreadId || currentThreadId === threadId ? nextThreadId : currentThreadId
+      ));
     } catch (error) {
       const requestState = activeSendRequestRef.current;
       if (requestState?.id !== requestId || requestState.canceled) return;
@@ -1825,6 +1858,13 @@ function AiChatPane({
                     <span className="ai-thread-name">{thread.title}</span>
                   </span>
                   <span className="ai-thread-status" aria-live="polite">
+                    {thread.isUnread && !isThreadRunning && (
+                      <span
+                        className="ai-thread-unread-indicator"
+                        title="未読のAI応答があります"
+                        aria-label="未読のAI応答があります"
+                      />
+                    )}
                     {isThreadRunning && (
                       <span
                         className="ai-thread-running-spinner"

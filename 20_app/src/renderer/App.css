@@ -1387,6 +1387,14 @@ body.is-resizing-detail-sections * {
   color: #fff;
 }
 
+.ai-thread-unread-indicator {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #2f9bff;
+  box-shadow: 0 0 0 2px rgba(47, 155, 255, 0.16);
+}
+
 .ai-thread-context-menu {
   min-width: 228px;
 }

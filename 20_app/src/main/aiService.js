@@ -129,11 +129,24 @@ function migrate() {
       primary_task_id TEXT,
       change_id TEXT,
       thread_status TEXT NOT NULL DEFAULT 'active',
+      unread_status INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL,
-      last_message_at TEXT
+      last_message_at TEXT,
+      last_assistant_message_at TEXT,
+      last_read_at TEXT
     );
   `);
+  const threadColumns = query("PRAGMA table_info(ai_threads)").map((column) => column.name);
+  if (!threadColumns.includes("unread_status")) {
+    run("ALTER TABLE ai_threads ADD COLUMN unread_status INTEGER NOT NULL DEFAULT 0");
+  }
+  if (!threadColumns.includes("last_assistant_message_at")) {
+    run("ALTER TABLE ai_threads ADD COLUMN last_assistant_message_at TEXT");
+  }
+  if (!threadColumns.includes("last_read_at")) {
+    run("ALTER TABLE ai_threads ADD COLUMN last_read_at TEXT");
+  }
   run(`
     CREATE TABLE IF NOT EXISTS ai_thread_references (
       reference_id TEXT PRIMARY KEY,
@@ -268,8 +281,8 @@ function createThread(input = {}) {
   };
   run(
     `INSERT INTO ai_threads
-      (thread_id, title, codex_thread_id, primary_task_id, change_id, thread_status, created_at, updated_at, last_message_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (thread_id, title, codex_thread_id, primary_task_id, change_id, thread_status, unread_status, created_at, updated_at, last_message_at, last_assistant_message_at, last_read_at)
+     VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, ?, NULL, NULL)`,
     [
       thread.thread_id,
       thread.title,
@@ -284,6 +297,28 @@ function createThread(input = {}) {
   );
   saveDb();
   return getThread(thread.thread_id);
+}
+
+function markThreadUnread(threadId) {
+  if (!getThread(threadId)) throw new Error(`AI thread not found: ${threadId}`);
+  const timestamp = nowIso();
+  run(
+    "UPDATE ai_threads SET unread_status = 1, last_assistant_message_at = ?, updated_at = ? WHERE thread_id = ?",
+    [timestamp, timestamp, threadId],
+  );
+  saveDb();
+  return getThread(threadId);
+}
+
+function markThreadRead(threadId) {
+  if (!threadId || !getThread(threadId)) return null;
+  const timestamp = nowIso();
+  run(
+    "UPDATE ai_threads SET unread_status = 0, last_read_at = ? WHERE thread_id = ?",
+    [timestamp, threadId],
+  );
+  saveDb();
+  return getThread(threadId);
 }
 
 function updateThread(threadId, updates = {}) {
@@ -546,6 +581,8 @@ module.exports = {
   createThread,
   updateThread,
   archiveThread,
+  markThreadUnread,
+  markThreadRead,
   listMessages,
   addMessage,
   listReferences,

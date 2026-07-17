@@ -4403,7 +4403,7 @@ tasks:
     sort_order: 403
     tags: []
     due_date: null
-    updated_at: '2026-07-14T03:23:52.708Z'
+    updated_at: '2026-07-17T04:08:58.273Z'
   - id: T-0407
     title: CHG-095-01 設計確認：AI処理途中の自動下スクロール
     list: 仕様変更
@@ -4933,15 +4933,6 @@ tasks:
       - 自動復元
     due_date: '2026-07-16'
     updated_at: '2026-07-16T01:55:40.144Z'
-  - id: T-0466
-    title: 不具合：AIモードのタスクに戻るボタンが利かない
-    list: null
-    status: done
-    priority: normal
-    sort_order: 456
-    tags: []
-    due_date: null
-    updated_at: '2026-07-15T16:30:00+09:00'
   - id: T-0456
     title: CHG-105-03 ユーザー確認：起動診断と自動復元の動作を確認する
     list: 仕様変更
@@ -4956,6 +4947,15 @@ tasks:
       - 自動復元
     due_date: '2026-07-16'
     updated_at: '2026-07-16T01:55:40.164Z'
+  - id: T-0466
+    title: 不具合：AIモードのタスクに戻るボタンが利かない
+    list: null
+    status: done
+    priority: normal
+    sort_order: 456
+    tags: []
+    due_date: null
+    updated_at: '2026-07-15T16:30:00+09:00'
   - id: T-0457
     title: CHG-106 CotaskaUpdaterの更新中ダイアログ表示
     list: 仕様変更
@@ -5119,6 +5119,15 @@ tasks:
       - native binary
     due_date: '2026-07-16'
     updated_at: '2026-07-16T01:55:15.127Z'
+  - id: T-0481
+    title: 仕様変更：AIチャットのリンクの右クリック
+    list: null
+    status: done
+    priority: normal
+    sort_order: 471
+    tags: []
+    due_date: '2026-07-17'
+    updated_at: '2026-07-17T14:30:00+09:00'
   - id: T-0472
     title: BUG-20260715-01 ユーザー確認：Claude Code認証確認とチャット送受信
     list: 不具合修正
@@ -5219,7 +5228,321 @@ tasks:
       - AIチャット
     due_date: '2026-07-16'
     updated_at: '2026-07-16T01:55:26.887Z'
+  - id: T-0482
+    title: CHG-111-01 設計・AIチャットリンク右クリック仕様を記録
+    list: null
+    status: done
+    priority: normal
+    sort_order: 482
+    tags:
+      - CHG-111
+      - 設計
+      - AIチャット
+    due_date: null
+    updated_at: '2026-07-17T06:47:09.676Z'
+  - id: T-0483
+    title: CHG-111-02 AIチャットリンク右クリックメニューを実装
+    list: null
+    status: done
+    priority: normal
+    sort_order: 483
+    tags:
+      - CHG-111
+      - 実装
+      - AIチャット
+    due_date: null
+    updated_at: '2026-07-17T06:47:09.676Z'
+  - id: T-0484
+    title: CHG-111-03 AIチャットリンク右クリックのユーザー確認
+    list: null
+    status: done
+    priority: normal
+    sort_order: 484
+    tags:
+      - CHG-111
+      - ユーザー確認
+      - AIチャット
+    due_date: '2026-07-17'
+    updated_at: '2026-07-17T14:30:00+09:00'
+  - id: T-0485
+    title: Cotaskaの設計・ソース・テスト基盤を整理する
+    list: 実装予定
+    status: todo
+    priority: high
+    sort_order: 485
+    tags:
+      - 保守性改善
+      - リファクタ
+      - 設計整理
+    due_date: null
+    updated_at: '2026-07-17T12:12:22.430Z'
+  - id: T-0495
+    title: CHG-113 AIスレッド初回投稿時の一覧表示
+    list: null
+    status: done
+    priority: normal
+    sort_order: 485
+    tags:
+      - CHG-113
+      - AIチャット
+    due_date: '2026-07-17'
+    updated_at: '2026-07-17T22:14:33+09:00'
+  - id: T-0486
+    title: 設計書の正本・変更履歴・目次を整理する
+    list: 実装予定
+    status: todo
+    priority: high
+    sort_order: 486
+    tags:
+      - 保守性改善
+      - 設計整理
+      - ドキュメント
+    due_date: null
+    updated_at: '2026-07-17T12:12:22.430Z'
+  - id: T-0487
+    title: AiChatPane.jsxを責務ごとに分割する
+    list: 実装予定
+    status: todo
+    priority: high
+    sort_order: 487
+    tags:
+      - 保守性改善
+      - リファクタ
+      - AIチャット
+    due_date: null
+    updated_at: '2026-07-17T17:22:25+09:00'
+  - id: T-0488
+    title: App.cssを機能単位に分割する
+    list: 実装予定
+    status: todo
+    priority: normal
+    sort_order: 488
+    tags:
+      - 保守性改善
+      - リファクタ
+      - CSS
+    due_date: null
+    updated_at: '2026-07-17T17:22:25+09:00'
+  - id: T-0489
+    title: 重要ロジックの自動テスト基盤を整備する
+    list: 実装予定
+    status: todo
+    priority: high
+    sort_order: 489
+    tags:
+      - 保守性改善
+      - テスト
+      - CI
+    due_date: null
+    updated_at: '2026-07-17T17:22:25+09:00'
+  - id: T-0499
+    title: CHG-114 AIチャット未読ランプ表示
+    list: null
+    status: done
+    priority: normal
+    sort_order: 489
+    tags:
+      - CHG-114
+      - AIチャット
+      - 未読表示
+    due_date: null
+    updated_at: '2026-07-17T22:35:00+09:00'
+  - id: T-0490
+    title: taskService.jsを責務ごとに分割する
+    list: 実装予定
+    status: todo
+    priority: high
+    sort_order: 490
+    tags:
+      - 保守性改善
+      - リファクタ
+      - タスク管理
+    due_date: null
+    updated_at: '2026-07-17T17:22:25+09:00'
+  - id: T-0491
+    title: リリース処理のバージョン管理と共通検証を一本化する
+    list: 実装予定
+    status: todo
+    priority: normal
+    sort_order: 491
+    tags:
+      - 保守性改善
+      - リリース
+      - 自動化
+    due_date: null
+    updated_at: '2026-07-17T17:22:25+09:00'
+  - id: T-0492
+    title: CHG-112-01 文書体系再編の設計・仕様変更記録
+    list: 実装予定
+    status: done
+    priority: high
+    sort_order: 492
+    tags:
+      - CHG-112
+      - 設計整理
+      - ドキュメント
+    due_date: '2026-07-17'
+    updated_at: '2026-07-17T20:51:19+09:00'
+  - id: T-0493
+    title: CHG-112-02 文書再配置とリンク更新を実施する
+    list: 実装予定
+    status: done
+    priority: high
+    sort_order: 493
+    tags:
+      - CHG-112
+      - Git
+      - ドキュメント
+    due_date: '2026-07-17'
+    updated_at: '2026-07-17T20:51:19+09:00'
+  - id: T-0494
+    title: CHG-112-03 文書体系再編のユーザー確認
+    list: 実装予定
+    status: todo
+    priority: high
+    sort_order: 494
+    tags:
+      - CHG-112
+      - ユーザー確認
+      - ドキュメント
+    due_date: null
+    updated_at: '2026-07-17T20:51:19+09:00'
+  - id: T-0504
+    title: CHG-115 AIチャットのメッセージ時刻を年月日付きで表示
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 494
+    tags:
+      - CHG-115
+      - AIチャット
+      - 表示形式
+    due_date: null
+    updated_at: '2026-07-17T13:45:00.000Z'
+  - id: T-0496
+    title: CHG-113-01 AIスレッド初回投稿時の一覧表示の設計書更新要否を確認
+    list: null
+    status: done
+    priority: normal
+    sort_order: 496
+    tags:
+      - CHG-113
+      - 設計
+    due_date: null
+    updated_at: '2026-07-17T21:30:00+09:00'
+  - id: T-0497
+    title: CHG-113-02 AIスレッド初回投稿時の一覧表示を実装
+    list: null
+    status: done
+    priority: normal
+    sort_order: 497
+    tags:
+      - CHG-113
+      - 実装
+      - AIチャット
+    due_date: null
+    updated_at: '2026-07-17T21:30:00+09:00'
+  - id: T-0498
+    title: CHG-113-03 AIスレッド初回投稿時の一覧表示をユーザー確認
+    list: null
+    status: done
+    priority: normal
+    sort_order: 498
+    tags:
+      - CHG-113
+      - ユーザー確認
+      - AIチャット
+    due_date: '2026-07-17'
+    updated_at: '2026-07-17T22:14:33+09:00'
+  - id: T-0500
+    title: CHG-114-01 AIチャット未読ランプ表示の設計を反映
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 500
+    tags:
+      - CHG-114
+      - 設計
+      - AIチャット
+      - 未読表示
+    due_date: '2026-07-17'
+    updated_at: '2026-07-17T13:27:41.242Z'
+  - id: T-0501
+    title: CHG-114-02 AIチャット未読状態とランプ表示を実装
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 501
+    tags:
+      - CHG-114
+      - 実装
+      - AIチャット
+      - 未読表示
+    due_date: '2026-07-17'
+    updated_at: '2026-07-17T13:27:41.646Z'
+  - id: T-0502
+    title: CHG-114-03 AIチャット未読ランプ表示をユーザー確認
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 502
+    tags:
+      - CHG-114
+      - ユーザー確認
+      - AIチャット
+      - 未読表示
+    due_date: null
+    updated_at: '2026-07-17T13:27:34.018Z'
+  - id: T-0503
+    title: BUG-20260717-01 AIスレッドの返答が表示されない問題を修正
+    list: 不具合対応
+    status: done
+    priority: high
+    sort_order: 503
+    tags:
+      - BUG-20260717-01
+      - AIチャット
+      - データ永続化
+    due_date: null
+    updated_at: '2026-07-17T21:53:00+09:00'
+  - id: T-0505
+    title: CHG-115-01 実装：AIチャットのメッセージ時刻に年月日を表示
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 505
+    tags:
+      - CHG-115
+      - 実装
+      - AIチャット
+    due_date: null
+    updated_at: '2026-07-17T13:00:00.000Z'
+  - id: T-0506
+    title: CHG-115-02 確認：AIチャットのメッセージ時刻表示
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 506
+    tags:
+      - CHG-115
+      - ユーザー確認
+      - AIチャット
+    due_date: null
+    updated_at: '2026-07-17T13:45:00.000Z'
+  - id: T-0507
+    title: BUG-20260717-02 AIチャットで同梱Codex CLIが見つからない
+    list: 不具合修正
+    status: done
+    priority: high
+    sort_order: 507
+    tags:
+      - BUG-20260717-02
+      - AIチャット
+      - Codex SDK
+      - ビルド
+    due_date: '2026-07-17'
+    updated_at: '2026-07-17T14:30:00.000Z'
 task_file_roots:
   - .
-next_task_id: 481
-last_updated: '2026-07-16T01:55:40.778Z'
+next_task_id: 508
+last_updated: '2026-07-17T14:10:51.391Z'

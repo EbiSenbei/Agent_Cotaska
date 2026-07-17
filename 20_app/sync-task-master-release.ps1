@@ -299,6 +299,9 @@ $dstExe = Join-Path $taskMasterRoot "Cotaska.exe"
 $dstApp = Join-Path $taskMasterRoot "_app"
 $dstTools = Join-Path $taskMasterRoot "tools"
 $dstAiAgentRule = Join-Path $taskMasterRoot $aiAgentRuleFileName
+$codexCliRelativePath = "resources\app.asar.unpacked\node_modules\@openai\codex-win32-x64\vendor\x86_64-pc-windows-msvc\bin\codex.exe"
+$srcCodexCli = Join-Path $srcApp $codexCliRelativePath
+$dstCodexCli = Join-Path $dstApp $codexCliRelativePath
 
 # 置き換え前の配布フォルダ全体を backup 配下へ退避するための保存先を作る。
 $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
@@ -320,6 +323,7 @@ Assert-PathExists -Path $releaseRoot -Label "リリースルート"
 Assert-PathExists -Path $taskMasterRoot -Label "タスクマスタールート"
 Assert-PathExists -Path $srcExe -Label "リリース版 Cotaska.exe"
 Assert-PathExists -Path $srcApp -Label "リリース版 _app フォルダ"
+Assert-PathExists -Path $srcCodexCli -Label "リリース版 同梱 Codex CLI"
 Assert-PathExists -Path (Join-Path $srcTools "validate-tasks.ps1") -Label "リリース版 validate-tasks.ps1"
 Assert-PathExists -Path (Join-Path $srcTools "CotaskaUpdater.exe") -Label "リリース版 CotaskaUpdater.exe"
 Assert-PathExists -Path $srcAiAgentRule -Label "リリース版 AIエージェント運用ルール"
@@ -344,6 +348,7 @@ if (Test-Path -LiteralPath $dstApp) {
     Remove-PathWithLockHint -Path $dstApp
 }
 Invoke-RobocopyChecked -Source $srcApp -Destination $dstApp
+Assert-PathExists -Path $dstCodexCli -Label "同期後 同梱 Codex CLI"
 
 Write-Host "      tools フォルダを同期しています..."
 # 検証スクリプトなどの補助ツールもリリース成果物に合わせて同期する。

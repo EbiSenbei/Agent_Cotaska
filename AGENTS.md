@@ -1,4 +1,4 @@
-﻿# AGENTS.md
+# AGENTS.md
 
 ## Purpose
 
@@ -47,7 +47,7 @@ Agents must execute work in this order:
 ## Spec Change Protocol
 
 When the user requests a specification change (仕様変更), agents must follow
-`10_docs/20_実装準備/10_運用ルール/仕様変更管理ルール.md` before implementation.
+`10_docs/10_運用ルール/仕様変更管理ルール.md` before implementation.
 
 Minimum required task files to create in `data/tasks/`:
 1. Check whether design-doc updates are required; if required, add and execute design update tasks.
@@ -130,8 +130,8 @@ deleted_at: null
 When fixing production-impacting defects, record the process with traceability.
 
 Steps:
-1. Confirm the bug report in `10_docs/20_実装準備/10_運用ルール/バグレポート管理ルール.md`.
-2. Create a report file under `10_docs/30_実装・検証/10_不具合対応/`.
+1. Confirm the bug report in `10_docs/10_運用ルール/バグレポート管理ルール.md`.
+2. Create a report file under `10_docs/30_変更管理/20_バグレポート/`.
 3. After validation, update the report with final result and close condition.
 
 Naming rule for bug reports:
@@ -196,7 +196,7 @@ window.cotaskaAPI.tasks.update({
   id: "T-001",
   title: "更新後タイトル",
   status: "doing",
-  progress_status: "進行中",
+  progress_status: "仕掛",
 })
 ```
 
@@ -208,10 +208,27 @@ If any instruction conflicts with direct user requests, follow user requests fir
 
 ---
 
+## Project Skills
+
+- CotaskaのPortableリリース生成後にタスクマスター配布先へ同期する場合は、`.agents/skills/cotaska-release-sync/SKILL.md`に従う。
+- CotaskaのPortableリリース生成後にCloudflare R2の`latest/`へ公開する場合は、`.agents/skills/cotaska-release-r2/SKILL.md`に従う。
+
+---
+
 ## GitHub Release Upload Rules
 
+## Version Upgrade Release Notes
+
+When the user requests a version upgrade or release, always read and follow:
+
+- `10_docs/10_運用ルール/リリースプロセスルール.md`
+
+Before completing the release, create or update the release note in
+`10_docs/30_変更管理/50_リリース/` using the filename format
+`YYYYMMDD_v<version>_リリースノート.md`.
+
 Before uploading assets to GitHub Releases, always refer to:
-- `10_docs/20_実装準備/10_運用ルール/リリースプロセスルール.md`
+- `10_docs/10_運用ルール/リリースプロセスルール.md`
 
 Upload both distribution lines when publishing a Cotaska release:
 - Portable/manual distribution: `20_app/release/Cotaska-Portable.zip`

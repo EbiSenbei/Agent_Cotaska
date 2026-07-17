@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cotaska Release Sync"
+  short_description: "Build Cotaska and sync task-master distribution"
+  default_prompt: "Use $cotaska-release-sync to build the current Cotaska release and sync it to the task-master distribution."

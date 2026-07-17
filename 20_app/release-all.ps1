@@ -27,6 +27,8 @@ $distZipSha256 = "$distZip.sha256"
 $legacyDistRoot = Join-Path $scriptDir "release\Cotaska-dist"
 $legacyDistZip = Join-Path $scriptDir "release\Cotaska-dist.zip"
 $distCoreExe = Join-Path $distRoot "_app\CotaskaCore.exe"
+$codexCliRelativePath = "resources\app.asar.unpacked\node_modules\@openai\codex-win32-x64\vendor\x86_64-pc-windows-msvc\bin\codex.exe"
+$distCodexCli = Join-Path (Join-Path $distRoot "_app") $codexCliRelativePath
 $launcherIcon = Join-Path $launcherDir "icon.ico"
 $sourceDataDir = Join-Path $scriptDir "..\data"
 $distDataDir = Join-Path $distRoot "data"
@@ -34,6 +36,9 @@ $sourceToolsDir = Join-Path $scriptDir "scripts"
 $distToolsDir = Join-Path $distRoot "tools"
 $sourceUpdaterExe = Join-Path $sourceToolsDir "CotaskaUpdater.exe"
 $sourceAiAgentRule = Join-Path $repoRoot "10_docs\20_実装準備\10_運用ルール\Cotaska_AIエージェント運用ルール.md"
+if (-not (Test-Path -LiteralPath $sourceAiAgentRule)) {
+    $sourceAiAgentRule = Join-Path $repoRoot "00_mgmt\Cotaska_タスク管理ツール\Cotaska_AIエージェント運用ルール.md"
+}
 $aiAgentRuleFileName = Split-Path -Leaf $sourceAiAgentRule
 $distAiAgentRule = Join-Path $distRoot $aiAgentRuleFileName
 $sourceReadme = Join-Path $repoRoot "README.md"
@@ -400,6 +405,7 @@ $checks = @(
     @{ Path = (Join-Path $distRoot "Cotaska.exe");             Label = "Cotaska.exe（ランチャー）" },
     @{ Path = (Join-Path $distRoot "_app");                    Label = "_app/" },
     @{ Path = (Join-Path $distRoot "_app\resources\app.asar"); Label = "_app/resources/app.asar" },
+    @{ Path = $distCodexCli;                                  Label = "同梱 Codex CLI" },
     @{ Path = (Join-Path $distRoot "data");                    Label = "data/" },
     @{ Path = (Join-Path $distRoot "data\tasks");              Label = "data/tasks/" },
     @{ Path = (Join-Path $distRoot "tools\validate-tasks.ps1"); Label = "tools/validate-tasks.ps1" },
@@ -529,7 +535,8 @@ if ($allOk) {
     $requiredZipEntries = @(
         "Cotaska-Portable/Cotaska.exe",
         "Cotaska-Portable/_app/CotaskaCore.exe",
-        "Cotaska-Portable/_app/resources/app.asar"
+        "Cotaska-Portable/_app/resources/app.asar",
+        "Cotaska-Portable/_app/resources/app.asar.unpacked/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/bin/codex.exe"
     )
     foreach ($entry in $requiredZipEntries) {
         if ($zipListing -notcontains $entry) {
