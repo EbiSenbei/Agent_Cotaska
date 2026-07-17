@@ -29,7 +29,7 @@ AI チャットの連携先を設定画面で「Codex / Claude Code」から選�
 
 ## 影響範囲
 
-- UI: 設定画面（SettingsPane.jsx）を3グループ（AI共通 / AI-Codex関連 / AI-ClaudeCode関連）で表示。「連携先」セレクトで Codex/Claude グループを出し分け。Claude 選択時は「認証方式」セレクト（ローカル / クラウドプロバイダ(Bedrock)）と、Bedrock 用の入力欄（リージョン / モデル ID / AWS プロファイル名）を表示。モック `10_docs/10_設計/30_画面モック/settings_ai_provider_mock.html` 準拠。AiChatPane.jsx は返却スキーマ統一により原則変更なし。
+- UI: 設定画面（SettingsPane.jsx）を3グループ（AI共通 / AI-Codex関連 / AI-ClaudeCode関連）で表示。「連携先」セレクトで Codex/Claude グループを出し分け。Claude 選択時は「認証方式」セレクト（ローカル / クラウドプロバイダ(Bedrock)）と、Bedrock 用の入力欄（リージョン / モデル ID / AWS プロファイル名）を表示。モック `10_docs/20_設計/30_画面モック/settings_ai_provider_mock.html` 準拠。AiChatPane.jsx は返却スキーマ統一により原則変更なし。
 - DB: 変更なし（`aiService` / `ai.sqlite` は両プロバイダ共用）。
 - API/IPC: `aiChat:sendMessage` / `checkAuthStatus` / `cancelRun` / `listActiveRuns` / `listRunEvents` を `aiProviderRegistry` 経由の provider ディスパッチへ変更。返却スキーマは両プロバイダで統一。DB系ハンドラは変更なし。
 - 既存機能影響: Codex 連携は既定 provider として現状維持。provider 未設定/不正値は "codex" にフォールバックするため、既存ユーザーへの影響なし。
@@ -52,9 +52,9 @@ AI チャットの連携先を設定画面で「Codex / Claude Code」から選�
 
 - data/tasks/T-0436.md「設計本体」（本CHGの設計正本）
 - 00_mgmt/91_検討事項/20260713_01_ClaudeCode連携（個人利用前提）.md（検討本体）
-- 10_docs/10_設計/30_画面モック/settings_ai_provider_mock.html（設定画面モック）
-- 10_docs/10_設計/20_基本設計/08_設定画面.md（実装後にプロバイダ選択・認証方式を反映）
-- 10_docs/10_設計/10_システム設計/システム全体設計.md（AI連携のプロバイダ抽象化を反映）
+- 10_docs/20_設計/30_画面モック/settings_ai_provider_mock.html（設定画面モック）
+- 10_docs/20_設計/20_基本設計/08_設定画面.md（実装後にプロバイダ選択・認証方式を反映）
+- 10_docs/20_設計/10_システム設計/システム全体設計.md（AI連携のプロバイダ抽象化を反映）
 
 ## 実装タスク分解
 

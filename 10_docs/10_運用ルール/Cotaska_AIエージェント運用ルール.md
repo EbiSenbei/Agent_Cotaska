@@ -16,7 +16,7 @@
    - `00_mgmt/Cotaska_タスク管理ツール/data/lists.yaml`
 2. 判断ログ（参照用・正本ではない）
    - `00_mgmt/DECISIONS.md`
-   - `10_docs/20_実装準備/40_仕様変更管理/*.md`
+   - `10_docs/30_変更管理/10_仕様変更/*.md`
 
 `00_mgmt/Cotaska_タスク管理ツール/data/tasks/_index.yaml` はアプリ起動中は自動再構築される。
 アプリ未起動時に AI がタスクファイルを追加・変更した場合は、**AI が `_index.yaml` を手動で同期しなければならない**（詳細はセクション 11 参照）。
@@ -48,7 +48,7 @@ AIエージェントは作業前に、最低限以下を読む。
 2. `00_mgmt/Cotaska_タスク管理ツール/data/tasks/_index.yaml`（全タスクの概要確認）
 3. `00_mgmt/DECISIONS.md`
 4. 対象タスクファイル（該当する `00_mgmt/Cotaska_タスク管理ツール/data/tasks/*.md`）
-5. 必要な設計書（`10_docs/10_設計/` 配下）
+5. 必要な設計書（`10_docs/20_設計/` 配下）
 
 ---
 

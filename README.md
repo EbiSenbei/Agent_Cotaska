@@ -160,5 +160,5 @@ https://github.com/EbiSenbei/Agent_Cotaska.git
 システム全体の設計方針は次の資料を参照してください。
 
 ```text
-10_docs/10_設計/10_システム設計/システム全体設計.md
+10_docs/20_設計/10_システム設計/システム全体設計.md
 ```

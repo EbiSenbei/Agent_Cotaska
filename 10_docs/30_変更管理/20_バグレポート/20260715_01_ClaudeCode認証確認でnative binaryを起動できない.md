@@ -94,4 +94,4 @@ Windows向けの修正候補は次のとおり。
 - `20_app/package-lock.json` — Claude Agent SDKとプラットフォーム別パッケージの依存関係
 - `20_app/src/main/claudeCodeService.js` — Claude Agent SDKの読み込みと認証状態確認処理
 - `00_mgmt/Cotaska_タスク管理ツール/data/tasks/T-0466.md` — 修正・検証・ユーザー確認タスク
-- `10_docs/20_実装準備/40_仕様変更管理/20260713_CHG-102_ClaudeCodeチャット連携個人利用.md` — Claude Code連携の仕様変更記録
+- `10_docs/30_変更管理/10_仕様変更/20260713_CHG-102_ClaudeCodeチャット連携個人利用.md` — Claude Code連携の仕様変更記録

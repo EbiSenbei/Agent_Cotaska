@@ -78,4 +78,4 @@ Cotaska の設定 > アプリ情報 > 更新確認をクリックすると、`fe
 - `20_app/src/main/main.js` — 更新確認の取得処理と失敗時の戻り値
 - `20_app/src/renderer/components/SettingsPane.jsx` — 更新確認ボタン押下時の表示制御
 - `data/settings.yaml` — 更新確認先 URL 設定
-- `10_docs/30_実装・検証/10_不具合対応/20260516_02_Portable版更新確認でapp-update-ymlが見つからない.md` — 関連する更新確認不具合
+- `10_docs/30_変更管理/20_バグレポート/20260516_02_Portable版更新確認でapp-update-ymlが見つからない.md` — 関連する更新確認不具合
