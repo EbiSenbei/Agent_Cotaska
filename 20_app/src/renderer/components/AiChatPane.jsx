@@ -1,6 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import DetailPane from "./DetailPane";
 import AiMarkdownPreview, { formatMessageTime } from "./AiMarkdownPreview";
+import {
+  clampContextPanelWidth,
+  copyTextToClipboard,
+  loadContextPanelWidth,
+  normalizeOption,
+} from "./aiChatUiUtils";
 
 
 const getThreadDisplayTitle = (title, primaryTaskId) => {
@@ -26,10 +32,6 @@ const REFERENCE_SEND_OPTIONS = [
   { value: "skip", label: "参照:送らない" },
 ];
 const REFERENCE_SEND_VALUES = new Set(REFERENCE_SEND_OPTIONS.map((option) => option.value));
-const CONTEXT_PANEL_WIDTH_KEY = "cotaska.aiChat.contextPanelWidth";
-const CONTEXT_PANEL_MIN_WIDTH = 320;
-const CONTEXT_PANEL_MAX_WIDTH = 720;
-const CONTEXT_PANEL_DEFAULT_WIDTH = 410;
 const MESSAGE_BOTTOM_PROXIMITY_PX = 96;
 const WORKDIR_REQUIRED_MESSAGE = "作業フォルダを設定してください。設定画面で作業フォルダを選択してから送信してください。";
 
@@ -44,11 +46,11 @@ function createDraftThreadTitle(text) {
 }
 
 function normalizeSandboxMode(value) {
-  return SANDBOX_VALUES.has(value) ? value : "read-only";
+  return normalizeOption(value, SANDBOX_VALUES, "read-only");
 }
 
 function normalizeReferenceSendMode(value) {
-  return REFERENCE_SEND_VALUES.has(value) ? value : "default";
+  return normalizeOption(value, REFERENCE_SEND_VALUES, "default");
 }
 
 function openCodexAuthSettings() {
@@ -57,39 +59,6 @@ function openCodexAuthSettings() {
 
 function openAiWorkdirSettings() {
   window.dispatchEvent(new CustomEvent("cotaska:openSettings", { detail: { target: "ai-workdir" } }));
-}
-
-function clampContextPanelWidth(value) {
-  const numeric = Number(value);
-  if (!Number.isFinite(numeric)) return CONTEXT_PANEL_DEFAULT_WIDTH;
-  return Math.min(CONTEXT_PANEL_MAX_WIDTH, Math.max(CONTEXT_PANEL_MIN_WIDTH, Math.round(numeric)));
-}
-
-function loadContextPanelWidth() {
-  try {
-    return clampContextPanelWidth(window.localStorage?.getItem(CONTEXT_PANEL_WIDTH_KEY));
-  } catch (_error) {
-    return CONTEXT_PANEL_DEFAULT_WIDTH;
-  }
-}
-
-async function copyTextToClipboard(text) {
-  if (navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(text);
-    return;
-  }
-  const textarea = document.createElement("textarea");
-  textarea.value = text;
-  textarea.setAttribute("readonly", "");
-  textarea.style.position = "fixed";
-  textarea.style.left = "-9999px";
-  document.body.appendChild(textarea);
-  textarea.select();
-  try {
-    document.execCommand("copy");
-  } finally {
-    document.body.removeChild(textarea);
-  }
 }
 
 function AiChatPane({
