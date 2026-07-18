@@ -1,0 +1,20 @@
+﻿name: Test
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: npm
+          cache-dependency-path: Cotaska/20_app/package-lock.json
+      - run: npm ci
+        working-directory: Cotaska/20_app
+      - run: npm test
+        working-directory: Cotaska/20_app
+      - run: npm run build
+        working-directory: Cotaska/20_app

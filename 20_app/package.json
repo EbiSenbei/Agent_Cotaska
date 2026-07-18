@@ -11,7 +11,9 @@
     "build": "vite build",
     "start": "electron .",
     "dist:portable": "npm run build && electron-builder --win portable --publish never",
-    "dist:dir": "npm run build && electron-builder --win dir --publish never"
+    "dist:dir": "npm run build && electron-builder --win dir --publish never",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": [],
   "author": "",
@@ -25,7 +27,8 @@
     "@vitejs/plugin-react": "^6.0.1",
     "electron": "^41.0.2",
     "electron-builder": "^26.0.12",
-    "vite": "^8.0.0"
+    "vite": "^8.0.0",
+    "vitest": "^4.1.10"
   },
   "build": {
     "appId": "com.cotaska.app",
