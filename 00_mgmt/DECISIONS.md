@@ -1,5 +1,10 @@
 # DECISIONS
 
+## 2026-07-18 T-0490 taskService階層ロジック分割
+
+- `taskService.js` の外部APIは維持し、タスク階層の深度算出、循環・最大階層検証、子孫収集、親状態推定をキャッシュを引数に取る純粋関数モジュールへ分離する。
+- Vitest の対象に main process 配下のテストを加え、renderer と同じ `npm test` で階層ロジックの回帰を検出する。
+
 ## 2026-07-17 BUG-20260717-02 Portable版Codex CLI同梱保証
 
 - Codex CLIは `app.asar.unpacked` 内のプラットフォーム別実行ファイルを正とし、リリース生成・ZIP・タスクマスター同期の各境界で存在を必須検証する。

@@ -13,4 +13,8 @@ export default defineConfig({
   server: {
     port: 5173,
   },
+  test: {
+    globals: true,
+    include: ["**/*.test.js", "../main/**/*.test.js"],
+  },
 });

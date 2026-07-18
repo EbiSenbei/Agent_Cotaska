@@ -9,6 +9,7 @@ const path = require('path');
 const matter = require('gray-matter');
 const YAML = require('js-yaml');
 const settingsService = require('./settingsService');
+const taskHierarchy = require('./taskHierarchy');
 
 const TASKS_DIR = path.join(process.cwd(), '../data/tasks');
 const INDEX_PATH = path.join(TASKS_DIR, '_index.yaml');
@@ -510,85 +511,14 @@ function ensureCompletedTasksLoaded(limit) {
   }
 }
 
-function normalizeProgressStatus(task) {
-  return task.progress_status || (task.status === 'done' ? '完了' : '未着');
-}
-
-function getTaskDepth(taskId, seen = new Set()) {
-  const task = taskCache[taskId];
-  if (!task || !task.parent) return 1;
-  if (seen.has(taskId)) return MAX_TASK_TREE_DEPTH + 1;
-  seen.add(taskId);
-  return getTaskDepth(task.parent, seen) + 1;
-}
-
-function getTaskSubtreeDepth(taskId, seen = new Set()) {
-  if (!taskId || seen.has(taskId)) return MAX_TASK_TREE_DEPTH + 1;
-  const task = taskCache[taskId];
-  if (!task || task.delete_flag === 1 || task.is_invalid) return 1;
-  const nextSeen = new Set(seen);
-  nextSeen.add(taskId);
-  const children = Object.values(taskCache)
-    .filter((child) => child.parent === taskId && child.delete_flag === 0 && !child.is_invalid);
-  if (children.length === 0) return 1;
-  return 1 + Math.max(...children.map((child) => getTaskSubtreeDepth(child.id, nextSeen)));
-}
-
-function validateParentUpdate(taskId, nextParentId) {
-  if (!nextParentId) return;
-  if (taskId === nextParentId) {
-    throw new Error('自分自身を親タスクにはできません。');
-  }
-
-  const parent = taskCache[nextParentId];
-  if (!parent || parent.delete_flag === 1 || parent.is_invalid) {
-    throw new Error('指定された親タスクが見つかりません。');
-  }
-
-  let currentParentId = nextParentId;
-  const seen = new Set();
-  while (currentParentId) {
-    if (currentParentId === taskId) {
-      throw new Error('子孫タスクを親にすると循環参照になります。');
-    }
-    if (seen.has(currentParentId)) {
-      throw new Error('親子関係に循環参照があります。');
-    }
-    seen.add(currentParentId);
-    currentParentId = taskCache[currentParentId]?.parent || null;
-  }
-
-  const nextMaxDepth = getTaskDepth(nextParentId) + getTaskSubtreeDepth(taskId);
-  if (nextMaxDepth > MAX_TASK_TREE_DEPTH) {
-    throw new Error('タスク階層は最大5階層までです。');
-  }
-}
-
-function collectDescendantTasks(parentId, maxDepth = MAX_TASK_TREE_DEPTH) {
-  const descendants = [];
-  const walk = (currentParentId, depth, seen = new Set()) => {
-    if (depth >= maxDepth || seen.has(currentParentId)) return;
-    seen.add(currentParentId);
-    Object.values(taskCache).forEach((child) => {
-      if (child.parent !== currentParentId || child.delete_flag === 1 || child.is_invalid) return;
-      descendants.push(child);
-      walk(child.id, depth + 1, new Set(seen));
-    });
-  };
-  walk(parentId, 1);
-  return descendants;
-}
-
-function estimateParentState(parent, children) {
-  const parentStatus = normalizeProgressStatus(parent);
-  if (parentStatus !== '未着') return null;
-
-  const statuses = children.map((child) => normalizeProgressStatus(child));
-  if (statuses.some((status) => status === '仕掛' || status === '完了')) {
-    return { progress_status: '仕掛', status: 'todo' };
-  }
-  return null;
-}
+const normalizeProgressStatus = taskHierarchy.normalizeProgressStatus;
+const getTaskDepth = (taskId) => taskHierarchy.getTaskDepth(taskCache, taskId, MAX_TASK_TREE_DEPTH);
+const validateParentUpdate = (taskId, nextParentId) => taskHierarchy.validateParentUpdate(
+  taskCache, taskId, nextParentId, MAX_TASK_TREE_DEPTH
+);
+const collectDescendantTasks = (parentId, maxDepth = MAX_TASK_TREE_DEPTH) => (
+  taskHierarchy.collectDescendantTasks(taskCache, parentId, maxDepth)
+);
 
 function recomputeParentFromChildren(parentId, now) {
   if (!parentId) return;
@@ -597,7 +527,7 @@ function recomputeParentFromChildren(parentId, now) {
 
   const siblings = Object.values(taskCache)
     .filter((child) => child.parent === parentId && child.delete_flag === 0);
-  const estimatedParent = estimateParentState(parent, siblings);
+  const estimatedParent = taskHierarchy.estimateParentState(parent, siblings);
   if (!estimatedParent) return;
 
   parent.progress_status = estimatedParent.progress_status;
