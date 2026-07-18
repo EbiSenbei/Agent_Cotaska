@@ -270,6 +270,9 @@ function Invoke-RobocopyChecked {
 # スクリプト配置場所を基準に、リリース元とタスクマスター反映先を決定する。
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = (Resolve-Path (Join-Path $scriptDir "..")).Path
+. (Join-Path $scriptDir "scripts\release-common.ps1")
+$releaseArtifacts = Assert-CotaskaReleaseArtifacts -AppDir $scriptDir -RequireDirectory
+Write-Host "検証済みリリース: v$($releaseArtifacts.Version) SHA-256=$($releaseArtifacts.Sha256)"
 
 $releaseRoot = Join-Path $scriptDir "release\Cotaska-Portable"
 $taskMasterRootItem = Get-ChildItem -LiteralPath (Join-Path $repoRoot "00_mgmt") -Directory |

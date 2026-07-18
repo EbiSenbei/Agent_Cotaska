@@ -10,14 +10,15 @@
 # 使い方:  cd 20_app  ;  .\release-all.ps1
 #          .\release-all.ps1 -Version "0.3.3"
 
-param(
-    [string]$Version = "0.3.3"
-)
+param([string]$Version)
 
 $ErrorActionPreference = "Stop"
 
 $scriptDir   = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot    = (Resolve-Path (Join-Path $scriptDir "..")).Path
+. (Join-Path $scriptDir "scripts\release-common.ps1")
+$Version = Resolve-CotaskaReleaseVersion -AppDir $scriptDir -RequestedVersion $Version
+Write-CotaskaDirtyTreeWarning -RepoRoot $repoRoot
 $nodeDir     = Resolve-Path (Join-Path $scriptDir "..\..\v22.14.0")
 $launcherDir = Join-Path $scriptDir "setup\launcher"
 $updaterDir  = Join-Path $scriptDir "setup\updater"
@@ -561,6 +562,8 @@ if ($allOk) {
     $zipHash = (Get-FileHash -LiteralPath $distZip -Algorithm SHA256).Hash.ToLowerInvariant()
     Set-Content -LiteralPath $distZipSha256 -Value "$zipHash  Cotaska-Portable.zip" -Encoding ASCII
     Write-Host "  完了: リリースZIPのSHA-256を作成しました -> $distZipSha256" -ForegroundColor Green
+    $verifiedArtifacts = Assert-CotaskaReleaseArtifacts -AppDir $scriptDir -RequireDirectory
+    Write-Host "  正常  共通成果物検証 v$($verifiedArtifacts.Version) SHA-256=$($verifiedArtifacts.Sha256)" -ForegroundColor Green
 
     Write-Host "=======================================" -ForegroundColor Green
     Write-Host " リリース v$Version が完了しました" -ForegroundColor Green

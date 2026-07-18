@@ -8,7 +8,10 @@ param(
 $ErrorActionPreference = "Stop"
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$repoRoot = (Resolve-Path (Join-Path $scriptDir "..\..")).Path
+$repoRoot = (Resolve-Path (Join-Path $scriptDir "..")).Path
+. (Join-Path $scriptDir "scripts\release-common.ps1")
+$releaseArtifacts = Assert-CotaskaReleaseArtifacts -AppDir $scriptDir
+$gitCommit = Get-CotaskaGitCommit -RepoRoot $repoRoot
 $nodeFromRepo = Join-Path $repoRoot "v22.14.0\node.exe"
 $nodeExe = if (Test-Path -LiteralPath $nodeFromRepo) { $nodeFromRepo } else { "node" }
 $resolvedConfigPath = if ([System.IO.Path]::IsPathRooted($ConfigPath)) {
@@ -30,6 +33,8 @@ const https = require('https');
 
 const scriptDir = process.argv[2];
 const configPath = process.argv[3];
+const version = process.argv[4];
+const gitCommit = process.argv[5];
 const cfg = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
 function required(name, value) {
@@ -47,8 +52,6 @@ required('publicBaseUrl', cfg.publicBaseUrl);
 
 const latestPrefix = ((cfg.uploadTargets && cfg.uploadTargets.latestPrefix) || 'latest').replace(/^\/+|\/+$/g, '');
 const releaseDir = path.join(scriptDir, 'release');
-const packageJson = JSON.parse(fs.readFileSync(path.join(scriptDir, 'package.json'), 'utf8'));
-const version = packageJson.version;
 const releasedAt = new Date().toISOString();
 
 const assets = [
@@ -72,6 +75,7 @@ for (const asset of assets) {
 
 const versionJson = {
   version,
+  gitCommit,
   releasedAt,
   files: {
     portable: 'Cotaska-Portable.zip',
@@ -224,7 +228,7 @@ Set-Content -LiteralPath $tempScript -Value $nodeScript -Encoding UTF8
 
 try {
     Write-Host "Uploading Cotaska release assets to R2 latest/ ..." -ForegroundColor Cyan
-    & $nodeExe $tempScript $scriptDir $resolvedConfigPath
+    & $nodeExe $tempScript $scriptDir $resolvedConfigPath $releaseArtifacts.Version $gitCommit
     if ($LASTEXITCODE -ne 0) {
         Write-Host "[FAILED] R2 upload failed" -ForegroundColor Red
         exit 1
