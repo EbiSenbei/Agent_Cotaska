@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import "./App.css";
+import "./styles/ai-chat.css";
 import Sidebar    from "./components/Sidebar";
 import NavPanel   from "./components/NavPanel";
 import MainPane   from "./components/MainPane";
