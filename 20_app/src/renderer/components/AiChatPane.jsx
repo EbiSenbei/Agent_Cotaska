@@ -1,14 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import MarkdownIt from "markdown-it";
 import DetailPane from "./DetailPane";
+import AiMarkdownPreview, { formatMessageTime } from "./AiMarkdownPreview";
 
-const markdown = new MarkdownIt({
-  html: false,
-  linkify: true,
-  breaks: true,
-});
-
-const TASK_ID_PATTERN = /\bT-\d{4}\b/g;
 
 const getThreadDisplayTitle = (title, primaryTaskId) => {
   const normalizedTitle = String(title || "").trim();
@@ -39,40 +32,6 @@ const CONTEXT_PANEL_MAX_WIDTH = 720;
 const CONTEXT_PANEL_DEFAULT_WIDTH = 410;
 const MESSAGE_BOTTOM_PROXIMITY_PX = 96;
 const WORKDIR_REQUIRED_MESSAGE = "作業フォルダを設定してください。設定画面で作業フォルダを選択してから送信してください。";
-
-markdown.core.ruler.after("inline", "cotaska_task_links", (state) => {
-  state.tokens.forEach((blockToken) => {
-    if (blockToken.type !== "inline" || !Array.isArray(blockToken.children)) return;
-    const nextChildren = [];
-    blockToken.children.forEach((token) => {
-      if (token.type !== "text") {
-        nextChildren.push(token);
-        return;
-      }
-      const text = token.content || "";
-      let cursor = 0;
-      for (const match of text.matchAll(TASK_ID_PATTERN)) {
-        const taskId = match[0];
-        const index = match.index || 0;
-        if (index > cursor) {
-          const textToken = new state.Token("text", "", 0);
-          textToken.content = text.slice(cursor, index);
-          nextChildren.push(textToken);
-        }
-        const linkToken = new state.Token("html_inline", "", 0);
-        linkToken.content = `<button type="button" class="ai-task-link" data-task-id="${taskId}">${taskId}</button>`;
-        nextChildren.push(linkToken);
-        cursor = index + taskId.length;
-      }
-      if (cursor < text.length) {
-        const textToken = new state.Token("text", "", 0);
-        textToken.content = text.slice(cursor);
-        nextChildren.push(textToken);
-      }
-    });
-    blockToken.children = nextChildren;
-  });
-});
 
 function getAiChatApi() {
   return window.cotaskaAPI?.aiChat || null;
@@ -114,20 +73,6 @@ function loadContextPanelWidth() {
   }
 }
 
-function formatMessageTime(value) {
-  if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleString("ja-JP", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-}
-
 async function copyTextToClipboard(text) {
   if (navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(text);
@@ -145,35 +90,6 @@ async function copyTextToClipboard(text) {
   } finally {
     document.body.removeChild(textarea);
   }
-}
-
-function MarkdownPreview({ content, error, onOpenTask, onOpenLink, onOpenLinkContextMenu }) {
-  const html = useMemo(() => markdown.render(String(content || "")), [content]);
-  return (
-    <div
-      className={`ai-message-markdown${error ? " ai-message-error" : ""}`}
-      onClick={(event) => {
-        const taskLink = event.target.closest?.("[data-task-id]");
-        if (taskLink) {
-          event.preventDefault();
-          onOpenTask?.(taskLink.getAttribute("data-task-id"));
-          return;
-        }
-
-        const anchor = event.target.closest?.("a[href]");
-        if (!anchor) return;
-        event.preventDefault();
-        onOpenLink?.(anchor.getAttribute("href"));
-      }}
-      onContextMenu={(event) => {
-        const anchor = event.target.closest?.("a[href]");
-        if (!anchor) return;
-        event.preventDefault();
-        onOpenLinkContextMenu?.(anchor.getAttribute("href"), event.clientX, event.clientY);
-      }}
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
-  );
 }
 
 function AiChatPane({
@@ -2014,7 +1930,7 @@ function AiChatPane({
           ) : messages.map((message) => (
             <article key={message.id} className={`ai-message ai-message--${message.role}${message.streaming ? " ai-message--streaming" : ""}`}>
               <div className="ai-message-author">{message.author}</div>
-              <MarkdownPreview
+              <AiMarkdownPreview
                 content={message.body}
                 error={message.error}
                 onOpenTask={openTaskContext}
@@ -2049,7 +1965,7 @@ function AiChatPane({
                     <div key={event.id} className={`ai-stream-event ai-stream-event--${event.displayKind || "activity"} ai-stream-event--${event.status || "active"}`}>
                       {event.title && <div className="ai-stream-event-title">{event.title}</div>}
                       {event.displayKind === "narrative" && event.detail ? (
-                        <MarkdownPreview
+                        <AiMarkdownPreview
                           content={event.detail}
                           onOpenTask={openTaskContext}
                           onOpenLink={handleOpenMarkdownLink}
@@ -2310,7 +2226,7 @@ function AiChatPane({
               {contextPanel.status === "error" && <p className="ai-muted-text">{contextPanel.error}</p>}
               {contextPanel.file?.preview_type === "text" && isMarkdownFile(contextPanel.file) && filePreviewMode && (
                 <div className="ai-file-preview-markdown">
-                  <MarkdownPreview
+                  <AiMarkdownPreview
                     content={contextPanel.file.content || ""}
                     onOpenTask={openTaskContext}
                     onOpenLink={(href) => handleOpenMarkdownLink(href, contextPanel.file?.path || "")}
