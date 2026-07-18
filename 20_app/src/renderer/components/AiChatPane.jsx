@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import DetailPane from "./DetailPane";
+import AiChatMessage from "./AiChatMessage";
 import AiMarkdownPreview, { formatMessageTime } from "./AiMarkdownPreview";
 import {
   clampContextPanelWidth,
@@ -1897,28 +1898,14 @@ function AiChatPane({
               <span>会話履歴、提案、参照ファイルは実データが作成された後に表示されます。</span>
             </div>
           ) : messages.map((message) => (
-            <article key={message.id} className={`ai-message ai-message--${message.role}${message.streaming ? " ai-message--streaming" : ""}`}>
-              <div className="ai-message-author">{message.author}</div>
-              <AiMarkdownPreview
-                content={message.body}
-                error={message.error}
-                onOpenTask={openTaskContext}
-                onOpenLink={handleOpenMarkdownLink}
-                onOpenLinkContextMenu={openLinkContextMenu}
-              />
-              <div className="ai-message-hover-actions" aria-label="メッセージ操作">
-                {message.time && <time dateTime={message.createdAt}>{message.time}</time>}
-                <button
-                  type="button"
-                  className="ai-message-copy-btn"
-                  title="チャット内容をコピー"
-                  aria-label="チャット内容をコピー"
-                  onClick={() => handleCopyMessage(message)}
-                >
-                  <span aria-hidden="true" />
-                </button>
-              </div>
-            </article>
+            <AiChatMessage
+              key={message.id}
+              message={message}
+              onCopy={handleCopyMessage}
+              onOpenTask={openTaskContext}
+              onOpenLink={handleOpenMarkdownLink}
+              onOpenLinkContextMenu={openLinkContextMenu}
+            />
           ))}
           {isSending && (
             <article className="ai-message ai-message--assistant ai-message--thinking">
