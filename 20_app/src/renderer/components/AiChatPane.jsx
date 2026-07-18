@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import DetailPane from "./DetailPane";
 import AiChatMessage from "./AiChatMessage";
+import AiChatComposer from "./AiChatComposer";
 import AiMarkdownPreview, { formatMessageTime } from "./AiMarkdownPreview";
 import {
   clampContextPanelWidth,
@@ -1957,102 +1958,32 @@ function AiChatPane({
           </button>
         )}
 
-        <footer
-          className={`ai-compose${isSending ? " ai-compose--sending" : ""}${isComposeDragOver ? " ai-compose--drag-over" : ""}`}
+        <AiChatComposer
+          draft={draft}
+          isSending={isSending}
+          isDragOver={isComposeDragOver}
+          references={references}
+          sandboxMode={sandboxMode}
+          sandboxOptions={SANDBOX_OPTIONS}
+          referenceSendMode={referenceSendMode}
+          referenceSendOptions={REFERENCE_SEND_OPTIONS}
+          onDraftChange={(event) => {
+            draftHistoryIndexRef.current = -1;
+            setDraft(event.target.value);
+          }}
+          onDraftKeyDown={handleDraftKeyDown}
           onDragOver={handleComposeDragOver}
           onDragLeave={handleComposeDragLeave}
           onDrop={handleComposeDrop}
-        >
-          <textarea
-            value={draft}
-            disabled={isSending}
-            onChange={(event) => {
-              draftHistoryIndexRef.current = -1;
-              setDraft(event.target.value);
-            }}
-            onKeyDown={handleDraftKeyDown}
-            placeholder="フォローアップの変更を求める"
-          />
-          {references.length > 0 && (
-            <div className="ai-compose-attachments" aria-label="添付ファイル">
-              {references.map((reference) => (
-                <span
-                  key={reference.id}
-                  className="ai-compose-attachment"
-                  title={reference.filePath || reference.label}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => handleReferenceClick(reference)}
-                  onKeyDown={(event) => handleReferenceKeyDown(event, reference)}
-                >
-                  <span className="ai-compose-attachment-icon">F</span>
-                  <span className="ai-compose-attachment-name">{reference.label}</span>
-                  <button
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      handleRemoveReference(reference.id);
-                    }}
-                    disabled={isSending}
-                    aria-label={`${reference.label}を外す`}
-                    title="添付を外す"
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
-          )}
-          <div className="ai-compose-toolbar">
-            <button
-              type="button"
-              className="ai-compose-icon-btn"
-              onClick={handleAddReferenceFiles}
-              disabled={isSending}
-              title="ファイル添付"
-              aria-label="ファイル添付"
-            >
-              ＋
-            </button>
-            <label className="ai-permission-control" title="権限設定">
-              <span>ⓘ</span>
-              <select
-                value={sandboxMode}
-                disabled={isSending}
-                aria-label="権限設定"
-                onChange={handleSandboxModeChange}
-              >
-                {SANDBOX_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
-            </label>
-            <label className="ai-permission-control" title="参照ファイル送信">
-              <span>添</span>
-              <select
-                value={referenceSendMode}
-                disabled={isSending}
-                aria-label="参照ファイル送信"
-                onChange={(event) => setReferenceSendMode(normalizeReferenceSendMode(event.target.value))}
-              >
-                {REFERENCE_SEND_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
-            </label>
-            <span className="ai-compose-spacer" />
-            <button
-              type="button"
-              className={`ai-send-button${isSending ? " is-sending" : ""}`}
-              onClick={isSending ? handleCancelSend : handleSend}
-              disabled={!isSending && !draft.trim()}
-              title={isSending ? "中断" : "送信"}
-              aria-label={isSending ? "AI処理を中断" : "送信"}
-            >
-              {isSending ? "■" : "↑"}
-            </button>
-          </div>
-        </footer>
+          onAddReferences={handleAddReferenceFiles}
+          onReferenceClick={handleReferenceClick}
+          onReferenceKeyDown={handleReferenceKeyDown}
+          onRemoveReference={handleRemoveReference}
+          onSandboxModeChange={handleSandboxModeChange}
+          onReferenceSendModeChange={(event) => setReferenceSendMode(normalizeReferenceSendMode(event.target.value))}
+          onSend={handleSend}
+          onCancel={handleCancelSend}
+        />
       </main>
 
       {threadContextMenu && (
