@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import DetailPane from "./DetailPane";
 import AiChatMessage from "./AiChatMessage";
 import AiChatComposer from "./AiChatComposer";
+import AiChatContextPanel from "./AiChatContextPanel";
 import AiMarkdownPreview, { formatMessageTime } from "./AiMarkdownPreview";
 import {
   clampContextPanelWidth,
@@ -2036,105 +2036,27 @@ function AiChatPane({
         </div>
       )}
 
-      {contextPanel && (
-      <aside className="ai-right-pane">
-        <div
-          className="ai-right-resize-handle"
-          role="separator"
-          aria-orientation="vertical"
-          aria-label="コンテキストパネル幅を変更"
-          title="ドラッグして幅を変更"
-          onMouseDown={handleContextPanelResizeStart}
-        />
-        <header className="ai-right-header">
-          <div>
-            <div className="ai-right-title">{contextPanel.title || "コンテキスト"}</div>
-            <div className="ai-right-subtitle">{contextPanel.subtitle || ""}</div>
-          </div>
-          <button className="ai-icon-button" type="button" title="閉じる" onClick={() => setContextPanel(null)}>×</button>
-        </header>
-        <div className="ai-right-body">
-          {contextPanel.type === "task" && (
-            <div className="ai-task-detail-panel">
-              {contextPanel.task ? (
-                <DetailPane
-                  key={contextPanel.task.id}
-                  task={contextPanel.task}
-                  tasks={tasks}
-                  lists={lists}
-                  tags={tags}
-                  onClose={() => setContextPanel(null)}
-                  onSelectTask={(task) => openTaskContext(task?.id)}
-                  onSaved={onTaskUpdated}
-                  onToggleComplete={onToggleComplete}
-                  onSetTaskDue={onSetTaskDue}
-                  onSetTaskTags={onSetTaskTags}
-                  onAddTag={onAddTag}
-                />
-              ) : (
-                <section className="ai-info-card">
-                  <p className="ai-muted-text">タスク情報を読み込めませんでした。</p>
-                  <button type="button" className="ai-panel-action" onClick={() => onOpenTask?.(contextPanel.taskId)}>
-                    リストで開く
-                  </button>
-                </section>
-              )}
-            </div>
-          )}
-          {contextPanel.type === "file" && (
-            <section className="ai-file-view-card">
-              <div className="ai-file-view-head">
-                <h3>ファイルビュー</h3>
-                <div className="ai-file-view-actions">
-                  {isMarkdownFile(contextPanel.file) && (
-                    <button
-                      type="button"
-                      className="icon-action-btn"
-                      onClick={() => setFilePreviewMode((current) => !current)}
-                      title={filePreviewMode ? "テキスト表示へ切替" : "プレビュー表示へ切替"}
-                      aria-label={filePreviewMode ? "テキスト表示へ切替" : "プレビュー表示へ切替"}
-                    >
-                      {filePreviewMode ? "✏" : "🔍"}
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    className="icon-action-btn external"
-                    onClick={handleOpenContextFileExternal}
-                    disabled={!contextPanel.file?.path}
-                    title="外部アプリで開く"
-                    aria-label="外部アプリで開く"
-                  >
-                    ↗
-                  </button>
-                </div>
-              </div>
-              {contextPanel.status === "loading" && <p>読み込んでいます。</p>}
-              {contextPanel.status === "error" && <p className="ai-muted-text">{contextPanel.error}</p>}
-              {contextPanel.file?.preview_type === "text" && isMarkdownFile(contextPanel.file) && filePreviewMode && (
-                <div className="ai-file-preview-markdown">
-                  <AiMarkdownPreview
-                    content={contextPanel.file.content || ""}
-                    onOpenTask={openTaskContext}
-                    onOpenLink={(href) => handleOpenMarkdownLink(href, contextPanel.file?.path || "")}
-                    onOpenLinkContextMenu={(href, x, y) => openLinkContextMenu(href, x, y, contextPanel.file?.path || "")}
-                  />
-                </div>
-              )}
-              {contextPanel.file?.preview_type === "text" && (!isMarkdownFile(contextPanel.file) || !filePreviewMode) && (
-                <textarea className="ai-file-preview-editor" value={contextPanel.file.content || ""} readOnly />
-              )}
-              {contextPanel.file?.preview_type === "pdf" && (
-                <iframe className="ai-file-preview-pdf" src={contextPanel.file.url} title={contextPanel.file.label || "PDF"} />
-              )}
-              {contextPanel.file?.preview_type === "unsupported" && (
-                <p className="ai-muted-text">このファイル形式はプレビューに対応していません。</p>
-              )}
-            </section>
-          )}
-        </div>
-      </aside>
-      )}
+      <AiChatContextPanel
+        contextPanel={contextPanel}
+        tasks={tasks}
+        lists={lists}
+        tags={tags}
+        filePreviewMode={filePreviewMode}
+        isMarkdownFile={isMarkdownFile}
+        onResizeStart={handleContextPanelResizeStart}
+        onClose={() => setContextPanel(null)}
+        onOpenTask={onOpenTask}
+        onSelectTask={openTaskContext}
+        onTaskUpdated={onTaskUpdated}
+        onToggleComplete={onToggleComplete}
+        onSetTaskDue={onSetTaskDue}
+        onSetTaskTags={onSetTaskTags}
+        onAddTag={onAddTag}
+        onToggleFilePreview={() => setFilePreviewMode((current) => !current)}
+        onOpenFileExternal={handleOpenContextFileExternal}
+        onOpenLink={handleOpenMarkdownLink}
+        onOpenLinkContextMenu={openLinkContextMenu}
+      />
       {linkContextMenu && (
         <div
           className="context-menu"
