@@ -108,6 +108,19 @@ internal static class LauncherFallback
         return result;
     }
 
+    private static bool HasRunningSameRootCoreProcess(string launcherDirectory)
+    {
+        List<Process> processes = FindSameRootProcesses(launcherDirectory);
+        try
+        {
+            return processes.Any(process => String.Equals(process.ProcessName, "CotaskaCore", StringComparison.OrdinalIgnoreCase));
+        }
+        finally
+        {
+            foreach (Process process in processes) process.Dispose();
+        }
+    }
+
     private static bool StopProcesses(IEnumerable<Process> processes, string launcherLogPath, out string error)
     {
         error = null;
@@ -235,6 +248,12 @@ internal static class LauncherFallback
                 process.StartInfo.UseShellExecute = false; process.StartInfo.CreateNoWindow = true; process.StartInfo.EnvironmentVariables.Remove("ELECTRON_RUN_AS_NODE");
                 process.Start(); AllowSetForegroundWindow(process.Id); AppendLauncherLog(launcherLogPath, "Child started: pid=" + process.Id);
                 if (!watchForEarlyExit || !process.WaitForExit(StartupWatchMilliseconds)) { AppendLauncherLog(launcherLogPath, "Child passed startup watch."); return true; }
+                if (process.ExitCode == 0 && HasRunningSameRootCoreProcess(launcherDirectory))
+                {
+                    AppendLauncherLog(launcherLogPath, "Child exited normally because an existing CotaskaCore instance accepted the launch request.");
+                    return true;
+                }
+
                 string detail = "CotaskaCore.exe が起動後 " + StartupWatchMilliseconds / 1000 + " 秒以内に終了しました。終了コード: " + process.ExitCode + "\r\n最新の debug.log エラー: " + FindLatestDebugError(Path.Combine(launcherDirectory, "_app"));
                 AppendLauncherLog(launcherLogPath, detail); ShowRecoveryDialog(detail, launcherDirectory, launcherLogPath); return false;
             }
