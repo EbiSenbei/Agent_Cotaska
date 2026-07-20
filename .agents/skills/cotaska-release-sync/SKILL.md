@@ -1,6 +1,6 @@
 ---
 name: cotaska-release-sync
-description: Build the current Cotaska Portable release and synchronize it to the repository's task-master distribution. Use when the user asks to run `20_app/release-all.ps1` followed by `20_app/sync-task-master-release.ps1`, rebuild Cotaska and update the task-master app, or perform the local Cotaska release-sync workflow. Do not use for R2 or GitHub Release uploads unless separately requested.
+description: Build the current Cotaska Portable release and synchronize it to the repository's task-master distribution. Always use when the user says「ビルド＋この環境へリリースするスキル」「ビルド＋この環境へリリース」「この環境へリリース」or asks to rebuild Cotaska and reflect it into the current local task-master environment, including requests to run `20_app/release-all.ps1` followed by `20_app/sync-task-master-release.ps1`. Do not use for R2 or GitHub Release uploads unless separately requested.
 ---
 
 # Cotaska Release Sync
