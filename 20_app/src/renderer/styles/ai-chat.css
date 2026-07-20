@@ -263,10 +263,9 @@
   align-items: center;
   gap: 4px;
   opacity: 0;
-  transition: opacity .12s ease;
+  transition: opacity var(--motion-fast) ease;
 }
 
-.ai-thread-item:hover .ai-thread-actions,
 .ai-thread-item.active .ai-thread-actions,
 .ai-thread-actions:focus-within {
   opacity: 1;
@@ -443,7 +442,7 @@
   display: inline-block;
   font-size: 14px;
   line-height: 12px;
-  transition: transform .12s ease;
+  transition: transform var(--motion-fast) var(--ease-out);
 }
 
 .ai-file-node--directory.expanded .ai-file-toggle::before {
@@ -831,7 +830,7 @@
   margin-left: 6px;
   border-radius: 50%;
   background: #6b7a90;
-  animation: ai-thinking-pulse 1.2s ease-in-out infinite;
+  animation: ai-thinking-pulse 1.2s var(--ease-in-out) infinite;
 }
 
 .ai-message-author {
@@ -852,10 +851,9 @@
   font-size: 12px;
   line-height: 1;
   opacity: 0;
-  transition: opacity .12s ease;
+  transition: opacity var(--motion-fast) ease;
 }
 
-.ai-message:hover .ai-message-hover-actions,
 .ai-message:focus-within .ai-message-hover-actions {
   opacity: 1;
 }
@@ -1029,8 +1027,7 @@
   height: 9px;
   border-radius: 999px;
   background: #2d78b7;
-  box-shadow: 0 0 0 0 rgba(45, 120, 183, .35);
-  animation: ai-thinking-pulse 1.2s ease-in-out infinite;
+  animation: ai-thinking-pulse 1.2s var(--ease-in-out) infinite;
 }
 
 .ai-thinking-elapsed {
@@ -1159,18 +1156,8 @@
 }
 
 @keyframes ai-thinking-pulse {
-  0% {
-    transform: scale(.86);
-    box-shadow: 0 0 0 0 rgba(45, 120, 183, .35);
-  }
-  70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 8px rgba(45, 120, 183, 0);
-  }
-  100% {
-    transform: scale(.86);
-    box-shadow: 0 0 0 0 rgba(45, 120, 183, 0);
-  }
+  0%, 100% { opacity: .45; }
+  50% { opacity: 1; }
 }
 
 .ai-proposal-card {
@@ -1501,12 +1488,35 @@
   left: 3px;
   width: 2px;
   background: transparent;
-  transition: background .15s ease;
+  transition: background-color var(--motion-standard) ease;
 }
 
-.ai-right-resize-handle:hover::after,
 .ai-chat-screen--resizing-context .ai-right-resize-handle::after {
   background: rgba(45, 120, 183, .45);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ai-thread-item:hover .ai-thread-actions,
+  .ai-message:hover .ai-message-hover-actions {
+    opacity: 1;
+  }
+
+  .ai-right-resize-handle:hover::after {
+    background: rgba(45, 120, 183, .45);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-thread-running-spinner,
+  .ai-message--streaming::after,
+  .ai-thinking-dot {
+    animation: none;
+  }
+
+  .ai-message--streaming::after,
+  .ai-thinking-dot {
+    opacity: 1;
+  }
 }
 
 .ai-right-header {

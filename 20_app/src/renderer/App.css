@@ -1,3 +1,13 @@
+:root {
+  --motion-instant: 100ms;
+  --motion-fast: 120ms;
+  --motion-standard: 160ms;
+  --motion-progress: 200ms;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -88,11 +98,13 @@ html, body, #root {
 }
 
 .startup-progress-fill {
-  width: 0;
+  width: 100%;
   height: 100%;
   border-radius: inherit;
   background: #4f8f8b;
-  transition: width .28s ease;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--motion-progress) var(--ease-out);
 }
 
 .startup-progress::after {
@@ -102,7 +114,7 @@ html, body, #root {
   height: 100%;
   border-radius: inherit;
   background: #4f8f8b;
-  animation: startup-loading 1.15s ease-in-out infinite;
+  animation: startup-loading 1.15s linear infinite;
 }
 
 @keyframes startup-loading {
@@ -117,6 +129,15 @@ body.is-resizing-detail-sections {
 
 body.is-resizing-detail-sections * {
   cursor: row-resize !important;
+}
+
+body.is-resizing-app-panes {
+  cursor: col-resize;
+  user-select: none;
+}
+
+body.is-resizing-app-panes * {
+  cursor: col-resize !important;
 }
 
 /* =====================
@@ -136,11 +157,11 @@ body.is-resizing-detail-sections * {
   cursor: col-resize;
   background: transparent;
   flex-shrink: 0;
-  transition: background 0.15s;
+  transition: background-color var(--motion-standard) ease;
   user-select: none;
   z-index: 10;
 }
-.resize-handle:hover {
+.resize-handle:not(.resize-handle--detail).resize-handle--active {
   background: rgba(0, 0, 0, 0.1);
 }
 
@@ -160,7 +181,7 @@ body.is-resizing-detail-sections * {
   transform: translateY(-50%);
 }
 
-.resize-handle--detail:hover::after {
+.resize-handle--detail.resize-handle--active::after {
   background: rgba(45, 120, 183, 0.35);
 }
 
@@ -222,10 +243,10 @@ body.is-resizing-detail-sections * {
   cursor: pointer;
   font-size: 18px;
   opacity: 0.4;
-  transition: all 0.15s;
+  transition: opacity var(--motion-fast) ease,
+              background-color var(--motion-fast) ease;
 }
 
-.sidebar .sb-icon:hover { opacity: 0.7; }
 .sidebar .sb-icon.active {
   opacity: 1;
   background: rgba(255, 255, 255, 0.08);
@@ -239,7 +260,6 @@ body.is-resizing-detail-sections * {
   opacity: 0.72;
 }
 
-.sidebar .sb-icon--ai:hover,
 .sidebar .sb-icon--ai.active {
   opacity: 1;
 }
@@ -251,7 +271,6 @@ body.is-resizing-detail-sections * {
   text-shadow: 0 0 6px rgba(255, 255, 255, 0.28);
 }
 
-.sidebar .sb-icon--settings:hover,
 .sidebar .sb-icon--settings.active {
   opacity: 1;
   background: rgba(255, 255, 255, 0.16);
@@ -265,13 +284,7 @@ body.is-resizing-detail-sections * {
   font-size: 20px;
   font-weight: 800;
   opacity: 1;
-  box-shadow: 0 0 0 0 rgba(242, 169, 59, 0.42);
-  animation: update-alert-pulse 1.8s ease-out infinite;
-}
-
-.sidebar .sb-icon--update-alert:hover {
-  background: #ffc65d;
-  opacity: 1;
+  box-shadow: 0 0 0 1px rgba(242, 169, 59, 0.28);
 }
 
 .sidebar .sb-icon--update-alert::after {
@@ -286,10 +299,36 @@ body.is-resizing-detail-sections * {
   box-shadow: 0 0 0 2px #1c1c1c;
 }
 
-@keyframes update-alert-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(242, 169, 59, 0.42); }
-  70% { box-shadow: 0 0 0 9px rgba(242, 169, 59, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(242, 169, 59, 0); }
+@media (hover: hover) and (pointer: fine) {
+  .resize-handle:hover {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  .resize-handle--detail:hover {
+    background: transparent;
+  }
+
+  .resize-handle--detail:hover::after {
+    background: rgba(45, 120, 183, 0.35);
+  }
+
+  .sidebar .sb-icon:hover {
+    opacity: 0.7;
+  }
+
+  .sidebar .sb-icon--ai:hover {
+    opacity: 1;
+  }
+
+  .sidebar .sb-icon--settings:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  .sidebar .sb-icon--update-alert:hover {
+    background: #ffc65d;
+    opacity: 1;
+  }
 }
 
 .sidebar .sb-spacer { flex: 1; }
@@ -486,10 +525,25 @@ body.is-resizing-detail-sections * {
 }
 
 .update-progress-bar {
+  width: 100%;
   height: 100%;
   border-radius: inherit;
   background: #1f6fb2;
-  transition: width .2s ease;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--motion-progress) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .startup-progress::after {
+    animation: none;
+    transform: translateX(0);
+  }
+
+  .startup-progress-fill,
+  .update-progress-bar {
+    transition-duration: 1ms;
+  }
 }
 
 .update-action-row {

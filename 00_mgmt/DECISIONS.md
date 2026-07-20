@@ -691,3 +691,15 @@
 
 - AIチャットのMarkdown表示、メッセージ、入力コンポーザー、コンテキストパネル、UI共通処理を個別コンポーネント／モジュールへ分離する。親の `AiChatPane.jsx` はスレッド状態、IPC連携、各部へのコールバック配線を担う。
 - DOMクラス名と既存のpreload APIを維持し、各分割後にNode.js 22.14.0で本番ビルドを確認する。
+
+## 2026-07-19 CHG-116 UIモーション品質改善
+
+- Cotaskaのモーション改善は、`improve-animations`による現状監査、`emil-design-eng`による共通基準、実装、`review-animations`による審査の順で進める。
+- 高頻度で使う業務用タスク管理アプリとして、演出追加より反応速度、一貫性、パフォーマンス、アクセシビリティを優先し、キーボード操作や頻繁な画面切り替えには原則として動きを追加しない。
+- `apple-design`はドラッグとリサイズなど直接操作の原則に限定して適用し、CHG-088で採用したHTML5 Drag & Drop方式は、別の設計判断なしに置換しない。
+- `find-animation-opportunities`は既存問題の改善後に実施し、採用候補はユーザー承認後に別タスク化する。`animation-vocabulary`は設計書・タスク記述の用語統一に用いる。
+- 事前確認により、監査対象はAIチャット、設定、起動・更新表示を含むCotaska全画面とし、特定の不満を前提にせず客観的に評価する。具体的な改善項目と優先順位はT-0509の監査後にユーザーが選択する。
+- T-0509の監査結果は6件すべてを採用し、共通トークン、対象プロパティ限定、`scaleX()`進捗、Reduced motion、opacity-only処理中表示、直接操作中フィードバックを実装する。
+- 更新通知は静的な色と状態ドットで示し、反復Pulseを行わない。リサイズはspringやmomentumを加えず、既存の1対1追従を維持する。
+- T-0514の追加候補はcopy toastとmodalのEnter / Exitに限定する。2026-07-20にユーザーが両候補を承認したため、T-0516〜T-0519で設計、個別実装、再レビューを行い、T-0515を最終確認とする。期限popover、context menu、Accordion、AIストリーミングには追加しない。
+- T-0516ではcopy toastと確認modalのEnterを160ms、Exitを120msとし、`transform`と`opacity`だけを補間する。Exit中はDOMを保持し、自身の`opacity` transitionendまたは200msのfallbackでunmountする。再表示時は同じDOMを現在値からretargetし、Reduced motionでは120msのopacity-only表現とする。

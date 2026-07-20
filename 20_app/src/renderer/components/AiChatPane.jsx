@@ -3,6 +3,7 @@ import AiChatMessage from "./AiChatMessage";
 import AiChatComposer from "./AiChatComposer";
 import AiChatContextPanel from "./AiChatContextPanel";
 import AiMarkdownPreview, { formatMessageTime } from "./AiMarkdownPreview";
+import { useExitPresence } from "../hooks/useExitPresence";
 import {
   clampContextPanelWidth,
   copyTextToClipboard,
@@ -124,6 +125,7 @@ function AiChatPane({
   const [workdirContextMenu, setWorkdirContextMenu] = useState(null);
   const [threadContextMenu, setThreadContextMenu] = useState(null);
   const [threadRenameTarget, setThreadRenameTarget] = useState(null);
+  const threadRenamePresence = useExitPresence(threadRenameTarget);
   const [threadRenameValue, setThreadRenameValue] = useState("");
   const [isComposeDragOver, setIsComposeDragOver] = useState(false);
   const [runtimeState, setRuntimeState] = useState({
@@ -383,14 +385,16 @@ function AiChatPane({
     const handleMove = (moveEvent) => {
       updateContextPanelWidth(startWidth - (moveEvent.clientX - startX));
     };
-    const handleUp = () => {
+    const handleEnd = () => {
       setIsResizingContextPanel(false);
       window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("mouseup", handleUp);
+      window.removeEventListener("mouseup", handleEnd);
+      window.removeEventListener("blur", handleEnd);
     };
 
     window.addEventListener("mousemove", handleMove);
-    window.addEventListener("mouseup", handleUp);
+    window.addEventListener("mouseup", handleEnd);
+    window.addEventListener("blur", handleEnd);
   };
 
   const findTask = (taskId) => tasks.find((task) => task.id === taskId) || null;
@@ -828,6 +832,15 @@ function AiChatPane({
   }, [threadContextMenu]);
 
   useEffect(() => {
+    if (!threadRenameTarget) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setThreadRenameTarget(null);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [threadRenameTarget]);
+
+  useEffect(() => {
     if (contextPanel?.type !== "task" || !contextPanel.taskId) return;
     const latestTask = findTask(contextPanel.taskId);
     if (!latestTask || latestTask === contextPanel.task) return;
@@ -951,7 +964,6 @@ function AiChatPane({
       }
       await refreshThreads();
       setThreadRenameTarget(null);
-      setThreadRenameValue("");
       setRuntimeState((current) => ({ ...current, status: "ready", message: "スレッド名を変更しました。" }));
     } catch (error) {
       setRuntimeState({ ready: false, status: "error", message: error?.message || "スレッド名を変更できませんでした。" });
@@ -2011,26 +2023,46 @@ function AiChatPane({
         </div>
       )}
 
-      {threadRenameTarget && (
-        <div className="trash-confirm-overlay" role="presentation">
+      {threadRenamePresence.presentValue && (
+        <div
+          className="trash-confirm-overlay"
+          data-motion-state={threadRenamePresence.motionState}
+          role="presentation"
+          onTransitionEnd={threadRenamePresence.handleTransitionEnd}
+          onMouseDown={(event) => {
+            if (!threadRenamePresence.isExiting && event.target === event.currentTarget) {
+              setThreadRenameTarget(null);
+            }
+          }}
+        >
           <form
             className="trash-confirm-dialog ai-thread-rename-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="ai-thread-rename-title"
             onSubmit={(event) => {
               event.preventDefault();
               handleRenameThread();
             }}
           >
-            <h2>スレッドの名前を変更する</h2>
+            <h2 id="ai-thread-rename-title">スレッドの名前を変更する</h2>
             <input
               className="ai-thread-rename-input"
               value={threadRenameValue}
               onChange={(event) => setThreadRenameValue(event.target.value)}
               autoFocus
+              disabled={threadRenamePresence.isExiting}
               aria-label="スレッド名"
             />
             <div className="trash-confirm-actions">
-              <button type="button" onClick={() => setThreadRenameTarget(null)}>キャンセル</button>
-              <button type="submit" disabled={!threadRenameValue.trim()}>変更する</button>
+              <button
+                type="button"
+                disabled={threadRenamePresence.isExiting}
+                onClick={() => setThreadRenameTarget(null)}
+              >
+                キャンセル
+              </button>
+              <button type="submit" disabled={threadRenamePresence.isExiting || !threadRenameValue.trim()}>変更する</button>
             </div>
           </form>
         </div>

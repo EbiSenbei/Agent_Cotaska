@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import DueDatePopover from "./DueDatePopover";
 import { buildTaskTree } from "../lib/taskTree";
+import { useExitPresence } from "../hooks/useExitPresence";
 
 // 優先度アイコン定義
 const PRIORITY = {
@@ -133,6 +134,7 @@ function MainPane({
   const [contextMenu, setContextMenu] = useState(null);
   const [contextMenuPos, setContextMenuPos] = useState(null);
   const [pathCopyNotice, setPathCopyNotice] = useState(null);
+  const pathCopyPresence = useExitPresence(pathCopyNotice);
   const [inlineInput, setInlineInput] = useState(null); // { parentId, value }
   const [expanded, setExpanded] = useState({});
   const [completedSectionExpanded, setCompletedSectionExpanded] = useState(true);
@@ -1033,9 +1035,15 @@ function MainPane({
           </button>
         </div>
       )}
-      {pathCopyNotice && (
-        <div className={`copy-toast${pathCopyNotice.type === "error" ? " copy-toast--error" : ""}`} role="status" aria-live="polite">
-          {pathCopyNotice.message}
+      {pathCopyPresence.presentValue && (
+        <div
+          className={`copy-toast${pathCopyPresence.presentValue.type === "error" ? " copy-toast--error" : ""}`}
+          data-motion-state={pathCopyPresence.motionState}
+          role="status"
+          aria-live="polite"
+          onTransitionEnd={pathCopyPresence.handleTransitionEnd}
+        >
+          {pathCopyPresence.presentValue.message}
         </div>
       )}
 

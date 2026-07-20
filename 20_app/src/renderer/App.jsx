@@ -8,6 +8,7 @@ import MainPane   from "./components/MainPane";
 import DetailPane from "./components/DetailPane";
 import SettingsPane from "./components/SettingsPane";
 import AiChatPane from "./components/AiChatPane";
+import { useExitPresence } from "./hooks/useExitPresence";
 import {
   MAX_TASK_TREE_DEPTH,
   addDays,
@@ -85,6 +86,7 @@ function App() {
   const [listSort, setListSort] = useState({ key: "order", direction: "asc" });
   const [tags, setTags] = useState([]);
   const [trashConfirm, setTrashConfirm] = useState(null);
+  const trashConfirmPresence = useExitPresence(trashConfirm);
   const [updateAlert, setUpdateAlert] = useState({
     hasUpdate: false,
     message: "",
@@ -97,6 +99,15 @@ function App() {
   const startupInitialViewAppliedRef = useRef(false);
   const isSearchMode = activeIcon === "検索";
 
+  useEffect(() => {
+    if (!trashConfirm) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setTrashConfirm(null);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [trashConfirm]);
+
   // CHG-032: ペイン幅リサイズ
   const [navWidth,    setNavWidth]    = useState(240);
   const [detailWidth, setDetailWidth] = useState(() => {
@@ -105,6 +116,7 @@ function App() {
     return Math.max(DETAIL_PANE_MIN_WIDTH, Math.min(DETAIL_PANE_MAX_WIDTH, saved));
   });
   const [detailPaneExpanded, setDetailPaneExpanded] = useState(false);
+  const [paneResizeType, setPaneResizeType] = useState(null);
   const resizeDragRef = useRef(null);
 
   // T-005-02: DB からタスク一覧を読み込む
@@ -143,12 +155,19 @@ function App() {
         setDetailWidth(Math.max(DETAIL_PANE_MIN_WIDTH, Math.min(DETAIL_PANE_MAX_WIDTH, drag.startWidth - delta)));
       }
     };
-    const onUp = () => { resizeDragRef.current = null; };
+    const finishResize = () => {
+      resizeDragRef.current = null;
+      setPaneResizeType(null);
+      document.body.classList.remove("is-resizing-app-panes");
+    };
     window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
+    window.addEventListener("mouseup", finishResize);
+    window.addEventListener("blur", finishResize);
     return () => {
       window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
+      window.removeEventListener("mouseup", finishResize);
+      window.removeEventListener("blur", finishResize);
+      document.body.classList.remove("is-resizing-app-panes");
     };
   }, []);
 
@@ -894,6 +913,7 @@ function App() {
   }
 
   if (initialLoading) {
+    const startupProgressRatio = Math.max(0, Math.min(100, Number(startupProgress.percent) || 0)) / 100;
     return (
       <div className="startup-screen startup-screen--renderer">
         <div className="startup-panel" role="status" aria-live="polite">
@@ -907,7 +927,7 @@ function App() {
           <div className="startup-progress startup-progress--determinate" aria-hidden="true">
             <div
               className="startup-progress-fill"
-              style={{ width: `${Math.round(startupProgress.percent)}%` }}
+              style={{ transform: `scaleX(${startupProgressRatio})` }}
             />
           </div>
         </div>
@@ -964,10 +984,15 @@ function App() {
             />
           </div>
           <div
-            className="resize-handle"
+            className={`resize-handle${paneResizeType === "nav" ? " resize-handle--active" : ""}`}
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="ナビゲーションペインの幅を変更"
             onMouseDown={(e) => {
               e.preventDefault();
               resizeDragRef.current = { type: "nav", startX: e.clientX, startWidth: navWidth };
+              setPaneResizeType("nav");
+              document.body.classList.add("is-resizing-app-panes");
             }}
           />
         </>
@@ -1012,11 +1037,16 @@ function App() {
       )}
       {!detailPaneExpanded && (
         <div
-          className="resize-handle resize-handle--detail"
+          className={`resize-handle resize-handle--detail${paneResizeType === "detail" ? " resize-handle--active" : ""}`}
           title="詳細ペインの幅を変更"
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="詳細ペインの幅を変更"
           onMouseDown={(e) => {
             e.preventDefault();
             resizeDragRef.current = { type: "detail", startX: e.clientX, startWidth: detailWidth };
+            setPaneResizeType("detail");
+            document.body.classList.add("is-resizing-app-panes");
           }}
         />
       )}
@@ -1045,12 +1075,14 @@ function App() {
           onToggleExpanded={() => setDetailPaneExpanded((prev) => !prev)}
         />
       </div>
-      {trashConfirm && (
+      {trashConfirmPresence.presentValue && (
         <div
           className="trash-confirm-overlay"
+          data-motion-state={trashConfirmPresence.motionState}
           role="presentation"
+          onTransitionEnd={trashConfirmPresence.handleTransitionEnd}
           onMouseDown={(e) => {
-            if (e.target === e.currentTarget) setTrashConfirm(null);
+            if (!trashConfirmPresence.isExiting && e.target === e.currentTarget) setTrashConfirm(null);
           }}
         >
           <div
@@ -1061,7 +1093,7 @@ function App() {
           >
             <h2 id="trash-confirm-title">サブタスクも削除しますか？</h2>
             <p className="trash-confirm-message">
-              「{trashConfirm.task.title}」にはサブタスクが {trashConfirm.descendants.length} 件あります。
+              「{trashConfirmPresence.presentValue.task.title}」にはサブタスクが {trashConfirmPresence.presentValue.descendants.length} 件あります。
             </p>
             <div className="trash-confirm-summary">
               <span>全て削除: 配下タスクもゴミ箱へ移動</span>
@@ -1071,8 +1103,9 @@ function App() {
               <button
                 type="button"
                 className="trash-confirm-btn trash-confirm-btn--danger"
+                disabled={trashConfirmPresence.isExiting}
                 onClick={async () => {
-                  const pending = trashConfirm;
+                  const pending = trashConfirmPresence.presentValue;
                   setTrashConfirm(null);
                   await executeTrashTask(pending.task, pending.descendants, pending.directChildren, "all");
                 }}
@@ -1082,8 +1115,9 @@ function App() {
               <button
                 type="button"
                 className="trash-confirm-btn trash-confirm-btn--primary"
+                disabled={trashConfirmPresence.isExiting}
                 onClick={async () => {
-                  const pending = trashConfirm;
+                  const pending = trashConfirmPresence.presentValue;
                   setTrashConfirm(null);
                   await executeTrashTask(pending.task, pending.descendants, pending.directChildren, "parent-only");
                 }}
@@ -1093,6 +1127,7 @@ function App() {
               <button
                 type="button"
                 className="trash-confirm-btn trash-confirm-btn--cancel"
+                disabled={trashConfirmPresence.isExiting}
                 onClick={() => setTrashConfirm(null)}
               >
                 キャンセル

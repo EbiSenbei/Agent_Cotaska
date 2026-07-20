@@ -75,12 +75,19 @@
         height: 100%;
         border-radius: inherit;
         background: #4f8f8b;
-        animation: startup-loading 1.15s ease-in-out infinite;
+        animation: startup-loading 1.15s linear infinite;
       }
 
       @keyframes startup-loading {
         0% { transform: translateX(-100%); }
         100% { transform: translateX(230%); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .startup-progress::after {
+          animation: none;
+          transform: translateX(0);
+        }
       }
     </style>
   </head>

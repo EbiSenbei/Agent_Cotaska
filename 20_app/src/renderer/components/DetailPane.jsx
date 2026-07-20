@@ -298,10 +298,12 @@ function DetailPaneBody({
 
     window.addEventListener("mousemove", handleResizeMove);
     window.addEventListener("mouseup", handleResizeEnd);
+    window.addEventListener("blur", handleResizeEnd);
 
     return () => {
       window.removeEventListener("mousemove", handleResizeMove);
       window.removeEventListener("mouseup", handleResizeEnd);
+      window.removeEventListener("blur", handleResizeEnd);
       document.body.classList.remove("is-resizing-detail-sections");
     };
   }, []);

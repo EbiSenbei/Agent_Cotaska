@@ -488,7 +488,10 @@ function SettingsPane({ focusRequest }) {
                 <div className="update-guide-text">{updateStatus || appInfo.updateGuidance}</div>
                 {updaterStatus.status === "downloading" && (
                   <div className="update-progress" aria-label="更新ダウンロード進捗">
-                    <div className="update-progress-bar" style={{ width: `${progressPercent}%` }} />
+                    <div
+                      className="update-progress-bar"
+                      style={{ transform: `scaleX(${Math.max(0, Math.min(100, Number(progressPercent) || 0)) / 100})` }}
+                    />
                   </div>
                 )}
                 <div className="update-guide-note">確認後に更新をダウンロードし、再起動時に適用します。利用できない環境では手動ダウンロードを案内します。</div>
