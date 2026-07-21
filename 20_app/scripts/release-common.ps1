@@ -90,7 +90,10 @@ function Get-CotaskaGitCommit {
     # 公開した成果物をソースへ追跡できるよう、現在のHEADを取得します。
     # Git未導入環境などでは標準エラーを表示せず、呼び出し元で扱える値へフォールバックします。
     $commit = (& git -C $RepoRoot rev-parse HEAD 2>$null)
-    return if ($LASTEXITCODE -eq 0) { [string]$commit } else { "unknown" }
+    if ($LASTEXITCODE -eq 0) {
+        return [string]$commit
+    }
+    return "unknown"
 }
 
 <#
