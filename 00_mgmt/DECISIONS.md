@@ -708,3 +708,8 @@
 - 更新通知は静的な色と状態ドットで示し、反復Pulseを行わない。リサイズはspringやmomentumを加えず、既存の1対1追従を維持する。
 - T-0514の追加候補はcopy toastとmodalのEnter / Exitに限定する。2026-07-20にユーザーが両候補を承認したため、T-0516〜T-0519で設計、個別実装、再レビューを行い、T-0515を最終確認とする。期限popover、context menu、Accordion、AIストリーミングには追加しない。
 - T-0516ではcopy toastと確認modalのEnterを160ms、Exitを120msとし、`transform`と`opacity`だけを補間する。Exit中はDOMを保持し、自身の`opacity` transitionendまたは200msのfallbackでunmountする。再表示時は同じDOMを現在値からretargetし、Reduced motionでは120msのopacity-only表現とする。
+
+## 2026-07-21 Cloudflare R2リリースSkillの呼び出し規則
+
+- ユーザーが「リリース＋クラウドフレアにアップロード」「リリース＋Cloudflareにアップロード」「クラウドフレアにアップロード」と指示した場合は、`cotaska-release-r2`の明示的な呼び出しとして扱う。
+- `cotaska-release-r2`はPortable配布物を生成・検証し、同一成果物をCloudflare R2の`latest/`へ公開する。タスクマスター配布先への同期とGitHub Releasesへのアップロードは含めない。

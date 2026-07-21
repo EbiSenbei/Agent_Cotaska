@@ -1,6 +1,6 @@
 ---
 name: cotaska-release-r2
-description: Build the current Cotaska Portable release and publish its ZIP, SHA-256, and version metadata to Cloudflare R2. Use only when the user explicitly asks to run `20_app/release-all.ps1` followed by `20_app/upload-r2.ps1`, publish or upload the latest Cotaska release to R2, or update the public Cotaska `latest/` release. Do not use for task-master synchronization or GitHub Releases.
+description: Build the current Cotaska Portable release and publish its ZIP, SHA-256, and version metadata to Cloudflare R2. Always use when the user says「リリース＋クラウドフレアにアップロード」「リリース＋Cloudflareにアップロード」「クラウドフレアにアップロード」or explicitly asks to run `20_app/release-all.ps1` followed by `20_app/upload-r2.ps1`, publish the latest Cotaska release to R2, or update the public Cotaska `latest/` release. Do not use for task-master synchronization or GitHub Releases.
 ---
 
 # Cotaska Release to R2

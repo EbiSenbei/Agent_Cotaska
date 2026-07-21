@@ -212,6 +212,7 @@ If any instruction conflicts with direct user requests, follow user requests fir
 
 - CotaskaのPortableリリース生成後にタスクマスター配布先へ同期する場合は、`.agents/skills/cotaska-release-sync/SKILL.md`に従う。
 - CotaskaのPortableリリース生成後にCloudflare R2の`latest/`へ公開する場合は、`.agents/skills/cotaska-release-r2/SKILL.md`に従う。
+- ユーザーが「リリース＋クラウドフレアにアップロード」「リリース＋Cloudflareにアップロード」「クラウドフレアにアップロード」と指示した場合は、`cotaska-release-r2`の明示的な呼び出しとして扱う。
 
 ---
 
