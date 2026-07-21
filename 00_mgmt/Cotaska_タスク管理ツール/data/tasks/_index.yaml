@@ -5711,7 +5711,20 @@ tasks:
       - BUG-20260720-01
     due_date: '2026-07-20'
     updated_at: '2026-07-21T00:28:16.845Z'
+  - id: T-0522
+    title: BUG-20260721-01 修正：R2公開時のGitコミット取得エラー
+    list: 不具合修正
+    status: todo
+    priority: high
+    sort_order: 512
+    tags:
+      - BUG-20260721-01
+      - R2
+      - リリース
+      - PowerShell
+    due_date: null
+    updated_at: '2026-07-21T10:04:23+09:00'
 task_file_roots:
   - .
-next_task_id: 522
-last_updated: '2026-07-21T00:28:17.365Z'
+next_task_id: 523
+last_updated: '2026-07-21T01:05:09.305Z'
