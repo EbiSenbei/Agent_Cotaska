@@ -20,10 +20,30 @@ internal static class UpdaterFallback
     private static string workLogPath;
     private static string portableLogPath;
     private static UpdaterStatusWindow statusWindow;
-    private static Thread statusThread;
+    private static int updateExitCode;
 
     [STAThread]
     private static int Main(string[] args)
+    {
+        Application.EnableVisualStyles();
+        Application.SetCompatibleTextRenderingDefault(false);
+        statusWindow = new UpdaterStatusWindow();
+        statusWindow.Shown += delegate { StartUpdateWorker(args); };
+        Application.Run(statusWindow);
+        return updateExitCode;
+    }
+
+    private static void StartUpdateWorker(string[] args)
+    {
+        var worker = new Thread(() =>
+        {
+            updateExitCode = RunUpdate(args);
+            CloseStatusWindow();
+        });
+        worker.Start();
+    }
+
+    private static int RunUpdate(string[] args)
     {
         string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
         string extractRoot = Path.Combine(Path.GetTempPath(), "Cotaska-update-extract-" + timestamp);
@@ -32,7 +52,6 @@ internal static class UpdaterFallback
 
         try
         {
-            StartStatusWindow();
             SetStatus("更新を開始しています...");
             Options options = ParseOptions(args);
             string exeDir = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) ?? AppDomain.CurrentDomain.BaseDirectory;
@@ -106,34 +125,41 @@ internal static class UpdaterFallback
                     WriteLog("Restore failed: " + restoreEx.Message);
                 }
             }
-            CloseStatusWindow();
-            MessageBox.Show(ex.Message, "Cotaska Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            ShowFailure(ex.Message);
             return 1;
         }
         finally
         {
             DeleteDirectoryIfExists(extractRoot);
             DeleteDirectoryIfExists(backupWorkRoot);
-            CloseStatusWindow();
         }
     }
 
-    private static void StartStatusWindow()
+    private static void ShowFailure(string message)
     {
-        using (var ready = new ManualResetEvent(false))
+        UpdaterStatusWindow window = statusWindow;
+        if (window == null || window.IsDisposed)
         {
-            statusThread = new Thread(() =>
+            MessageBox.Show(message, "Cotaska Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+        }
+        try
+        {
+            Action show = () =>
             {
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-                statusWindow = new UpdaterStatusWindow();
-                statusWindow.Shown += delegate { ready.Set(); };
-                Application.Run(statusWindow);
-            });
-            statusThread.SetApartmentState(ApartmentState.STA);
-            statusThread.IsBackground = true;
-            statusThread.Start();
-            ready.WaitOne(3000);
+                window.Close();
+                MessageBox.Show(message, "Cotaska Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            };
+            if (window.InvokeRequired)
+            {
+                window.Invoke(show);
+                return;
+            }
+            show();
+        }
+        catch
+        {
+            MessageBox.Show(message, "Cotaska Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 

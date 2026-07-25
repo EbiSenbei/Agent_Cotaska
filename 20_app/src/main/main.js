@@ -865,7 +865,8 @@ function installPortableUpdate() {
       cwd: portableRoot,
       detached: true,
       stdio: "ignore",
-      windowsHide: true,
+      // CotaskaUpdater.exe owns a visible Windows Forms status dialog.
+      windowsHide: false,
     });
     appLogger.logInfo("Portable updater process started", {
       pid: child.pid,

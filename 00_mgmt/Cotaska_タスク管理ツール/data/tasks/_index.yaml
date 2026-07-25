@@ -5724,7 +5724,20 @@ tasks:
       - PowerShell
     due_date: null
     updated_at: '2026-07-21T10:04:23+09:00'
+  - id: T-0523
+    title: BUG-20260725-01 確認：Portable更新中ダイアログの表示を確認する
+    list: 不具合修正
+    status: todo
+    priority: high
+    sort_order: 523
+    tags:
+      - BUG-20260725-01
+      - CHG-106
+      - Updater
+      - ユーザー確認
+    due_date: null
+    updated_at: '2026-07-25T22:30:00+09:00'
 task_file_roots:
   - .
-next_task_id: 523
-last_updated: '2026-07-21T01:05:09.305Z'
+next_task_id: 524
+last_updated: '2026-07-25T13:34:59.780Z'
