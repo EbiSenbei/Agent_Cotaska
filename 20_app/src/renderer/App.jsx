@@ -782,6 +782,10 @@ function App() {
     });
   }, []);
 
+  useEffect(() => window.cotaskaAPI?.detailWindow?.onOpenAiChat?.((payload) => {
+    handleStartTaskAiChat({ id: payload?.taskId });
+  }), [handleStartTaskAiChat]);
+
   const handleTaskChatRequestProcessed = useCallback((requestedAt) => {
     setAiTaskChatRequest((current) => (
       current?.requestedAt === requestedAt ? null : current
@@ -1006,6 +1010,7 @@ function App() {
           completedSectionTasks={completedSectionTasks}
           selectedTaskId={selectedTask?.id}
           onTaskClick={setSelectedTask}
+          onTaskDoubleClick={(task) => window.cotaskaAPI?.detailWindow?.open?.(task.id)}
           onAddTask={!isSearchMode && activeNav !== "ゴミ箱" && activeNav !== "完了" ? handleAddTask : null}
           onAddSubtask={!isSearchMode && activeNav !== "ゴミ箱" && activeNav !== "完了" ? handleAddSubtask : null}
           onToggleComplete={!isSearchMode && activeNav !== "ゴミ箱" ? handleToggleComplete : null}

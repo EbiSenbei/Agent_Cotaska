@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CHG-117 タスク詳細別ウィンドウ モック</title>
+  <style>
+    :root { font-family: "Yu Gothic UI", "Segoe UI", sans-serif; color: #444; background: #e7edf4; }
+    * { box-sizing: border-box; }
+    body { display: grid; place-items: center; min-width: 760px; min-height: 100vh; margin: 0; background: linear-gradient(145deg, #f2f5f9, #dce5ef); }
+    button, input, select, textarea { font: inherit; }
+    .window { width: min(760px, calc(100vw - 80px)); height: min(760px, calc(100vh - 60px)); min-height: 590px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid #aebccb; border-radius: 9px; background: #fff; box-shadow: 0 24px 55px rgba(27, 46, 68, .28); }
+    .titlebar { display: flex; align-items: center; height: 38px; padding-left: 13px; border-bottom: 1px solid #dce4ed; background: #f4f7fa; color: #506076; font-size: 12px; user-select: none; }
+    .window-controls { display: flex; align-self: stretch; margin-left: auto; }
+    .window-controls span { display: grid; place-items: center; width: 44px; color: #55647a; font-size: 14px; }
+    .window-controls span:last-child { background: #e57272; color: #fff; }
+    .detail-header { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid #eee; flex-shrink: 0; }
+    .d-check { width: 17px; height: 17px; border: 1.5px solid #9eafc3; border-radius: 4px; flex-shrink: 0; }
+    .header-title { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #333; font-size: 16px; font-weight: 700; line-height: 1.4; }
+    .detail-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .icon-action-btn { display: inline-grid; place-items: center; width: 30px; height: 28px; border: 1px solid #d0d7e2; border-radius: 6px; background: #fff; color: #4b5b73; font-size: 13px; cursor: pointer; }
+    .icon-action-btn:hover { border-color: #b9c5d7; background: #f5f8fc; }
+    .icon-action-btn.external { border-color: #c2d4e8; background: #f7fbff; color: #2d6ea5; }
+    .icon-action-btn.external:hover { background: #eaf4ff; }
+    .icon-action-btn.ai-chat { border-color: #d8c9ef; background: #faf7ff; color: #7351a5; }
+    .icon-action-btn.ai-chat:hover { background: #f1eafd; }
+    .icon-action-btn.is-active { border-color: #9fbfe2; background: #e8f1fb; color: #1f5f9d; }
+    .detail-meta { display: flex; flex-direction: column; gap: 8px; padding: 10px 16px; border-bottom: 1px solid #eee; background: #f7f9fb; flex-shrink: 0; }
+    .meta-section-header { margin-bottom: 2px; color: #999; font-size: 11px; letter-spacing: .04em; }
+    .meta-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .meta-row--primary { gap: 5px; flex-wrap: nowrap; }
+    .meta-item { display: flex; align-items: center; gap: 6px; color: #666; font-size: 12px; }
+    .meta-item--progress, .meta-item--priority { gap: 4px; flex-shrink: 0; }
+    .meta-item-label { color: #888; line-height: 1; white-space: nowrap; }
+    .meta-item--progress .meta-item-label { min-width: 32px; }
+    .meta-item--priority .meta-item-label { min-width: 38px; }
+    .meta-select, .meta-tag-select, .meta-tag-input { border: 1px solid #d0d7e2; border-radius: 6px; background: #fff; color: #444; }
+    .meta-select { min-width: 66px; padding: 4px 8px; font-size: 12px; }
+    .meta-item--progress .meta-select { min-width: 48px; padding: 4px 5px; }
+    .meta-item--priority .meta-select { min-width: 42px; padding: 4px 5px; color: #f39c12; }
+    .compact-date { gap: 4px; }
+    .compact-date + .compact-date { margin-left: -4px; }
+    .meta-date-field { display: inline-flex; align-items: center; justify-content: space-between; gap: 3px; width: 70px; min-height: 28px; padding: 4px 3px 4px 5px; border: 1px solid #b8c6d8; border-radius: 5px; background: #fff; color: #344054; font-size: 12px; white-space: nowrap; }
+    .meta-date-field.unset { border-style: dashed; background: #fbfcfe; color: #8793a5; }
+    .calendar-icon { display: inline-grid; place-items: center; width: 14px; height: 14px; border-radius: 3px; background: #edf3fa; color: #41698e; font-size: 10px; }
+    .meta-tag-select { min-width: 80px; padding: 2px 6px; font-size: 11px; }
+    .meta-tag-input { flex: 1; min-width: 80px; padding: 2px 6px; font-size: 11px; }
+    .meta-tag-add-btn { border: 1px solid #d0d7e2; border-radius: 6px; padding: 2px 8px; background: #f7f9ff; color: #2d78b7; font-size: 11px; }
+    .tag { display: inline-flex; gap: 4px; border-radius: 4px; padding: 2px 8px; background: #e8ecf0; color: #555; font-size: 11px; }
+    .detail-body { flex: 1 1 220px; min-height: 160px; padding: 12px 16px; overflow-y: auto; }
+    .body-section-header, .subtask-title { color: #999; font-size: 11px; letter-spacing: .04em; }
+    .detail-content { width: 100%; height: 150px; margin-top: 6px; padding: 0; border: none; outline: none; resize: none; background: transparent; color: #666; font-size: 14px; line-height: 1.55; }
+    .markdown-preview { display: none; margin-top: 8px; color: #4d5b6d; font-size: 14px; line-height: 1.6; }
+    .markdown-preview h3 { margin: 0 0 8px; color: #344054; font-size: 15px; }
+    .markdown-preview ul { margin: 6px 0; padding-left: 20px; }
+    .preview:checked ~ .detail-body .detail-content { display: none; }
+    .preview:checked ~ .detail-body .markdown-preview { display: block; }
+    .preview { position: absolute; opacity: 0; pointer-events: none; }
+    .section-resize-handle { height: 8px; margin: 0 16px; border-top: 1px solid #eee; background: #fafafa; }
+    .section-resize-handle::after { content: ""; display: block; height: 2px; margin-top: 3px; border-radius: 9px; background: #d9e1ea; }
+    .subtasks { height: 166px; margin: 0 16px 12px; overflow: hidden; }
+    .subtask-head { display: flex; justify-content: space-between; padding: 7px 0; }
+    .add-subtask { color: #2d78b7; font-size: 12px; }
+    .subtask { display: flex; align-items: center; gap: 8px; min-height: 34px; padding: 6px 4px; font-size: 13px; }
+    .subcheck { width: 16px; height: 16px; border: 1px solid #b8c4d1; border-radius: 4px; }
+    .subtask-name { flex: 1; }
+    .subtask-meta { color: #999; font-size: 11px; }
+    .detail-footer { display: flex; align-items: center; justify-content: space-between; height: 32px; padding: 0 16px; border-top: 1px solid #eee; color: #9aa5b2; font-size: 11px; }
+    .autosave { color: #648d6d; }
+    .preview-label { cursor: pointer; }
+  </style>
+</head>
+<body>
+  <section class="window" aria-label="Cotaska タスク詳細ウィンドウ">
+    <div class="titlebar">Cotaska — タスク詳細 <div class="window-controls"><span>―</span><span>□</span><span>×</span></div></div>
+    <header class="detail-header">
+      <span class="d-check" aria-label="タスクを完了にする"></span>
+      <input class="header-title" value="DB設計書の作成" aria-label="タスク名">
+      <div class="detail-actions">
+        <label class="icon-action-btn preview-label" for="preview-mode" title="Markdownプレビューへ切替" aria-label="Markdownプレビューへ切替">🔍</label>
+        <button class="icon-action-btn ai-chat" title="AIへチャット" aria-label="AIへチャット">✦</button>
+        <button class="icon-action-btn external" title="新しいアプリで開く" aria-label="新しいアプリで開く">↗</button>
+      </div>
+    </header>
+    <section class="detail-meta" aria-label="メタ情報">
+      <div class="meta-section-header">▼ メタ情報</div>
+      <div class="meta-row meta-row--primary">
+        <div class="meta-item meta-item--progress"><span class="meta-item-label">進捗:</span><select class="meta-select"><option>未着</option><option selected>仕掛</option><option>完了</option></select></div>
+        <div class="meta-item compact-date"><span class="meta-item-label">日付:</span><button class="meta-date-field"><span>07/30</span><span class="calendar-icon">▣</span></button></div>
+        <div class="meta-item compact-date"><span class="meta-item-label">期限:</span><button class="meta-date-field unset"><span>未設定</span><span class="calendar-icon">▣</span></button></div>
+        <div class="meta-item meta-item--priority"><span class="meta-item-label">優先度:</span><select class="meta-select"><option>低</option><option selected>中</option><option>高</option></select></div>
+      </div>
+      <div class="meta-row"><select class="meta-select" style="min-width:90px"><option>開発タスク</option></select><select class="meta-tag-select"><option>タグ選択...</option></select><input class="meta-tag-input" placeholder="新タグ"><button class="meta-tag-add-btn">追加</button></div>
+      <div class="meta-row"><span class="tag">#設計 ×</span><span class="tag">#DB ×</span></div>
+    </section>
+    <input class="preview" id="preview-mode" type="checkbox">
+    <section class="detail-body">
+      <div class="body-section-header">▼ タスク詳細</div>
+      <textarea class="detail-content" aria-label="タスク詳細"># DB設計書の作成
+
+tasks、task_logs、lists の定義を作成する。
+
+- カラム定義
+- 制約定義
+- 初期データ確認</textarea>
+      <article class="markdown-preview"><h3>DB設計書の作成</h3><p>tasks、task_logs、lists の定義を作成する。</p><ul><li>カラム定義</li><li>制約定義</li><li>初期データ確認</li></ul></article>
+    </section>
+    <div class="section-resize-handle" title="タスク詳細と関連サブタスクの高さを変更"></div>
+    <section class="subtasks"><div class="subtask-head"><span class="subtask-title">▼ 関連サブタスク</span><span class="add-subtask">＋</span></div><div class="subtask"><span class="subcheck"></span><span class="subtask-name">テーブル定義の見直し</span><span class="subtask-meta">未着　T-0032</span></div><div class="subtask"><span class="subcheck"></span><span class="subtask-name">制約定義の確認</span><span class="subtask-meta">仕掛　T-0033</span></div></section>
+    <footer class="detail-footer"><span class="autosave">● 保存済み（編集内容は自動保存）</span><span>ID: T-0422</span></footer>
+  </section>
+</body>
+</html>

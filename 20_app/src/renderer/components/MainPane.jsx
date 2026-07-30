@@ -116,7 +116,7 @@ function MainPane({
   completedHasMore = false, completedSectionHasMore = false, onLoadMoreCompleted,
   isSearchMode, onSearchChange, searchSort = { key: "id", direction: "asc" }, onSearchSortChange,
   listSort = { key: "order", direction: "asc" }, onListSortChange, showListSort = false,
-  onTaskClick, onAddTask, onAddSubtask, onToggleComplete,
+  onTaskClick, onTaskDoubleClick, onAddTask, onAddSubtask, onToggleComplete,
   onTrashTask, onRestoreTask, onDeleteTask, onDuplicateTask, onSetTaskList, onSetTaskDue,
   onReorderTask,
   canNestTask,
@@ -431,6 +431,7 @@ function MainPane({
         data-section-label={sectionMeta?.label || ""}
         style={{ "--task-depth": depth }}
         onClick={() => onTaskClick?.(task)}
+        onDoubleClick={() => onTaskDoubleClick?.(task)}
         draggable={canDragTask}
         onDragStart={(e) => {
           if (!canDragTask || dragHandleTaskIdRef.current !== task.id) {

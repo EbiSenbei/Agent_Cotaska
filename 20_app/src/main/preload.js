@@ -122,6 +122,16 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
     getCompleted:     ()                                => ipcRenderer.invoke("tasks:getCompleted"),
     getCompletedPage: (options)                         => ipcRenderer.invoke("tasks:getCompletedPage", options),
   },
+  detailWindow: {
+    open: (taskId) => ipcRenderer.invoke("detailWindow:open", taskId),
+    openAiChat: (taskId) => ipcRenderer.invoke("detailWindow:openAiChat", taskId),
+    onOpenAiChat: (callback) => {
+      if (typeof callback !== "function") return () => {};
+      const listener = (_event, payload) => callback(payload);
+      ipcRenderer.on("detailWindow:openAiChat", listener);
+      return () => ipcRenderer.removeListener("detailWindow:openAiChat", listener);
+    },
+  },
 
   // リスト操作（YAML ベース）
   lists: {

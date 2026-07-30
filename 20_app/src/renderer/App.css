@@ -857,3 +857,5 @@ body.is-resizing-app-panes * {
   cursor: default;
 }
 
+.detail-window-app { height: 100vh; min-height: 0; display: flex; }
+.detail-window-app .detail-pane { width: 100%; flex: 1; }

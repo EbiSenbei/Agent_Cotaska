@@ -23,6 +23,7 @@ const { createBackupService } = require("./backupService");
 const packageInfo = require("../../package.json");
 
 let mainWindow = null;
+const detailWindows = new Map();
 let hasShownCloudSyncWarning = false;
 let hasShownLaunchFailedGuidance = false;
 let startupProgress = {
@@ -1124,6 +1125,47 @@ function focusMainWindow() {
   }
   bringWindowToFront(mainWindow);
 }
+
+function openTaskDetailWindow(taskId) {
+  const id = String(taskId || "").trim();
+  if (!id || !taskService.getTaskById(id)) return { ok: false, error: "タスクが見つかりません。" };
+  const existing = detailWindows.get(id);
+  if (existing && !existing.isDestroyed()) {
+    if (existing.isMinimized()) existing.restore();
+    bringWindowToFront(existing);
+    return { ok: true, reused: true };
+  }
+  const win = new BrowserWindow({
+    title: "Cotaska — タスク詳細",
+    width: 620, height: 760, minWidth: 460, minHeight: 520,
+    backgroundColor: "#f6f8fb",
+    webPreferences: { preload: path.join(__dirname, "preload.js"), nodeIntegration: false, contextIsolation: true },
+  });
+  detailWindows.set(id, win);
+  win.on("closed", () => detailWindows.delete(id));
+  if (process.env.NODE_ENV === "development") {
+    const port = process.env.VITE_PORT || "5173";
+    win.loadURL(`http://localhost:${port}?detailTaskId=${encodeURIComponent(id)}`);
+  } else {
+    win.loadFile(path.join(__dirname, "../../dist/renderer/index.html"), { query: { detailTaskId: id } });
+  }
+  return { ok: true, reused: false };
+}
+
+ipcMain.handle("detailWindow:open", async (_event, taskId) => {
+  await servicesReady;
+  return openTaskDetailWindow(taskId);
+});
+
+ipcMain.handle("detailWindow:openAiChat", async (_event, taskId) => {
+  await servicesReady;
+  const task = taskService.getTaskById(taskId);
+  if (!task) return { ok: false, error: "タスクが見つかりません。" };
+  focusMainWindow();
+  mainWindow?.webContents.once("did-finish-load", () => mainWindow?.webContents.send("detailWindow:openAiChat", { taskId }));
+  mainWindow?.webContents.send("detailWindow:openAiChat", { taskId });
+  return { ok: true };
+});
 
 // --- CHG-035: 起動パス別のシングルインスタンスロック ---
 // 異なるパス（開発環境 / リリース環境）からの同時起動を許可し、
