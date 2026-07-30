@@ -128,12 +128,12 @@ tasks:
   - id: T-0413
     title: 仕様変更：タスク詳細をポップアップにしたい
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 12
     tags: []
-    due_date: null
-    updated_at: '2026-07-30T06:14:00.953Z'
+    due_date: '2026-07-30'
+    updated_at: '2026-07-30T13:55:22.536Z'
   - id: T-0524
     title: CHG-117 タスク詳細を別ウィンドウで表示する
     list: 仕様変更
@@ -5808,16 +5808,16 @@ tasks:
   - id: T-0535
     title: 仕様変更：設定画面でモデルを選択できるように
     list: null
-    status: doing
+    status: done
     priority: normal
     sort_order: 511
     tags: []
     due_date: null
-    updated_at: '2026-07-30T18:20:00+09:00'
+    updated_at: '2026-07-30T18:30:00+09:00'
   - id: T-0539
     title: CHG-120 設定ファイルの分割
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 515
     tags:
@@ -5825,16 +5825,16 @@ tasks:
       - 設定ファイル
       - アプリ配布設定
     due_date: null
-    updated_at: '2026-07-30T12:33:24.945Z'
+    updated_at: '2026-07-30T22:30:00+09:00'
   - id: T-0544
     title: 不具合：表示名が反映されない
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 520
     tags: []
-    due_date: null
-    updated_at: '2026-07-30T12:47:31.192Z'
+    due_date: '2026-07-30'
+    updated_at: '2026-07-30T22:43:46.959+09:00'
   - id: T-0529
     title: CHG-118 クイックタスク入力と登録後詳細表示を追加する
     list: 実装準備
@@ -5917,7 +5917,7 @@ tasks:
   - id: T-0538
     title: CHG-119-03 AIモデル選択の利用者確認を行う
     list: 実装準備
-    status: todo
+    status: done
     priority: normal
     sort_order: 538
     tags:
@@ -5926,7 +5926,7 @@ tasks:
       - AIチャット
       - モデル選択
     due_date: null
-    updated_at: '2026-07-30T18:10:00+09:00'
+    updated_at: '2026-07-30T18:30:00+09:00'
   - id: T-0540
     title: CHG-120-01 設定ファイル分割の仕様変更票を作成する
     list: 仕様変更
@@ -5942,7 +5942,7 @@ tasks:
   - id: T-0541
     title: CHG-120-03 アプリ配布設定を settings.yaml から分離する
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 541
     tags:
@@ -5951,11 +5951,11 @@ tasks:
       - 設定ファイル
       - 更新機能
     due_date: null
-    updated_at: '2026-07-30T21:31:17.827+09:00'
+    updated_at: '2026-07-30T22:25:31.774+09:00'
   - id: T-0542
     title: CHG-120-04 設定分割後の更新確認を利用者確認する
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 542
     tags:
@@ -5963,7 +5963,7 @@ tasks:
       - 利用者確認
       - 更新機能
     due_date: null
-    updated_at: '2026-07-30T21:31:17.827+09:00'
+    updated_at: '2026-07-30T22:30:00+09:00'
   - id: T-0543
     title: CHG-120-02 設定ファイル分割の基本設計書を更新する
     list: 仕様変更
@@ -5979,7 +5979,7 @@ tasks:
   - id: T-0546
     title: BUG-20260730-01 起動時に表示名が反映されない問題を調査・修正する
     list: 不具合対応
-    status: todo
+    status: done
     priority: normal
     sort_order: 544
     tags:
@@ -5987,9 +5987,9 @@ tasks:
       - 設定
       - 表示名
       - 起動時
-    due_date: null
-    updated_at: '2026-07-30T21:48:52.934+09:00'
+    due_date: '2026-07-30'
+    updated_at: '2026-07-30T22:43:46.959+09:00'
 task_file_roots:
   - .
 next_task_id: 547
-last_updated: '2026-07-30T13:01:42.115Z'
+last_updated: '2026-07-30T13:55:23.162Z'
