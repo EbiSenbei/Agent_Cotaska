@@ -42,7 +42,7 @@ const DEFAULT_SETTINGS = {
       performanceMode: "standard",
     },
     claude: {
-      model: "claude-opus-4",
+      model: "",
       performanceMode: "standard",
       authMode: "local",
       permissionMode: "acceptEdits",
@@ -54,6 +54,21 @@ const DEFAULT_SETTINGS = {
     },
   },
 };
+
+const CODEX_MODEL_OPTIONS = [
+  { value: "", label: "自動（現在: GPT-5.6 Terra）" },
+  { value: "gpt-5.6-terra", label: "GPT-5.6 Terra" },
+  { value: "gpt-5.6-sol", label: "GPT-5.6 sol" },
+];
+
+const CLAUDE_MODEL_OPTIONS = [
+  { value: "", label: "自動（Claude Code既定）" },
+  { value: "claude-opus-4", label: "Claude Opus 4" },
+];
+
+function hasModelOption(options, value) {
+  return options.some((option) => option.value === value);
+}
 
 function normalizeSettings(settings) {
   return {
@@ -800,6 +815,25 @@ function SettingsPane({ focusRequest }) {
                         <th colSpan={2}><span className="settings-group-badge settings-group-badge--codex">AI-Codex関連</span></th>
                       </tr>
                       <tr>
+                        <th>既定のAIモデル</th>
+                        <td>
+                          <select
+                            className="settings-select-input"
+                            value={settings.aiChat.codex.model}
+                            aria-label="Codex既定のAIモデル"
+                            onChange={(e) => updateSettingState({ aiChat: { codex: { model: e.target.value } } })}
+                          >
+                            {CODEX_MODEL_OPTIONS.map((option) => (
+                              <option key={option.value} value={option.value}>{option.label}</option>
+                            ))}
+                            {!hasModelOption(CODEX_MODEL_OPTIONS, settings.aiChat.codex.model) && (
+                              <option value={settings.aiChat.codex.model}>{settings.aiChat.codex.model}（既存設定）</option>
+                            )}
+                          </select>
+                          <div className="settings-help-text">AIチャットの既定モデルです。チャット画面では変更できません。自動はCotaskaの既定モデルを使用します。</div>
+                        </td>
+                      </tr>
+                      <tr>
                         <th>権限</th>
                         <td>
                           <select
@@ -887,16 +921,22 @@ function SettingsPane({ focusRequest }) {
                         </td>
                       </tr>
                       <tr>
-                        <th>Claudeモデル</th>
+                        <th>既定のAIモデル</th>
                         <td>
-                          <input
-                            className="settings-text-input"
-                            type="text"
+                          <select
+                            className="settings-select-input"
                             value={settings.aiChat.claude.model}
-                            aria-label="Claudeモデル"
+                            aria-label="Claude既定のAIモデル"
                             onChange={(e) => updateSettingState({ aiChat: { claude: { model: e.target.value } } })}
-                          />
-                          <div className="settings-help-text">AIチャットで使う Claude モデル。Bedrock選択時は下のモデルIDを使用します。</div>
+                          >
+                            {CLAUDE_MODEL_OPTIONS.map((option) => (
+                              <option key={option.value} value={option.value}>{option.label}</option>
+                            ))}
+                            {!hasModelOption(CLAUDE_MODEL_OPTIONS, settings.aiChat.claude.model) && (
+                              <option value={settings.aiChat.claude.model}>{settings.aiChat.claude.model}（既存設定）</option>
+                            )}
+                          </select>
+                          <div className="settings-help-text">AIチャットの既定モデルです。チャット画面では変更できません。Bedrock選択時は下のBedrockモデルIDを使用します。</div>
                         </td>
                       </tr>
                       <tr>

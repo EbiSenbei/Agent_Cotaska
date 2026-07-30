@@ -84,6 +84,28 @@ function getQuickAddListToken(rawTitle) {
   return String(rawTitle || "").match(/(?:^|\s)~([^\s~]*)$/);
 }
 
+function extractQuickAddPriority(rawTitle) {
+  const raw = String(rawTitle || "");
+  const match = raw.match(/(^|\s)!(高|中|低|high|medium|normal)(?=\s|$)/i);
+  if (!match) return { title: raw.trim(), priority: null };
+  const value = match[2].toLowerCase();
+  const priority = value === "高" || value === "high"
+    ? "high"
+    : value === "中" || value === "medium"
+      ? "medium"
+      : "normal";
+  return { title: raw.replace(match[0], match[1] || " ").replace(/\s+/g, " ").trim(), priority };
+}
+
+function extractQuickAddTags(rawTitle) {
+  const tags = [];
+  const title = String(rawTitle || "").replace(/(^|\s)#([^\s#]+)/g, (_match, prefix, tag) => {
+    if (!tags.includes(tag)) tags.push(tag);
+    return prefix || " ";
+  }).replace(/\s+/g, " ").trim();
+  return { title, tags };
+}
+
 function normalizeListName(list) {
   if (!list) return "";
   if (typeof list === "string") return list;
@@ -146,6 +168,8 @@ function MainPane({
   const [quickAddValue, setQuickAddValue] = useState("");
   const [quickAddList, setQuickAddList] = useState(null);
   const [quickAddListIndex, setQuickAddListIndex] = useState(0);
+  const [quickAddError, setQuickAddError] = useState("");
+  const [isQuickAdding, setIsQuickAdding] = useState(false);
   const [taskListScrollTop, setTaskListScrollTop] = useState(0);
   const [taskListViewportHeight, setTaskListViewportHeight] = useState(0);
   const dragEnabled = Boolean(onReorderTask) && !isTrashed && !isCompleted && !isSearchMode;
@@ -178,6 +202,17 @@ function MainPane({
     inputRef.current?.focus();
   };
 
+  useEffect(() => {
+    if (!onAddTask) return undefined;
+    const focusQuickAdd = (event) => {
+      if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== "k") return;
+      event.preventDefault();
+      inputRef.current?.focus();
+    };
+    window.addEventListener("keydown", focusQuickAdd);
+    return () => window.removeEventListener("keydown", focusQuickAdd);
+  }, [onAddTask]);
+
   const buildQuickAddPayload = () => {
     const raw = quickAddValue.trim();
     const currentListToken = getQuickAddListToken(raw);
@@ -188,30 +223,48 @@ function MainPane({
     const titleWithoutList = selectedList && currentListToken
       ? raw.slice(0, currentListToken.index).trim()
       : raw;
-    const parsed = extractQuickAddDate(titleWithoutList);
-    const title = parsed.title || titleWithoutList || raw;
+    const priorityParsed = extractQuickAddPriority(titleWithoutList);
+    const tagParsed = extractQuickAddTags(priorityParsed.title);
+    const parsed = extractQuickAddDate(tagParsed.title);
+    const title = parsed.title || tagParsed.title || priorityParsed.title || titleWithoutList || raw;
     return {
       title,
       due_date: parsed.dueDate,
       list: selectedList,
+      priority: priorityParsed.priority,
+      tags: tagParsed.tags,
     };
   };
 
+  const submitQuickAdd = async () => {
+    if (isQuickAdding) return;
+    const payload = buildQuickAddPayload();
+    if (!payload.title.trim()) return;
+    setQuickAddError("");
+    setIsQuickAdding(true);
+    try {
+      await onAddTask?.(payload);
+      setQuickAddValue("");
+      setQuickAddList(null);
+      setQuickAddListIndex(0);
+    } catch (error) {
+      console.error("[quick-add] task creation failed", error);
+      setQuickAddError(error?.message || "タスクの登録に失敗しました。");
+      inputRef.current?.focus();
+    } finally {
+      setIsQuickAdding(false);
+    }
+  };
+
   const handleKeyDown = (e) => {
-    if (e.key !== "Enter") return;
-    if (e.nativeEvent?.isComposing || e.isComposing) return;
+    if (e.key !== "Enter" || e.nativeEvent?.isComposing || e.isComposing) return;
     if (showQuickAddListCandidates && !quickAddList) {
       e.preventDefault();
       selectQuickAddList(quickAddListCandidates[quickAddListIndex] || quickAddListCandidates[0]);
       return;
     }
-    const payload = buildQuickAddPayload();
-    if (payload.title.trim()) {
-      onAddTask?.(payload);
-      setQuickAddValue("");
-      setQuickAddList(null);
-    }
-    inputRef.current?.blur();
+    e.preventDefault();
+    submitQuickAdd();
   };
 
   const handleQuickAddKeyDown = (e) => {
@@ -238,6 +291,7 @@ function MainPane({
     setQuickAddValue(next);
     setQuickAddListIndex(0);
     setQuickAddList(null);
+    setQuickAddError("");
   };
 
   // 検索インプット「debounce 300ms
@@ -848,11 +902,16 @@ function MainPane({
           <input
             ref={inputRef}
             type="text"
-            placeholder="タスクを追加（確定キーで保存）"
+            placeholder="タスクを追加（Enterで登録、Ctrl+Kでフォーカス）"
             value={quickAddValue}
             onChange={handleQuickAddChange}
             onKeyDown={handleQuickAddKeyDown}
+            disabled={isQuickAdding}
+            aria-describedby={quickAddError ? "quick-add-error" : undefined}
           />
+          <button type="button" className="qa-submit" onClick={submitQuickAdd} disabled={isQuickAdding || !quickAddValue.trim()}>
+            {isQuickAdding ? "登録中…" : "登録"}
+          </button>
           {quickAddDatePreview.dueDate && (
             <span
               className="qa-date-chip"
@@ -886,6 +945,7 @@ function MainPane({
               ))}
             </div>
           )}
+          {quickAddError && <div id="quick-add-error" className="qa-error" role="alert">{quickAddError}</div>}
         </div>
       )}
 
@@ -1053,3 +1113,4 @@ function MainPane({
 }
 
 export default MainPane;
+export { extractQuickAddDate, extractQuickAddPriority, extractQuickAddTags };

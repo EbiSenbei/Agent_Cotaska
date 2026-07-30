@@ -364,16 +364,22 @@ function App() {
     const defaultList = FIXED_VIEWS.has(activeNav) || activeNav.startsWith(TAG_NAV_PREFIX) ? null : activeNav;
     const list = payload.list || defaultList;
     const defaultTags = activeNav.startsWith(TAG_NAV_PREFIX) ? [activeNav.slice(TAG_NAV_PREFIX.length)] : [];
-    await window.cotaskaAPI?.tasks?.add({
+    const createdTask = await window.cotaskaAPI?.tasks?.add({
       title,
       status:   "todo",
       progress_status: "未着",
-      priority: "normal",
+      priority: payload.priority || "normal",
       due_date,
       list,  // list_id ではなく list（リスト名）
-      tags: defaultTags,
+      tags: [...new Set([...defaultTags, ...(payload.tags || [])])],
     });
+    if (!createdTask?.id) {
+      throw new Error(createdTask?.error || "タスクの登録に失敗しました。");
+    }
     await loadTasks();
+    // 登録直後は別ウィンドウではなく、メイン画面右側の詳細ペインで表示する。
+    setSelectedTask(mapFileTask(createdTask));
+    return createdTask;
   }, [loadTasks, activeNav]);
 
   // T-014-02: サブタスク追加

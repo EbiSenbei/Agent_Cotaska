@@ -56,7 +56,8 @@ const DEFAULT_SETTINGS = {
     },
     // --- Claude Code 固有 ---
     claude: {
-      model: "claude-opus-4",
+      // 空欄は Claude Code 側の既定モデルを使用する（設定画面では「自動」）。
+      model: "",
       performanceMode: "standard",
       // 認証方式: local（ローカルサブスク・個人利用限定） / bedrock（クラウドプロバイダ・配布可）
       authMode: "local",
@@ -233,7 +234,8 @@ function mergeAiChat(rawAiChat) {
       performanceMode: normalizePerformanceMode(codexSrc.performanceMode ?? legacyPerformance),
     },
     claude: {
-      model: String(claudeSrc.model || def.claude.model),
+      // 空文字は「自動」として有効な値のため、|| ではなく nullish 判定を使う。
+      model: String(claudeSrc.model ?? def.claude.model),
       performanceMode: normalizePerformanceMode(claudeSrc.performanceMode),
       authMode: normalizeClaudeAuthMode(claudeSrc.authMode),
       permissionMode: normalizeClaudePermissionMode(claudeSrc.permissionMode),
@@ -376,7 +378,7 @@ function renderSettingsYaml(settings) {
     "",
     "  # --- Claude Code 固有 ---",
     "  claude:",
-    "    # Claudeモデル名",
+    "    # Claudeモデル名（空欄は自動）",
     `    model: ${escaped(normalized.aiChat.claude.model)}`,
     "    # performance mode: standard / speed",
     `    performanceMode: ${escaped(normalized.aiChat.claude.performanceMode)}`,

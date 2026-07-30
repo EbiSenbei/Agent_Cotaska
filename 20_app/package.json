@@ -7,13 +7,13 @@
     "check:runtime": "node scripts/verify-runtime.js",
     "predev": "npm run check:runtime",
     "prebuild": "npm run check:runtime",
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "vite --config vite.config.mjs",
+    "build": "vite build --config vite.config.mjs",
     "start": "electron .",
     "dist:portable": "npm run build && electron-builder --win portable --publish never",
     "dist:dir": "npm run build && electron-builder --win dir --publish never",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "vitest run --config vite.config.mjs",
+    "test:watch": "vitest --config vite.config.mjs"
   },
   "keywords": [],
   "author": "",
