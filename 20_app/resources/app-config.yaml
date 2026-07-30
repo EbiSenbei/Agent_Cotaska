@@ -1,0 +1,10 @@
+# Cotaska アプリ配布設定
+# このファイルは Portable 配布物の _app/resources に配置され、
+# プログラムリリース時に _app とともに更新されます。
+
+update:
+  # 最新版確認に使うURL。Cloudflare R2 の version.json または GitHub Releases latest API 互換JSONを想定します
+  latestVersionUrl: "https://pub-d671fdad660b43a8a4b99ede58b7c092.r2.dev/latest/version.json"
+
+  # ダウンロード先: 利用者確認後に開くURL
+  downloadPageUrl: "https://ebisenbei.github.io/cotaska-site/download.html"

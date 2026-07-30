@@ -3,6 +3,13 @@ const path = require("path");
 const yaml = require("js-yaml");
 
 const COTASKA_RESOURCE_ROOT_DIR = path.resolve(__dirname, "../../..");
+const APP_CONFIG_FILENAME = "app-config.yaml";
+const DEFAULT_APP_CONFIG = {
+  update: {
+    latestVersionUrl: "https://pub-d671fdad660b43a8a4b99ede58b7c092.r2.dev/latest/version.json",
+    downloadPageUrl: "https://ebisenbei.github.io/cotaska-site/download.html",
+  },
+};
 
 function resolveCotaskaRootDir(resourceRoot = COTASKA_RESOURCE_ROOT_DIR) {
   const normalized = path.resolve(resourceRoot);
@@ -204,6 +211,48 @@ function getSettingsPath() {
   return path.join(getDataDir(), "settings.yaml");
 }
 
+function getAppConfigPath() {
+  // 開発時は 20_app/resources、配布版は _app/resources を参照する。
+  if (COTASKA_RESOURCE_ROOT_DIR === COTASKA_ROOT_DIR) {
+    return path.resolve(__dirname, "../../resources", APP_CONFIG_FILENAME);
+  }
+  return path.join(COTASKA_RESOURCE_ROOT_DIR, APP_CONFIG_FILENAME);
+}
+
+function isHttpUrl(value) {
+  try {
+    const url = new URL(String(value || "").trim());
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
+function loadAppConfig() {
+  const configPath = getAppConfigPath();
+  try {
+    const parsed = yaml.load(fs.readFileSync(configPath, "utf8")) || {};
+    const update = parsed.update || {};
+    if (!isHttpUrl(update.latestVersionUrl) || !isHttpUrl(update.downloadPageUrl)) {
+      throw new Error("update.latestVersionUrl または update.downloadPageUrl が不正です。");
+    }
+    return {
+      config: {
+        update: {
+          latestVersionUrl: String(update.latestVersionUrl).trim(),
+          downloadPageUrl: String(update.downloadPageUrl).trim(),
+        },
+      },
+      path: configPath,
+      error: null,
+    };
+  } catch (err) {
+    const message = `アプリ配布設定 ${configPath} を読み込めないため、既定の更新URLを使用します: ${err.message}`;
+    console.warn(message);
+    return { config: DEFAULT_APP_CONFIG, path: configPath, error: message };
+  }
+}
+
 // aiChat 設定をネスト構造へマージする。
 // 旧フラットキー（aiChat.sandboxMode / performanceMode / model）が存在し、
 // 新ネスト（aiChat.codex）が無い場合は codex 配下へ後方互換移行する。
@@ -263,11 +312,8 @@ function validateAiChatBedrock(aiChat) {
   }
 }
 
-function mergeSettings(raw) {
+function mergeSettings(raw, appConfig = DEFAULT_APP_CONFIG) {
   const source = raw && typeof raw === "object" ? raw : {};
-  const sourceUpdate = source.update || {};
-  const latestVersionUrl = String(sourceUpdate.latestVersionUrl || DEFAULT_SETTINGS.update.latestVersionUrl);
-  const downloadPageUrl = String(sourceUpdate.downloadPageUrl || DEFAULT_SETTINGS.update.downloadPageUrl);
   return {
     ...DEFAULT_SETTINGS,
     ...source,
@@ -296,17 +342,8 @@ function mergeSettings(raw) {
       level: normalizeLogLevel(source.logging?.level),
     },
     aiChat: mergeAiChat(source.aiChat),
-    update: {
-      ...DEFAULT_SETTINGS.update,
-      ...sourceUpdate,
-      latestVersionUrl: LEGACY_DEFAULT_UPDATE.latestVersionUrls.includes(latestVersionUrl)
-        ? DEFAULT_SETTINGS.update.latestVersionUrl
-        : latestVersionUrl,
-      downloadPageUrl: LEGACY_DEFAULT_UPDATE.downloadPageUrls.includes(downloadPageUrl)
-        || downloadPageUrl === PREVIOUS_DEFAULT_UPDATE.downloadPageUrl
-        ? DEFAULT_SETTINGS.update.downloadPageUrl
-        : downloadPageUrl,
-    },
+    // update は data/settings.yaml ではなく、_app/resources/app-config.yaml が唯一の管理元。
+    update: appConfig.update,
   };
 }
 
@@ -401,7 +438,7 @@ function renderSettingsYaml(settings) {
     "  # ダウンロード先: 利用者確認後に開くURL",
     `  downloadPageUrl: ${escaped(normalized.update.downloadPageUrl)}`,
     "",
-  ].join("\n");
+  ].join("\n").replace(/\nupdate:\n[\s\S]*$/, "\n");
 }
 
 function ensureSettingsFile() {
@@ -416,10 +453,11 @@ function ensureSettingsFile() {
 function getSettings() {
   ensureSettingsFile();
   const settingsPath = getSettingsPath();
+  const appConfig = loadAppConfig();
   try {
     const content = fs.readFileSync(settingsPath, "utf8");
     const parsed = yaml.load(content) || {};
-    const settings = mergeSettings(parsed);
+    const settings = mergeSettings(parsed, appConfig.config);
     return {
       ok: true,
       settings,
@@ -427,15 +465,19 @@ function getSettings() {
         aiChatWorkdir: isAiWorkdirConfigured(settings),
       },
       path: settingsPath,
+      appConfigPath: appConfig.path,
+      appConfigError: appConfig.error,
     };
   } catch (err) {
     return {
       ok: false,
-      settings: mergeSettings(DEFAULT_SETTINGS),
+      settings: mergeSettings(DEFAULT_SETTINGS, appConfig.config),
       configured: {
         aiChatWorkdir: isAiWorkdirConfigured(DEFAULT_SETTINGS),
       },
       path: settingsPath,
+      appConfigPath: appConfig.path,
+      appConfigError: appConfig.error,
       error: err.message || "settings.yaml を読み込めませんでした。",
     };
   }
@@ -483,10 +525,6 @@ function updateSettings(patch) {
       ...((patch || {}).logging || {}),
     },
     aiChat: mergeAiChatPatch(current.aiChat, (patch || {}).aiChat),
-    update: {
-      ...current.update,
-      ...((patch || {}).update || {}),
-    },
   });
   validateAiWorkdir(next.aiChat?.workdir);
   validateAiChatBedrock(next.aiChat);
@@ -509,6 +547,8 @@ module.exports = {
   migrateLegacyResourceData,
   resolveCotaskaRootDir,
   getSettingsPath,
+  getAppConfigPath,
+  loadAppConfig,
   getSettings,
   updateSettings,
 };

@@ -1,5 +1,10 @@
 # DECISIONS
 
+## 2026-07-30 CHG-120 完了判断
+
+- `npm run build` と自動テストは完了し、`app-config.yaml` の読込および Electron Builder の `extraResources` 指定を確認した。Electron本体のダウンロードが実行環境のネットワーク制限で遮断されたため、Portable配布物内の実ファイル確認は次回リリース時へ繰り越す。
+- 利用者の明示指示により、上記の配布物実生成確認を保留事項として記録したうえで CHG-120 を完了とする。
+
 ## 2026-07-30 CHG-120 設定ファイルの分割
 
 - 更新確認URLとダウンロードページURLは、利用者設定の `data/settings.yaml` ではなく、Portable 更新で置換される `_app/resources/app-config.yaml` に置く。これにより、更新先の変更をプログラムリリースで既存利用者へ反映する。

@@ -1,6 +1,6 @@
 {
   "name": "cotaska",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "Cotaska - ローカルタスク管理システム",
   "main": "src/main/main.js",
   "scripts": {
@@ -45,6 +45,10 @@
       "!*.log"
     ],
     "extraResources": [
+      {
+        "from": "resources/app-config.yaml",
+        "to": "app-config.yaml"
+      },
       {
         "from": "setup/launcher/icon.ico",
         "to": "icon.ico"
