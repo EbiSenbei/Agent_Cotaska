@@ -2691,6 +2691,9 @@ function createWindow() {
   });
 
   win.webContents.on("did-finish-load", () => {
+    // renderer の固定 <title> が BrowserWindow の初期タイトルを上書きするため、
+    // 読込完了後に保存済みの表示名を再設定する。
+    win.setTitle(settingsService.getSettings().settings.displayName || APP_DISPLAY_NAME);
     publishStartupProgress({
       percent: 82,
       label: "画面を読み込んでいます...",
