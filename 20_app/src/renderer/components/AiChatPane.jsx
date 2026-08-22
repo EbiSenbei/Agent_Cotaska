@@ -627,6 +627,7 @@ function AiChatPane({
     setThreads((current) => current.map((thread) => (
       thread.id === normalizedThreadId ? { ...thread, isUnread: false } : thread
     )));
+    requestScrollMessagesToBottom();
     setSelectedThreadId(normalizedThreadId);
   };
 
@@ -763,6 +764,7 @@ function AiChatPane({
         if (cancelled) return;
         setMessages(Array.isArray(messageRows) ? messageRows.map(mapMessage) : []);
         setReferences(Array.isArray(referenceRows) ? referenceRows.map(mapReference) : []);
+        requestScrollMessagesToBottom();
       } catch (error) {
         if (cancelled) return;
         setRuntimeState({
