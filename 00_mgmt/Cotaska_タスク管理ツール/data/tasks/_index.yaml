@@ -2,15 +2,15 @@ tasks:
   - id: T-0269
     title: AI秘書のnote記事を書く
     list: 販売戦略
-    status: todo
+    status: done
     priority: normal
     sort_order: 1
     tags:
       - AI秘書
       - note
       - 活用事例
-    due_date: null
-    updated_at: '2026-07-20T09:09:13.988Z'
+    due_date: '2026-08-22'
+    updated_at: '2026-08-22T08:03:10.467Z'
   - id: T-0291
     title: Cotaskaの知名度を上げたい
     list: 販売戦略
@@ -116,15 +116,6 @@ tasks:
       - 初回公開
     due_date: null
     updated_at: '2026-07-20T09:08:56.677Z'
-  - id: T-0411
-    title: 仕様変更：サイドパネルの表示非表示のボタンが欲しい
-    list: null
-    status: todo
-    priority: normal
-    sort_order: 11
-    tags: []
-    due_date: null
-    updated_at: '2026-07-20T09:08:56.677Z'
   - id: T-0413
     title: 仕様変更：タスク詳細をポップアップにしたい
     list: null
@@ -178,7 +169,7 @@ tasks:
   - id: T-0522
     title: BUG-20260721-01 修正：R2公開時のGitコミット取得エラー
     list: 不具合修正
-    status: todo
+    status: done
     priority: high
     sort_order: 16
     tags:
@@ -186,10 +177,10 @@ tasks:
       - R2
       - リリース
       - PowerShell
-    due_date: null
-    updated_at: '2026-07-30T07:55:16.553Z'
+    due_date: '2026-08-22'
+    updated_at: '2026-08-22T06:28:15.391Z'
   - id: T-0523
-    title: BUG-20260725-01 確認：Portable更新中ダイアログの表示を確認する
+    title: BUG-20260725-01 確認：Portable更新中ダイアログの表示と自動クローズを確認する
     list: 不具合修正
     status: todo
     priority: high
@@ -200,7 +191,7 @@ tasks:
       - Updater
       - ユーザー確認
     due_date: null
-    updated_at: '2026-07-30T07:55:16.553Z'
+    updated_at: '2026-08-22T15:30:00+09:00'
   - id: T-0527
     title: CHG-117-03 ユーザー確認：タスク詳細別ウィンドウの操作と同期を確認する
     list: 仕様変更
@@ -5835,6 +5826,31 @@ tasks:
     tags: []
     due_date: '2026-07-30'
     updated_at: '2026-07-30T22:43:46.959+09:00'
+  - id: T-0547
+    title: CHG-122 AIスレッド切替時に最新チャットを表示する
+    list: null
+    status: done
+    priority: normal
+    sort_order: 523
+    tags:
+      - CHG-122
+      - AIチャット
+      - 自動スクロール
+    due_date: null
+    updated_at: '2026-08-22T17:30:00+09:00'
+  - id: T-0551
+    title: CHG-121-03 ユーザー確認：更新中ダイアログ操作後も更新が完了することを確認する
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 527
+    tags:
+      - CHG-121
+      - ユーザー確認
+      - Updater
+      - ダイアログ
+    due_date: null
+    updated_at: '2026-08-22T15:45:00+09:00'
   - id: T-0529
     title: CHG-118 クイックタスク入力と登録後詳細表示を追加する
     list: 実装準備
@@ -5888,6 +5904,15 @@ tasks:
       - タスク詳細
     due_date: null
     updated_at: '2026-07-30T21:49:55+09:00'
+  - id: T-0559
+    title: Cotaskaサイト見直し
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 532
+    tags: []
+    due_date: null
+    updated_at: '2026-08-22T07:20:22.343Z'
   - id: T-0536
     title: CHG-119-01 AIモデル選択の設計を更新する
     list: 実装準備
@@ -5989,7 +6014,97 @@ tasks:
       - 起動時
     due_date: '2026-07-30'
     updated_at: '2026-07-30T22:43:46.959+09:00'
+  - id: T-0552
+    title: CHG-122-01 設計：AIスレッド切替時の最新表示仕様を設計書へ反映する
+    list: null
+    status: done
+    priority: normal
+    sort_order: 552
+    tags:
+      - CHG-122
+      - 設計
+      - AIチャット
+    due_date: null
+    updated_at: '2026-08-22T16:10:00+09:00'
+  - id: T-0553
+    title: CHG-122-02 実装：スレッド選択・履歴読込後に最下部を表示する
+    list: null
+    status: done
+    priority: normal
+    sort_order: 553
+    tags:
+      - CHG-122
+      - 実装
+      - AIチャット
+      - 自動スクロール
+    due_date: null
+    updated_at: '2026-08-22T16:10:00+09:00'
+  - id: T-0554
+    title: CHG-122-03 ユーザー確認：スレッド切替時に最新チャットが表示されることを確認する
+    list: null
+    status: done
+    priority: normal
+    sort_order: 554
+    tags:
+      - CHG-122
+      - ユーザー確認
+      - AIチャット
+    due_date: null
+    updated_at: '2026-08-22T17:30:00+09:00'
+  - id: T-0555
+    title: CHG-121 更新中ダイアログの最小化・閉じる操作を許可する
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 555
+    tags:
+      - CHG-121
+      - 仕様変更
+      - Updater
+      - ダイアログ
+    due_date: null
+    updated_at: '2026-08-22T16:15:00+09:00'
+  - id: T-0556
+    title: CHG-121-01 設計：更新中ダイアログの最小化・閉じる操作を設計書へ反映する
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 556
+    tags:
+      - CHG-121
+      - 設計
+      - Updater
+      - ダイアログ
+    due_date: null
+    updated_at: '2026-08-22T16:15:00+09:00'
+  - id: T-0557
+    title: CHG-121-02 実装：更新中ダイアログの最小化・閉じる操作を実装する
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 557
+    tags:
+      - CHG-121
+      - 実装
+      - Updater
+      - ダイアログ
+    due_date: null
+    updated_at: '2026-08-22T16:15:00+09:00'
+  - id: T-0558
+    title: BUG-20260822-01 release-all.ps1でnpm ciが失敗しビルドできない問題を解消する
+    list: 不具合・修正対応
+    status: done
+    priority: high
+    sort_order: 558
+    tags:
+      - BUG-20260822-01
+      - ビルド
+      - リリース
+      - npm
+      - Node.js
+    due_date: '2026-08-22'
+    updated_at: '2026-08-22T08:03:55.534Z'
 task_file_roots:
   - .
-next_task_id: 547
-last_updated: '2026-07-30T13:55:23.162Z'
+next_task_id: 560
+last_updated: '2026-08-22T08:04:35.967Z'

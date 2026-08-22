@@ -21,6 +21,7 @@ internal static class UpdaterFallback
     private static string portableLogPath;
     private static UpdaterStatusWindow statusWindow;
     private static int updateExitCode;
+    private static bool allowStatusWindowClose;
 
     [STAThread]
     private static int Main(string[] args)
@@ -147,7 +148,7 @@ internal static class UpdaterFallback
         {
             Action show = () =>
             {
-                window.Close();
+                CloseStatusWindow();
                 MessageBox.Show(message, "Cotaska Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             };
             if (window.InvokeRequired)
@@ -199,10 +200,13 @@ internal static class UpdaterFallback
                 window.BeginInvoke(new Action(CloseStatusWindow));
                 return;
             }
+            allowStatusWindowClose = true;
             window.Close();
+            Application.ExitThread();
         }
         catch
         {
+            Application.ExitThread();
         }
     }
 
@@ -507,9 +511,9 @@ internal static class UpdaterFallback
         {
             Text = "Cotaska を更新しています";
             StartPosition = FormStartPosition.CenterScreen;
-            FormBorderStyle = FormBorderStyle.FixedDialog;
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
-            MinimizeBox = false;
+            MinimizeBox = true;
             ShowInTaskbar = true;
             TopMost = true;
             ClientSize = new Size(420, 150);
@@ -547,7 +551,7 @@ internal static class UpdaterFallback
             var noteLabel = new Label
             {
                 AutoSize = false,
-                Text = "このウィンドウは更新完了後に自動で閉じます。",
+                Text = "×で閉じても更新は継続します。完了後にCotaskaを再起動します。",
                 Font = new Font("Yu Gothic UI", 8F, FontStyle.Regular),
                 ForeColor = Color.DimGray,
                 Location = new Point(24, 118),
@@ -563,9 +567,10 @@ internal static class UpdaterFallback
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            if (e.CloseReason == CloseReason.UserClosing)
+            if (e.CloseReason == CloseReason.UserClosing && !allowStatusWindowClose)
             {
                 e.Cancel = true;
+                Hide();
                 return;
             }
             base.OnFormClosing(e);

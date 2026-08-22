@@ -32,16 +32,26 @@ Run the repository's existing release and synchronization scripts in a fixed, fa
    ```
 
 8. Confirm exit code 0. Capture the backup ZIP path printed by the script.
-9. Verify and report:
+9. After synchronization succeeds, start the synchronized Cotaska executable from the update destination printed by the script. Use that resolved destination rather than a hard-coded path, set its directory as the working directory, and launch it visibly so the user can continue interacting with the app. For example:
+
+   ```powershell
+   $cotaskaExe = Join-Path '<reported-update-destination>' 'Cotaska.exe'
+   Start-Process -FilePath $cotaskaExe -WorkingDirectory (Split-Path -Parent $cotaskaExe)
+   ```
+
+   Confirm that the launch command succeeds. If synchronization succeeded but launch fails, do not rerun synchronization; report the launch failure separately.
+10. Verify and report:
    - `20_app/release/Cotaska-Portable.zip` exists.
    - Its SHA-256 hash.
    - The reported backup ZIP exists.
+   - The synchronized Cotaska launch result.
    - Final `git status -sb`, noting generated tracked changes such as `20_app/scripts/CotaskaUpdater.exe` without modifying or committing them unless requested.
 
 ## Safety
 
 - Preserve the sequence: release first, synchronize second.
 - Never run synchronization after a release failure.
+- Never start Cotaska before synchronization completes successfully.
 - Do not edit task `_index.yaml` manually.
 - Do not upload to R2 or GitHub Releases as part of this skill.
 - Do not commit generated changes unless the user explicitly asks.
