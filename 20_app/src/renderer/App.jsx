@@ -8,6 +8,7 @@ import MainPane   from "./components/MainPane";
 import DetailPane from "./components/DetailPane";
 import SettingsPane from "./components/SettingsPane";
 import AiChatPane from "./components/AiChatPane";
+import OnboardingGuide from "./components/OnboardingGuide";
 import { useExitPresence } from "./hooks/useExitPresence";
 import {
   MAX_TASK_TREE_DEPTH,
@@ -34,6 +35,7 @@ const DETAIL_PANE_MIN_WIDTH = 320;
 const DETAIL_PANE_MAX_WIDTH = 720;
 const DETAIL_PANE_DEFAULT_WIDTH = 380;
 const STARTUP_INITIAL_VIEWS = new Set(["すべて", "今日", "明日", "次の7日間"]);
+const UNDO_TIMEOUT_MS = 8000;
 
 function normalizeStartupInitialView(value) {
   const view = String(value || "").trim();
@@ -87,6 +89,8 @@ function App() {
   const [tags, setTags] = useState([]);
   const [trashConfirm, setTrashConfirm] = useState(null);
   const trashConfirmPresence = useExitPresence(trashConfirm);
+  const [bulkTrashConfirm, setBulkTrashConfirm] = useState(null);
+  const [isBulkTrashActionRunning, setIsBulkTrashActionRunning] = useState(false);
   const [updateAlert, setUpdateAlert] = useState({
     hasUpdate: false,
     message: "",
@@ -95,9 +99,70 @@ function App() {
   const [aiTaskChatRequest, setAiTaskChatRequest] = useState(null);
   const [aiThreadOpenRequest, setAiThreadOpenRequest] = useState(null);
   const [settingsFocusRequest, setSettingsFocusRequest] = useState(null);
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
+  const [undoNotice, setUndoNotice] = useState(null);
+  const undoActionRef = useRef(null);
+  const undoTimerRef = useRef(null);
   const startupUpdateCheckRef = useRef(false);
   const startupInitialViewAppliedRef = useRef(false);
+  const onboardingSettingAppliedRef = useRef(false);
   const isSearchMode = activeIcon === "検索";
+
+  const dismissUndo = useCallback(() => {
+    if (undoTimerRef.current) window.clearTimeout(undoTimerRef.current);
+    undoTimerRef.current = null;
+    undoActionRef.current = null;
+    setUndoNotice(null);
+  }, []);
+
+  const registerUndo = useCallback((message, action) => {
+    if (undoTimerRef.current) window.clearTimeout(undoTimerRef.current);
+    undoActionRef.current = action;
+    setUndoNotice({ message, running: false, error: "" });
+    undoTimerRef.current = window.setTimeout(() => {
+      undoActionRef.current = null;
+      setUndoNotice(null);
+      undoTimerRef.current = null;
+    }, UNDO_TIMEOUT_MS);
+  }, []);
+
+  const executeUndo = useCallback(async () => {
+    const action = undoActionRef.current;
+    if (!action) return;
+    if (undoTimerRef.current) window.clearTimeout(undoTimerRef.current);
+    undoTimerRef.current = null;
+    undoActionRef.current = null;
+    setUndoNotice((current) => current ? { ...current, running: true, error: "" } : current);
+    try {
+      await action();
+      setUndoNotice(null);
+    } catch (error) {
+      setUndoNotice({ message: "操作を元に戻せませんでした", running: false, error: error?.message || "もう一度操作してください。" });
+      window.setTimeout(() => setUndoNotice(null), 5000);
+    }
+  }, []);
+
+  useEffect(() => {
+    const onUndoKey = (event) => {
+      const target = event.target;
+      if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== "z") return;
+      if (target?.matches?.("input, textarea, [contenteditable='true']")) return;
+      if (!undoActionRef.current) return;
+      event.preventDefault();
+      executeUndo();
+    };
+    window.addEventListener("keydown", onUndoKey);
+    return () => window.removeEventListener("keydown", onUndoKey);
+  }, [executeUndo]);
+
+  useEffect(() => () => {
+    if (undoTimerRef.current) window.clearTimeout(undoTimerRef.current);
+  }, []);
+
+  const closeOnboarding = useCallback(async () => {
+    setOnboardingOpen(false);
+    await window.cotaskaAPI?.settings?.update?.({ onboarding: { completed: true } });
+  }, []);
 
   useEffect(() => {
     if (!trashConfirm) return undefined;
@@ -107,6 +172,15 @@ function App() {
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [trashConfirm]);
+
+  useEffect(() => {
+    if (!bulkTrashConfirm) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape" && !isBulkTrashActionRunning) setBulkTrashConfirm(null);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [bulkTrashConfirm, isBulkTrashActionRunning]);
 
   // CHG-032: ペイン幅リサイズ
   const [navWidth,    setNavWidth]    = useState(240);
@@ -194,6 +268,10 @@ function App() {
         });
       }
       const settingsResult = await window.cotaskaAPI?.settings?.get?.();
+      if (!onboardingSettingAppliedRef.current) {
+        setOnboardingOpen(!Boolean(settingsResult?.settings?.onboarding?.completed));
+        onboardingSettingAppliedRef.current = true;
+      }
       const initialCompletedLimit = Number(settingsResult?.settings?.taskLoading?.completedInitialLimit);
       if (Number.isFinite(initialCompletedLimit)) setCompletedLimit(initialCompletedLimit);
       if (shouldShowLoading && !startupInitialViewAppliedRef.current) {
@@ -410,6 +488,13 @@ function App() {
   }, [isSearchMode, searchKeyword]);
 
   const handleToggleComplete = useCallback(async (task) => {
+    const affectedTasks = [task, ...collectDescendantTasks(tasks, task.id)];
+    const snapshot = affectedTasks.map((item) => ({
+      task: item,
+      status: item.status,
+      progress_status: item.progressStatus,
+      due_date: item.due_date || null,
+    }));
     const newStatus = task.status === "done" ? "todo" : "done";
     const newProgressStatus = newStatus === "done" ? "完了" : "仕掛";
     await window.cotaskaAPI?.tasks?.update(
@@ -435,7 +520,18 @@ function App() {
 
     await loadTasks();
     await refreshSearchResults();
-  }, [loadTasks, refreshSearchResults, tasks]);
+    registerUndo(newStatus === "done" ? "タスクを完了しました" : "タスクを仕掛に戻しました", async () => {
+      for (const item of snapshot) {
+        await window.cotaskaAPI?.tasks?.update(toFileTaskPayload(item.task, {
+          status: item.status,
+          progress_status: item.progress_status,
+          due_date: item.due_date,
+        }));
+      }
+      await loadTasks();
+      await refreshSearchResults();
+    });
+  }, [loadTasks, refreshSearchResults, registerUndo, tasks]);
 
   // T-005-05: 詳細ペイン保存後にリスト再取得
   const handleSaved = useCallback(async () => {
@@ -460,10 +556,16 @@ function App() {
 
   // T-014-03: リスト設定
   const handleSetTaskList = useCallback(async (task, newList) => {
+    const previousList = task.list ?? null;
     await window.cotaskaAPI?.tasks?.update(toFileTaskPayload(task, { list: newList }));
     await loadTasks();
     await refreshSearchResults();
-  }, [loadTasks, refreshSearchResults]);
+    registerUndo("リストを変更しました", async () => {
+      await window.cotaskaAPI?.tasks?.update(toFileTaskPayload(task, { list: previousList }));
+      await loadTasks();
+      await refreshSearchResults();
+    });
+  }, [loadTasks, refreshSearchResults, registerUndo]);
 
   const handleSetTaskDue = useCallback(async (task, dueDate) => {
     await window.cotaskaAPI?.tasks?.update(
@@ -510,6 +612,17 @@ function App() {
     if (dragged.status === "done") return;
 
     const today = localDateString();
+    const previousOrder = tasks
+      .filter((t) => t.status !== "done")
+      .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0) || String(a.id).localeCompare(String(b.id)))
+      .map((item) => item.id);
+    const previousDraggedFields = {
+      parent: dragged.parent ?? null,
+      list: dragged.list ?? null,
+      due_date: dragged.due_date || null,
+      progress_status: dragged.progressStatus,
+      status: dragged.status,
+    };
     const tomorrow = addDays(today, 1);
     const fieldUpdates = {};
     const target = targetTaskId ? tasks.find((t) => t.id === targetTaskId) : null;
@@ -587,7 +700,14 @@ function App() {
       result,
     });
     await loadTasks();
-  }, [canNestTask, loadTasks, tasks]);
+    registerUndo("タスクの配置を変更しました", async () => {
+      await window.cotaskaAPI?.tasks?.reorder({
+        ordered_ids: previousOrder,
+        field_updates: { [draggedTaskId]: previousDraggedFields },
+      });
+      await loadTasks();
+    });
+  }, [canNestTask, loadTasks, registerUndo, tasks]);
 
   // T-006: リスト操作
   const loadLists = useCallback(async () => {
@@ -656,7 +776,18 @@ function App() {
       setSelectedTask(null);
     }
     await loadTasks();
-  }, [loadTasks, selectedTask]);
+    const restoredIds = trashDescendants ? [task.id, ...descendants.map((child) => child.id)] : [task.id];
+    registerUndo(trashDescendants ? `${restoredIds.length}件をゴミ箱へ移動しました` : "タスクをゴミ箱へ移動しました", async () => {
+      const result = await window.cotaskaAPI?.tasks?.restoreTasks(restoredIds);
+      if (result?.ok === false) throw new Error(result.error || "タスクを復元できませんでした。");
+      if (!trashDescendants) {
+        for (const child of directChildren) {
+          await window.cotaskaAPI?.tasks?.update(toFileTaskPayload(child, { parent: task.id }));
+        }
+      }
+      await loadTasks();
+    });
+  }, [loadTasks, registerUndo, selectedTask]);
 
   // T-005-06: ゴミ箱移動
   const handleTrashTask = useCallback(async (task) => {
@@ -737,6 +868,32 @@ function App() {
     await window.cotaskaAPI?.tasks?.deleteTask(task.id);
     await loadTasks();
   }, [loadTasks]);
+
+  const handleBulkRestoreTasks = useCallback(async (tasksToRestore) => {
+    const ids = tasksToRestore.map((task) => task.id);
+    if (ids.length === 0) return;
+    const result = await window.cotaskaAPI?.tasks?.restoreTasks(ids);
+    if (result?.ok === false) throw new Error(result.error || "タスクの一括復元に失敗しました。");
+    await loadTasks();
+  }, [loadTasks]);
+
+  const handleBulkDeleteTasks = useCallback((tasksToDelete) => {
+    if (tasksToDelete.length > 0) setBulkTrashConfirm({ tasks: tasksToDelete });
+  }, []);
+
+  const confirmBulkDeleteTasks = useCallback(async () => {
+    const ids = bulkTrashConfirm?.tasks.map((task) => task.id) ?? [];
+    if (ids.length === 0) return;
+    setIsBulkTrashActionRunning(true);
+    try {
+      const result = await window.cotaskaAPI?.tasks?.deleteTasks(ids);
+      if (result?.ok === false) throw new Error(result.error || "タスクの一括削除に失敗しました。");
+      setBulkTrashConfirm(null);
+      await loadTasks();
+    } finally {
+      setIsBulkTrashActionRunning(false);
+    }
+  }, [bulkTrashConfirm, loadTasks]);
 
   // T-004-05: サイドバーアイコンに応じてナビパネルの表示を制御
   const isSettingsMode = activeIcon === "設定";
@@ -953,7 +1110,7 @@ function App() {
         updateAlert={updateAlert}
       />
       {isSettingsMode ? (
-        <SettingsPane focusRequest={settingsFocusRequest} />
+        <SettingsPane focusRequest={settingsFocusRequest} onOpenGuide={() => setOnboardingOpen(true)} />
       ) : isAiMode ? (
         <AiChatPane
           tasks={tasks}
@@ -1023,6 +1180,8 @@ function App() {
           onTrashTask={!isSearchMode && activeNav !== "ゴミ箱" && activeNav !== "完了" ? handleTrashTask : null}
           onRestoreTask={activeNav === "ゴミ箱" ? handleRestoreTask : null}
           onDeleteTask={activeNav === "ゴミ箱" ? handleDeleteTask : null}
+          onBulkRestoreTasks={activeNav === "ゴミ箱" ? handleBulkRestoreTasks : null}
+          onBulkDeleteTasks={activeNav === "ゴミ箱" ? handleBulkDeleteTasks : null}
           onDuplicateTask={!isSearchMode && activeNav !== "ゴミ箱" && activeNav !== "完了" ? handleDuplicateTask : null}
           onSetTaskList={!isSearchMode && activeNav !== "ゴミ箱" && activeNav !== "完了" ? handleSetTaskList : null}
           onSetTaskDue={!isSearchMode && activeNav !== "ゴミ箱" ? handleSetTaskDue : null}
@@ -1147,8 +1306,57 @@ function App() {
           </div>
         </div>
       )}
+      {bulkTrashConfirm && (
+        <div
+          className="trash-confirm-overlay"
+          role="presentation"
+          onClick={(e) => {
+            if (!isBulkTrashActionRunning && e.target === e.currentTarget) setBulkTrashConfirm(null);
+          }}
+        >
+          <div className="trash-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="bulk-trash-confirm-title">
+            <h2 id="bulk-trash-confirm-title">ゴミ箱を空にしますか？</h2>
+            <p className="trash-confirm-message">
+              ゴミ箱内の {bulkTrashConfirm.tasks.length} 件を完全に削除します。この操作は取り消せません。
+            </p>
+            <div className="trash-confirm-actions">
+              <button
+                type="button"
+                className="trash-confirm-btn trash-confirm-btn--cancel"
+                disabled={isBulkTrashActionRunning}
+                onClick={() => setBulkTrashConfirm(null)}
+              >
+                キャンセル
+              </button>
+              <button
+                type="button"
+                className="trash-confirm-btn trash-confirm-btn--danger"
+                disabled={isBulkTrashActionRunning}
+                onClick={confirmBulkDeleteTasks}
+              >
+                {isBulkTrashActionRunning ? "削除中…" : "完全に削除"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {undoNotice && (
+        <div className={`undo-toast${undoNotice.error ? " undo-toast--error" : ""}`} role="status" aria-live="polite">
+          <div>
+            <strong>{undoNotice.message}</strong>
+            {undoNotice.error && <span>{undoNotice.error}</span>}
+          </div>
+          {!undoNotice.error && (
+            <button type="button" onClick={executeUndo} disabled={undoNotice.running}>
+              {undoNotice.running ? "復元中..." : "元に戻す"}
+            </button>
+          )}
+          <button type="button" className="undo-toast-close" aria-label="通知を閉じる" onClick={dismissUndo}>×</button>
+        </div>
+      )}
       </>
       )}
+      {onboardingOpen && <OnboardingGuide onClose={closeOnboarding} />}
     </div>
   );
 }

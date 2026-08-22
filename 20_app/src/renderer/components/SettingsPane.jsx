@@ -20,6 +20,9 @@ const DEFAULT_SETTINGS = {
   startup: {
     initialView: "今日",
   },
+  onboarding: {
+    completed: false,
+  },
   notification: {
     minutesBefore: 5,
   },
@@ -82,6 +85,10 @@ function normalizeSettings(settings) {
       ...DEFAULT_SETTINGS.startup,
       ...((settings || {}).startup || {}),
     },
+    onboarding: {
+      ...DEFAULT_SETTINGS.onboarding,
+      ...((settings || {}).onboarding || {}),
+    },
     taskLoading: {
       ...DEFAULT_SETTINGS.taskLoading,
       ...((settings || {}).taskLoading || {}),
@@ -129,7 +136,7 @@ function getAuthGuide(status) {
   return "状態を確認できませんでした。Codexのログイン状態とネットワークを確認してから再確認してください。";
 }
 
-function SettingsPane({ focusRequest }) {
+function SettingsPane({ focusRequest, onOpenGuide }) {
   const [activeTab, setActiveTab] = useState("app-info");
   const [appInfo, setAppInfo] = useState(DEFAULT_APP_INFO);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
@@ -644,6 +651,13 @@ function SettingsPane({ focusRequest }) {
                         <span className="settings-unit-label">px</span>
                       </div>
                       <div className="settings-help-text">タスク詳細の文字サイズ。ショートカット操作でも同じ設定値を更新します。</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>操作ガイド</th>
+                    <td>
+                      <button type="button" className="settings-secondary-btn" onClick={() => onOpenGuide?.()}>初回利用ガイドを表示</button>
+                      <div className="settings-help-text">タスク追加、入力補正、詳細編集、ドラッグ操作、ゴミ箱とバックアップの案内を再表示します。</div>
                     </td>
                   </tr>
                   <tr>

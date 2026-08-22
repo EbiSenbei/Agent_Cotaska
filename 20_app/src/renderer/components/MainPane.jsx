@@ -139,7 +139,7 @@ function MainPane({
   isSearchMode, onSearchChange, searchSort = { key: "id", direction: "asc" }, onSearchSortChange,
   listSort = { key: "order", direction: "asc" }, onListSortChange, showListSort = false,
   onTaskClick, onTaskDoubleClick, onAddTask, onAddSubtask, onToggleComplete,
-  onTrashTask, onRestoreTask, onDeleteTask, onDuplicateTask, onSetTaskList, onSetTaskDue,
+  onTrashTask, onRestoreTask, onDeleteTask, onBulkRestoreTasks, onBulkDeleteTasks, onDuplicateTask, onSetTaskList, onSetTaskDue,
   onReorderTask,
   canNestTask,
   lists,
@@ -149,11 +149,13 @@ function MainPane({
   const inputRef    = useRef(null);
   const inlineInputRef = useRef(null);
   const contextMenuRef = useRef(null);
+  const headerMenuRef = useRef(null);
   const taskListRef = useRef(null);
   const searchTimer = useRef(null);
   const dragHandleTaskIdRef = useRef(null);
   const [localSearch, setLocalSearch] = useState("");
   const [contextMenu, setContextMenu] = useState(null);
+  const [headerMenuOpen, setHeaderMenuOpen] = useState(false);
   const [contextMenuPos, setContextMenuPos] = useState(null);
   const [pathCopyNotice, setPathCopyNotice] = useState(null);
   const pathCopyPresence = useExitPresence(pathCopyNotice);
@@ -187,6 +189,21 @@ function MainPane({
       .slice(0, 8);
   }, [listNames, listQuery, listToken]);
   const showQuickAddListCandidates = Boolean(listToken) && !quickAddList && quickAddListCandidates.length > 0;
+
+  useEffect(() => {
+    if (!headerMenuOpen) return undefined;
+    const closeMenu = (event) => {
+      if (event.key === "Escape" || !headerMenuRef.current?.contains(event.target)) {
+        setHeaderMenuOpen(false);
+      }
+    };
+    window.addEventListener("keydown", closeMenu);
+    document.addEventListener("mousedown", closeMenu);
+    return () => {
+      window.removeEventListener("keydown", closeMenu);
+      document.removeEventListener("mousedown", closeMenu);
+    };
+  }, [headerMenuOpen]);
 
   const quickAddDatePreview = useMemo(() => {
     const raw = quickAddValue.trim();
@@ -889,7 +906,47 @@ function MainPane({
                   </button>
                 </div>
               )}
-              <div className="h-icon" title="メニュー">⋯</div>
+              {isTrashed ? (
+                <div className="header-menu-wrap" ref={headerMenuRef}>
+                  <button
+                    className="h-icon header-menu-trigger"
+                    type="button"
+                    title="メニュー"
+                    aria-label="ゴミ箱のメニュー"
+                    aria-expanded={headerMenuOpen}
+                    onClick={() => setHeaderMenuOpen((open) => !open)}
+                  >
+                    ⋯
+                  </button>
+                  {headerMenuOpen && (
+                    <div className="header-menu" role="menu">
+                      <button
+                        type="button"
+                        role="menuitem"
+                        disabled={tasks.length === 0}
+                        onClick={() => {
+                          setHeaderMenuOpen(false);
+                          onBulkRestoreTasks?.(tasks);
+                        }}
+                      >
+                        一括戻す
+                      </button>
+                      <button
+                        className="header-menu-danger"
+                        type="button"
+                        role="menuitem"
+                        disabled={tasks.length === 0}
+                        onClick={() => {
+                          setHeaderMenuOpen(false);
+                          onBulkDeleteTasks?.(tasks);
+                        }}
+                      >
+                        一括削除
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : <div className="h-icon" title="メニュー">⋯</div>}
             </div>
           </>
         )}

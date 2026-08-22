@@ -1032,6 +1032,20 @@ function restoreTask(id) {
 }
 
 /**
+ * ゴミ箱内タスクを一括復元する
+ */
+function restoreTasks(ids) {
+  const taskIds = [...new Set(Array.isArray(ids) ? ids.filter(Boolean) : [])];
+  for (const id of taskIds) {
+    if (!taskCache[id]) throw new Error(`Task ${id} not found`);
+    if (taskCache[id].delete_flag !== 1) throw new Error(`Task ${id} is not trashed`);
+  }
+
+  taskIds.forEach(restoreTask);
+  return { success: true, count: taskIds.length };
+}
+
+/**
  * タスク完全削除（archive へ移動）
  */
 function deleteTask(id) {
@@ -1059,6 +1073,20 @@ function deleteTask(id) {
 
   const now = new Date().toISOString();
   return { success: true, archived_at: now };
+}
+
+/**
+ * ゴミ箱内タスクを一括で archive へ移動する
+ */
+function deleteTasks(ids) {
+  const taskIds = [...new Set(Array.isArray(ids) ? ids.filter(Boolean) : [])];
+  for (const id of taskIds) {
+    if (!taskCache[id]) throw new Error(`Task ${id} not found`);
+    if (taskCache[id].delete_flag !== 1) throw new Error(`Task ${id} is not trashed`);
+  }
+
+  taskIds.forEach(deleteTask);
+  return { success: true, count: taskIds.length };
 }
 
 /**
@@ -1273,7 +1301,9 @@ module.exports = {
   reopenTask,
   trashTask,
   restoreTask,
+  restoreTasks,
   deleteTask,
+  deleteTasks,
   duplicateTask,
   reorderTasks,
   applyFileChange,

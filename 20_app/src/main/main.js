@@ -2159,6 +2159,19 @@ ipcMain.handle("tasks:restoreTask", async (_e, id) => {
   }
 });
 
+ipcMain.handle("tasks:restoreTasks", async (_e, ids) => {
+  await servicesReady;
+  logger.debug("IPC: tasks:restoreTasks", { count: Array.isArray(ids) ? ids.length : 0 });
+  try {
+    const result = taskService.restoreTasks(ids);
+    logger.info("tasks restored", { count: result.count });
+    return result;
+  } catch (err) {
+    logger.error("tasks:restoreTasks failed", err);
+    return { ok: false, error: err.message };
+  }
+});
+
 ipcMain.handle("tasks:deleteTask", async (_e, id) => {
   await servicesReady;
   logger.debug("IPC: tasks:deleteTask", { id });
@@ -2168,6 +2181,19 @@ ipcMain.handle("tasks:deleteTask", async (_e, id) => {
     return result;
   } catch (err) {
     logger.error("tasks:deleteTask failed", err);
+    return { ok: false, error: err.message };
+  }
+});
+
+ipcMain.handle("tasks:deleteTasks", async (_e, ids) => {
+  await servicesReady;
+  logger.debug("IPC: tasks:deleteTasks", { count: Array.isArray(ids) ? ids.length : 0 });
+  try {
+    const result = taskService.deleteTasks(ids);
+    logger.info("tasks deleted", { count: result.count });
+    return result;
+  } catch (err) {
+    logger.error("tasks:deleteTasks failed", err);
     return { ok: false, error: err.message };
   }
 });

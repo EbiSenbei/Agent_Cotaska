@@ -34,6 +34,9 @@ const DEFAULT_SETTINGS = {
   startup: {
     initialView: "今日",
   },
+  onboarding: {
+    completed: false,
+  },
   notification: {
     minutesBefore: 5,
   },
@@ -324,6 +327,11 @@ function mergeSettings(raw, appConfig = DEFAULT_APP_CONFIG) {
       ...(source.startup || {}),
       initialView: normalizeStartupInitialView(source.startup?.initialView),
     },
+    onboarding: {
+      ...DEFAULT_SETTINGS.onboarding,
+      ...(source.onboarding || {}),
+      completed: Boolean(source.onboarding?.completed),
+    },
     notification: {
       ...DEFAULT_SETTINGS.notification,
       ...(source.notification || {}),
@@ -364,6 +372,10 @@ function renderSettingsYaml(settings) {
     "startup:",
     "  # 起動時に最初に開くビュー: すべて / 今日 / 明日 / 次の7日間",
     `  initialView: ${escaped(normalized.startup.initialView)}`,
+    "",
+    "onboarding:",
+    "  # 初回利用ガイドを完了またはスキップしたか",
+    `  completed: ${normalized.onboarding.completed ? "true" : "false"}`,
     "",
     "notification:",
     "  # 通知時間: 予定時刻の何分前に通知するか",

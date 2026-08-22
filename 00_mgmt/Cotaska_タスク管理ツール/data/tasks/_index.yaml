@@ -141,7 +141,7 @@ tasks:
   - id: T-0457
     title: CHG-106 CotaskaUpdaterの更新中ダイアログ表示
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 14
     tags:
@@ -150,12 +150,12 @@ tasks:
       - Updater
       - 更新
       - ダイアログ
-    due_date: null
-    updated_at: '2026-07-30T07:55:16.553Z'
+    due_date: '2026-08-22'
+    updated_at: '2026-08-22T14:16:47.065Z'
   - id: T-0460
     title: CHG-106-03 ユーザー確認：Portable更新中ダイアログを確認する
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 15
     tags:
@@ -164,8 +164,8 @@ tasks:
       - Updater
       - 更新
       - ダイアログ
-    due_date: null
-    updated_at: '2026-07-30T07:55:16.553Z'
+    due_date: '2026-08-22'
+    updated_at: '2026-08-22T14:16:47.077Z'
   - id: T-0522
     title: BUG-20260721-01 修正：R2公開時のGitコミット取得エラー
     list: 不具合修正
@@ -182,7 +182,7 @@ tasks:
   - id: T-0523
     title: BUG-20260725-01 確認：Portable更新中ダイアログの表示と自動クローズを確認する
     list: 不具合修正
-    status: todo
+    status: done
     priority: high
     sort_order: 17
     tags:
@@ -190,8 +190,8 @@ tasks:
       - CHG-106
       - Updater
       - ユーザー確認
-    due_date: null
-    updated_at: '2026-08-22T15:30:00+09:00'
+    due_date: '2026-08-22'
+    updated_at: '2026-08-22T14:16:47.083Z'
   - id: T-0527
     title: CHG-117-03 ユーザー確認：タスク詳細別ウィンドウの操作と同期を確認する
     list: 仕様変更
@@ -5913,6 +5913,15 @@ tasks:
     tags: []
     due_date: null
     updated_at: '2026-08-22T07:20:22.343Z'
+  - id: T-0560
+    title: 仕様変更：ゴミ箱の一括削除機能
+    list: null
+    status: done
+    priority: normal
+    sort_order: 533
+    tags: []
+    due_date: '2026-08-22'
+    updated_at: '2026-08-22T14:15:23.361Z'
   - id: T-0536
     title: CHG-119-01 AIモデル選択の設計を更新する
     list: 実装準備
@@ -6104,7 +6113,148 @@ tasks:
       - Node.js
     due_date: '2026-08-22'
     updated_at: '2026-08-22T08:03:55.534Z'
+  - id: T-0561
+    title: CHG-123 ゴミ箱一括操作の設計・仕様記録
+    list: null
+    status: done
+    priority: normal
+    sort_order: 561
+    tags:
+      - CHG-123
+      - ゴミ箱
+      - 設計
+    due_date: null
+    updated_at: '2026-08-22T17:30:00+09:00'
+  - id: T-0562
+    title: CHG-123 ゴミ箱一括操作の実装・テスト
+    list: null
+    status: done
+    priority: normal
+    sort_order: 562
+    tags:
+      - CHG-123
+      - ゴミ箱
+      - IPC
+      - UI
+    due_date: null
+    updated_at: '2026-08-22T17:30:00+09:00'
+  - id: T-0563
+    title: CHG-123 ゴミ箱一括操作のユーザー確認
+    list: null
+    status: done
+    priority: normal
+    sort_order: 563
+    tags:
+      - CHG-123
+      - ゴミ箱
+      - ユーザー確認
+    due_date: '2026-08-22'
+    updated_at: '2026-08-22T14:15:20.151Z'
+  - id: T-0564
+    title: CHG-124-01 設計：削除・完了・移動操作の「元に戻す」仕様を設計書へ反映する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 564
+    tags:
+      - CHG-124
+      - 設計
+      - Undo
+      - 操作性改善
+    due_date: '2026-08-22'
+    updated_at: '2026-08-22T22:52:00+09:00'
+  - id: T-0565
+    title: CHG-124-02 実装：削除・完了・移動操作に「元に戻す」を追加する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 565
+    tags:
+      - CHG-124
+      - 実装
+      - Undo
+      - 操作性改善
+    due_date: '2026-08-22'
+    updated_at: '2026-08-22T22:52:00+09:00'
+  - id: T-0566
+    title: CHG-124-03 ユーザー確認：削除・完了・移動操作の「元に戻す」を確認する
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 566
+    tags:
+      - CHG-124
+      - ユーザー確認
+      - Undo
+      - 操作性改善
+    due_date: '2026-08-22'
+    updated_at: '2026-08-22T14:16:54.281Z'
+  - id: T-0567
+    title: CHG-125-01 設計：初回利用ガイドの内容と表示条件を設計書へ反映する
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 567
+    tags:
+      - CHG-125
+      - 設計
+      - 初回利用ガイド
+      - オンボーディング
+    due_date: '2026-08-22'
+    updated_at: '2026-08-22T22:52:00+09:00'
+  - id: T-0568
+    title: CHG-125-02 実装：初回利用ガイドと再表示導線を追加する
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 568
+    tags:
+      - CHG-125
+      - 実装
+      - 初回利用ガイド
+      - オンボーディング
+    due_date: '2026-08-22'
+    updated_at: '2026-08-22T22:52:00+09:00'
+  - id: T-0569
+    title: CHG-125-03 ユーザー確認：初回利用ガイドの分かりやすさを確認する
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 569
+    tags:
+      - CHG-125
+      - ユーザー確認
+      - 初回利用ガイド
+      - オンボーディング
+    due_date: '2026-08-22'
+    updated_at: '2026-08-22T14:16:55.613Z'
+  - id: T-0570
+    title: BUG-20260822-02 設定画面から初回利用ガイドを表示できない問題を修正する
+    list: 不具合修正
+    status: done
+    priority: high
+    sort_order: 570
+    tags:
+      - BUG-20260822-02
+      - 初回利用ガイド
+      - 設定画面
+      - UI
+    due_date: '2026-08-22'
+    updated_at: '2026-08-22T14:16:59.993Z'
+  - id: T-0571
+    title: BUG-20260822-02 ユーザー確認：設定画面から初回利用ガイドを表示できることを確認する
+    list: 不具合修正
+    status: done
+    priority: high
+    sort_order: 571
+    tags:
+      - BUG-20260822-02
+      - ユーザー確認
+      - 初回利用ガイド
+      - 設定画面
+    due_date: '2026-08-22'
+    updated_at: '2026-08-22T14:17:03.585Z'
 task_file_roots:
   - .
-next_task_id: 560
-last_updated: '2026-08-22T08:04:35.967Z'
+next_task_id: 572
+last_updated: '2026-08-22T14:17:04.188Z'
