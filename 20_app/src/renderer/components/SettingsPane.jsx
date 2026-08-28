@@ -727,7 +727,7 @@ function SettingsPane({ focusRequest, onOpenGuide }) {
                         />
                         <button type="button" className="settings-secondary-btn" onClick={chooseAiWorkdir}>参照</button>
                       </div>
-                      <div className="settings-help-text">ファイルツリー表示とAI実行時の作業フォルダ。APIキーはCotaskaに保存しません。</div>
+                      <div className="settings-help-text">ファイルツリー表示とAI実行時の作業フォルダ。プロジェクトフォルダ外も指定できます。APIキーはCotaskaに保存しません。</div>
                     </td>
                   </tr>
                   <tr>

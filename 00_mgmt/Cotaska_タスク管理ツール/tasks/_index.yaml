@@ -6560,7 +6560,7 @@ tasks:
   - id: T-0595
     title: CHG-126-19 ユーザー確認：プロジェクト外のAI作業フォルダを確認する
     list: 仕様変更
-    status: todo
+    status: done
     priority: high
     sort_order: 595
     tags:
@@ -6568,8 +6568,8 @@ tasks:
       - ユーザー確認
       - AI作業フォルダ
       - パス制限
-    due_date: null
-    updated_at: '2026-08-28T13:22:09.111Z'
+    due_date: '2026-08-28'
+    updated_at: '2026-08-28T13:28:31.400Z'
   - id: T-0596
     title: CHG-126-17 設計：AI作業フォルダのプロジェクト配下制限を解除する
     list: 仕様変更
@@ -6599,4 +6599,4 @@ tasks:
 task_file_roots:
   - .
 next_task_id: 598
-last_updated: '2026-08-28T13:27:17.094Z'
+last_updated: '2026-08-28T13:28:32.015Z'

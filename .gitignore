@@ -11,6 +11,7 @@ Thumbs.db
 
 # Build outputs
 20_app/dist/
+20_app/build/
 20_app/temp/
 20_app/win-unpacked/
 20_app/release/
