@@ -98,9 +98,10 @@ function renderMarkdownEditorLine(line) {
 
 function renderMarkdownEditorHtml(value) {
   const lines = String(value || "").split("\n");
-  return lines
-    .map((line) => `<div class="markdown-editor-line">${renderMarkdownEditorLine(line)}</div>`)
-    .join("");
+  // Keep the highlight layer in the same inline text flow as the textarea.
+  // Per-line block elements calculate wrapping independently and shift the
+  // visible text away from the native caret/selection coordinates.
+  return lines.map(renderMarkdownEditorLine).join("\n");
 }
 
 function formatDatetime(value) {

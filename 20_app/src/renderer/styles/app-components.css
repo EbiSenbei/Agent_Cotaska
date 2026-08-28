@@ -1122,6 +1122,9 @@
   border: 0;
   font-family: inherit;
   font-size: var(--detail-content-font-size, 14px);
+  font-weight: 400;
+  font-style: normal;
+  letter-spacing: normal;
   line-height: 1.5;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -1132,12 +1135,6 @@
   pointer-events: none;
   overflow: auto;
   color: #333;
-  scrollbar-width: none;
-}
-
-.markdown-editor-highlight::-webkit-scrollbar {
-  width: 0;
-  height: 0;
 }
 
 .markdown-editor-input {
@@ -1166,12 +1163,7 @@
   cursor: pointer;
 }
 
-.markdown-editor-line {
-  min-height: calc(var(--detail-content-font-size, 14px) * 1.5);
-}
-
 .md-heading {
-  font-weight: 700;
   color: #1f5f9d;
 }
 
@@ -1205,12 +1197,10 @@
 
 .md-token-strong {
   color: #8b2f5f;
-  font-weight: 700;
 }
 
 .md-token-em {
   color: #6a5c9f;
-  font-style: italic;
 }
 
 .md-token-link {
@@ -1226,13 +1216,10 @@
   color: #8a4d12;
   background: #f4efe7;
   border-radius: 4px;
-  padding: 1px 3px;
-  font-family: Consolas, "Courier New", monospace;
 }
 
 .md-list-marker {
   color: #6a7e99;
-  font-weight: 700;
 }
 
 .md-quote {
