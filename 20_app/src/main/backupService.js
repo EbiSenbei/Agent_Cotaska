@@ -2,6 +2,7 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const AdmZip = require("adm-zip");
+const projectContext = require("./projectContext");
 
 const BACKUP_FORMAT_VERSION = 1;
 
@@ -60,7 +61,8 @@ function createBackupService({
     }
     fs.mkdirSync(resolvedTargetDir, { recursive: true });
 
-    const dataDir = settingsService.getDataDir();
+    const project = projectContext.getCurrent();
+    const dataDir = project.rootDir;
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const baseName = options.prefix ? `${options.prefix}-${timestamp}` : `Cotaska-backup-${timestamp}`;
     const backupPath = path.join(resolvedTargetDir, `${baseName}.zip`);
@@ -74,7 +76,9 @@ function createBackupService({
       formatVersion: BACKUP_FORMAT_VERSION,
       createdAt: new Date().toISOString(),
       appVersion,
-      excludes: ["data/tasks/_index.yaml"],
+      projectId: project.projectId,
+      schemaVersion: project.manifest.schemaVersion,
+      excludes: ["tasks/_index.yaml"],
     };
     zip.addFile("manifest.json", Buffer.from(JSON.stringify(manifest, null, 2), "utf8"));
 
@@ -84,10 +88,11 @@ function createBackupService({
       copied.push(toZipPath(archivePath));
     };
 
-    addIfExists(path.join(dataDir, "tasks"), path.join("data", "tasks"));
-    addIfExists(path.join(dataDir, "lists.yaml"), path.join("data", "lists.yaml"));
-    addIfExists(settingsService.getSettingsPath(), path.join("data", "settings.yaml"));
-    addIfExists(path.join(dataDir, "ai.sqlite"), path.join("data", "ai.sqlite"));
+    addIfExists(project.projectFile, "project.yaml");
+    addIfExists(project.tasksDir, "tasks");
+    addIfExists(project.archiveDir, "archive");
+    addIfExists(project.listsFile, "lists.yaml");
+    addIfExists(project.aiDatabaseFile, "ai.sqlite");
 
     zip.writeZip(backupPath);
 
@@ -154,7 +159,7 @@ function createBackupService({
     const source = resolveBackupSource(sourcePath);
     if (!source.ok) return source;
 
-    const backupDataDir = path.join(source.backupRoot, "data");
+    const backupDataDir = fs.existsSync(path.join(source.backupRoot, "tasks")) ? source.backupRoot : path.join(source.backupRoot, "data");
     const backupTasksDir = path.join(backupDataDir, "tasks");
     if (!fs.existsSync(backupTasksDir) || !fs.statSync(backupTasksDir).isDirectory()) {
       if (source.cleanup) {
@@ -163,7 +168,8 @@ function createBackupService({
       return { ok: false, error: "復元元に data/tasks フォルダがありません。" };
     }
 
-    const dataDir = settingsService.getDataDir();
+    const project = projectContext.getCurrent();
+    const dataDir = project.rootDir;
     const preRestoreBackup = createBackupZip(getDefaultBackupDir(), { prefix: "Cotaska-pre-restore" });
     if (!preRestoreBackup.ok) {
       if (source.cleanup) {
@@ -182,8 +188,8 @@ function createBackupService({
     try {
       replaceDirectoryContents(backupTasksDir, path.join(dataDir, "tasks"));
       restoreFile(path.join(backupDataDir, "lists.yaml"), path.join(dataDir, "lists.yaml"));
-      restoreFile(path.join(backupDataDir, "settings.yaml"), settingsService.getSettingsPath());
       restoreFile(path.join(backupDataDir, "ai.sqlite"), path.join(dataDir, "ai.sqlite"));
+      if (fs.existsSync(path.join(backupDataDir, "archive"))) replaceDirectoryContents(path.join(backupDataDir, "archive"), path.join(dataDir, "archive"));
 
       const rebuild = taskService.rebuildCache();
       if (!rebuild.success) {

@@ -104,6 +104,24 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
     },
   },
 
+  projects: {
+    getCurrent: () => ipcRenderer.invoke("projects:getCurrent"),
+    listRecent: () => ipcRenderer.invoke("projects:listRecent"),
+    chooseAndOpen: () => ipcRenderer.invoke("projects:chooseAndOpen"),
+    chooseAndCreate: (input) => ipcRenderer.invoke("projects:chooseAndCreate", input),
+    migrateLegacy: () => ipcRenderer.invoke("projects:migrateLegacy"),
+    openRecent: (projectId) => ipcRenderer.invoke("projects:openRecent", projectId),
+    removeRecent: (projectId) => ipcRenderer.invoke("projects:removeRecent", projectId),
+    returnToSelector: () => ipcRenderer.invoke("projects:returnToSelector"),
+    createShortcut: () => ipcRenderer.invoke("projects:createShortcut"),
+    onChanged: (callback) => {
+      if (typeof callback !== "function") return () => {};
+      const listener = (_event, project) => callback(project);
+      ipcRenderer.on("project:changed", listener);
+      return () => ipcRenderer.removeListener("project:changed", listener);
+    },
+  },
+
   // タスク操作（ファイルベース）
   tasks: {
     getAll:           ()                                => ipcRenderer.invoke("tasks:getAll"),

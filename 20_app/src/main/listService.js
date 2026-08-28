@@ -7,8 +7,9 @@ const fs = require('fs');
 const path = require('path');
 const YAML = require('js-yaml');
 const taskService = require('./taskService');
+const projectContext = require('./projectContext');
 
-const LISTS_PATH = path.join(process.cwd(), '../data/lists.yaml');
+const getListsPath = () => projectContext.getCurrent().listsFile;
 
 let listsData = { lists: [], tags: [], last_updated: null };
 
@@ -26,8 +27,8 @@ function normalizeListsData(data) {
  */
 async function openListService() {
   try {
-    if (fs.existsSync(LISTS_PATH)) {
-      const content = fs.readFileSync(LISTS_PATH, 'utf-8');
+    if (fs.existsSync(getListsPath())) {
+      const content = fs.readFileSync(getListsPath(), 'utf-8');
       listsData = normalizeListsData(YAML.load(content));
     } else {
       listsData = { lists: [], tags: [], last_updated: new Date().toISOString() };
@@ -192,7 +193,7 @@ function getAllTags() {
  */
 function writeListsFile() {
   const yaml = YAML.dump(listsData, { lineWidth: -1 });
-  fs.writeFileSync(LISTS_PATH, yaml, 'utf-8');
+  fs.writeFileSync(getListsPath(), yaml, 'utf-8');
 }
 
 module.exports = {

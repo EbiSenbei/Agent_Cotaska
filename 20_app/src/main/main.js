@@ -6,6 +6,10 @@ const { spawn } = require("child_process");
 const fs = require("fs");
 const earlyStartupLogger = require("./earlyStartupLogger");
 earlyStartupLogger.installProcessErrorHandlers();
+earlyStartupLogger.logInfo("Main process entry", {
+  execPath: process.execPath,
+  argv: process.argv,
+});
 const AdmZip = require("adm-zip");
 const taskService = require("./taskService");
 const listService = require("./listService");
@@ -21,6 +25,9 @@ const appLogger  = require("./appLogger");
 earlyStartupLogger.setSecondaryLogger(appLogger);
 const { createBackupService } = require("./backupService");
 const packageInfo = require("../../package.json");
+const projectService = require("./projectService");
+const projectContext = require("./projectContext");
+const { autoUpdater } = require("electron-updater");
 
 let mainWindow = null;
 const detailWindows = new Map();
@@ -46,7 +53,7 @@ let updaterState = {
   downloadPath: null,
   checksum: null,
 };
-const APP_DISPLAY_NAME = "CotaskaCore";
+const APP_DISPLAY_NAME = "Cotaska";
 const APP_USER_MODEL_ID_BASE = "com.cotaska.app";
 const APP_USER_MODEL_ID_REVISION = "v3";
 const WINDOWS_TOAST_ACTIVATOR_CLSID = "{9B25AF9E-88B9-4F5E-9E9A-B70AA75B7E07}";
@@ -55,7 +62,7 @@ function configureWindowsToastNotifications() {
   if (process.platform !== "win32") return;
   try {
     const startMenuDir = path.join(app.getPath("startMenu"), "Programs", "Cotaska");
-    const shortcutPath = path.join(startMenuDir, "CotaskaCore.lnk");
+    const shortcutPath = path.join(startMenuDir, "Cotaska.lnk");
     const executablePath = process.env.PORTABLE_EXECUTABLE_FILE || process.execPath;
     fs.mkdirSync(startMenuDir, { recursive: true });
     const created = shell.writeShortcutLink(shortcutPath, "replace", {
@@ -123,7 +130,8 @@ function isCotaskaPortableRuntime() {
 }
 
 function getDefaultBackupDir() {
-  return path.join(getRuntimeRootPath(), "backup");
+  const projectId = projectContext.getCurrentOrNull()?.projectId || "unassigned";
+  return path.join(app.getPath("userData"), "backups", projectId);
 }
 
 const backupService = createBackupService({
@@ -952,48 +960,37 @@ function publishUpdaterState(patch) {
 }
 
 function setupAutoUpdater() {
-  // 更新はCotaska-Portable.zipを使う独自Portable更新経路に一本化する。
+  if (!app.isPackaged || isCotaskaPortableRuntime()) return;
+  const latestVersionUrl = settingsService.getSettings().settings.update?.latestVersionUrl || "";
+  const feedUrl = String(latestVersionUrl).replace(/version\.json(?:\?.*)?$/i, "");
+  if (feedUrl) autoUpdater.setFeedURL({ provider: "generic", url: feedUrl });
+  autoUpdater.autoDownload = false;
+  autoUpdater.autoInstallOnAppQuit = true;
+  autoUpdater.on("checking-for-update", () => publishUpdaterState({ status: "checking", message: "更新を確認しています。" }));
+  autoUpdater.on("update-available", (info) => publishUpdaterState({ status: "available", message: "新しいバージョンがあります。", hasUpdate: true, version: info.version }));
+  autoUpdater.on("update-not-available", () => publishUpdaterState({ status: "current", message: "現在のバージョンは最新です。", hasUpdate: false }));
+  autoUpdater.on("download-progress", (progress) => publishUpdaterState({ status: "downloading", message: "更新をダウンロードしています。", progress: progress.percent }));
+  autoUpdater.on("update-downloaded", (info) => publishUpdaterState({ status: "downloaded", message: "更新を適用できます。", downloaded: true, version: info.version }));
+  autoUpdater.on("error", (err) => publishUpdaterState({ status: "error", message: err.message || "更新処理に失敗しました。", progress: null }));
 }
 
 async function checkAutoUpdate() {
-  if (isCotaskaPortableRuntime()) {
-    return checkPortableUpdate();
-  }
-  const unsupportedReason = getAutoUpdateUnsupportedReason();
-  return publishUpdaterState({
-    status: "unsupported",
-    message: unsupportedReason,
-    hasUpdate: false,
-    downloaded: false,
-    progress: null,
-  });
+  if (isCotaskaPortableRuntime()) return checkPortableUpdate();
+  if (!app.isPackaged) return publishUpdaterState({ status: "unsupported", message: "開発実行中のため更新できません。", hasUpdate: false });
+  try { await autoUpdater.checkForUpdates(); return updaterState; } catch (err) { return publishUpdaterState({ status: "error", message: err.message, hasUpdate: false }); }
 }
 
 async function downloadAutoUpdate() {
-  if (isCotaskaPortableRuntime()) {
-    return downloadPortableUpdate();
-  }
-  const unsupportedReason = getAutoUpdateUnsupportedReason();
-  return publishUpdaterState({
-    status: "unsupported",
-    message: unsupportedReason,
-    hasUpdate: false,
-    downloaded: false,
-    progress: null,
-  });
+  if (isCotaskaPortableRuntime()) return downloadPortableUpdate();
+  try { await autoUpdater.downloadUpdate(); return updaterState; } catch (err) { return publishUpdaterState({ status: "error", message: err.message, downloaded: false }); }
 }
 
 function installAutoUpdate() {
-  if (isCotaskaPortableRuntime()) {
-    return installPortableUpdate();
-  }
-  return publishUpdaterState({
-    status: "unsupported",
-    message: getAutoUpdateUnsupportedReason(),
-    hasUpdate: false,
-    downloaded: false,
-    progress: null,
-  });
+  if (isCotaskaPortableRuntime()) return installPortableUpdate();
+  if (!updaterState.downloaded) return publishUpdaterState({ status: "available", message: "先に更新をダウンロードしてください。" });
+  publishUpdaterState({ status: "installing", message: "Cotaskaを終了して更新します。" });
+  autoUpdater.quitAndInstall(false, true);
+  return updaterState;
 }
 
 async function checkForUpdates() {
@@ -1167,13 +1164,22 @@ ipcMain.handle("detailWindow:openAiChat", async (_event, taskId) => {
   return { ok: true };
 });
 
-// --- CHG-035: 起動パス別のシングルインスタンスロック ---
-// 異なるパス（開発環境 / リリース環境）からの同時起動を許可し、
-// 同一パスからの二重起動のみブロックする。
-// app.name を変更すると named pipe 名と userData パスが自動で分離される。
+// CHG-126: 製品版はインストール先に依存しない固定識別子を使う。
+// 開発版のみパス別にし、インストール版と同時起動できるようにする。
 const appDir = path.resolve(__dirname, "../..");
 const instanceHash = crypto.createHash("md5").update(appDir).digest("hex").slice(0, 8);
-app.setName(`Cotaska-${instanceHash}`);
+const smokeInstanceId = String(process.env.COTASKA_SMOKE_INSTANCE_ID || "").replace(/[^a-zA-Z0-9_-]/g, "");
+const appInstanceName = app.isPackaged
+  ? `${APP_DISPLAY_NAME}${smokeInstanceId ? `-Smoke-${smokeInstanceId}` : ""}`
+  : `${APP_DISPLAY_NAME}-Dev-${instanceHash}`;
+app.setName(appInstanceName);
+earlyStartupLogger.configureLogDir(path.join(app.getPath("userData"), "logs"));
+earlyStartupLogger.logInfo("Application identity configured", {
+  appName: app.getName(),
+  instanceHash,
+  isPackaged: app.isPackaged,
+  userData: app.getPath("userData"),
+});
 app.disableHardwareAcceleration();
 
 function getAppUserModelId() {
@@ -1183,6 +1189,10 @@ function getAppUserModelId() {
 }
 
 const gotSingleInstanceLock = app.requestSingleInstanceLock();
+earlyStartupLogger.logInfo("Single instance lock result", {
+  acquired: gotSingleInstanceLock,
+  appName: app.getName(),
+});
 if (!gotSingleInstanceLock) {
   appLogger.logWarning("Single instance lock not acquired. Existing instance may already be running.", {
     appName: app.getName(),
@@ -1192,8 +1202,12 @@ if (!gotSingleInstanceLock) {
   app.quit();
 }
 
-app.on("second-instance", () => {
+app.on("second-instance", async (_event, commandLine) => {
   logger.info("second-instance detected, focusing existing window");
+  const projectPath = projectService.getStartupProject(commandLine || []);
+  if (projectPath && projectPath !== projectContext.getCurrentOrNull()?.rootDir) {
+    try { await activateProject(projectPath); } catch (err) { dialog.showErrorBox("プロジェクトを開けません", err.message); }
+  }
   focusMainWindow();
 });
 
@@ -1245,6 +1259,95 @@ function startVite() {
 
 // ── IPC ハンドラ登録 ──────────────────────────────────────────
 ipcMain.handle("ping", () => "pong");
+
+async function activateProject(rootDir, create = false, name = "") {
+  await watcher.stopWatcher();
+  reminderService.stop();
+  aiService.closeAiService();
+  const project = create ? projectService.createProject(rootDir, name) : projectService.openProject(rootDir);
+  servicesReady = initializeServicesAfterWindowReady();
+  await servicesReady;
+  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send("project:changed", project);
+  return { ok: true, project };
+}
+
+ipcMain.handle("projects:getCurrent", () => projectService.getCurrent());
+ipcMain.handle("projects:listRecent", () => projectService.listRecent());
+ipcMain.handle("projects:chooseAndOpen", async () => {
+  const result = await dialog.showOpenDialog({ title: "Cotaskaプロジェクトを開く", properties: ["openDirectory"] });
+  if (result.canceled || !result.filePaths[0]) return { ok: false, canceled: true };
+  try { return await activateProject(result.filePaths[0]); } catch (err) { return { ok: false, error: err.message }; }
+});
+ipcMain.handle("projects:chooseAndCreate", async (_event, input = {}) => {
+  const result = await dialog.showOpenDialog({ title: "Cotaskaプロジェクトを作成", properties: ["openDirectory", "createDirectory"] });
+  if (result.canceled || !result.filePaths[0]) return { ok: false, canceled: true };
+  try { return await activateProject(result.filePaths[0], true, input.name); } catch (err) { return { ok: false, error: err.message }; }
+});
+ipcMain.handle("projects:openRecent", async (_event, projectId) => {
+  const entry = projectService.listRecent().find((x) => x.projectId === projectId);
+  if (!entry) return { ok: false, error: "プロジェクト履歴が見つかりません。" };
+  try { return await activateProject(entry.path); } catch (err) { return { ok: false, error: err.message }; }
+});
+ipcMain.handle("projects:removeRecent", (_event, projectId) => projectService.removeRecent(projectId));
+ipcMain.handle("projects:migrateLegacy", async () => {
+  const guideOptions = {
+    type: "info",
+    title: "旧Cotaska Portableから移行",
+    message: "移行元と移行先を2回指定してください。",
+    detail: [
+      "1回目：旧Cotaska Portableフォルダ（dataフォルダを含む場所）",
+      "2回目：新しいCotaskaプロジェクトの保存先",
+    ].join("\n"),
+    buttons: ["移行を開始", "キャンセル"],
+    defaultId: 0,
+    cancelId: 1,
+    noLink: true,
+  };
+  const guide = mainWindow && !mainWindow.isDestroyed()
+    ? await dialog.showMessageBox(mainWindow, guideOptions)
+    : await dialog.showMessageBox(guideOptions);
+  if (guide.response !== 0) return { ok: false, canceled: true };
+
+  const source = await dialog.showOpenDialog({ title: "旧Cotaska Portableフォルダを選択", properties: ["openDirectory"] });
+  if (source.canceled || !source.filePaths[0]) return { ok: false, canceled: true };
+  const target = await dialog.showOpenDialog({ title: "新しいCotaskaプロジェクトの保存先を選択", properties: ["openDirectory", "createDirectory"] });
+  if (target.canceled || !target.filePaths[0]) return { ok: false, canceled: true };
+  try {
+    await watcher.stopWatcher(); reminderService.stop(); aiService.closeAiService();
+    const project = projectService.migrateLegacy(source.filePaths[0], target.filePaths[0]);
+    servicesReady = initializeServicesAfterWindowReady(); await servicesReady;
+    return { ok: true, project };
+  } catch (err) { return { ok: false, error: err.message }; }
+});
+ipcMain.handle("projects:returnToSelector", async () => {
+  await watcher.stopWatcher();
+  reminderService.stop();
+  aiService.closeAiService();
+  projectContext.clear();
+  detailWindows.forEach((win) => { if (!win.isDestroyed()) win.close(); });
+  return { ok: true };
+});
+ipcMain.handle("projects:createShortcut", async () => {
+  const project = projectContext.getCurrent();
+  const safeName = project.name.replace(/[<>:"/\\|?*]/g, "_");
+  const saveOptions = {
+    title: "ショートカットの保存先を選択",
+    defaultPath: path.join(app.getPath("desktop"), `Cotaska - ${safeName}.lnk`),
+    buttonLabel: "ショートカットを作る",
+    filters: [{ name: "Windows ショートカット", extensions: ["lnk"] }],
+  };
+  const result = mainWindow && !mainWindow.isDestroyed()
+    ? await dialog.showSaveDialog(mainWindow, saveOptions)
+    : await dialog.showSaveDialog(saveOptions);
+  if (result.canceled || !result.filePath) return { ok: false, canceled: true };
+
+  const shortcutPath = result.filePath.toLowerCase().endsWith(".lnk")
+    ? result.filePath
+    : `${result.filePath}.lnk`;
+  const operation = fs.existsSync(shortcutPath) ? "replace" : "create";
+  const created = shell.writeShortcutLink(shortcutPath, operation, { target: process.execPath, cwd: path.dirname(process.execPath), args: `--project "${project.rootDir}"`, description: `${project.name}をCotaskaで開く`, icon: process.execPath, iconIndex: 0, appUserModelId: APP_USER_MODEL_ID_BASE });
+  return { ok: created, path: shortcutPath, error: created ? null : "ショートカットを作成できませんでした。" };
+});
 
 ipcMain.handle("app:getInfo", () => getAppInfo());
 
@@ -2590,10 +2693,11 @@ function bringWindowToFront(win) {
 // ──────────────────────────────────────────────────────────────
 
 async function ensureDataDirectories() {
-  const dataDir = path.join(process.cwd(), '../data');
-  const tasksDir = path.join(dataDir, 'tasks');
-  const archiveDir = path.join(dataDir, 'archive');
-  const logsDir = path.join(process.cwd(), '../logs');
+  const currentProject = projectContext.getCurrent();
+  const dataDir = currentProject.rootDir;
+  const tasksDir = currentProject.tasksDir;
+  const archiveDir = currentProject.archiveDir;
+  const logsDir = path.join(app.getPath("userData"), "logs");
 
   // ディレクトリ存在確認・作成
   [dataDir, tasksDir, archiveDir, logsDir].forEach(dir => {
@@ -2728,6 +2832,23 @@ function createWindow() {
     appLogger.logWarning("Renderer did-finish-load", {
       url: win.webContents.getURL(),
     });
+    const startupMarkerPath = String(process.env.COTASKA_STARTUP_MARKER || "").trim();
+    if (startupMarkerPath) {
+      try {
+        fs.mkdirSync(path.dirname(startupMarkerPath), { recursive: true });
+        fs.writeFileSync(startupMarkerPath, JSON.stringify({
+          pid: process.pid,
+          timestamp: new Date().toISOString(),
+          url: win.webContents.getURL(),
+        }), "utf8");
+        appLogger.logInfo("Startup smoke-test marker written", { startupMarkerPath });
+      } catch (error) {
+        appLogger.logError("Startup smoke-test marker could not be written", error);
+      }
+    }
+    if (process.env.COTASKA_SMOKE_TEST === "1") {
+      setTimeout(() => app.quit(), 500);
+    }
   });
 
   win.webContents.on("render-process-gone", (_event, details) => {
@@ -2882,11 +3003,26 @@ async function initializeServicesAfterWindowReady() {
 }
 
 app.whenReady().then(async () => {
+  earlyStartupLogger.logInfo("Electron app ready", {
+    appName: app.getName(),
+    userData: app.getPath("userData"),
+  });
   if (!gotSingleInstanceLock) {
     return;
   }
 
-  app.setName(APP_DISPLAY_NAME);
+  settingsService.configureDataDir(app.getPath("userData"));
+  projectService.configure(app.getPath("userData"));
+  appLogger.configureLogDir(path.join(app.getPath("userData"), "logs"));
+  earlyStartupLogger.configureLogDir(path.join(app.getPath("userData"), "logs"));
+  const startupProject = projectService.getStartupProject(process.argv);
+  if (startupProject) {
+    try {
+      projectService.openProject(startupProject);
+    } catch (err) {
+      appLogger.logWarning("Startup project could not be opened", { error: err.message, startupProject });
+    }
+  }
   configureWindowsToastNotifications();
   publishStartupProgress({
     percent: 8,
@@ -2919,7 +3055,7 @@ app.whenReady().then(async () => {
 
   // データディレクトリの初期化（T-048-02）
   logger.info("Ensuring data directories...");
-  await ensureDataDirectories();
+  if (projectContext.hasCurrent()) await ensureDataDirectories();
   appLogger.logInfo("Data directories ensured");
   publishStartupProgress({
     percent: 24,
@@ -2949,7 +3085,7 @@ app.whenReady().then(async () => {
   }
 
   // サービスを初期化
-  servicesReady = initializeServicesAfterWindowReady().catch((err) => {
+  servicesReady = (projectContext.hasCurrent() ? initializeServicesAfterWindowReady() : Promise.resolve()).catch((err) => {
     logger.error("Services initialization failed", err);
     appLogger.logError("Services initialization failed", err);
     throw err;
@@ -2971,6 +3107,14 @@ app.whenReady().then(async () => {
       url: mainWindow.webContents.getURL(),
     });
   }, 8000);
+}).catch((error) => {
+  earlyStartupLogger.logError("Application startup failed", error);
+  try {
+    dialog.showErrorBox("コタスカ起動エラー", `Cotaskaの起動に失敗しました。\n\n${error?.message || String(error)}`);
+  } catch (_dialogError) {
+    // 診断ログに本来のエラーは記録済み。
+  }
+  app.exit(1);
 });
 
 app.on("window-all-closed", () => {

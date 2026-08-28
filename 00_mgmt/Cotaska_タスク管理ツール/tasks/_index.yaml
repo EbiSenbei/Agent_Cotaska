@@ -35,7 +35,7 @@ tasks:
   - id: T-0293
     title: Cotaska認知向上：紹介文とキャッチコピーを作る
     list: 販売戦略
-    status: todo
+    status: doing
     priority: normal
     sort_order: 4
     tags:
@@ -43,7 +43,7 @@ tasks:
       - 知名度向上
       - コピー
     due_date: null
-    updated_at: '2026-07-20T09:08:56.677Z'
+    updated_at: '2026-08-27T00:00:00+09:00'
   - id: T-0294
     title: Cotaska認知向上：スクリーンショットと短い操作動画を用意する
     list: 販売戦略
@@ -6023,6 +6023,15 @@ tasks:
       - 起動時
     due_date: '2026-07-30'
     updated_at: '2026-07-30T22:43:46.959+09:00'
+  - id: T-0579
+    title: 仕様変更：添付ファイルの扱い
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 548
+    tags: []
+    due_date: null
+    updated_at: '2026-08-23T06:22:14.288Z'
   - id: T-0552
     title: CHG-122-01 設計：AIスレッド切替時の最新表示仕様を設計書へ反映する
     list: null
@@ -6254,7 +6263,340 @@ tasks:
       - 設定画面
     due_date: '2026-08-22'
     updated_at: '2026-08-22T14:17:03.585Z'
+  - id: T-0572
+    title: CHG-126-01 アプリ・プロジェクト分離方式の設計書と移行仕様を更新する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 572
+    tags:
+      - CHG-126
+      - 設計
+      - アーキテクチャ
+      - データ分離
+    due_date: '2026-08-23'
+    updated_at: '2026-08-28T13:22:17.863Z'
+  - id: T-0573
+    title: CHG-126-02 プロジェクトコンテキストとデータパス分離を実装する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 573
+    tags:
+      - CHG-126
+      - 実装
+      - データ分離
+      - IPC
+    due_date: '2026-08-23'
+    updated_at: '2026-08-28T13:22:18.351Z'
+  - id: T-0574
+    title: CHG-126-03 プロジェクト選択・新規作成・履歴UIを実装する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 574
+    tags:
+      - CHG-126
+      - 実装
+      - UI
+      - プロジェクト管理
+    due_date: '2026-08-23'
+    updated_at: '2026-08-28T13:22:21.197Z'
+  - id: T-0575
+    title: CHG-126-04 既存Portableデータの移行機能を実装する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 575
+    tags:
+      - CHG-126
+      - 実装
+      - データ移行
+      - Portable
+    due_date: '2026-08-23'
+    updated_at: '2026-08-28T13:22:21.623Z'
+  - id: T-0576
+    title: CHG-126-05 インストール版・更新・AIランタイムの配布構成を実装する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 576
+    tags:
+      - CHG-126
+      - 実装
+      - インストーラー
+      - 配布
+      - AIランタイム
+    due_date: '2026-08-23'
+    updated_at: '2026-08-28T13:22:24.823Z'
+  - id: T-0577
+    title: CHG-126-06 アプリ・プロジェクト分離の統合テストと配布資料更新を行う
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 577
+    tags:
+      - CHG-126
+      - テスト
+      - 配布検証
+      - ドキュメント
+    due_date: '2026-08-28'
+    updated_at: '2026-08-28T13:22:25.351Z'
+  - id: T-0578
+    title: CHG-126-07 ユーザー確認：共通アプリで複数プロジェクトを利用できることを確認する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 578
+    tags:
+      - CHG-126
+      - ユーザー確認
+      - データ分離
+      - インストーラー
+    due_date: '2026-08-28'
+    updated_at: '2026-08-28T13:22:25.831Z'
+  - id: T-0580
+    title: BUG-20260823-01 NSISインストール後にCotaska画面が起動しない問題を調査・修正する
+    list: 不具合修正
+    status: done
+    priority: high
+    sort_order: 580
+    tags:
+      - BUG-20260823-01
+      - CHG-126
+      - NSIS
+      - 起動不能
+      - Renderer
+    due_date: '2026-08-28'
+    updated_at: '2026-08-28T13:22:28.913Z'
+  - id: T-0581
+    title: BUG-20260823-01 ユーザー確認：NSISインストール後にCotaska画面が起動することを確認する
+    list: 不具合修正
+    status: done
+    priority: high
+    sort_order: 581
+    tags:
+      - BUG-20260823-01
+      - CHG-126
+      - ユーザー確認
+      - NSIS
+      - 起動確認
+    due_date: '2026-08-28'
+    updated_at: '2026-08-28T13:22:28.921Z'
+  - id: T-0582
+    title: CHG-126 アプリとプロジェクトデータの分離を完了する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 582
+    tags:
+      - CHG-126
+      - アプリ・プロジェクト分離
+      - プロジェクトデータ
+    due_date: null
+    updated_at: '2026-08-28T22:26:37.108+09:00'
+  - id: T-0583
+    title: CHG-126-08 設計：旧Portable移行の2回のフォルダ選択を案内する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 583
+    tags:
+      - CHG-126
+      - 設計
+      - 旧Portable移行
+      - プロジェクト選択
+    due_date: 2026-08-28T00:00:00.000Z
+    updated_at: '2026-08-28T13:22:29.419Z'
+  - id: T-0584
+    title: CHG-126-09 実装：旧Portable移行前に2回のフォルダ選択を案内する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 584
+    tags:
+      - CHG-126
+      - 実装
+      - 旧Portable移行
+      - メッセージボックス
+    due_date: 2026-08-28T00:00:00.000Z
+    updated_at: '2026-08-28T13:22:35.475Z'
+  - id: T-0585
+    title: CHG-126-10 ユーザー確認：旧Portable移行の2回のフォルダ選択案内を確認する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 585
+    tags:
+      - CHG-126
+      - ユーザー確認
+      - 旧Portable移行
+      - メッセージボックス
+    due_date: '2026-08-28'
+    updated_at: '2026-08-28T13:22:36.669Z'
+  - id: T-0586
+    title: CHG-126-11 設計：現在プロジェクト表示を画面左下へ移動する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 586
+    tags:
+      - CHG-126
+      - 設計
+      - プロジェクト表示
+      - 画面配置
+    due_date: 2026-08-28T00:00:00.000Z
+    updated_at: '2026-08-28T13:22:37.361Z'
+  - id: T-0587
+    title: CHG-126-12 実装：現在プロジェクト表示を画面左下へ移動する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 587
+    tags:
+      - CHG-126
+      - 実装
+      - プロジェクト表示
+      - 画面配置
+    due_date: 2026-08-28T00:00:00.000Z
+    updated_at: '2026-08-28T13:22:38.043Z'
+  - id: T-0588
+    title: CHG-126-13 ユーザー確認：現在プロジェクト表示の左下配置を確認する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 588
+    tags:
+      - CHG-126
+      - ユーザー確認
+      - プロジェクト表示
+      - 画面配置
+    due_date: '2026-08-28'
+    updated_at: '2026-08-28T13:22:38.577Z'
+  - id: T-0589
+    title: CHG-126-14 設計：ショートカットの保存先を利用者が選択できるようにする
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 589
+    tags:
+      - CHG-126
+      - 設計
+      - ショートカット
+      - 保存先選択
+    due_date: 2026-08-28T00:00:00.000Z
+    updated_at: '2026-08-28T13:22:39.129Z'
+  - id: T-0590
+    title: CHG-126-15 実装：ショートカットの保存ダイアログを追加する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 590
+    tags:
+      - CHG-126
+      - 実装
+      - ショートカット
+      - 保存先選択
+    due_date: 2026-08-28T00:00:00.000Z
+    updated_at: '2026-08-28T13:22:39.716Z'
+  - id: T-0591
+    title: CHG-126-16 ユーザー確認：ショートカットの任意保存先を確認する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 591
+    tags:
+      - CHG-126
+      - ユーザー確認
+      - ショートカット
+      - 保存先選択
+    due_date: '2026-08-28'
+    updated_at: '2026-08-28T13:22:40.351Z'
+  - id: T-0592
+    title: BUG-20260828-01 入力カーソル・文字選択位置と文字表示のずれを特定する
+    list: 不具合修正
+    status: done
+    priority: high
+    sort_order: 592
+    tags:
+      - BUG-20260828-01
+      - 不具合調査
+      - フォントサイズ
+      - 入力カーソル
+      - 文字選択
+      - textarea
+      - Renderer
+    due_date: '2026-08-28'
+    updated_at: '2026-08-28T22:11:53+09:00'
+  - id: T-0593
+    title: BUG-20260828-01 Markdown編集の表示文字と入力座標を一致させる
+    list: 不具合修正
+    status: todo
+    priority: high
+    sort_order: 593
+    tags:
+      - BUG-20260828-01
+      - 不具合修正
+      - Markdown編集
+      - 入力カーソル
+      - 文字選択
+      - Renderer
+    due_date: null
+    updated_at: '2026-08-28T22:11:53+09:00'
+  - id: T-0594
+    title: BUG-20260828-01 ユーザー確認：入力カーソルと文字選択位置を確認する
+    list: 不具合修正
+    status: todo
+    priority: high
+    sort_order: 594
+    tags:
+      - BUG-20260828-01
+      - ユーザー確認
+      - Markdown編集
+      - 入力カーソル
+      - 文字選択
+    due_date: null
+    updated_at: '2026-08-28T22:11:53+09:00'
+  - id: T-0595
+    title: CHG-126-19 ユーザー確認：プロジェクト外のAI作業フォルダを確認する
+    list: 仕様変更
+    status: todo
+    priority: high
+    sort_order: 595
+    tags:
+      - CHG-126
+      - ユーザー確認
+      - AI作業フォルダ
+      - パス制限
+    due_date: null
+    updated_at: '2026-08-28T13:22:09.111Z'
+  - id: T-0596
+    title: CHG-126-17 設計：AI作業フォルダのプロジェクト配下制限を解除する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 596
+    tags:
+      - CHG-126
+      - 設計
+      - AI作業フォルダ
+      - パス制限
+    due_date: 2026-08-28T00:00:00.000Z
+    updated_at: '2026-08-28T13:22:46.266Z'
+  - id: T-0597
+    title: CHG-126-18 実装：AI作業フォルダにプロジェクト外を指定可能にする
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 597
+    tags:
+      - CHG-126
+      - 実装
+      - AI作業フォルダ
+      - パス制限
+    due_date: 2026-08-28T00:00:00.000Z
+    updated_at: '2026-08-28T13:22:46.857Z'
 task_file_roots:
   - .
-next_task_id: 572
-last_updated: '2026-08-22T14:17:04.188Z'
+next_task_id: 598
+last_updated: '2026-08-28T13:27:17.094Z'

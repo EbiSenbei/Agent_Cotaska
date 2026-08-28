@@ -6,9 +6,10 @@
 const fs = require('fs');
 const path = require('path');
 const YAML = require('js-yaml');
+const projectContext = require('./projectContext');
 
-const TASKS_DIR = path.join(process.cwd(), '../data/tasks');
-const INDEX_PATH = path.join(TASKS_DIR, '_index.yaml');
+const getTasksDir = () => projectContext.getCurrent().tasksDir;
+const getIndexPath = () => projectContext.getCurrent().indexFile;
 
 function normalizeRelativePath(relPath) {
   return String(relPath || '')
@@ -29,7 +30,7 @@ function normalizeRootPath(rootPath) {
   if (!normalized) return '.';
 
   if (path.isAbsolute(normalized)) {
-    const relativeFromTasks = normalizeRelativePath(path.relative(TASKS_DIR, normalized));
+    const relativeFromTasks = normalizeRelativePath(path.relative(getTasksDir(), normalized));
     if (!relativeFromTasks || relativeFromTasks.startsWith('..')) return '.';
     return relativeFromTasks;
   }
@@ -42,7 +43,7 @@ function deriveRootsFromTasks(taskList) {
     .map((task) => {
       const runtimePath = task._filePath || '';
       const pathForRoot = path.isAbsolute(runtimePath)
-        ? normalizeRelativePath(path.relative(TASKS_DIR, runtimePath))
+        ? normalizeRelativePath(path.relative(getTasksDir(), runtimePath))
         : normalizeRelativePath(runtimePath);
       const relPath = pathForRoot && !pathForRoot.startsWith('..') ? pathForRoot : '.';
       const dir = path.posix.dirname(relPath || '.');
@@ -90,8 +91,8 @@ function rebuildIndex(taskCache, taskFileRoots = ['.']) {
     };
 
     const yaml = YAML.dump(indexData, { lineWidth: -1 });
-    if (fs.existsSync(INDEX_PATH)) {
-      const currentYaml = fs.readFileSync(INDEX_PATH, 'utf-8');
+    if (fs.existsSync(getIndexPath())) {
+      const currentYaml = fs.readFileSync(getIndexPath(), 'utf-8');
       try {
         const currentData = YAML.load(currentYaml) || {};
         const comparableCurrentYaml = YAML.dump(
@@ -108,7 +109,7 @@ function rebuildIndex(taskCache, taskFileRoots = ['.']) {
     }
 
     // _index.yaml に書き込み
-    fs.writeFileSync(INDEX_PATH, yaml, 'utf-8');
+    fs.writeFileSync(getIndexPath(), yaml, 'utf-8');
 
     console.log(`[IndexService] Rebuilt index: ${taskList.length} tasks`);
     return { success: true, taskCount: taskList.length, last_updated: indexData.last_updated };

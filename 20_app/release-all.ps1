@@ -1,72 +1,36 @@
-﻿# Cotaska release-all.ps1
-# ステップ 1: npm run dist:dir (レンダラービルド + Electron パッケージング)
-# ステップ 2: C# ランチャービルド (setup/launcher/build.ps1)
-# ステップ 3: organize-release.ps1 (配布フォルダの再構成)
-# ステップ 4: ランチャー EXE を配布ルートへコピー
-# ステップ 5: 出荷前検証
-# ステップ 6: Cotaska-Portable.zip 作成
-# 追加: CotaskaCore.exe にアイコンと表示名メタデータを後書き
+# Cotaska NSIS installer release builder (CHG-126)
 #
-# 使い方:  cd 20_app  ;  .\release-all.ps1
-#          .\release-all.ps1 -Version "0.3.3"
+# Usage:
+#   cd 20_app
+#   .\release-all.ps1
+#   .\release-all.ps1 -Version "0.3.7"
 
 param([string]$Version)
 
 $ErrorActionPreference = "Stop"
 
-$scriptDir   = Split-Path -Parent $MyInvocation.MyCommand.Path
-$repoRoot    = (Resolve-Path (Join-Path $scriptDir "..")).Path
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$repoRoot = (Resolve-Path (Join-Path $scriptDir "..")).Path
+$releaseDir = Join-Path $scriptDir "release"
+$nodeDir = Resolve-Path (Join-Path $scriptDir "..\..\v22.14.0")
+$npmCmd = Join-Path $nodeDir "npm.cmd"
+$npmCacheDir = Join-Path ([System.IO.Path]::GetTempPath()) "cotaska-npm-cache"
+
 . (Join-Path $scriptDir "scripts\release-common.ps1")
 $Version = Resolve-CotaskaReleaseVersion -AppDir $scriptDir -RequestedVersion $Version
 Write-CotaskaDirtyTreeWarning -RepoRoot $repoRoot
-$nodeDir     = Resolve-Path (Join-Path $scriptDir "..\..\v22.14.0")
-$launcherDir = Join-Path $scriptDir "setup\launcher"
-$updaterDir  = Join-Path $scriptDir "setup\updater"
-$distRoot    = Join-Path $scriptDir "release\Cotaska-Portable"
-$distZip     = Join-Path $scriptDir "release\Cotaska-Portable.zip"
-$distZipSha256 = "$distZip.sha256"
-$legacyDistRoot = Join-Path $scriptDir "release\Cotaska-dist"
-$legacyDistZip = Join-Path $scriptDir "release\Cotaska-dist.zip"
-$distCoreExe = Join-Path $distRoot "_app\CotaskaCore.exe"
-$codexCliRelativePath = "resources\app.asar.unpacked\node_modules\@openai\codex-win32-x64\vendor\x86_64-pc-windows-msvc\bin\codex.exe"
-$distCodexCli = Join-Path (Join-Path $distRoot "_app") $codexCliRelativePath
-$launcherIcon = Join-Path $launcherDir "icon.ico"
-$sourceDataDir = Join-Path $scriptDir "..\data"
-$distDataDir = Join-Path $distRoot "data"
-$sourceToolsDir = Join-Path $scriptDir "scripts"
-$distToolsDir = Join-Path $distRoot "tools"
-$sourceUpdaterExe = Join-Path $sourceToolsDir "CotaskaUpdater.exe"
-$sourceAiAgentRule = Join-Path $repoRoot "10_docs\20_実装準備\10_運用ルール\Cotaska_AIエージェント運用ルール.md"
-if (-not (Test-Path -LiteralPath $sourceAiAgentRule)) {
-    $sourceAiAgentRule = Join-Path $repoRoot "00_mgmt\Cotaska_タスク管理ツール\Cotaska_AIエージェント運用ルール.md"
-}
-$aiAgentRuleFileName = Split-Path -Leaf $sourceAiAgentRule
-$distAiAgentRule = Join-Path $distRoot $aiAgentRuleFileName
-$sourceReadme = Join-Path $repoRoot "README.md"
-$distReadme = Join-Path $distRoot "README.md"
-$npmCmd = Join-Path $nodeDir "npm.cmd"
+
+$artifactBaseName = "Cotaska-$Version-win-x64.exe"
+$installerPath = Join-Path $releaseDir $artifactBaseName
+$blockmapPath = "$installerPath.blockmap"
+$latestYamlPath = Join-Path $releaseDir "latest.yml"
+$legacyInstallerPath = Join-Path $releaseDir "CotaskaCore-$Version-win-x64.exe"
+$legacyBlockmapPath = "$legacyInstallerPath.blockmap"
+$unpackedDir = Join-Path $releaseDir "win-unpacked"
+$codexRelativePath = "resources\app.asar.unpacked\node_modules\@openai\codex-win32-x64\vendor\x86_64-pc-windows-msvc\bin\codex.exe"
+$claudeRelativePath = "resources\app.asar.unpacked\node_modules\@anthropic-ai\claude-agent-sdk-win32-x64\claude.exe"
 
 $env:PATH = "$nodeDir;$env:PATH"
-
-function Remove-PathWithRetry {
-    param(
-        [Parameter(Mandatory = $true)][string]$Path,
-        [int]$Retries = 5,
-        [int]$DelayMilliseconds = 500
-    )
-
-    for ($i = 1; $i -le $Retries; $i++) {
-        try {
-            Remove-Item -LiteralPath $Path -Recurse -Force -ErrorAction Stop
-            return
-        } catch {
-            if ($i -eq $Retries) {
-                throw
-            }
-            Start-Sleep -Milliseconds $DelayMilliseconds
-        }
-    }
-}
 
 function Invoke-NpmChecked {
     param(
@@ -76,504 +40,258 @@ function Invoke-NpmChecked {
 
     & $npmCmd @Arguments
     if ($LASTEXITCODE -ne 0) {
-        Write-Host $FailureMessage -ForegroundColor Red
-        exit 1
+        throw $FailureMessage
     }
 }
 
 function Test-RequiredCommonJsDependency {
-    param(
-        [Parameter(Mandatory = $true)][string]$PackageName
-    )
+    param([Parameter(Mandatory = $true)][string]$PackageName)
 
-    $resolveScript = "require.resolve('$PackageName')"
-    & node -e $resolveScript | Out-Null
+    & node -e "require.resolve('$PackageName')" | Out-Null
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "[失敗] 必須依存関係が見つかりません: $PackageName" -ForegroundColor Red
-        exit 1
+        throw "必須依存関係が見つかりません: $PackageName"
     }
 }
 
 function Test-RequiredEsmDependency {
-    param(
-        [Parameter(Mandatory = $true)][string]$PackageName
-    )
+    param([Parameter(Mandatory = $true)][string]$PackageName)
 
-    $importScript = "await import('$PackageName')"
-    & node --input-type=module -e $importScript | Out-Null
+    & node --input-type=module -e "await import('$PackageName')" | Out-Null
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "[失敗] 必須依存関係が見つかりません: $PackageName" -ForegroundColor Red
-        exit 1
+        throw "必須依存関係が見つかりません: $PackageName"
     }
 }
 
-function Test-ZipEntryHash {
-    param(
-        [Parameter(Mandatory = $true)][string]$ZipPath,
-        [Parameter(Mandatory = $true)][string]$EntryName,
-        [Parameter(Mandatory = $true)][string]$ExpectedHash
-    )
+function Get-FileSha512Base64 {
+    param([Parameter(Mandatory = $true)][string]$Path)
 
-    Add-Type -AssemblyName System.IO.Compression.FileSystem
-    $archive = [System.IO.Compression.ZipFile]::OpenRead($ZipPath)
+    $stream = [System.IO.File]::OpenRead($Path)
     try {
-        $entry = $archive.GetEntry($EntryName)
-        if ($null -eq $entry) {
-            return $false
-        }
-        $stream = $entry.Open()
+        $sha512 = [System.Security.Cryptography.SHA512]::Create()
         try {
-            $sha256 = [System.Security.Cryptography.SHA256]::Create()
-            try {
-                $actualHash = ([System.BitConverter]::ToString($sha256.ComputeHash($stream))).Replace("-", "").ToLowerInvariant()
-            }
-            finally {
-                $sha256.Dispose()
-            }
+            return [Convert]::ToBase64String($sha512.ComputeHash($stream))
         }
         finally {
-            $stream.Dispose()
+            $sha512.Dispose()
         }
     }
     finally {
-        $archive.Dispose()
-    }
-    return $actualHash -eq $ExpectedHash.ToLowerInvariant()
-}
-
-Write-Host ""
-Write-Host "=======================================" -ForegroundColor Green
-Write-Host " Cotaska リリース一括作成  v$Version" -ForegroundColor Green
-Write-Host "=======================================" -ForegroundColor Green
-
-if (Test-Path -LiteralPath $legacyDistRoot) {
-    Write-Host "旧ポータブルフォルダを削除しています: $legacyDistRoot" -ForegroundColor Yellow
-    Remove-PathWithRetry -Path $legacyDistRoot
-}
-if (Test-Path -LiteralPath $legacyDistZip) {
-    Write-Host "旧ポータブルZIPを削除しています: $legacyDistZip" -ForegroundColor Yellow
-    Remove-Item -LiteralPath $legacyDistZip -Force
-}
-
-# -------------------------------------------------------
-# ステップ 0.5: Node 依存関係の復元と検証
-# -------------------------------------------------------
-Write-Host "`n[ステップ 0.5] Node 依存関係を復元しています..." -ForegroundColor Cyan
-Set-Location $scriptDir
-if (-not (Test-Path -LiteralPath $npmCmd)) {
-    Write-Host "[失敗] npm が見つかりません: $npmCmd" -ForegroundColor Red
-    exit 1
-}
-Invoke-NpmChecked -Arguments @("ci", "--no-audit", "--no-fund") -FailureMessage "[失敗] npm ci"
-Test-RequiredCommonJsDependency -PackageName "sql.js"
-Test-RequiredEsmDependency -PackageName "@openai/codex-sdk"
-Write-Host "  完了: Node 依存関係の復元と検証が完了しました" -ForegroundColor Green
-
-# -------------------------------------------------------
-# ステップ 1: レンダラービルド + Electron パッケージング
-# -------------------------------------------------------
-Write-Host "`n[ステップ 1] npm run dist:dir を実行しています..." -ForegroundColor Cyan
-Set-Location $scriptDir
-Invoke-NpmChecked -Arguments @("run", "dist:dir") -FailureMessage "[失敗] npm run dist:dir"
-$winUnpackedCore = Join-Path $scriptDir "release\win-unpacked\CotaskaCore.exe"
-if (-not (Test-Path $winUnpackedCore)) {
-    Write-Host "[失敗] win-unpacked\CotaskaCore.exe が見つかりません" -ForegroundColor Red
-    exit 1
-}
-Write-Host "  完了: Electron パッケージング完了" -ForegroundColor Green
-
-# -------------------------------------------------------
-# ステップ 2: C# ランチャービルド
-# -------------------------------------------------------
-Write-Host "`n[ステップ 2] C# ランチャーをビルドしています..." -ForegroundColor Cyan
-$buildPs1 = Join-Path $launcherDir "build.ps1"
-if (-not (Test-Path $buildPs1)) {
-    Write-Host "  [警告] $buildPs1 が見つかりません。ランチャービルドをスキップします。" -ForegroundColor Yellow
-} else {
-    & powershell -ExecutionPolicy Bypass -File $buildPs1
-    $launcherBuildExitCode = $LASTEXITCODE
-    if ($launcherBuildExitCode -ne 0) {
-        Write-Host "  [警告] ランチャービルドに失敗しました。既存ランチャーがあれば使用します。" -ForegroundColor Yellow
-        $global:LASTEXITCODE = 0
-    }
-    else {
-        Write-Host "  完了: ランチャービルド完了" -ForegroundColor Green
+        $stream.Dispose()
     }
 }
 
-# -------------------------------------------------------
-# ステップ 2.5: updater ビルド
-# -------------------------------------------------------
-Write-Host "`n[ステップ 2.5] アップデーターをビルドしています..." -ForegroundColor Cyan
-$updaterBuildPs1 = Join-Path $updaterDir "build.ps1"
-if (-not (Test-Path $updaterBuildPs1)) {
-    Write-Host "[失敗] $updaterBuildPs1 が見つかりません。" -ForegroundColor Red
-    exit 1
-} else {
-    & powershell -ExecutionPolicy Bypass -File $updaterBuildPs1
-    $updaterBuildExitCode = $LASTEXITCODE
-    if ($updaterBuildExitCode -ne 0) {
-        Write-Host "[失敗] アップデータービルドに失敗しました。" -ForegroundColor Red
-        exit 1
+function Assert-ReleaseFile {
+    param([Parameter(Mandatory = $true)][string]$Path)
+
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        throw "リリース成果物が見つかりません: $Path"
     }
-    elseif (Test-Path -LiteralPath $sourceUpdaterExe) {
-        Write-Host "  完了: アップデータービルド完了" -ForegroundColor Green
+    if ((Get-Item -LiteralPath $Path).Length -le 0) {
+        throw "リリース成果物が空です: $Path"
     }
-    else {
-        Write-Host "[失敗] アップデーターが生成されませんでした: $sourceUpdaterExe" -ForegroundColor Red
-        exit 1
-    }
-}
-
-# -------------------------------------------------------
-# ステップ 3: 配布フォルダの再構成
-# -------------------------------------------------------
-Write-Host "`n[ステップ 3] リリースフォルダを整理しています..." -ForegroundColor Cyan
-Set-Location $scriptDir
-& ".\organize-release.ps1" -Version $Version
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "[失敗] organize-release.ps1 の実行に失敗しました" -ForegroundColor Red
-    exit 1
-}
-Write-Host "  完了: リリースフォルダ整理完了" -ForegroundColor Green
-
-if (Test-Path $sourceDataDir) {
-    Write-Host "  data/ を配布ルートへ同期しています..." -ForegroundColor Cyan
-    if (Test-Path $distDataDir) {
-        Remove-Item $distDataDir -Recurse -Force
-    }
-    Copy-Item $sourceDataDir -Destination $distDataDir -Recurse -Force
-    Write-Host "  完了: data/ 同期完了" -ForegroundColor Green
-}
-else {
-    Write-Host "  [警告] 元の data フォルダが見つかりません: $sourceDataDir" -ForegroundColor Yellow
-}
-
-Write-Host "  tools/ を配布ルートへ同期しています..." -ForegroundColor Cyan
-if (Test-Path $distToolsDir) {
-    Remove-Item $distToolsDir -Recurse -Force
-}
-New-Item -ItemType Directory -Path $distToolsDir | Out-Null
-$toolScripts = Get-ChildItem -LiteralPath $sourceToolsDir -File -ErrorAction SilentlyContinue |
-    Where-Object { $_.Extension -in @(".ps1", ".cmd", ".bat") -or $_.Name -eq "CotaskaUpdater.exe" }
-if ($toolScripts.Count -gt 0) {
-    $toolScripts | Copy-Item -Destination $distToolsDir -Force
-    Write-Host "  完了: tools/ 同期完了（$($toolScripts.Count) 件）" -ForegroundColor Green
-}
-else {
-    Write-Host "  [警告] ツールスクリプトが見つかりません: $sourceToolsDir" -ForegroundColor Yellow
-}
-
-# -------------------------------------------------------
-# ステップ 4: ランチャー EXE を配布ルートへコピー
-# -------------------------------------------------------
-Write-Host "`n[ステップ 4] ランチャーを配布ルートへコピーしています..." -ForegroundColor Cyan
-$launcherExe  = Join-Path $launcherDir "Cotaska.exe"
-$distLauncher = Join-Path $distRoot    "Cotaska.exe"
-if (Test-Path $launcherExe) {
-    Copy-Item $launcherExe -Destination $distLauncher -Force
-    $sizeKB = [math]::Round((Get-Item $distLauncher).Length / 1KB, 1)
-    Write-Host "  完了: ランチャーをコピーしました -> $distLauncher ($sizeKB KB)" -ForegroundColor Green
-} else {
-    Write-Host "  [警告] $launcherExe が見つかりません。既存ランチャーを使用します。" -ForegroundColor Yellow
-}
-
-if (-not (Test-Path -LiteralPath $sourceAiAgentRule)) {
-    Write-Host "  [失敗] AIエージェント運用ルールが見つかりません: $sourceAiAgentRule" -ForegroundColor Red
-    exit 1
-}
-Copy-Item -LiteralPath $sourceAiAgentRule -Destination $distAiAgentRule -Force
-Write-Host "  完了: AIエージェント運用ルールをコピーしました -> $distAiAgentRule" -ForegroundColor Green
-
-if (-not (Test-Path -LiteralPath $sourceReadme)) {
-    Write-Host "  [失敗] README が見つかりません: $sourceReadme" -ForegroundColor Red
-    exit 1
-}
-Copy-Item -LiteralPath $sourceReadme -Destination $distReadme -Force
-Write-Host "  完了: README をコピーしました -> $distReadme" -ForegroundColor Green
-
-if ((Test-Path $distCoreExe) -and (Test-Path $launcherIcon)) {
-    Write-Host "  CotaskaCore.exe のアイコンとメタデータを更新しています..." -ForegroundColor Cyan
-    $setIconPs1 = Join-Path $launcherDir "Set-ExeIcon.ps1"
-    & powershell -ExecutionPolicy Bypass -File $setIconPs1 -ExePath $distCoreExe -IconPath $launcherIcon -Version $Version
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "[失敗] CotaskaCore.exe のアイコン/メタデータ更新に失敗しました" -ForegroundColor Red
-        exit 1
-    }
-    Write-Host "  完了: CotaskaCore.exe のアイコンとメタデータを更新しました" -ForegroundColor Green
-}
-
-if ((Test-Path $distLauncher) -and (Test-Path $launcherIcon)) {
-    Write-Host "  Cotaska.exe のアイコンとメタデータを更新しています..." -ForegroundColor Cyan
-    $setIconPs1 = Join-Path $launcherDir "Set-ExeIcon.ps1"
-    & powershell -ExecutionPolicy Bypass -File $setIconPs1 `
-        -ExePath $distLauncher `
-        -IconPath $launcherIcon `
-        -FileDescription "Cotaska Launcher" `
-        -ProductName "Cotaska" `
-        -OriginalFilename "Cotaska.exe" `
-        -InternalFilename "Cotaska" `
-        -Version $Version
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "[失敗] Cotaska.exe のアイコン/メタデータ更新に失敗しました" -ForegroundColor Red
-        exit 1
-    }
-    Write-Host "  完了: Cotaska.exe のアイコンとメタデータを更新しました" -ForegroundColor Green
 }
 
 function Get-AssociatedIconHash {
     param(
-        [Parameter(Mandatory = $true)][string]$Path
-    )
-
-    Add-Type -AssemblyName System.Drawing
-    $icon = [System.Drawing.Icon]::ExtractAssociatedIcon((Resolve-Path $Path).Path)
-    $bitmap = $icon.ToBitmap()
-    $stream = New-Object System.IO.MemoryStream
-    try {
-        $bitmap.Save($stream, [System.Drawing.Imaging.ImageFormat]::Png)
-        return [System.BitConverter]::ToString(
-            [System.Security.Cryptography.SHA256]::Create().ComputeHash($stream.ToArray())
-        ).Replace("-", "")
-    }
-    finally {
-        $stream.Dispose()
-        $bitmap.Dispose()
-        $icon.Dispose()
-    }
-}
-
-function Get-IcoHash {
-    param(
-        [Parameter(Mandatory = $true)][string]$Path
-    )
-
-    Add-Type -AssemblyName System.Drawing
-    $icon = New-Object System.Drawing.Icon((Resolve-Path $Path).Path)
-    $bitmap = $icon.ToBitmap()
-    $stream = New-Object System.IO.MemoryStream
-    try {
-        $bitmap.Save($stream, [System.Drawing.Imaging.ImageFormat]::Png)
-        return [System.BitConverter]::ToString(
-            [System.Security.Cryptography.SHA256]::Create().ComputeHash($stream.ToArray())
-        ).Replace("-", "")
-    }
-    finally {
-        $stream.Dispose()
-        $bitmap.Dispose()
-        $icon.Dispose()
-    }
-}
-
-function Test-ExeVersionInfo {
-    param(
         [Parameter(Mandatory = $true)][string]$Path,
-        [Parameter(Mandatory = $true)][string]$ExpectedProductName,
-        [Parameter(Mandatory = $true)][string]$ExpectedFileDescription,
-        [Parameter(Mandatory = $true)][string]$ExpectedOriginalFilename
+        [switch]$ExtractFromExecutable
     )
 
-    $versionInfo = (Get-Item -LiteralPath $Path).VersionInfo
-    return (
-        $versionInfo.ProductName -eq $ExpectedProductName -and
-        $versionInfo.FileDescription -eq $ExpectedFileDescription -and
-        $versionInfo.OriginalFilename -eq $ExpectedOriginalFilename
-    )
-}
-
-function Restore-CoreExeIfMissing {
-    if ((-not (Test-Path -LiteralPath $distCoreExe)) -and (Test-Path -LiteralPath $winUnpackedCore)) {
-        Write-Host "  CotaskaCore.exe を配布用 _app へ復元しています..." -ForegroundColor Yellow
-        Copy-Item -LiteralPath $winUnpackedCore -Destination $distCoreExe -Force
-        if (Test-Path $launcherIcon) {
-            $setIconPs1 = Join-Path $launcherDir "Set-ExeIcon.ps1"
-            & powershell -ExecutionPolicy Bypass -File $setIconPs1 -ExePath $distCoreExe -IconPath $launcherIcon -Version $Version
-            if ($LASTEXITCODE -ne 0) {
-                Write-Host "[失敗] 復元した CotaskaCore.exe のメタデータ更新に失敗しました" -ForegroundColor Red
-                exit 1
+    Add-Type -AssemblyName System.Drawing
+    if ($ExtractFromExecutable) {
+        $icon = [System.Drawing.Icon]::ExtractAssociatedIcon((Resolve-Path -LiteralPath $Path).Path)
+    }
+    else {
+        $icon = New-Object System.Drawing.Icon((Resolve-Path -LiteralPath $Path).Path)
+    }
+    try {
+        $bitmap = $icon.ToBitmap()
+        try {
+            $stream = New-Object System.IO.MemoryStream
+            try {
+                $bitmap.Save($stream, [System.Drawing.Imaging.ImageFormat]::Png)
+                $sha256 = [System.Security.Cryptography.SHA256]::Create()
+                try {
+                    return ([BitConverter]::ToString($sha256.ComputeHash($stream.ToArray()))).Replace("-", "")
+                }
+                finally {
+                    $sha256.Dispose()
+                }
+            }
+            finally {
+                $stream.Dispose()
             }
         }
+        finally {
+            $bitmap.Dispose()
+        }
+    }
+    finally {
+        $icon.Dispose()
     }
 }
 
-# -------------------------------------------------------
-# ステップ 5: 出荷前検証
-# -------------------------------------------------------
-Write-Host "`n[ステップ 5] 出荷前検証を実行しています..." -ForegroundColor Cyan
+function Invoke-CotaskaStartupSmokeTest {
+    param([Parameter(Mandatory = $true)][string]$ExecutablePath)
 
-$checks = @(
-    @{ Path = $distRoot;                                       Label = "配布ルート" },
-    @{ Path = (Join-Path $distRoot "Cotaska.exe");             Label = "Cotaska.exe（ランチャー）" },
-    @{ Path = (Join-Path $distRoot "_app");                    Label = "_app/" },
-    @{ Path = (Join-Path $distRoot "_app\resources\app.asar"); Label = "_app/resources/app.asar" },
-    @{ Path = $distCodexCli;                                  Label = "同梱 Codex CLI" },
-    @{ Path = (Join-Path $distRoot "data");                    Label = "data/" },
-    @{ Path = (Join-Path $distRoot "data\tasks");              Label = "data/tasks/" },
-    @{ Path = (Join-Path $distRoot "tools\validate-tasks.ps1"); Label = "tools/validate-tasks.ps1" },
-    @{ Path = (Join-Path $distRoot "tools\remove-progress-field.cmd"); Label = "tools/remove-progress-field.cmd" },
-    @{ Path = (Join-Path $distRoot "tools\CotaskaUpdater.exe"); Label = "tools/CotaskaUpdater.exe" },
-    @{ Path = (Join-Path $distRoot $aiAgentRuleFileName);       Label = $aiAgentRuleFileName },
-    @{ Path = (Join-Path $distRoot "README.md");                Label = "README.md" },
-    @{ Path = (Join-Path $distRoot "logs");                    Label = "logs/" }
-)
+    $resolvedExecutablePath = (Resolve-Path -LiteralPath $ExecutablePath).Path
+    $smokeRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("cotaska-startup-smoke-" + [Guid]::NewGuid().ToString("N"))
+    $markerPath = Join-Path $smokeRoot "renderer-ready.json"
+    $previousMarker = $env:COTASKA_STARTUP_MARKER
+    $previousSmokeTest = $env:COTASKA_SMOKE_TEST
+    $previousInstanceId = $env:COTASKA_SMOKE_INSTANCE_ID
+    $process = $null
 
-$allOk = $true
-foreach ($c in $checks) {
-    if (Test-Path $c.Path) {
-        Write-Host ("  正常  " + $c.Label) -ForegroundColor Green
-    } else {
-        Write-Host ("  異常  " + $c.Label) -ForegroundColor Red
-        $allOk = $false
+    try {
+        New-Item -ItemType Directory -Path $smokeRoot -Force | Out-Null
+        $env:COTASKA_STARTUP_MARKER = $markerPath
+        $env:COTASKA_SMOKE_TEST = "1"
+        $env:COTASKA_SMOKE_INSTANCE_ID = [Guid]::NewGuid().ToString("N")
+        $process = Start-Process -FilePath $resolvedExecutablePath -WorkingDirectory (Split-Path -Parent $resolvedExecutablePath) -PassThru -WindowStyle Hidden
+
+        $deadline = [DateTime]::UtcNow.AddSeconds(30)
+        while ([DateTime]::UtcNow -lt $deadline -and -not (Test-Path -LiteralPath $markerPath -PathType Leaf)) {
+            if ($process.HasExited) { break }
+            Start-Sleep -Milliseconds 250
+        }
+
+        if (-not (Test-Path -LiteralPath $markerPath -PathType Leaf)) {
+            $exitDescription = if ($process.HasExited) { "exitCode=$($process.ExitCode)" } else { "process is still running" }
+            throw "Cotaska.exeのRenderer起動を確認できませんでした: $exitDescription"
+        }
+
+        $marker = Get-Content -Raw -Encoding UTF8 -LiteralPath $markerPath | ConvertFrom-Json
+        if ([string]::IsNullOrWhiteSpace([string]$marker.url)) {
+            throw "起動マーカーにRenderer URLが記録されていません。"
+        }
+
+        if (-not $process.WaitForExit(10000)) {
+            throw "スモークテスト後にCotaska.exeが終了しませんでした。"
+        }
+        if ($process.ExitCode -ne 0) {
+            throw "スモークテスト終了コードが異常です: $($process.ExitCode)"
+        }
     }
-}
-
-if ((Test-Path -LiteralPath $sourceUpdaterExe) -and (Test-Path -LiteralPath (Join-Path $distRoot "tools\CotaskaUpdater.exe"))) {
-    $sourceUpdaterHash = (Get-FileHash -LiteralPath $sourceUpdaterExe -Algorithm SHA256).Hash
-    $distUpdaterHash = (Get-FileHash -LiteralPath (Join-Path $distRoot "tools\CotaskaUpdater.exe") -Algorithm SHA256).Hash
-    if ($sourceUpdaterHash -eq $distUpdaterHash) {
-        Write-Host "  正常  CotaskaUpdater.exe はビルド成果物と一致" -ForegroundColor Green
-    } else {
-        Write-Host "  異常  CotaskaUpdater.exe がビルド成果物と一致しません" -ForegroundColor Red
-        $allOk = $false
-    }
-}
-
-if ((Test-Path $launcherIcon) -and (Test-Path (Join-Path $distRoot "Cotaska.exe")) -and (Test-Path $distCoreExe)) {
-    $expectedIconHash = Get-IcoHash -Path $launcherIcon
-    $launcherIconHash = Get-AssociatedIconHash -Path (Join-Path $distRoot "Cotaska.exe")
-    $coreIconHash = Get-AssociatedIconHash -Path $distCoreExe
-
-    if ($launcherIconHash -eq $expectedIconHash) {
-        Write-Host "  正常  Cotaska.exe のアイコン" -ForegroundColor Green
-    } else {
-        Write-Host "  異常  Cotaska.exe のアイコン" -ForegroundColor Red
-        $allOk = $false
-    }
-
-    if ($coreIconHash -eq $expectedIconHash) {
-        Write-Host "  正常  CotaskaCore.exe のアイコン" -ForegroundColor Green
-    } else {
-        Write-Host "  異常  CotaskaCore.exe のアイコン" -ForegroundColor Red
-        $allOk = $false
-    }
-
-    $distLauncher = Join-Path $distRoot "Cotaska.exe"
-    if (Test-ExeVersionInfo -Path $distLauncher -ExpectedProductName "Cotaska" -ExpectedFileDescription "Cotaska Launcher" -ExpectedOriginalFilename "Cotaska.exe") {
-        Write-Host "  正常  Cotaska.exe のメタデータ" -ForegroundColor Green
-    } else {
-        $launcherVersionInfo = (Get-Item -LiteralPath $distLauncher).VersionInfo
-        Write-Host "  異常  Cotaska.exe のメタデータ" -ForegroundColor Red
-        Write-Host "      ファイル説明=$($launcherVersionInfo.FileDescription)" -ForegroundColor Red
-        Write-Host "      製品名=$($launcherVersionInfo.ProductName)" -ForegroundColor Red
-        Write-Host "      元のファイル名=$($launcherVersionInfo.OriginalFilename)" -ForegroundColor Red
-        Write-Host "      内部名=$($launcherVersionInfo.InternalName)" -ForegroundColor Red
-        $allOk = $false
-    }
-
-    if (Test-ExeVersionInfo -Path $distCoreExe -ExpectedProductName "CotaskaCore" -ExpectedFileDescription "CotaskaCore" -ExpectedOriginalFilename "CotaskaCore.exe") {
-        Write-Host "  正常  CotaskaCore.exe のメタデータ" -ForegroundColor Green
-    } else {
-        $coreVersionInfo = (Get-Item -LiteralPath $distCoreExe).VersionInfo
-        Write-Host "  異常  CotaskaCore.exe のメタデータ" -ForegroundColor Red
-        Write-Host "      ファイル説明=$($coreVersionInfo.FileDescription)" -ForegroundColor Red
-        Write-Host "      製品名=$($coreVersionInfo.ProductName)" -ForegroundColor Red
-        Write-Host "      元のファイル名=$($coreVersionInfo.OriginalFilename)" -ForegroundColor Red
-        Write-Host "      内部名=$($coreVersionInfo.InternalName)" -ForegroundColor Red
-        $allOk = $false
+    finally {
+        $env:COTASKA_STARTUP_MARKER = $previousMarker
+        $env:COTASKA_SMOKE_TEST = $previousSmokeTest
+        $env:COTASKA_SMOKE_INSTANCE_ID = $previousInstanceId
+        if ($null -ne $process -and -not $process.HasExited) {
+            Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+        }
+        if (Test-Path -LiteralPath $smokeRoot -PathType Container) {
+            Remove-Item -LiteralPath $smokeRoot -Recurse -Force
+        }
     }
 }
 
 Write-Host ""
-if ($allOk) {
-    # -------------------------------------------------------
-    # ステップ 6: GitHub Releases 添付用 zip 作成
-    # -------------------------------------------------------
-    Write-Host "`n[ステップ 6] リリースZIPを作成しています..." -ForegroundColor Cyan
-    if (-not (Test-Path -LiteralPath $distRoot)) {
-        Write-Host "[失敗] 配布フォルダが見つかりません: $distRoot" -ForegroundColor Red
-        exit 1
-    }
-    if (Test-Path -LiteralPath $distZip) {
-        Remove-Item -LiteralPath $distZip -Force
-    }
-    if (Test-Path -LiteralPath $distZipSha256) {
-        Remove-Item -LiteralPath $distZipSha256 -Force
-    }
-    Restore-CoreExeIfMissing
-    if (-not (Test-Path -LiteralPath $distCoreExe)) {
-        Write-Host "[失敗] ZIP作成前の配布フォルダに CotaskaCore.exe がありません" -ForegroundColor Red
-        exit 1
-    }
-    $distName = Split-Path -Leaf $distRoot
-    $zipStagingRoot = Join-Path $env:TEMP "cotaska-release-zip"
-    $zipStagingDist = Join-Path $zipStagingRoot $distName
-    if (Test-Path -LiteralPath $zipStagingRoot) {
-        Remove-PathWithRetry -Path $zipStagingRoot
-    }
-    New-Item -ItemType Directory -Path $zipStagingRoot -Force | Out-Null
-    Copy-Item -LiteralPath $distRoot -Destination $zipStagingRoot -Recurse -Force
-    if (-not (Test-Path -LiteralPath (Join-Path $zipStagingDist "_app\CotaskaCore.exe"))) {
-        Write-Host "[失敗] ZIP作成用一時フォルダに CotaskaCore.exe がありません" -ForegroundColor Red
-        exit 1
-    }
-    Push-Location $zipStagingRoot
-    try {
-        tar.exe -a -cf $distZip $distName
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "[失敗] リリースZIPの作成に失敗しました" -ForegroundColor Red
-            exit 1
-        }
-    }
-    finally {
-        Pop-Location
-        Remove-PathWithRetry -Path $zipStagingRoot
-    }
-    if (-not (Test-Path -LiteralPath $distZip)) {
-        Write-Host "[失敗] リリースZIPが作成されていません: $distZip" -ForegroundColor Red
-        exit 1
-    }
-    $zipListing = tar.exe -tf $distZip
-    $requiredZipEntries = @(
-        "Cotaska-Portable/Cotaska.exe",
-        "Cotaska-Portable/_app/CotaskaCore.exe",
-        "Cotaska-Portable/_app/resources/app.asar",
-        "Cotaska-Portable/_app/resources/app.asar.unpacked/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/bin/codex.exe"
-    )
-    foreach ($entry in $requiredZipEntries) {
-        if ($zipListing -notcontains $entry) {
-            Write-Host "[失敗] リリースZIPに必須ファイルが含まれていません: $entry" -ForegroundColor Red
-            exit 1
-        }
-    }
-    $updaterZipEntry = "Cotaska-Portable/tools/CotaskaUpdater.exe"
-    $updaterHash = (Get-FileHash -LiteralPath $sourceUpdaterExe -Algorithm SHA256).Hash
-    if (-not (Test-ZipEntryHash -ZipPath $distZip -EntryName $updaterZipEntry -ExpectedHash $updaterHash)) {
-        Write-Host "[失敗] リリースZIP内のCotaskaUpdater.exeがビルド成果物と一致しません" -ForegroundColor Red
-        exit 1
-    }
-    Write-Host "  正常  リリースZIP内のCotaskaUpdater.exe はビルド成果物と一致" -ForegroundColor Green
-    Restore-CoreExeIfMissing
-    if (-not (Test-Path -LiteralPath $distCoreExe)) {
-        Write-Host "[失敗] ZIP作成後の配布フォルダに CotaskaCore.exe がありません" -ForegroundColor Red
-        exit 1
-    }
-    $zipSizeMB = [math]::Round((Get-Item -LiteralPath $distZip).Length / 1MB, 1)
-    Write-Host "  完了: リリースZIPを作成しました -> $distZip ($zipSizeMB MB)" -ForegroundColor Green
-    $zipHash = (Get-FileHash -LiteralPath $distZip -Algorithm SHA256).Hash.ToLowerInvariant()
-    Set-Content -LiteralPath $distZipSha256 -Value "$zipHash  Cotaska-Portable.zip" -Encoding ASCII
-    Write-Host "  完了: リリースZIPのSHA-256を作成しました -> $distZipSha256" -ForegroundColor Green
-    $verifiedArtifacts = Assert-CotaskaReleaseArtifacts -AppDir $scriptDir -RequireDirectory
-    Write-Host "  正常  共通成果物検証 v$($verifiedArtifacts.Version) SHA-256=$($verifiedArtifacts.Sha256)" -ForegroundColor Green
+Write-Host "=======================================" -ForegroundColor Green
+Write-Host " Cotaska NSISリリース一括作成 v$Version" -ForegroundColor Green
+Write-Host "=======================================" -ForegroundColor Green
 
-    Write-Host "=======================================" -ForegroundColor Green
-    Write-Host " リリース v$Version が完了しました" -ForegroundColor Green
-    Write-Host "=======================================" -ForegroundColor Green
-    Write-Host "  配布フォルダ: $distRoot" -ForegroundColor Cyan
-    Write-Host "  ZIP        : $distZip" -ForegroundColor Cyan
-    Write-Host "  次の作業   : $distRoot\Cotaska.exe を起動して確認してください。" -ForegroundColor Cyan
-} else {
-    Write-Host "=======================================" -ForegroundColor Red
-    Write-Host " リリース v$Version は未完了です" -ForegroundColor Red
-    Write-Host "=======================================" -ForegroundColor Red
-    exit 1
+if (-not (Test-Path -LiteralPath $npmCmd -PathType Leaf)) {
+    throw "npmが見つかりません: $npmCmd"
 }
+
+Set-Location $scriptDir
+
+foreach ($legacyPath in @($legacyInstallerPath, $legacyBlockmapPath)) {
+    if (Test-Path -LiteralPath $legacyPath -PathType Leaf) {
+        Remove-Item -LiteralPath $legacyPath -Force
+        Write-Host "旧成果物名を削除しました: $legacyPath" -ForegroundColor Yellow
+    }
+}
+
+Write-Host "`n[ステップ 1/5] Node依存関係を復元・検証しています..." -ForegroundColor Cyan
+New-Item -ItemType Directory -Path $npmCacheDir -Force | Out-Null
+Invoke-NpmChecked -Arguments @("ci", "--no-audit", "--no-fund", "--cache", $npmCacheDir) -FailureMessage "npm ciに失敗しました。"
+Test-RequiredCommonJsDependency -PackageName "sql.js"
+Test-RequiredEsmDependency -PackageName "@openai/codex-sdk"
+Test-RequiredEsmDependency -PackageName "@anthropic-ai/claude-agent-sdk"
+Test-RequiredCommonJsDependency -PackageName "electron-updater"
+Write-Host "  完了: 必須依存関係を確認しました" -ForegroundColor Green
+
+Write-Host "`n[ステップ 2/5] 自動テストを実行しています..." -ForegroundColor Cyan
+Invoke-NpmChecked -Arguments @("test") -FailureMessage "自動テストに失敗しました。"
+Write-Host "  完了: 自動テストが成功しました" -ForegroundColor Green
+
+Write-Host "`n[ステップ 3/5] NSISインストーラーを生成しています..." -ForegroundColor Cyan
+Invoke-NpmChecked -Arguments @("run", "dist:installer") -FailureMessage "NSISインストーラーの生成に失敗しました。"
+Write-Host "  完了: electron-builderによるNSISビルドが成功しました" -ForegroundColor Green
+
+Write-Host "`n[ステップ 4/5] リリース成果物を検証しています..." -ForegroundColor Cyan
+foreach ($path in @($installerPath, $blockmapPath, $latestYamlPath)) {
+    Assert-ReleaseFile -Path $path
+}
+
+$latestYaml = Get-Content -Raw -Encoding UTF8 -LiteralPath $latestYamlPath
+$escapedVersion = [Regex]::Escape($Version)
+$escapedArtifactName = [Regex]::Escape($artifactBaseName)
+if ($latestYaml -notmatch "(?m)^version:\s*$escapedVersion\s*$") {
+    throw "latest.ymlのversionがpackage.jsonと一致しません: $Version"
+}
+if ($latestYaml -notmatch "(?m)^\s*(?:url|path):\s*$escapedArtifactName\s*$") {
+    throw "latest.ymlが生成済みインストーラーを参照していません: $artifactBaseName"
+}
+
+$installerSha512 = Get-FileSha512Base64 -Path $installerPath
+$sha512Matches = [Regex]::Matches($latestYaml, "(?m)^\s*sha512:\s*(\S+)\s*$")
+$declaredSha512Values = @($sha512Matches | ForEach-Object { $_.Groups[1].Value.Trim() })
+if ($declaredSha512Values -notcontains $installerSha512) {
+    throw "latest.ymlのSHA-512が生成済みインストーラーと一致しません。"
+}
+
+$installerSize = (Get-Item -LiteralPath $installerPath).Length
+$sizeMatches = [Regex]::Matches($latestYaml, "(?m)^\s*size:\s*(\d+)\s*$")
+$declaredSizes = @($sizeMatches | ForEach-Object { [long]$_.Groups[1].Value })
+if ($declaredSizes.Count -gt 0 -and $declaredSizes -notcontains $installerSize) {
+    throw "latest.ymlのファイルサイズが生成済みインストーラーと一致しません。"
+}
+
+if (-not (Test-Path -LiteralPath $unpackedDir -PathType Container)) {
+    throw "win-unpackedが見つかりません: $unpackedDir"
+}
+
+$codexPath = Join-Path $unpackedDir $codexRelativePath
+$claudePath = Join-Path $unpackedDir $claudeRelativePath
+$coreExecutablePath = Join-Path $unpackedDir "Cotaska.exe"
+$sourceIconPath = Join-Path $scriptDir "setup\launcher\icon.ico"
+Assert-ReleaseFile -Path $codexPath
+Assert-ReleaseFile -Path $claudePath
+Assert-ReleaseFile -Path $coreExecutablePath
+Assert-ReleaseFile -Path $sourceIconPath
+
+$coreVersionInfo = (Get-Item -LiteralPath $coreExecutablePath).VersionInfo
+if ($coreVersionInfo.ProductName -ne "Cotaska" -or $coreVersionInfo.FileDescription -ne "Cotaska") {
+    throw "Cotaska.exeの製品名または説明がCotaskaではありません。"
+}
+
+$sourceIconHash = Get-AssociatedIconHash -Path $sourceIconPath
+$coreIconHash = Get-AssociatedIconHash -Path $coreExecutablePath -ExtractFromExecutable
+if ($sourceIconHash -ne $coreIconHash) {
+    throw "Cotaska.exeのアイコンがCotaskaロゴと一致しません。"
+}
+
+Write-Host "`n[ステップ 5/5] 展開版のRenderer起動を確認しています..." -ForegroundColor Cyan
+Invoke-CotaskaStartupSmokeTest -ExecutablePath $coreExecutablePath
+Write-Host "  完了: Renderer読込と正常終了を確認しました" -ForegroundColor Green
+
+$installerHash = (Get-FileHash -LiteralPath $installerPath -Algorithm SHA256).Hash.ToLowerInvariant()
+$blockmapHash = (Get-FileHash -LiteralPath $blockmapPath -Algorithm SHA256).Hash.ToLowerInvariant()
+$latestYamlHash = (Get-FileHash -LiteralPath $latestYamlPath -Algorithm SHA256).Hash.ToLowerInvariant()
+
+Write-Host "  正常: $artifactBaseName" -ForegroundColor Green
+Write-Host "  正常: $artifactBaseName.blockmap" -ForegroundColor Green
+Write-Host "  正常: latest.yml" -ForegroundColor Green
+Write-Host "  正常: Codex Windows実行ファイル" -ForegroundColor Green
+Write-Host "  正常: Claude Windows実行ファイル" -ForegroundColor Green
+Write-Host "  正常: Cotaska.exeの製品名とCotaskaロゴ" -ForegroundColor Green
+Write-Host ""
+Write-Host "NSISリリース成果物の生成と検証が完了しました。" -ForegroundColor Green
+Write-Host "  EXE SHA-256      : $installerHash"
+Write-Host "  blockmap SHA-256 : $blockmapHash"
+Write-Host "  latest.yml SHA-256: $latestYamlHash"
+Write-Host "  出力先: $releaseDir"
+Write-Host ""
+Write-Host "公開時は上記EXE、blockmap、latest.ymlを同じリリースへセットでアップロードしてください。" -ForegroundColor Yellow

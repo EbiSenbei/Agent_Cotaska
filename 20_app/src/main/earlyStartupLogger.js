@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
 
 class EarlyStartupLogger {
   constructor() {
@@ -12,10 +13,13 @@ class EarlyStartupLogger {
   _openLogFile() {
     const today = new Date().toISOString().slice(0, 10);
     const candidates = [
+      process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, "Cotaska", "logs") : null,
+      process.env.APPDATA ? path.join(process.env.APPDATA, "Cotaska", "logs") : null,
+      path.join(os.tmpdir(), "Cotaska", "logs"),
       path.join(process.cwd(), "../logs"),
       path.join(process.cwd(), "logs"),
       path.join(path.dirname(process.execPath || process.cwd()), "logs"),
-    ];
+    ].filter(Boolean);
 
     for (const logDir of candidates) {
       try {
@@ -30,6 +34,13 @@ class EarlyStartupLogger {
 
   setSecondaryLogger(logger) {
     this.secondaryLogger = logger;
+  }
+
+  configureLogDir(logDir) {
+    try {
+      fs.mkdirSync(logDir, { recursive: true });
+      this.logFilePath = path.join(logDir, `app-${new Date().toISOString().slice(0, 10)}.log`);
+    } catch (_err) { /* startup logging remains best effort */ }
   }
 
   _serializeError(error) {
@@ -80,6 +91,10 @@ class EarlyStartupLogger {
         // Avoid recursive logging failures.
       }
     }
+  }
+
+  logInfo(message, context = {}) {
+    this._write("INFO", message, { context });
   }
 
   logWarning(message, context = {}) {

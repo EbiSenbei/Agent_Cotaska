@@ -9,6 +9,7 @@ import DetailPane from "./components/DetailPane";
 import SettingsPane from "./components/SettingsPane";
 import AiChatPane from "./components/AiChatPane";
 import OnboardingGuide from "./components/OnboardingGuide";
+import ProjectSelector from "./components/ProjectSelector";
 import { useExitPresence } from "./hooks/useExitPresence";
 import {
   MAX_TASK_TREE_DEPTH,
@@ -60,6 +61,8 @@ function getOnHoldTasksForDateView(tasks, view, sortState) {
 }
 
 function App() {
+  const [project, setProject] = useState(undefined);
+  const [projectMenuOpen, setProjectMenuOpen] = useState(false);
   const [tasks,         setTasks]         = useState([]);
   const [selectedTask,  setSelectedTask]  = useState(null);
   const [activeNav,     setActiveNav]     = useState("今日");
@@ -373,9 +376,11 @@ function App() {
   useEffect(() => {
     // IPC 疎通確認
     window.cotaskaAPI?.ping().then(res => console.log("[IPC] ping →", res));
-    loadTasks({ showLoading: true }); // ← 他の useEffect に移動しました
-    // リスト一覧を起動時に取得
     (async () => {
+      const current = await window.cotaskaAPI?.projects?.getCurrent?.();
+      setProject(current);
+      if (!current) { setInitialLoading(false); return; }
+      await loadTasks({ showLoading: true });
       const rows = await window.cotaskaAPI?.lists?.getAll() ?? [];
       setLists(rows);
       const tagRows = await window.cotaskaAPI?.tags?.getAll() ?? [];
@@ -1079,7 +1084,9 @@ function App() {
     if (progressSections.length === 0) progressSections = null;
   }
 
-  if (initialLoading) {
+  if (project === null) return <ProjectSelector onOpened={(opened) => { setProject(opened); setInitialLoading(true); loadTasks({ showLoading: true }); }} />;
+
+  if (initialLoading || project === undefined) {
     const startupProgressRatio = Math.max(0, Math.min(100, Number(startupProgress.percent) || 0)) / 100;
     return (
       <div className="startup-screen startup-screen--renderer">
@@ -1104,6 +1111,11 @@ function App() {
 
   return (
     <div className="app-container">
+      <button className="project-switcher-button" type="button" onClick={() => setProjectMenuOpen((value) => !value)} title={project?.path}>{project?.name || "プロジェクト"} ▾</button>
+      {projectMenuOpen && <div className="project-switcher-menu">
+        <button type="button" onClick={async () => { const result = await window.cotaskaAPI.projects.createShortcut(); setProjectMenuOpen(false); if (!result?.ok && !result?.canceled) window.alert(result?.error); }}>ショートカットを作る</button>
+        <button type="button" onClick={async () => { await window.cotaskaAPI.projects.returnToSelector(); setProjectMenuOpen(false); setProject(null); setTasks([]); setLists([]); }}>プロジェクト選択へ戻る</button>
+      </div>}
       <Sidebar
         activeIcon={activeIcon}
         onIconClick={handleSidebarIconClick}

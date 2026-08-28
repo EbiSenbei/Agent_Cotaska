@@ -3,6 +3,7 @@ const path = require("path");
 const crypto = require("crypto");
 const settingsService = require("./settingsService");
 const earlyStartupLogger = require("./earlyStartupLogger");
+const projectContext = require("./projectContext");
 
 const THREAD_STATUSES = new Set(["active", "archived"]);
 const PROPOSAL_STATUSES = new Set(["pending", "approved", "rejected", "applied", "failed"]);
@@ -23,7 +24,7 @@ function createId(prefix) {
 }
 
 function getAiDbPath() {
-  return path.join(settingsService.getDataDir(), "ai.sqlite");
+  return projectContext.getCurrent().aiDatabaseFile;
 }
 
 function getSqlJsInitializer() {
@@ -297,6 +298,12 @@ function createThread(input = {}) {
   );
   saveDb();
   return getThread(thread.thread_id);
+}
+
+function closeAiService() {
+  if (db && typeof db.close === "function") db.close();
+  db = null;
+  dbPath = null;
 }
 
 function markThreadUnread(threadId) {
@@ -573,6 +580,7 @@ function getDbInfo() {
 
 module.exports = {
   openAiService,
+  closeAiService,
   getAiDbPath,
   getDbInfo,
   listThreads,

@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const yaml = require("js-yaml");
+const projectContext = require("./projectContext");
 
 const COTASKA_RESOURCE_ROOT_DIR = path.resolve(__dirname, "../../..");
 const APP_CONFIG_FILENAME = "app-config.yaml";
@@ -23,7 +24,7 @@ function resolveCotaskaRootDir(resourceRoot = COTASKA_RESOURCE_ROOT_DIR) {
 }
 
 const COTASKA_ROOT_DIR = resolveCotaskaRootDir();
-const COTASKA_DATA_DIR = path.join(COTASKA_ROOT_DIR, "data");
+let COTASKA_DATA_DIR = path.join(COTASKA_ROOT_DIR, "data");
 const LEGACY_RESOURCE_DATA_DIR = COTASKA_RESOURCE_ROOT_DIR === COTASKA_ROOT_DIR
   ? null
   : path.join(COTASKA_RESOURCE_ROOT_DIR, "data");
@@ -187,6 +188,14 @@ function validateAiWorkdir(workdir) {
 }
 
 function getDataDir() {
+  return COTASKA_DATA_DIR;
+}
+
+function configureDataDir(dataDir) {
+  const normalized = String(dataDir || "").trim();
+  if (!normalized || !path.isAbsolute(normalized)) throw new Error("設定保存先の絶対パスが必要です。");
+  COTASKA_DATA_DIR = path.resolve(normalized);
+  fs.mkdirSync(COTASKA_DATA_DIR, { recursive: true });
   return COTASKA_DATA_DIR;
 }
 
@@ -470,6 +479,8 @@ function getSettings() {
     const content = fs.readFileSync(settingsPath, "utf8");
     const parsed = yaml.load(content) || {};
     const settings = mergeSettings(parsed, appConfig.config);
+    const project = projectContext.getCurrentOrNull();
+    if (project) settings.aiChat.workdir = path.resolve(project.rootDir, project.manifest.ai?.workdir || ".");
     return {
       ok: true,
       settings,
@@ -541,8 +552,22 @@ function updateSettings(patch) {
   validateAiWorkdir(next.aiChat?.workdir);
   validateAiChatBedrock(next.aiChat);
 
+  const project = projectContext.getCurrentOrNull();
+  if (project && Object.prototype.hasOwnProperty.call((patch || {}).aiChat || {}, "workdir")) {
+    const resolved = path.resolve(next.aiChat.workdir || project.rootDir);
+    const relative = path.relative(project.rootDir, resolved);
+    const isOutsideProject = relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative);
+    const manifestWorkdir = isOutsideProject
+      ? resolved
+      : relative.replace(/\\/g, "/") || ".";
+    const manifest = { ...project.manifest, updatedAt: new Date().toISOString(), ai: { ...(project.manifest.ai || {}), workdir: manifestWorkdir } };
+    fs.writeFileSync(project.projectFile, yaml.dump(manifest, { lineWidth: -1 }), "utf8");
+    projectContext.setCurrent(project.rootDir, manifest);
+  }
+
   fs.mkdirSync(getDataDir(), { recursive: true });
-  fs.writeFileSync(getSettingsPath(), renderSettingsYaml(next), "utf8");
+  const settingsForDisk = project ? { ...next, aiChat: { ...next.aiChat, workdir: "" } } : next;
+  fs.writeFileSync(getSettingsPath(), renderSettingsYaml(settingsForDisk), "utf8");
   return {
     ok: true,
     settings: next,
@@ -555,6 +580,7 @@ function updateSettings(patch) {
 
 module.exports = {
   DEFAULT_SETTINGS,
+  configureDataDir,
   getDataDir,
   migrateLegacyResourceData,
   resolveCotaskaRootDir,

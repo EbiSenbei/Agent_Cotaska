@@ -10,10 +10,11 @@ const matter = require('gray-matter');
 const YAML = require('js-yaml');
 const settingsService = require('./settingsService');
 const taskHierarchy = require('./taskHierarchy');
+const projectContext = require('./projectContext');
 
-const TASKS_DIR = path.join(process.cwd(), '../data/tasks');
-const INDEX_PATH = path.join(TASKS_DIR, '_index.yaml');
-const ARCHIVE_DIR = path.join(process.cwd(), '../data/archive');
+const getTasksDir = () => projectContext.getCurrent().tasksDir;
+const getIndexPath = () => projectContext.getCurrent().indexFile;
+const getArchiveDir = () => projectContext.getCurrent().archiveDir;
 const DEFAULT_TASK_FILE_ROOTS = ['.'];
 const MAX_TASK_TREE_DEPTH = 5;
 
@@ -42,7 +43,7 @@ function toIndexAbsolutePath(absPath) {
 }
 
 function toInvalidTaskId(filePath) {
-  const relativePath = normalizeRelativePath(path.relative(TASKS_DIR, filePath));
+  const relativePath = normalizeRelativePath(path.relative(getTasksDir(), filePath));
   return `__INVALID__${relativePath || path.basename(filePath)}`;
 }
 
@@ -116,7 +117,7 @@ function normalizeRootPath(rootPath) {
   if (!normalized) return '.';
 
   if (path.isAbsolute(normalized)) {
-    const relativeFromTasks = normalizeRelativePath(path.relative(TASKS_DIR, normalized));
+    const relativeFromTasks = normalizeRelativePath(path.relative(getTasksDir(), normalized));
     if (!relativeFromTasks || relativeFromTasks.startsWith('..')) return '.';
     return relativeFromTasks;
   }
@@ -125,16 +126,16 @@ function normalizeRootPath(rootPath) {
 }
 
 function toIndexRelativePath(absPath) {
-  return path.relative(TASKS_DIR, absPath).replace(/\\/g, '/');
+  return path.relative(getTasksDir(), absPath).replace(/\\/g, '/');
 }
 
 function resolveTaskFilePath(taskFilePath, fallbackTaskId = null) {
   const normalized = normalizeTaskFilePath(taskFilePath);
   if (normalized) {
     if (path.isAbsolute(normalized)) return path.normalize(normalized);
-    return path.join(TASKS_DIR, normalizeRelativePath(normalized));
+    return path.join(getTasksDir(), normalizeRelativePath(normalized));
   }
-  if (fallbackTaskId) return path.join(TASKS_DIR, `${fallbackTaskId}.md`);
+  if (fallbackTaskId) return path.join(getTasksDir(), `${fallbackTaskId}.md`);
   throw new Error('fallbackTaskId is required');
 }
 
@@ -146,12 +147,12 @@ function ensureParentDir(filePath) {
 }
 
 function readIndexData() {
-  if (!fs.existsSync(INDEX_PATH)) {
+  if (!fs.existsSync(getIndexPath())) {
     return { next_task_id: 1, tasks: [], task_file_roots: [...DEFAULT_TASK_FILE_ROOTS] };
   }
 
   try {
-    const indexContent = fs.readFileSync(INDEX_PATH, 'utf-8');
+    const indexContent = fs.readFileSync(getIndexPath(), 'utf-8');
     const indexData = YAML.load(indexContent) || {};
     return {
       next_task_id: indexData.next_task_id || 1,
@@ -192,12 +193,12 @@ function collectTaskFilesFromRoots(roots) {
 
   roots.forEach((rootRel) => {
     const normalizedRoot = normalizeRelativePath(rootRel || '.');
-    const absRoot = path.join(TASKS_DIR, normalizedRoot || '.');
+    const absRoot = path.join(getTasksDir(), normalizedRoot || '.');
     walk(absRoot);
   });
 
   // 既存運用との互換性のため、ルート直下スキャンは常に含める
-  walk(TASKS_DIR);
+  walk(getTasksDir());
 
   return Array.from(new Set(files));
 }
@@ -547,8 +548,8 @@ function recomputeParentFromChildren(parentId, now) {
 async function openTaskService() {
   try {
     // 30_data/tasks/ が存在しない場合は作成
-    if (!fs.existsSync(TASKS_DIR)) {
-      fs.mkdirSync(TASKS_DIR, { recursive: true });
+    if (!fs.existsSync(getTasksDir())) {
+      fs.mkdirSync(getTasksDir(), { recursive: true });
     }
 
     // _index.yaml から next_task_id / task_file_roots を読み込む
@@ -1056,11 +1057,11 @@ function deleteTask(id) {
   const task = taskCache[id];
   assertMutableTask(task);
   const filePath = task._filePath || resolveTaskFilePath(null, id);
-  const archivePath = path.join(ARCHIVE_DIR, `${id}-archived.md`);
+  const archivePath = path.join(getArchiveDir(), `${id}-archived.md`);
 
   // archive ディレクトリが無ければ作成
-  if (!fs.existsSync(ARCHIVE_DIR)) {
-    fs.mkdirSync(ARCHIVE_DIR, { recursive: true });
+  if (!fs.existsSync(getArchiveDir())) {
+    fs.mkdirSync(getArchiveDir(), { recursive: true });
   }
 
   // ファイルを archive へ移動
@@ -1244,7 +1245,7 @@ function getTaskFileRoots() {
 }
 
 function getTaskSearchRoots() {
-  return taskFileRoots.map((root) => path.join(TASKS_DIR, normalizeRootPath(root || '.')));
+  return taskFileRoots.map((root) => path.join(getTasksDir(), normalizeRootPath(root || '.')));
 }
 
 function getTaskFilePath(id) {

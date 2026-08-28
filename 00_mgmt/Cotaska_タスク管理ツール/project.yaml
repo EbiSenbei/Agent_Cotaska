@@ -1,0 +1,8 @@
+schemaVersion: 1
+projectId: abf3c24b-a737-442f-b109-0c0092f736ad
+name: Cotaska_タスク管理ツール
+createdAt: '2026-08-27T13:24:52.331Z'
+updatedAt: '2026-08-28T13:25:30.355Z'
+ai:
+  workdir: D:\Development\Git\EbiSenbei_dev\Agent_Cotaska
+migratedFrom: D:\Development\Git\EbiSenbei_dev\Agent_Cotaska\Cotaska\00_mgmt\Cotaska_タスク管理ツール_BK

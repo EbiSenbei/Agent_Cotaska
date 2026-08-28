@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 const LOG_LEVEL_PRIORITY = {
   debug: 10,
@@ -15,7 +16,8 @@ const LOG_LEVEL_PRIORITY = {
  */
 class AppLogger {
   constructor() {
-    this.logDir = path.join(process.cwd(), '../logs');
+    const bootstrapRoot = process.env.LOCALAPPDATA || process.env.APPDATA || os.tmpdir();
+    this.logDir = path.join(bootstrapRoot, 'Cotaska', 'logs');
     this.logFile = null;
     this.startTime = null;
     
@@ -23,9 +25,26 @@ class AppLogger {
       logDir: this.logDir
     });
     
-    this._ensureLogDir();
-    this._openLogFile();
+    try {
+      this._ensureLogDir();
+      this._openLogFile();
+    } catch (err) {
+      this.logFilePath = null;
+      console.error('[AppLogger] Bootstrap logger initialization failed:', err.message);
+    }
     console.log('[AppLogger] Logger initialized');
+  }
+
+  configureLogDir(logDir) {
+    try {
+      this.logDir = path.resolve(logDir);
+      this._ensureLogDir();
+      this._openLogFile();
+      return true;
+    } catch (err) {
+      console.error('[AppLogger] Failed to configure log directory:', err.message);
+      return false;
+    }
   }
 
   /**
