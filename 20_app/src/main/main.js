@@ -243,15 +243,16 @@ function normalizeUpdateMetadata(data, settings, sourceUrl) {
     throw new Error("更新情報にバージョンが含まれていません。");
   }
 
-  const githubAsset = findReleaseAsset(data, "Cotaska-Portable.zip");
-  if (githubAsset?.browser_download_url) {
+  const isGithubRelease = Boolean(data?.tag_name || data?.html_url || Array.isArray(data?.assets));
+  if (isGithubRelease) {
+    const githubAsset = findReleaseAsset(data, "Cotaska-Portable.zip");
     const checksumAsset = findReleaseAsset(data, "Cotaska-Portable.zip.sha256");
     return {
       latestVersion,
       releaseUrl: data.html_url || settings.downloadPageUrl || null,
-      assetName: githubAsset.name || "Cotaska-Portable.zip",
-      assetUrl: githubAsset.browser_download_url,
-      assetSize: githubAsset.size || null,
+      assetName: githubAsset?.name || null,
+      assetUrl: githubAsset?.browser_download_url || null,
+      assetSize: githubAsset?.size || null,
       checksumAssetUrl: checksumAsset?.browser_download_url || null,
     };
   }
@@ -742,6 +743,17 @@ async function checkPortableUpdate() {
     const metadata = normalizeUpdateMetadata(await fetchJson(latestVersionUrl), settings, latestVersionUrl);
     const latestVersion = metadata.latestVersion;
     const hasUpdate = compareVersions(latestVersion, packageInfo.version) > 0;
+    if (hasUpdate && !metadata.assetUrl) {
+      return publishUpdaterState({
+        status: "unsupported",
+        message: `新しいインストール版 ${latestVersion} があります。GitHub Releasesからインストールしてください。`,
+        hasUpdate: false,
+        downloaded: false,
+        progress: null,
+        version: latestVersion,
+        releaseUrl: metadata.releaseUrl,
+      });
+    }
     return publishUpdaterState({
       status: hasUpdate ? "available" : "not-available",
       message: hasUpdate
@@ -961,9 +973,8 @@ function publishUpdaterState(patch) {
 
 function setupAutoUpdater() {
   if (!app.isPackaged || isCotaskaPortableRuntime()) return;
-  const latestVersionUrl = settingsService.getSettings().settings.update?.latestVersionUrl || "";
-  const feedUrl = String(latestVersionUrl).replace(/version\.json(?:\?.*)?$/i, "");
-  if (feedUrl) autoUpdater.setFeedURL({ provider: "generic", url: feedUrl });
+  // electron-builderがresources/app-update.ymlへ埋め込むGitHub providerを使用する。
+  // 最新版確認APIのURLをgeneric feedへ変換するとGitHub APIをlatest.ymlとして扱ってしまうため、上書きしない。
   autoUpdater.autoDownload = false;
   autoUpdater.autoInstallOnAppQuit = true;
   autoUpdater.on("checking-for-update", () => publishUpdaterState({ status: "checking", message: "更新を確認しています。" }));

@@ -821,3 +821,18 @@
 - 認証トークン、APIキー、外部CLIの認証ファイルはプロジェクトの`settings.yaml`へ複製しない。
 - CHG-127実装では、プロジェクト未選択時に設定ファイルを生成せずコード既定値だけを返す。初回移行はプロジェクト側`settings.yaml`が存在しない場合だけ行い、旧共通設定を保持し、`project.yaml.ai.workdir`除去前に`project.yaml.pre-chg127.bak`を保存する。
 - 2026-08-29、Node.js 22環境での配布ビルドと実機動作確認は未実施だが、ユーザーの明示指示によりCHG-127を完了扱いとした。
+
+## 2026-08-29 v0.4.0 Cloudflare R2公開
+
+- R2の`latest/`公開正本をPortable ZIPからNSISのインストーラ、blockmap、`latest.yml`へ切り替える。`version.json`は`channel: nsis`と3成果物名を持つ。
+- 旧Portableオブジェクトは自動削除せず、最新メタデータからの参照だけをNSIS版へ置き換える。
+# 2026-08-29 GitHub Releases公開スクリプト
+
+- CotaskaのNSIS通常配布3成果物は、`20_app/upload-github-release.ps1`で`EbiSenbei/cotaska-site`へ公開できるようにする。
+- 公開前に既存の共通検証関数で成果物整合性を確認し、同名Releaseは上書きしない。
+- GitHubを変更しない事前確認として`-WhatIf`を提供し、公開後はAsset名・サイズ・状態を再検証する。
+
+## 2026-08-29 CHG-128 更新参照先GitHub統一
+
+- 最新版確認、手動取得、インストール版自動更新は`EbiSenbei/cotaska-site`のGitHub Releasesを正本とする。
+- インストール版はelectron-builder生成のGitHub providerを使用し、最新版API URLからgeneric feedを組み立てない。Cloudflare R2は通常更新の必須経路から外す。

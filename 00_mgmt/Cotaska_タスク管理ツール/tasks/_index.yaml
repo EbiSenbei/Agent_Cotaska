@@ -5841,7 +5841,7 @@ tasks:
   - id: T-0551
     title: CHG-121-03 ユーザー確認：更新中ダイアログ操作後も更新が完了することを確認する
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 527
     tags:
@@ -5849,8 +5849,8 @@ tasks:
       - ユーザー確認
       - Updater
       - ダイアログ
-    due_date: null
-    updated_at: '2026-08-22T15:45:00+09:00'
+    due_date: '2026-08-29'
+    updated_at: '2026-08-29T13:47:51.279Z'
   - id: T-0529
     title: CHG-118 クイックタスク入力と登録後詳細表示を追加する
     list: 実装準備
@@ -6072,7 +6072,7 @@ tasks:
   - id: T-0555
     title: CHG-121 更新中ダイアログの最小化・閉じる操作を許可する
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 555
     tags:
@@ -6080,8 +6080,8 @@ tasks:
       - 仕様変更
       - Updater
       - ダイアログ
-    due_date: null
-    updated_at: '2026-08-22T16:15:00+09:00'
+    due_date: '2026-08-29'
+    updated_at: '2026-08-29T13:47:51.247Z'
   - id: T-0556
     title: CHG-121-01 設計：更新中ダイアログの最小化・閉じる操作を設計書へ反映する
     list: 仕様変更
@@ -6262,7 +6262,7 @@ tasks:
       - 初回利用ガイド
       - 設定画面
     due_date: '2026-08-22'
-    updated_at: '2026-08-22T14:17:03.585Z'
+    updated_at: '2026-08-28T13:38:07.813Z'
   - id: T-0572
     title: CHG-126-01 アプリ・プロジェクト分離方式の設計書と移行仕様を更新する
     list: 仕様変更
@@ -6302,6 +6302,15 @@ tasks:
       - プロジェクト管理
     due_date: '2026-08-23'
     updated_at: '2026-08-28T13:22:21.197Z'
+  - id: T-0605
+    title: 仕様変更：Cotaskaのアップロード時の参照先変更
+    list: null
+    status: doing
+    priority: normal
+    sort_order: 574
+    tags: []
+    due_date: null
+    updated_at: '2026-08-30T00:15:00+09:00'
   - id: T-0575
     title: CHG-126-04 既存Portableデータの移行機能を実装する
     list: 仕様変更
@@ -6355,6 +6364,24 @@ tasks:
       - インストーラー
     due_date: '2026-08-28'
     updated_at: '2026-08-28T13:22:25.831Z'
+  - id: T-0609
+    title: 仕様変更：プロジェクト名を設定画面から設定
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 578
+    tags: []
+    due_date: null
+    updated_at: '2026-08-29T13:44:34.966Z'
+  - id: T-0610
+    title: 仕様変更：AIチャットでモデル変更
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 579
+    tags: []
+    due_date: null
+    updated_at: '2026-08-29T13:45:21.667Z'
   - id: T-0580
     title: BUG-20260823-01 NSISインストール後にCotaska画面が起動しない問題を調査・修正する
     list: 不具合修正
@@ -6527,11 +6554,11 @@ tasks:
       - textarea
       - Renderer
     due_date: '2026-08-28'
-    updated_at: '2026-08-28T22:11:53+09:00'
+    updated_at: '2026-08-28T13:38:03.530Z'
   - id: T-0593
     title: BUG-20260828-01 Markdown編集の表示文字と入力座標を一致させる
     list: 不具合修正
-    status: todo
+    status: done
     priority: high
     sort_order: 593
     tags:
@@ -6541,12 +6568,12 @@ tasks:
       - 入力カーソル
       - 文字選択
       - Renderer
-    due_date: null
-    updated_at: '2026-08-28T22:11:53+09:00'
+    due_date: '2026-08-29'
+    updated_at: '2026-08-29T12:44:06.271Z'
   - id: T-0594
     title: BUG-20260828-01 ユーザー確認：入力カーソルと文字選択位置を確認する
     list: 不具合修正
-    status: todo
+    status: done
     priority: high
     sort_order: 594
     tags:
@@ -6555,8 +6582,8 @@ tasks:
       - Markdown編集
       - 入力カーソル
       - 文字選択
-    due_date: null
-    updated_at: '2026-08-28T22:11:53+09:00'
+    due_date: '2026-08-29'
+    updated_at: '2026-08-29T12:44:05.431Z'
   - id: T-0595
     title: CHG-126-19 ユーザー確認：プロジェクト外のAI作業フォルダを確認する
     list: 仕様変更
@@ -6596,7 +6623,135 @@ tasks:
       - パス制限
     due_date: 2026-08-28T00:00:00.000Z
     updated_at: '2026-08-28T13:22:46.857Z'
+  - id: T-0598
+    title: CHG-127 全設定をプロジェクト単位で管理する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 598
+    tags:
+      - CHG-127
+      - プロジェクト設定
+      - settings.yaml
+      - 設定移行
+    due_date: null
+    updated_at: '2026-08-29T21:41:46+09:00'
+  - id: T-0599
+    title: CHG-127-01 設計：全設定のプロジェクト単位管理を設計書へ反映する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 599
+    tags:
+      - CHG-127
+      - 設計
+      - プロジェクト設定
+      - settings.yaml
+    due_date: null
+    updated_at: '2026-08-29T21:29:24+09:00'
+  - id: T-0600
+    title: CHG-127-02 実装：プロジェクト直下のsettings.yamlへ設定を統合する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 600
+    tags:
+      - CHG-127
+      - 実装
+      - プロジェクト設定
+      - settings.yaml
+    due_date: null
+    updated_at: '2026-08-29T21:41:46+09:00'
+  - id: T-0601
+    title: CHG-127-03 移行・検証：共通設定とproject.yamlからプロジェクト設定へ移行する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 601
+    tags:
+      - CHG-127
+      - データ移行
+      - 統合テスト
+      - settings.yaml
+    due_date: null
+    updated_at: '2026-08-29T21:41:46+09:00'
+  - id: T-0602
+    title: CHG-127-04 ユーザー確認：プロジェクトごとの全設定切替を確認する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 602
+    tags:
+      - CHG-127
+      - ユーザー確認
+      - プロジェクト設定
+      - settings.yaml
+    due_date: null
+    updated_at: '2026-08-29T21:41:46+09:00'
+  - id: T-0603
+    title: Cotaska v0.4.0 版数更新・インストーラ作成・リリースノート作成
+    list: リリース
+    status: done
+    priority: high
+    sort_order: 603
+    tags:
+      - release
+      - v0.4.0
+      - NSIS
+      - インストーラ
+    due_date: null
+    updated_at: '2026-08-29T21:55:30+09:00'
+  - id: T-0604
+    title: v0.4.0 NSIS成果物をCloudflare R2のlatestへ公開する
+    list: リリース
+    status: done
+    priority: high
+    sort_order: 604
+    tags:
+      - release
+      - v0.4.0
+      - Cloudflare
+      - R2
+      - NSIS
+    due_date: null
+    updated_at: '2026-08-29T22:11:39+09:00'
+  - id: T-0606
+    title: CHG-128-01 設計：最新版確認・取得先のGitHub Releases統一
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 606
+    tags:
+      - CHG-128
+      - GitHub Releases
+      - 設計
+    due_date: null
+    updated_at: '2026-08-30T00:05:00+09:00'
+  - id: T-0607
+    title: CHG-128-02 実装：更新参照先をcotaska-site Releasesへ変更
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 607
+    tags:
+      - CHG-128
+      - GitHub Releases
+      - 実装
+    due_date: null
+    updated_at: '2026-08-30T00:15:00+09:00'
+  - id: T-0608
+    title: CHG-128-03 ユーザー確認：GitHub Releasesからの更新確認・取得
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 608
+    tags:
+      - CHG-128
+      - GitHub Releases
+      - ユーザー確認
+    due_date: null
+    updated_at: '2026-08-29T23:50:00+09:00'
 task_file_roots:
   - .
-next_task_id: 598
-last_updated: '2026-08-28T13:28:32.015Z'
+next_task_id: 611
+last_updated: '2026-08-29T13:47:51.899Z'

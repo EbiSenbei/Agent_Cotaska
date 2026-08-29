@@ -75,6 +75,20 @@ describe("settingsService プロジェクト設定", () => {
     expect(() => settingsService.updateSettings({ displayName: "保存不可" })).toThrow(/プロジェクトを選択/);
   });
 
+  test("更新参照先の既定値はcotaska-siteのGitHub Releasesである", () => {
+    const settingsDir = tempRoot();
+    settingsService.configureDataDir(settingsDir);
+
+    const result = settingsService.getSettings();
+
+    expect(result.settings.update.latestVersionUrl).toBe(
+      "https://api.github.com/repos/EbiSenbei/cotaska-site/releases/latest",
+    );
+    expect(result.settings.update.downloadPageUrl).toBe(
+      "https://github.com/EbiSenbei/cotaska-site/releases/latest",
+    );
+  });
+
   test("旧共通設定とproject.yamlのworkdirを非破壊で統合する", () => {
     const settingsDir = tempRoot();
     const projectRoot = tempRoot();

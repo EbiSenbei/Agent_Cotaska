@@ -69,7 +69,7 @@
       {
         "provider": "github",
         "owner": "EbiSenbei",
-        "repo": "Agent_Cotaska",
+        "repo": "cotaska-site",
         "releaseType": "release"
       }
     ],

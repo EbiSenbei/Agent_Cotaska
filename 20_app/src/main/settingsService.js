@@ -7,8 +7,8 @@ const COTASKA_RESOURCE_ROOT_DIR = path.resolve(__dirname, "../../..");
 const APP_CONFIG_FILENAME = "app-config.yaml";
 const DEFAULT_APP_CONFIG = {
   update: {
-    latestVersionUrl: "https://pub-d671fdad660b43a8a4b99ede58b7c092.r2.dev/latest/version.json",
-    downloadPageUrl: "https://ebisenbei.github.io/cotaska-site/download.html",
+    latestVersionUrl: "https://api.github.com/repos/EbiSenbei/cotaska-site/releases/latest",
+    downloadPageUrl: "https://github.com/EbiSenbei/cotaska-site/releases/latest",
   },
 };
 
@@ -83,24 +83,9 @@ const DEFAULT_SETTINGS = {
     },
   },
   update: {
-    latestVersionUrl: "https://pub-d671fdad660b43a8a4b99ede58b7c092.r2.dev/latest/version.json",
-    downloadPageUrl: "https://ebisenbei.github.io/cotaska-site/download.html",
+    latestVersionUrl: "https://api.github.com/repos/EbiSenbei/cotaska-site/releases/latest",
+    downloadPageUrl: "https://github.com/EbiSenbei/cotaska-site/releases/latest",
   },
-};
-
-const LEGACY_DEFAULT_UPDATE = {
-  latestVersionUrls: [
-    "https://api.github.com/repos/EbiSenbei/Agent_Cotaska/releases/latest",
-    "https://api.github.com/repos/csho10051/Agent_Cotaska/releases/latest",
-  ],
-  downloadPageUrls: [
-    "https://github.com/EbiSenbei/Agent_Cotaska/releases",
-    "https://github.com/csho10051/Agent_Cotaska/releases",
-  ],
-};
-
-const PREVIOUS_DEFAULT_UPDATE = {
-  downloadPageUrl: "https://pub-d671fdad660b43a8a4b99ede58b7c092.r2.dev/latest/Cotaska-Portable.zip",
 };
 
 function clampNumber(value, min, max, fallback) {
@@ -458,10 +443,10 @@ function renderSettingsYaml(settings) {
     `      awsProfile: ${escaped(normalized.aiChat.claude.bedrock.awsProfile)}`,
     "",
     "update:",
-    "  # 最新版確認に使うURL。Cloudflare R2 の version.json または GitHub Releases latest API 互換JSONを想定します",
+    "  # 最新版確認に使うGitHub Releases latest API",
     `  latestVersionUrl: ${escaped(normalized.update.latestVersionUrl)}`,
     "",
-    "  # ダウンロード先: 利用者確認後に開くURL",
+    "  # ダウンロード先: 利用者確認後に開く最新Releaseページ",
     `  downloadPageUrl: ${escaped(normalized.update.downloadPageUrl)}`,
     "",
   ].join("\n").replace(/\nupdate:\n[\s\S]*$/, "\n");
