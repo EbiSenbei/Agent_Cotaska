@@ -89,6 +89,7 @@ function createBackupService({
     };
 
     addIfExists(project.projectFile, "project.yaml");
+    addIfExists(project.settingsFile, "settings.yaml");
     addIfExists(project.tasksDir, "tasks");
     addIfExists(project.archiveDir, "archive");
     addIfExists(project.listsFile, "lists.yaml");
@@ -188,6 +189,7 @@ function createBackupService({
     try {
       replaceDirectoryContents(backupTasksDir, path.join(dataDir, "tasks"));
       restoreFile(path.join(backupDataDir, "lists.yaml"), path.join(dataDir, "lists.yaml"));
+      restoreFile(path.join(backupDataDir, "settings.yaml"), path.join(dataDir, "settings.yaml"));
       restoreFile(path.join(backupDataDir, "ai.sqlite"), path.join(dataDir, "ai.sqlite"));
       if (fs.existsSync(path.join(backupDataDir, "archive"))) replaceDirectoryContents(path.join(backupDataDir, "archive"), path.join(dataDir, "archive"));
 

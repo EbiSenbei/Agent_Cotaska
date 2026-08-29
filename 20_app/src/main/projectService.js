@@ -3,6 +3,7 @@ const path = require("path");
 const crypto = require("crypto");
 const YAML = require("js-yaml");
 const projectContext = require("./projectContext");
+const settingsService = require("./settingsService");
 
 const SCHEMA_VERSION = 1;
 let appDataDir = null;
@@ -51,6 +52,7 @@ function openProject(rootDir) {
   const manifest = YAML.load(fs.readFileSync(projectFile, "utf8"));
   validateManifest(manifest);
   const project = projectContext.setCurrent(root, manifest);
+  settingsService.initializeProjectSettings();
   remember(project);
   return publicProject(project);
 }
@@ -58,17 +60,18 @@ function createProject(rootDir, name) {
   const root = projectContext.normalizeProjectRoot(rootDir);
   fs.mkdirSync(root, { recursive: true });
   ensureWritable(root);
-  const owned = ["project.yaml", "tasks", "archive", "lists.yaml", "ai.sqlite"];
+  const owned = ["project.yaml", "settings.yaml", "tasks", "archive", "lists.yaml", "ai.sqlite"];
   const collisions = owned.filter((entry) => fs.existsSync(path.join(root, entry)));
   if (collisions.length) throw new Error(`Cotaska管理ファイルが既に存在します: ${collisions.join(", ")}`);
   const timestamp = now();
-  const manifest = { schemaVersion: SCHEMA_VERSION, projectId: crypto.randomUUID(), name: safeName(name, root), createdAt: timestamp, updatedAt: timestamp, ai: { workdir: "." } };
+  const manifest = { schemaVersion: SCHEMA_VERSION, projectId: crypto.randomUUID(), name: safeName(name, root), createdAt: timestamp, updatedAt: timestamp };
   fs.mkdirSync(path.join(root, "tasks"));
   fs.mkdirSync(path.join(root, "archive"));
   fs.writeFileSync(path.join(root, "lists.yaml"), YAML.dump({ lists: [], tags: [], last_updated: timestamp }), "utf8");
   fs.writeFileSync(path.join(root, "tasks", "_index.yaml"), YAML.dump({ tasks: [], task_file_roots: ["."], next_task_id: 1, last_updated: timestamp }), "utf8");
   fs.writeFileSync(path.join(root, "project.yaml"), YAML.dump(manifest, { lineWidth: -1 }), "utf8");
   const project = projectContext.setCurrent(root, manifest);
+  settingsService.initializeProjectSettings();
   remember(project);
   return publicProject(project);
 }
@@ -103,16 +106,20 @@ function migrateLegacy(sourceRoot, targetRoot, name) {
   const target = projectContext.normalizeProjectRoot(targetRoot);
   if (target === sourceData || target.startsWith(`${sourceData}${path.sep}`) || sourceData.startsWith(`${target}${path.sep}`)) throw new Error("移行元と移行先に包含関係があります。");
   fs.mkdirSync(target, { recursive: true });
-  const collisions = ["project.yaml", "tasks", "archive", "lists.yaml", "ai.sqlite"].filter((entry) => fs.existsSync(path.join(target, entry)));
+  const collisions = ["project.yaml", "settings.yaml", "tasks", "archive", "lists.yaml", "ai.sqlite"].filter((entry) => fs.existsSync(path.join(target, entry)));
   if (collisions.length) throw new Error(`移行先にCotaska管理ファイルがあります: ${collisions.join(", ")}`);
   const timestamp = now();
-  const manifest = { schemaVersion: SCHEMA_VERSION, projectId: crypto.randomUUID(), name: safeName(name, target), createdAt: timestamp, updatedAt: timestamp, ai: { workdir: "." }, migratedFrom: path.resolve(sourceRoot) };
+  const manifest = { schemaVersion: SCHEMA_VERSION, projectId: crypto.randomUUID(), name: safeName(name, target), createdAt: timestamp, updatedAt: timestamp, migratedFrom: path.resolve(sourceRoot) };
   copyTree(path.join(sourceData, "tasks"), path.join(target, "tasks"), true);
   if (fs.existsSync(path.join(sourceData, "archive"))) copyTree(path.join(sourceData, "archive"), path.join(target, "archive")); else fs.mkdirSync(path.join(target, "archive"));
   if (fs.existsSync(path.join(sourceData, "lists.yaml"))) fs.copyFileSync(path.join(sourceData, "lists.yaml"), path.join(target, "lists.yaml")); else fs.writeFileSync(path.join(target, "lists.yaml"), YAML.dump({ lists: [], tags: [] }), "utf8");
   if (fs.existsSync(path.join(sourceData, "ai.sqlite"))) fs.copyFileSync(path.join(sourceData, "ai.sqlite"), path.join(target, "ai.sqlite"));
   fs.writeFileSync(path.join(target, "project.yaml"), YAML.dump(manifest, { lineWidth: -1 }), "utf8");
-  const project = projectContext.setCurrent(target, manifest); remember(project); return publicProject(project);
+  const project = projectContext.setCurrent(target, manifest);
+  const legacySettings = path.join(sourceData, "settings.yaml");
+  if (fs.existsSync(legacySettings)) fs.copyFileSync(legacySettings, project.settingsFile);
+  settingsService.initializeProjectSettings();
+  remember(project); return publicProject(project);
 }
 
 module.exports = { configure, openProject, createProject, migrateLegacy, listRecent, getCurrent, removeRecent, getStartupProject };

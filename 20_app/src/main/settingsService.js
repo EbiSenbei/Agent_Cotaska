@@ -220,6 +220,11 @@ function migrateLegacyResourceData() {
 }
 
 function getSettingsPath() {
+  const project = projectContext.getCurrentOrNull();
+  return project ? project.settingsFile : null;
+}
+
+function getLegacySettingsPath() {
   return path.join(getDataDir(), "settings.yaml");
 }
 
@@ -463,24 +468,80 @@ function renderSettingsYaml(settings) {
 }
 
 function ensureSettingsFile() {
-  migrateLegacyResourceData();
-  fs.mkdirSync(getDataDir(), { recursive: true });
+  const project = projectContext.getCurrentOrNull();
+  if (!project) return false;
   const settingsPath = getSettingsPath();
   if (!fs.existsSync(settingsPath)) {
     fs.writeFileSync(settingsPath, renderSettingsYaml(DEFAULT_SETTINGS), "utf8");
   }
+  return true;
+}
+
+function readYamlObject(filePath) {
+  if (!filePath || !fs.existsSync(filePath)) return {};
+  const parsed = yaml.load(fs.readFileSync(filePath, "utf8")) || {};
+  return parsed && typeof parsed === "object" ? parsed : {};
+}
+
+function initializeProjectSettings() {
+  const project = projectContext.getCurrent();
+  if (fs.existsSync(project.settingsFile)) {
+    return { migrated: false, path: project.settingsFile };
+  }
+
+  // 旧共通設定と project.yaml の AI 作業フォルダは削除せず、プロジェクト設定へ統合する。
+  let legacy = {};
+  let legacyError = null;
+  const legacyPath = getLegacySettingsPath();
+  try {
+    legacy = readYamlObject(legacyPath);
+  } catch (err) {
+    legacyError = err.message;
+  }
+  const manifestWorkdir = String(project.manifest.ai?.workdir || "").trim();
+  const merged = mergeSettings(legacy);
+  if (manifestWorkdir) {
+    merged.aiChat.workdir = path.resolve(project.rootDir, manifestWorkdir);
+  }
+
+  const temporaryPath = `${project.settingsFile}.tmp`;
+  fs.writeFileSync(temporaryPath, renderSettingsYaml(merged), "utf8");
+  fs.renameSync(temporaryPath, project.settingsFile);
+  if (project.manifest.ai && hasOwn(project.manifest.ai, "workdir")) {
+    const backupPath = `${project.projectFile}.pre-chg127.bak`;
+    if (!fs.existsSync(backupPath)) fs.copyFileSync(project.projectFile, backupPath);
+    const { ai, ...manifestWithoutAi } = project.manifest;
+    const nextManifest = { ...manifestWithoutAi, updatedAt: new Date().toISOString() };
+    fs.writeFileSync(project.projectFile, yaml.dump(nextManifest, { lineWidth: -1 }), "utf8");
+    projectContext.setCurrent(project.rootDir, nextManifest);
+  }
+  return {
+    migrated: fs.existsSync(legacyPath) || Boolean(manifestWorkdir),
+    path: project.settingsFile,
+    legacyPath: fs.existsSync(legacyPath) ? legacyPath : null,
+    legacyError,
+  };
 }
 
 function getSettings() {
+  const appConfig = loadAppConfig();
+  const project = projectContext.getCurrentOrNull();
+  if (!project) {
+    return {
+      ok: true,
+      settings: mergeSettings(DEFAULT_SETTINGS, appConfig.config),
+      configured: { aiChatWorkdir: false },
+      path: null,
+      appConfigPath: appConfig.path,
+      appConfigError: appConfig.error,
+    };
+  }
   ensureSettingsFile();
   const settingsPath = getSettingsPath();
-  const appConfig = loadAppConfig();
   try {
     const content = fs.readFileSync(settingsPath, "utf8");
     const parsed = yaml.load(content) || {};
     const settings = mergeSettings(parsed, appConfig.config);
-    const project = projectContext.getCurrentOrNull();
-    if (project) settings.aiChat.workdir = path.resolve(project.rootDir, project.manifest.ai?.workdir || ".");
     return {
       ok: true,
       settings,
@@ -527,6 +588,8 @@ function mergeAiChatPatch(current, patch) {
 }
 
 function updateSettings(patch) {
+  const project = projectContext.getCurrentOrNull();
+  if (!project) throw new Error("設定を保存するにはプロジェクトを選択してください。");
   const current = getSettings().settings;
   const next = mergeSettings({
     ...current,
@@ -552,22 +615,7 @@ function updateSettings(patch) {
   validateAiWorkdir(next.aiChat?.workdir);
   validateAiChatBedrock(next.aiChat);
 
-  const project = projectContext.getCurrentOrNull();
-  if (project && Object.prototype.hasOwnProperty.call((patch || {}).aiChat || {}, "workdir")) {
-    const resolved = path.resolve(next.aiChat.workdir || project.rootDir);
-    const relative = path.relative(project.rootDir, resolved);
-    const isOutsideProject = relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative);
-    const manifestWorkdir = isOutsideProject
-      ? resolved
-      : relative.replace(/\\/g, "/") || ".";
-    const manifest = { ...project.manifest, updatedAt: new Date().toISOString(), ai: { ...(project.manifest.ai || {}), workdir: manifestWorkdir } };
-    fs.writeFileSync(project.projectFile, yaml.dump(manifest, { lineWidth: -1 }), "utf8");
-    projectContext.setCurrent(project.rootDir, manifest);
-  }
-
-  fs.mkdirSync(getDataDir(), { recursive: true });
-  const settingsForDisk = project ? { ...next, aiChat: { ...next.aiChat, workdir: "" } } : next;
-  fs.writeFileSync(getSettingsPath(), renderSettingsYaml(settingsForDisk), "utf8");
+  fs.writeFileSync(getSettingsPath(), renderSettingsYaml(next), "utf8");
   return {
     ok: true,
     settings: next,
@@ -585,8 +633,10 @@ module.exports = {
   migrateLegacyResourceData,
   resolveCotaskaRootDir,
   getSettingsPath,
+  getLegacySettingsPath,
   getAppConfigPath,
   loadAppConfig,
   getSettings,
   updateSettings,
+  initializeProjectSettings,
 };

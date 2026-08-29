@@ -13,6 +13,7 @@ function buildProject(rootDir, manifest) {
   return Object.freeze({
     rootDir: root,
     projectFile: path.join(root, "project.yaml"),
+    settingsFile: path.join(root, "settings.yaml"),
     tasksDir: path.join(root, "tasks"),
     indexFile: path.join(root, "tasks", "_index.yaml"),
     archiveDir: path.join(root, "archive"),

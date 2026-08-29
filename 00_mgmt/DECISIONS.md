@@ -813,3 +813,11 @@
 - Windows EXEのアイコン・製品情報編集は`afterExtract`で行い、Electronの`app.asar`整合性リソース追加後にEXEを再編集しない。
 - 製品版の単一起動IDはインストール先非依存の`Cotaska`に固定し、`release-all.ps1`はRenderer読込完了マーカーと正常終了まで検証する。
 - main processの早期ログは`process.cwd()`やインストール先から導出せず、`LOCALAPPDATA\Cotaska\logs`を最初から使う。ログ初期化失敗はアプリ起動を停止させない。
+
+## 2026-08-28 CHG-127 全設定のプロジェクト単位管理
+
+- Cotaskaの利用者設定は共通設定とプロジェクト設定へ分割せず、各プロジェクト直下の`settings.yaml`ですべて管理する。
+- 現在の共通`settings.yaml`に含まれる全項目と`project.yaml`の`ai.workdir`をプロジェクト設定へ移す。履歴、ログ、キャッシュ、配布用`app-config.yaml`など、利用者設定ファイルではないアプリ運用データはユーザー領域またはアプリ資産に残す。
+- 認証トークン、APIキー、外部CLIの認証ファイルはプロジェクトの`settings.yaml`へ複製しない。
+- CHG-127実装では、プロジェクト未選択時に設定ファイルを生成せずコード既定値だけを返す。初回移行はプロジェクト側`settings.yaml`が存在しない場合だけ行い、旧共通設定を保持し、`project.yaml.ai.workdir`除去前に`project.yaml.pre-chg127.bak`を保存する。
+- 2026-08-29、Node.js 22環境での配布ビルドと実機動作確認は未実施だが、ユーザーの明示指示によりCHG-127を完了扱いとした。

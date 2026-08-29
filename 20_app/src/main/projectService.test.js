@@ -15,6 +15,7 @@ describe("projectService", () => {
     const project = projectService.createProject(projectRoot, "テスト");
     expect(project.name).toBe("テスト");
     expect(fs.existsSync(path.join(projectRoot, "project.yaml"))).toBe(true);
+    expect(fs.existsSync(path.join(projectRoot, "settings.yaml"))).toBe(true);
     expect(fs.existsSync(path.join(projectRoot, "tasks", "_index.yaml"))).toBe(true);
     expect(projectService.listRecent()[0].projectId).toBe(project.projectId);
   });
