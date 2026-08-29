@@ -182,3 +182,57 @@ function Assert-CotaskaReleaseArtifacts {
     # すべての検証を通過した成果物情報を、後続の同期・公開処理へ渡します。
     return [pscustomobject]@{ Version = Get-CotaskaPackageVersion -AppDir $AppDir; ZipPath = $zipPath; Sha256 = $actualHash }
 }
+
+<#
+.SYNOPSIS
+CHG-126以降のNSIS通常配布3成果物が同一バージョン・同一ビルドとして整合していることを検証します。
+#>
+function Assert-CotaskaInstallerReleaseArtifacts {
+    param([Parameter(Mandatory = $true)][string]$AppDir)
+
+    $version = Get-CotaskaPackageVersion -AppDir $AppDir
+    $releaseDir = Join-Path $AppDir "release"
+    $installerName = "Cotaska-$version-win-x64.exe"
+    $installerPath = Join-Path $releaseDir $installerName
+    $blockmapPath = "$installerPath.blockmap"
+    $latestYamlPath = Join-Path $releaseDir "latest.yml"
+
+    foreach ($path in @($installerPath, $blockmapPath, $latestYamlPath)) {
+        if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Release artifact not found: $path" }
+        if ((Get-Item -LiteralPath $path).Length -le 0) { throw "Release artifact is empty: $path" }
+    }
+
+    $latestYaml = Get-Content -Raw -Encoding UTF8 -LiteralPath $latestYamlPath
+    $escapedVersion = [Regex]::Escape($version)
+    $escapedInstallerName = [Regex]::Escape($installerName)
+    if ($latestYaml -notmatch "(?m)^version:\s*$escapedVersion\s*$") {
+        throw "latest.yml version does not match package.json: $version"
+    }
+    if ($latestYaml -notmatch "(?m)^\s*(?:url|path):\s*$escapedInstallerName\s*$") {
+        throw "latest.yml does not reference the installer: $installerName"
+    }
+
+    $sha512 = [System.Security.Cryptography.SHA512]::Create()
+    try {
+        $installerBytes = [System.IO.File]::ReadAllBytes($installerPath)
+        $actualSha512 = [Convert]::ToBase64String($sha512.ComputeHash($installerBytes))
+    }
+    finally {
+        $sha512.Dispose()
+    }
+    $declaredSha512 = [Regex]::Matches($latestYaml, "(?m)^\s*sha512:\s*(\S+)\s*$") |
+        ForEach-Object { $_.Groups[1].Value.Trim() }
+    if ($declaredSha512 -notcontains $actualSha512) {
+        throw "latest.yml SHA-512 does not match the installer."
+    }
+
+    return [pscustomobject]@{
+        Version = $version
+        InstallerPath = $installerPath
+        BlockmapPath = $blockmapPath
+        LatestYamlPath = $latestYamlPath
+        InstallerSha256 = (Get-FileHash -LiteralPath $installerPath -Algorithm SHA256).Hash.ToLowerInvariant()
+        BlockmapSha256 = (Get-FileHash -LiteralPath $blockmapPath -Algorithm SHA256).Hash.ToLowerInvariant()
+        LatestYamlSha256 = (Get-FileHash -LiteralPath $latestYamlPath -Algorithm SHA256).Hash.ToLowerInvariant()
+    }
+}

@@ -1,5 +1,5 @@
 # Cotaska R2 upload script
-# Uploads the current public release assets to the R2 latest/ prefix only.
+# Uploads the current NSIS release assets to the R2 latest/ prefix only.
 
 param(
     [string]$ConfigPath = "config\r2-upload.local.json"
@@ -10,7 +10,7 @@ $ErrorActionPreference = "Stop"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = (Resolve-Path (Join-Path $scriptDir "..")).Path
 . (Join-Path $scriptDir "scripts\release-common.ps1")
-$releaseArtifacts = Assert-CotaskaReleaseArtifacts -AppDir $scriptDir
+$releaseArtifacts = Assert-CotaskaInstallerReleaseArtifacts -AppDir $scriptDir
 $gitCommit = Get-CotaskaGitCommit -RepoRoot $repoRoot
 $nodeFromRepo = Join-Path $repoRoot "v22.14.0\node.exe"
 $nodeExe = if (Test-Path -LiteralPath $nodeFromRepo) { $nodeFromRepo } else { "node" }
@@ -53,17 +53,24 @@ required('publicBaseUrl', cfg.publicBaseUrl);
 const latestPrefix = ((cfg.uploadTargets && cfg.uploadTargets.latestPrefix) || 'latest').replace(/^\/+|\/+$/g, '');
 const releaseDir = path.join(scriptDir, 'release');
 const releasedAt = new Date().toISOString();
+const installerName = `Cotaska-${version}-win-x64.exe`;
+const blockmapName = `${installerName}.blockmap`;
 
 const assets = [
   {
-    source: path.join(releaseDir, 'Cotaska-Portable.zip'),
-    key: `${latestPrefix}/Cotaska-Portable.zip`,
-    contentType: 'application/zip'
+    source: path.join(releaseDir, installerName),
+    key: `${latestPrefix}/${installerName}`,
+    contentType: 'application/vnd.microsoft.portable-executable'
   },
   {
-    source: path.join(releaseDir, 'Cotaska-Portable.zip.sha256'),
-    key: `${latestPrefix}/Cotaska-Portable.zip.sha256`,
-    contentType: 'text/plain; charset=utf-8'
+    source: path.join(releaseDir, blockmapName),
+    key: `${latestPrefix}/${blockmapName}`,
+    contentType: 'application/octet-stream'
+  },
+  {
+    source: path.join(releaseDir, 'latest.yml'),
+    key: `${latestPrefix}/latest.yml`,
+    contentType: 'text/yaml; charset=utf-8'
   }
 ];
 
@@ -77,9 +84,12 @@ const versionJson = {
   version,
   gitCommit,
   releasedAt,
+  channel: 'nsis',
+  releaseUrl: `${cfg.publicBaseUrl.replace(/\/$/, '')}/${latestPrefix}/${installerName}`,
   files: {
-    portable: 'Cotaska-Portable.zip',
-    sha256: 'Cotaska-Portable.zip.sha256'
+    installer: installerName,
+    blockmap: blockmapName,
+    updateMetadata: 'latest.yml'
   }
 };
 
@@ -202,7 +212,7 @@ function publicUrlFor(key) {
     }
 
     const publicUrl = publicUrlFor(asset.key);
-    const check = asset.key.endsWith('.zip')
+    const check = asset.key.endsWith('.exe') || asset.key.endsWith('.blockmap')
       ? await publicRequest('HEAD', publicUrl)
       : await publicRequest('GET', publicUrl);
     if (check.statusCode !== 200) {
