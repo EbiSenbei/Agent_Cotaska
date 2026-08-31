@@ -4,6 +4,7 @@ import AiChatComposer from "./AiChatComposer";
 import AiChatContextPanel from "./AiChatContextPanel";
 import AiMarkdownPreview, { formatMessageTime } from "./AiMarkdownPreview";
 import { useExitPresence } from "../hooks/useExitPresence";
+import { CLAUDE_MODEL_OPTIONS, CODEX_MODEL_OPTIONS, withExistingModelOption } from "./aiModelOptions";
 import {
   clampContextPanelWidth,
   copyTextToClipboard,
@@ -120,6 +121,9 @@ function AiChatPane({
   const [expandedStreamEventIds, setExpandedStreamEventIds] = useState(() => new Set());
   const [waitingSeconds, setWaitingSeconds] = useState(0);
   const [sandboxMode, setSandboxMode] = useState("read-only");
+  const [selectedModel, setSelectedModel] = useState("");
+  const [claudeAuthMode, setClaudeAuthMode] = useState("claude-login");
+  const [bedrockModelId, setBedrockModelId] = useState("");
   const [referenceSendMode, setReferenceSendMode] = useState("default");
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   const [workdirContextMenu, setWorkdirContextMenu] = useState(null);
@@ -136,6 +140,13 @@ function AiChatPane({
   const [aiProvider, setAiProvider] = useState("codex");
   const lastTaskChatRequestRef = useRef(null);
   const providerLabel = aiProvider === "claude" ? "Claude Code" : "Codex SDK";
+  const isBedrockModel = aiProvider === "claude" && claudeAuthMode === "bedrock";
+  const modelOptions = useMemo(() => {
+    if (isBedrockModel) {
+      return [{ value: bedrockModelId, label: bedrockModelId || "BedrockモデルID未設定" }];
+    }
+    return withExistingModelOption(aiProvider === "claude" ? CLAUDE_MODEL_OPTIONS : CODEX_MODEL_OPTIONS, selectedModel);
+  }, [aiProvider, bedrockModelId, isBedrockModel, selectedModel]);
 
   const aiChatApi = useMemo(() => getAiChatApi(), []);
   const selectedThread = threads.find((thread) => thread.id === selectedThreadId) || null;
@@ -546,6 +557,10 @@ function AiChatPane({
         const aiChatSettings = settingsResult?.settings?.aiChat || {};
         if (!cancelled) {
           setAiProvider(aiChatSettings.provider === "claude" ? "claude" : "codex");
+          const provider = aiChatSettings.provider === "claude" ? "claude" : "codex";
+          setSelectedModel(String(aiChatSettings[provider]?.model || ""));
+          setClaudeAuthMode(String(aiChatSettings.claude?.authMode || "claude-login"));
+          setBedrockModelId(String(aiChatSettings.claude?.bedrock?.modelId || ""));
         }
         const initialSandboxMode = aiChatSettings.codex?.sandboxMode || aiChatSettings.sandboxMode;
         if (!cancelled && initialSandboxMode) {
@@ -736,8 +751,12 @@ function AiChatPane({
   useEffect(() => {
     const handleAiChatSettingsChanged = (event) => {
       if (event.detail?.provider) {
-        setAiProvider(event.detail.provider === "claude" ? "claude" : "codex");
+        const provider = event.detail.provider === "claude" ? "claude" : "codex";
+        setAiProvider(provider);
+        setSelectedModel(String(event.detail[provider]?.model || ""));
       }
+      setClaudeAuthMode(String(event.detail?.claude?.authMode || "claude-login"));
+      setBedrockModelId(String(event.detail?.claude?.bedrock?.modelId || ""));
       const changedSandboxMode = event.detail?.codex?.sandboxMode || event.detail?.sandboxMode;
       if (changedSandboxMode) {
         setSandboxMode(normalizeSandboxMode(changedSandboxMode));
@@ -1333,6 +1352,25 @@ function AiChatPane({
     }
   };
 
+  const handleModelChange = async (event) => {
+    const nextModel = String(event.target.value || "");
+    const previousModel = selectedModel;
+    setSelectedModel(nextModel);
+    const patch = { aiChat: { [aiProvider]: { model: nextModel } } };
+    try {
+      const result = await window.cotaskaAPI?.settings?.update?.(patch);
+      if (result?.ok === false) throw new Error(result.error || "モデル設定を保存できませんでした。");
+      const aiChatSettings = result?.settings?.aiChat;
+      if (aiChatSettings) {
+        window.dispatchEvent(new CustomEvent("cotaska:aiChatSettingsChanged", { detail: aiChatSettings }));
+      }
+      setRuntimeState((current) => ({ ...current, status: "ready", message: "既定モデルを変更しました。次の送信から適用します。" }));
+    } catch (error) {
+      setSelectedModel(previousModel);
+      setRuntimeState((current) => ({ ...current, status: "error", message: error?.message || "モデル設定を保存できませんでした。" }));
+    }
+  };
+
   const showLinkOpenError = (target, message) => {
     setContextPanel({
       type: "file",
@@ -1619,6 +1657,7 @@ function AiChatPane({
         content: text,
         title: selectedThread?.title || createDraftThreadTitle(text),
         sandboxMode: effectiveSandboxMode,
+        model: selectedModel || undefined,
         referenceSendMode: effectiveReferenceSendMode === "default" ? undefined : effectiveReferenceSendMode,
         request_id: requestId,
       });
@@ -1977,6 +2016,9 @@ function AiChatPane({
           isSending={isSending}
           isDragOver={isComposeDragOver}
           references={references}
+          model={isBedrockModel ? bedrockModelId : selectedModel}
+          modelOptions={modelOptions}
+          isModelSelectionDisabled={isBedrockModel}
           sandboxMode={sandboxMode}
           sandboxOptions={SANDBOX_OPTIONS}
           referenceSendMode={referenceSendMode}
@@ -1993,6 +2035,7 @@ function AiChatPane({
           onReferenceClick={handleReferenceClick}
           onReferenceKeyDown={handleReferenceKeyDown}
           onRemoveReference={handleRemoveReference}
+          onModelChange={handleModelChange}
           onSandboxModeChange={handleSandboxModeChange}
           onReferenceSendModeChange={(event) => setReferenceSendMode(normalizeReferenceSendMode(event.target.value))}
           onSend={handleSend}

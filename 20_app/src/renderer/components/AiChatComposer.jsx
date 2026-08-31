@@ -5,6 +5,9 @@ export default function AiChatComposer({
   isSending,
   isDragOver,
   references,
+  model,
+  modelOptions,
+  isModelSelectionDisabled,
   sandboxMode,
   sandboxOptions,
   referenceSendMode,
@@ -18,6 +21,7 @@ export default function AiChatComposer({
   onReferenceClick,
   onReferenceKeyDown,
   onRemoveReference,
+  onModelChange,
   onSandboxModeChange,
   onReferenceSendModeChange,
   onSend,
@@ -44,6 +48,12 @@ export default function AiChatComposer({
       )}
       <div className="ai-compose-toolbar">
         <button type="button" className="ai-compose-icon-btn" onClick={onAddReferences} disabled={isSending} title="ファイル添付" aria-label="ファイル添付">＋</button>
+        <label className="ai-model-control" title={isModelSelectionDisabled ? "Bedrockのモデルは設定画面で変更します" : "選択すると既定モデルも変更されます"}>
+          <span>モデル</span>
+          <select value={model} disabled={isSending || isModelSelectionDisabled} aria-label="AIモデル" onChange={onModelChange}>
+            {modelOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+          </select>
+        </label>
         <label className="ai-permission-control" title="権限設定">
           <span>ⓘ</span>
           <select value={sandboxMode} disabled={isSending} aria-label="権限設定" onChange={onSandboxModeChange}>

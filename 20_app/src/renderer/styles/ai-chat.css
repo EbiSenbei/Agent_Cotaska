@@ -1396,6 +1396,33 @@
   cursor: default;
 }
 
+.ai-model-control {
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #42627d;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ai-model-control select {
+  max-width: 190px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  outline: none;
+  cursor: pointer;
+}
+
+.ai-model-control select:disabled {
+  opacity: .55;
+  cursor: default;
+}
+
 .ai-permission-control {
   height: 30px;
   display: inline-flex;
