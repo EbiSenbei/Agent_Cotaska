@@ -836,3 +836,4 @@
 
 - 最新版確認、手動取得、インストール版自動更新は`EbiSenbei/cotaska-site`のGitHub Releasesを正本とする。
 - インストール版はelectron-builder生成のGitHub providerを使用し、最新版API URLからgeneric feedを組み立てない。Cloudflare R2は通常更新の必須経路から外す。
+- CHG-129では設定画面の「表示名」を「プロジェクト名」へ変更し、ウィンドウタイトルを`Cotaska {プロジェクト名}`とする。既存設定互換性のため`displayName`キーは維持し、製品名は`Cotaska`固定とする。

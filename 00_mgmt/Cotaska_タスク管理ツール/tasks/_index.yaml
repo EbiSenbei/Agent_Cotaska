@@ -6367,12 +6367,15 @@ tasks:
   - id: T-0609
     title: 仕様変更：プロジェクト名を設定画面から設定
     list: null
-    status: todo
+    status: doing
     priority: normal
     sort_order: 578
-    tags: []
+    tags:
+      - CHG-129
+      - 仕様変更
+      - プロジェクト名
     due_date: null
-    updated_at: '2026-08-29T13:44:34.966Z'
+    updated_at: '2026-09-01T10:00:00+09:00'
   - id: T-0610
     title: 仕様変更：AIチャットでモデル変更
     list: null
@@ -6751,7 +6754,43 @@ tasks:
       - ユーザー確認
     due_date: null
     updated_at: '2026-08-29T23:50:00+09:00'
+  - id: T-0612
+    title: CHG-129-01 設計：プロジェクト名とタイトル表示仕様を反映する
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 612
+    tags:
+      - CHG-129
+      - 設計
+      - プロジェクト名
+    due_date: null
+    updated_at: '2026-09-01T10:00:00+09:00'
+  - id: T-0613
+    title: CHG-129-02 実装：設定画面とウィンドウタイトルを変更する
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 613
+    tags:
+      - CHG-129
+      - 実装
+      - プロジェクト名
+    due_date: null
+    updated_at: '2026-09-01T10:00:00+09:00'
+  - id: T-0614
+    title: CHG-129-03 ユーザー確認：プロジェクト名の保存とタイトル表示を確認する
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 614
+    tags:
+      - CHG-129
+      - ユーザー確認
+      - プロジェクト名
+    due_date: null
+    updated_at: '2026-09-01T10:00:00+09:00'
 task_file_roots:
   - .
-next_task_id: 611
-last_updated: '2026-08-29T13:47:51.899Z'
+next_task_id: 615
+last_updated: '2026-08-31T15:14:15.628Z'

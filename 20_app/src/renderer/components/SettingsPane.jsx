@@ -569,17 +569,17 @@ function SettingsPane({ focusRequest, onOpenGuide }) {
                 </thead>
                 <tbody>
                   <tr>
-                    <th>表示名</th>
+                    <th>プロジェクト名</th>
                     <td>
                       <input
                         className="settings-text-input"
                         type="text"
                         value={settings.displayName}
                         maxLength={40}
-                        aria-label="表示名"
+                        aria-label="プロジェクト名"
                         onChange={(e) => updateSettingState({ displayName: e.target.value })}
                       />
-                      <div className="settings-help-text">Cotaska の画面タイトルやアプリ情報に表示する名前。</div>
+                      <div className="settings-help-text">ウィンドウタイトルに「Cotaska プロジェクト名」の形式で表示する名前。</div>
                     </td>
                   </tr>
                   <tr>

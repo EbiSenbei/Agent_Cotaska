@@ -27,6 +27,7 @@ const { createBackupService } = require("./backupService");
 const packageInfo = require("../../package.json");
 const projectService = require("./projectService");
 const projectContext = require("./projectContext");
+const { formatWindowTitle } = require("./windowTitle");
 const { autoUpdater } = require("electron-updater");
 
 let mainWindow = null;
@@ -152,7 +153,7 @@ function getAppInfo() {
     : "Cotaska-Portable";
 
   return {
-    productName: settings.displayName || "Cotaska",
+    productName: APP_DISPLAY_NAME,
     currentVersion: `Cotaska ${packageInfo.version}`,
     version: packageInfo.version,
     distributionFolder,
@@ -1382,7 +1383,7 @@ ipcMain.handle("settings:update", async (_e, patch) => {
   try {
     const result = settingsService.updateSettings(patch);
     if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.setTitle(result.settings.displayName || APP_DISPLAY_NAME);
+      mainWindow.setTitle(formatWindowTitle(result.settings.displayName));
     }
     return result;
   } catch (err) {
@@ -2769,7 +2770,7 @@ function createWindow() {
     : path.join(__dirname, "../../setup/launcher/icon.ico");
 
   const win = new BrowserWindow({
-    title: settingsService.getSettings().settings.displayName || APP_DISPLAY_NAME,
+    title: formatWindowTitle(settingsService.getSettings().settings.displayName),
     show: true,
     width: 1280,
     height: 800,
@@ -2785,7 +2786,7 @@ function createWindow() {
   });
 
   let didShowWindow = false;
-  win.setTitle(settingsService.getSettings().settings.displayName || APP_DISPLAY_NAME);
+  win.setTitle(formatWindowTitle(settingsService.getSettings().settings.displayName));
 
   win.webContents.on("did-fail-load", (_event, errorCode, errorDescription, validatedURL) => {
     appLogger.logError(
@@ -2833,8 +2834,8 @@ function createWindow() {
 
   win.webContents.on("did-finish-load", () => {
     // renderer の固定 <title> が BrowserWindow の初期タイトルを上書きするため、
-    // 読込完了後に保存済みの表示名を再設定する。
-    win.setTitle(settingsService.getSettings().settings.displayName || APP_DISPLAY_NAME);
+    // renderer の固定 title による上書き後、保存済みプロジェクト名を再設定する。
+    win.setTitle(formatWindowTitle(settingsService.getSettings().settings.displayName));
     publishStartupProgress({
       percent: 82,
       label: "画面を読み込んでいます...",

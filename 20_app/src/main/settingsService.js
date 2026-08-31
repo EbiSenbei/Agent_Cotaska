@@ -361,7 +361,7 @@ function renderSettingsYaml(settings) {
     "# Cotaska 設定ファイル",
     "# このファイルは設定画面から更新されます。日本語コメントは保持されます。",
     "",
-    "# 表示名: アプリ画面やタイトルに表示する名前",
+    "# プロジェクト名: ウィンドウタイトルに「Cotaska プロジェクト名」の形式で表示する名前",
     `displayName: ${escaped(normalized.displayName)}`,
     "",
     "# 外部エディタ: タスクファイルを開くときに使うエディタの実行ファイルパス",
