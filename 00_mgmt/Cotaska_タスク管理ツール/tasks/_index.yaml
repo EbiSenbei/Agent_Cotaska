@@ -6844,7 +6844,7 @@ tasks:
   - id: T-0618
     title: Cotaska v0.4.1 版数更新・インストーラ作成・GitHub Release公開
     list: リリース
-    status: doing
+    status: done
     priority: high
     sort_order: 618
     tags:
@@ -6853,8 +6853,8 @@ tasks:
       - NSIS
       - GitHub Releases
     due_date: null
-    updated_at: '2026-09-01T11:30:00+09:00'
+    updated_at: '2026-09-01T12:00:00+09:00'
 task_file_roots:
   - .
 next_task_id: 619
-last_updated: '2026-08-31T15:48:30.894Z'
+last_updated: '2026-08-31T15:51:31.990Z'
