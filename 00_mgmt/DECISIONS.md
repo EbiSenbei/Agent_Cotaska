@@ -836,6 +836,7 @@
 
 - 最新版確認、手動取得、インストール版自動更新は`EbiSenbei/cotaska-site`のGitHub Releasesを正本とする。
 - インストール版はelectron-builder生成のGitHub providerを使用し、最新版API URLからgeneric feedを組み立てない。Cloudflare R2は通常更新の必須経路から外す。
+- Cotaska公式サイトもGitHub latest APIを正本とし、Windows x64インストーラーAssetを動的に検出して直接ダウンロードさせる。取得失敗時は最新Releaseページをフォールバックとする。
 - CHG-129では設定画面の「表示名」を「プロジェクト名」へ変更し、ウィンドウタイトルを`Cotaska {プロジェクト名}`とする。既存設定互換性のため`displayName`キーは維持し、製品名は`Cotaska`固定とする。
 
 ## 2026-09-01 CHG-130 AIチャット欄モデル選択

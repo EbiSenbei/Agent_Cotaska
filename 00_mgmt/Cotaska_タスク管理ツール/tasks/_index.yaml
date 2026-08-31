@@ -6379,12 +6379,15 @@ tasks:
   - id: T-0610
     title: 仕様変更：AIチャットでモデル変更
     list: null
-    status: todo
+    status: doing
     priority: normal
     sort_order: 579
-    tags: []
+    tags:
+      - CHG-130
+      - 仕様変更
+      - AIチャット
     due_date: null
-    updated_at: '2026-08-29T13:45:21.667Z'
+    updated_at: '2026-09-01T10:30:00+09:00'
   - id: T-0580
     title: BUG-20260823-01 NSISインストール後にCotaska画面が起動しない問題を調査・修正する
     list: 不具合修正
@@ -6754,6 +6757,18 @@ tasks:
       - ユーザー確認
     due_date: null
     updated_at: '2026-08-29T23:50:00+09:00'
+  - id: T-0611
+    title: CHG-128-04 実装：公式サイトの取得先をGitHub Releasesへ変更
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 611
+    tags:
+      - CHG-128
+      - GitHub Releases
+      - 公式サイト
+    due_date: null
+    updated_at: '2026-09-01T00:05:00+09:00'
   - id: T-0612
     title: CHG-129-01 設計：プロジェクト名とタイトル表示仕様を反映する
     list: 仕様変更
@@ -6790,7 +6805,56 @@ tasks:
       - プロジェクト名
     due_date: null
     updated_at: '2026-09-01T10:00:00+09:00'
+  - id: T-0615
+    title: CHG-130-01 設計：AIチャット欄のモデル選択と設定同期
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 615
+    tags:
+      - CHG-130
+      - 設計
+      - AIチャット
+    due_date: null
+    updated_at: '2026-09-01T10:40:00+09:00'
+  - id: T-0616
+    title: CHG-130-02 実装：AIチャット欄のモデル選択と設定同期
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 616
+    tags:
+      - CHG-130
+      - 実装
+      - AIチャット
+    due_date: null
+    updated_at: '2026-09-01T10:50:00+09:00'
+  - id: T-0617
+    title: CHG-130-03 ユーザー確認：AIチャット欄のモデル選択
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 617
+    tags:
+      - CHG-130
+      - ユーザー確認
+      - AIチャット
+    due_date: null
+    updated_at: '2026-09-01T10:30:00+09:00'
+  - id: T-0618
+    title: Cotaska v0.4.1 版数更新・インストーラ作成・GitHub Release公開
+    list: リリース
+    status: doing
+    priority: high
+    sort_order: 618
+    tags:
+      - release
+      - v0.4.1
+      - NSIS
+      - GitHub Releases
+    due_date: null
+    updated_at: '2026-09-01T11:30:00+09:00'
 task_file_roots:
   - .
-next_task_id: 615
-last_updated: '2026-08-31T15:14:15.628Z'
+next_task_id: 619
+last_updated: '2026-08-31T15:48:30.894Z'
