@@ -702,7 +702,10 @@ function AiChatPane({
     const hydrateActiveRun = async () => {
       if (!selectedActiveRun?.request_id) {
         const currentActive = activeSendRequestRef.current;
-        if (currentActive && (currentActive.thread_id || selectedThreadId)) {
+        // A locally-started send owns its lifecycle until sendMessage settles.
+        // The main process removes completed runs before the IPC response can
+        // reach the renderer, so polling must not clear that local request.
+        if (currentActive && !currentActive.local && (currentActive.thread_id || selectedThreadId)) {
           activeSendRequestRef.current = null;
           setIsSending(false);
           setStreamEvents([]);
@@ -1615,7 +1618,13 @@ function AiChatPane({
 
     const requestId = `ai-send-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const streamingAssistantMessageId = `stream-assistant-${Date.now()}`;
-    activeSendRequestRef.current = { id: requestId, canceled: false, streamingAssistantMessageId, thread_id: threadId };
+    activeSendRequestRef.current = {
+      id: requestId,
+      canceled: false,
+      local: true,
+      streamingAssistantMessageId,
+      thread_id: threadId,
+    };
     const pendingUserMessage = {
       id: `pending-user-${Date.now()}`,
       role: "user",
@@ -1695,6 +1704,20 @@ function AiChatPane({
           ...current.filter((message) => message.id !== pendingUserMessage.id && message.id !== streamingAssistantMessageId),
           ...resultMessages,
         ]);
+      }
+
+      // DB messages are the source of truth. Re-read them after completion so
+      // the UI converges even when polling observes run removal before this
+      // sendMessage response or an event/state update arrives out of order.
+      try {
+        const persistedMessageRows = await aiChatApi.listMessages?.(threadId);
+        if (activeSendRequestRef.current?.id === requestId && Array.isArray(persistedMessageRows)) {
+          setMessages(persistedMessageRows.map(mapMessage));
+          requestScrollMessagesToBottom();
+        }
+      } catch (_error) {
+        // The completion response above already contains the final messages;
+        // DB re-sync is a convergence fallback and must not turn success into failure.
       }
 
       const mappedThreads = await refreshThreads();
