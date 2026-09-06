@@ -8,7 +8,8 @@ const settingsService = require("./settingsService");
 const appLogger = require("./appLogger");
 const aiChatReferences = require("./aiChatReferences");
 
-const DEFAULT_CLAUDE_MODEL = "claude-opus-4";
+// Claude Codeの安定エイリアスを使い、特定スナップショットの廃止に追従しやすくする。
+const DEFAULT_CLAUDE_MODEL = "opus";
 const PERMISSION_MODES = new Set(["plan", "acceptEdits", "bypassPermissions"]);
 const activeRequests = new Map();
 const MAX_CACHED_RUN_EVENTS = 80;
