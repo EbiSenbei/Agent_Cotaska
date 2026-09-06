@@ -378,7 +378,9 @@ function App() {
     window.cotaskaAPI?.ping().then(res => console.log("[IPC] ping →", res));
     (async () => {
       const current = await window.cotaskaAPI?.projects?.getCurrent?.();
-      setProject(current);
+      const settingsResult = current ? await window.cotaskaAPI?.settings?.get?.() : null;
+      const displayName = String(settingsResult?.settings?.displayName || "").trim();
+      setProject(current && displayName ? { ...current, name: displayName } : current);
       if (!current) { setInitialLoading(false); return; }
       await loadTasks({ showLoading: true });
       const rows = await window.cotaskaAPI?.lists?.getAll() ?? [];
@@ -1084,7 +1086,13 @@ function App() {
     if (progressSections.length === 0) progressSections = null;
   }
 
-  if (project === null) return <ProjectSelector onOpened={(opened) => { setProject(opened); setInitialLoading(true); loadTasks({ showLoading: true }); }} />;
+  if (project === null) return <ProjectSelector onOpened={async (opened) => {
+    const settingsResult = await window.cotaskaAPI?.settings?.get?.();
+    const displayName = String(settingsResult?.settings?.displayName || "").trim();
+    setProject(displayName ? { ...opened, name: displayName } : opened);
+    setInitialLoading(true);
+    loadTasks({ showLoading: true });
+  }} />;
 
   if (initialLoading || project === undefined) {
     const startupProgressRatio = Math.max(0, Math.min(100, Number(startupProgress.percent) || 0)) / 100;
@@ -1122,7 +1130,13 @@ function App() {
         updateAlert={updateAlert}
       />
       {isSettingsMode ? (
-        <SettingsPane focusRequest={settingsFocusRequest} onOpenGuide={() => setOnboardingOpen(true)} />
+        <SettingsPane
+          focusRequest={settingsFocusRequest}
+          onOpenGuide={() => setOnboardingOpen(true)}
+          onProjectNameSaved={(displayName) => setProject((current) => (
+            current ? { ...current, name: displayName } : current
+          ))}
+        />
       ) : isAiMode ? (
         <AiChatPane
           tasks={tasks}

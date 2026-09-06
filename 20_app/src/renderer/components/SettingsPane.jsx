@@ -126,7 +126,7 @@ function getAuthGuide(status) {
   return "状態を確認できませんでした。Codexのログイン状態とネットワークを確認してから再確認してください。";
 }
 
-function SettingsPane({ focusRequest, onOpenGuide }) {
+function SettingsPane({ focusRequest, onOpenGuide, onProjectNameSaved }) {
   const [activeTab, setActiveTab] = useState("app-info");
   const [appInfo, setAppInfo] = useState(DEFAULT_APP_INFO);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
@@ -286,6 +286,7 @@ function SettingsPane({ focusRequest, onOpenGuide }) {
     window.localStorage?.setItem("cotaska.detailContentFontSize", String(normalized.detailTextSize));
     window.dispatchEvent(new CustomEvent("cotaska:detailTextSizeChanged", { detail: normalized.detailTextSize }));
     window.dispatchEvent(new CustomEvent("cotaska:aiChatSettingsChanged", { detail: normalized.aiChat }));
+    onProjectNameSaved?.(normalized.displayName);
     setStatusMessage("設定を保存しました。");
     await refreshAppInfo();
   };
@@ -569,7 +570,7 @@ function SettingsPane({ focusRequest, onOpenGuide }) {
                         aria-label="プロジェクト名"
                         onChange={(e) => updateSettingState({ displayName: e.target.value })}
                       />
-                      <div className="settings-help-text">ウィンドウタイトルに「Cotaska プロジェクト名」の形式で表示する名前。</div>
+                      <div className="settings-help-text">ウィンドウタイトルと画面左下に表示するプロジェクト名。</div>
                     </td>
                   </tr>
                   <tr>
