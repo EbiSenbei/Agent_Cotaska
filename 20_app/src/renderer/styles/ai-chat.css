@@ -1258,9 +1258,48 @@
   box-shadow: 0 8px 22px rgba(30, 40, 54, .07);
 }
 
+.ai-compose-resize-handle {
+  height: 12px;
+  margin: -8px -4px -4px;
+  display: grid;
+  place-items: center;
+  cursor: ns-resize;
+  touch-action: none;
+  outline: none;
+}
+
+.ai-compose-resize-handle::after {
+  content: "";
+  width: 42px;
+  height: 3px;
+  border-radius: 999px;
+  background: #c6cfdb;
+  transition: background-color var(--motion-fast) ease, transform var(--motion-fast) ease;
+}
+
+.ai-compose-resize-handle:hover::after,
+.ai-compose-resize-handle:focus-visible::after,
+.ai-compose--resizing .ai-compose-resize-handle::after {
+  background: #6d93b8;
+  transform: scaleX(1.14);
+}
+
+.ai-compose-resize-handle[aria-disabled="true"] {
+  cursor: default;
+  opacity: .45;
+}
+
+.ai-compose--resizing,
+.ai-compose--resizing * {
+  cursor: ns-resize !important;
+  user-select: none;
+}
+
 .ai-compose textarea {
+  box-sizing: border-box;
   min-height: 58px;
   resize: none;
+  overflow-y: auto;
   border: 0;
   border-radius: 8px;
   padding: 2px 4px;
@@ -1538,6 +1577,10 @@
   .ai-message--streaming::after,
   .ai-thinking-dot {
     animation: none;
+  }
+
+  .ai-compose-resize-handle::after {
+    transition: none;
   }
 
   .ai-message--streaming::after,

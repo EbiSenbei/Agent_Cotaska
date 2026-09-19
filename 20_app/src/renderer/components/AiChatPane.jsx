@@ -2046,6 +2046,7 @@ function AiChatPane({
           sandboxOptions={SANDBOX_OPTIONS}
           referenceSendMode={referenceSendMode}
           referenceSendOptions={REFERENCE_SEND_OPTIONS}
+          resizeResetKey={selectedThreadId}
           onDraftChange={(event) => {
             draftHistoryIndexRef.current = -1;
             setDraft(event.target.value);
