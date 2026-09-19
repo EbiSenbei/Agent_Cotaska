@@ -2513,6 +2513,29 @@ ipcMain.handle("shell:openPath", async (_e, targetPath) => {
   }
 });
 
+ipcMain.handle("shell:revealPath", async (_e, targetPath) => {
+  await servicesReady;
+  const rawPath = String(targetPath || "").trim();
+  if (!rawPath) {
+    return { ok: false, error: "ファイルパスが未指定です。" };
+  }
+
+  const normalizedPath = path.normalize(rawPath);
+  if (!fs.existsSync(normalizedPath)) {
+    logger.warn("shell:revealPath target not found", { path: normalizedPath });
+    return { ok: false, error: "対象のファイルまたはフォルダが見つかりません。" };
+  }
+
+  try {
+    shell.showItemInFolder(normalizedPath);
+    logger.info("shell:revealPath success", { path: normalizedPath });
+    return { ok: true };
+  } catch (err) {
+    logger.error("shell:revealPath exception", err);
+    return { ok: false, error: err.message || "エクスプローラーを開けませんでした。" };
+  }
+});
+
 function stripFileLineSuffixIfExists(filePath) {
   const rawPath = String(filePath || "").trim();
   if (!rawPath || fs.existsSync(rawPath)) return rawPath;

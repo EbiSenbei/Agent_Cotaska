@@ -8,6 +8,7 @@ import { CLAUDE_MODEL_OPTIONS, CODEX_MODEL_OPTIONS, withExistingModelOption } fr
 import {
   clampContextPanelWidth,
   copyTextToClipboard,
+  getExplorerTarget,
   loadContextPanelWidth,
   normalizeOption,
 } from "./aiChatUiUtils";
@@ -1451,6 +1452,23 @@ function AiChatPane({
     }
   };
 
+  const handleRevealLinkInExplorer = async () => {
+    const menu = linkContextMenu;
+    setLinkContextMenu(null);
+    if (!menu?.href) return;
+    try {
+      const resolved = await aiChatApi?.resolveLinkTarget?.(menu.href, menu.baseFilePath);
+      if (!resolved || resolved.ok === false) throw new Error(resolved?.error || "リンク先を解決できませんでした。");
+      const target = getExplorerTarget(resolved);
+      if (!target) throw new Error("Webリンクはエクスプローラーで開けません。");
+      const result = await window.cotaskaAPI?.shell?.revealPath?.(target);
+      if (!result || result.ok === false) throw new Error(result?.error || "エクスプローラーで開けませんでした。");
+      setRuntimeState((current) => ({ ...current, status: "ready", message: "リンク先をエクスプローラーで開きました。" }));
+    } catch (error) {
+      setRuntimeState({ ready: false, status: "error", message: error?.message || "エクスプローラーで開けませんでした。" });
+    }
+  };
+
   const handleCopyLink = async () => {
     const menu = linkContextMenu;
     setLinkContextMenu(null);
@@ -2162,7 +2180,7 @@ function AiChatPane({
         <div
           className="context-menu"
           role="menu"
-          style={{ top: Math.min(linkContextMenu.y, window.innerHeight - 120), left: Math.min(linkContextMenu.x, window.innerWidth - 190) }}
+          style={{ top: Math.min(linkContextMenu.y, window.innerHeight - 160), left: Math.min(linkContextMenu.x, window.innerWidth - 190) }}
           onMouseDown={(event) => event.stopPropagation()}
           onContextMenu={(event) => event.preventDefault()}
         >
@@ -2178,6 +2196,7 @@ function AiChatPane({
             このアプリで開く
           </button>
           <button type="button" className="ctx-item" onClick={handleOpenLinkExternal}>外部アプリで開く</button>
+          <button type="button" className="ctx-item" onClick={handleRevealLinkInExplorer}>エクスプローラーで開く</button>
           <button type="button" className="ctx-item" onClick={handleCopyLink}>リンクをコピー</button>
         </div>
       )}

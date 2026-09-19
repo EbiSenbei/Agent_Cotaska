@@ -21,6 +21,12 @@ export function loadContextPanelWidth() {
   }
 }
 
+export function getExplorerTarget(resolvedLink) {
+  if (resolvedLink?.target_type === "file") return resolvedLink.file_path || "";
+  if (resolvedLink?.target_type === "folder") return resolvedLink.folder_path || "";
+  return "";
+}
+
 export async function copyTextToClipboard(text) {
   if (navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(text);

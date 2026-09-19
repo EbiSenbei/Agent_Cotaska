@@ -176,6 +176,7 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
   // OS 既定アプリでファイルを開く
   shell: {
     openPath: (targetPath) => ipcRenderer.invoke("shell:openPath", targetPath),
+    revealPath: (targetPath) => ipcRenderer.invoke("shell:revealPath", targetPath),
     openTarget: (target, baseDir) => ipcRenderer.invoke("shell:openTarget", target, baseDir),
     openTaskFile: (taskId) => ipcRenderer.invoke("shell:openTaskFile", taskId),
     copyTaskFilePath: (taskId) => ipcRenderer.invoke("shell:copyTaskFilePath", taskId),
