@@ -17,6 +17,22 @@ function recentPath() { requireConfigured(); return path.join(appDataDir, "recen
 function now() { return new Date().toISOString(); }
 function safeName(value, rootDir) { return String(value || path.basename(rootDir) || "cotaska").trim().slice(0, 80) || "cotaska"; }
 
+function projectFolderName(rootDir) {
+  const normalized = String(rootDir || "").trim().replace(/[\\/]+$/, "");
+  return path.basename(normalized) || "cotaska";
+}
+
+function readProjectDisplayName(rootDir) {
+  const fallback = projectFolderName(rootDir);
+  try {
+    const settings = YAML.load(fs.readFileSync(path.join(rootDir, "settings.yaml"), "utf8"));
+    if (typeof settings?.displayName !== "string") return fallback;
+    return settings.displayName.trim() || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 function readRecent() {
   try {
     const parsed = YAML.load(fs.readFileSync(recentPath(), "utf8")) || {};
@@ -76,7 +92,11 @@ function createProject(rootDir, name) {
   return publicProject(project);
 }
 function listRecent() {
-  return readRecent().projects.map((entry) => ({ ...entry, exists: fs.existsSync(path.join(entry.path || "", "project.yaml")) }));
+  return readRecent().projects.map((entry) => ({
+    ...entry,
+    name: readProjectDisplayName(entry.path),
+    exists: fs.existsSync(path.join(entry.path || "", "project.yaml")),
+  }));
 }
 function getCurrent() { const project = projectContext.getCurrentOrNull(); return project ? publicProject(project) : null; }
 function removeRecent(projectId) { const data = readRecent(); data.projects = data.projects.filter((x) => x.projectId !== projectId); if (data.lastProjectId === projectId) data.lastProjectId = null; writeRecent(data); return { ok: true }; }

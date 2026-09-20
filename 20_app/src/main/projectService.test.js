@@ -20,6 +20,44 @@ describe("projectService", () => {
     expect(projectService.listRecent()[0].projectId).toBe(project.projectId);
   });
 
+  test("最近使ったプロジェクトではsettings.yamlのプロジェクト名を表示する", () => {
+    const appData = tempRoot(); const projectRoot = path.join(tempRoot(), "フォルダ名");
+    projectService.configure(appData);
+    projectService.createProject(projectRoot, "project.yamlの名前");
+    fs.writeFileSync(path.join(projectRoot, "settings.yaml"), "displayName: 設定上の名前\n", "utf8");
+
+    const [recent] = projectService.listRecent();
+
+    expect(recent.name).toBe("設定上の名前");
+    expect(recent.path).toBe(path.resolve(projectRoot));
+  });
+
+  test.each([
+    ["空欄", "displayName: '   '\n"],
+    ["文字列以外", "displayName:\n  unexpected: value\n"],
+    ["設定ファイル欠損", null],
+    ["設定ファイル破損", "displayName: [invalid\n"],
+  ])("プロジェクト名が%sの場合はフォルダ名へフォールバックする", (_label, settingsYaml) => {
+    const appData = tempRoot(); const projectRoot = path.join(tempRoot(), "フォールバック名");
+    projectService.configure(appData);
+    projectService.createProject(projectRoot, "project.yamlの名前");
+    const settingsFile = path.join(projectRoot, "settings.yaml");
+    if (settingsYaml === null) fs.rmSync(settingsFile); else fs.writeFileSync(settingsFile, settingsYaml, "utf8");
+
+    expect(projectService.listRecent()[0].name).toBe("フォールバック名");
+  });
+
+  test("一部プロジェクトの設定が壊れていても一覧全体を返す", () => {
+    const appData = tempRoot(); const validRoot = path.join(tempRoot(), "正常"); const brokenRoot = path.join(tempRoot(), "破損");
+    projectService.configure(appData);
+    projectService.createProject(validRoot, "正常manifest");
+    fs.writeFileSync(path.join(validRoot, "settings.yaml"), "displayName: 正常な表示名\n", "utf8");
+    projectService.createProject(brokenRoot, "破損manifest");
+    fs.writeFileSync(path.join(brokenRoot, "settings.yaml"), "displayName: [invalid\n", "utf8");
+
+    expect(projectService.listRecent().map((project) => project.name)).toEqual(["破損", "正常な表示名"]);
+  });
+
   test("管理ファイルが衝突する既存フォルダを上書きしない", () => {
     const appData = tempRoot(); const projectRoot = tempRoot();
     projectService.configure(appData); fs.writeFileSync(path.join(projectRoot, "lists.yaml"), "existing", "utf8");
