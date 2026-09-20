@@ -1711,7 +1711,7 @@ function AiChatPane({
         setRuntimeState({
           ready: true,
           status: "ready",
-          message: `${providerLabel}の応答を保存しました。`,
+          message: result?.threadRecovery?.notice || `${providerLabel}の応答を保存しました。`,
           action: null,
         });
       }

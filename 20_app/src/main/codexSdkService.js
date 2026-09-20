@@ -4,6 +4,11 @@ const { execFile } = require("child_process");
 const aiService = require("./aiService");
 const settingsService = require("./settingsService");
 const appLogger = require("./appLogger");
+const {
+  isMissingCodexRolloutError,
+  buildRecoveryTranscript,
+  buildRecoveryPrompt,
+} = require("./codexThreadRecovery");
 
 const SANDBOX_MODES = new Set(["read-only", "workspace-write", "danger-full-access"]);
 const PERFORMANCE_MODES = new Set(["standard", "speed"]);
@@ -767,10 +772,39 @@ async function sendMessage(input = {}) {
     const { codex, reused: codexClientReused } = await getCodexClient(settings, { ...input, performanceMode });
     const sdkLoadedAt = Date.now();
     const threadOptions = buildThreadOptions(thread, { ...input, workdir, performanceMode, model });
-    const codexThread = codexThreadIdForRun
+    let codexThread = codexThreadIdForRun
       ? codex.resumeThread(codexThreadIdForRun, threadOptions)
       : codex.startThread(threadOptions);
-    const streamed = await codexThread.runStreamed(prompt, { signal: abortController.signal });
+    let streamed;
+    let threadRecovery = null;
+    try {
+      streamed = await codexThread.runStreamed(prompt, { signal: abortController.signal });
+    } catch (resumeError) {
+      if (!codexThreadIdForRun || !isMissingCodexRolloutError(resumeError)) throw resumeError;
+
+      aiService.updateThread(thread.thread_id, { codex_thread_id: null });
+      const recoveryTranscript = buildRecoveryTranscript(aiService.listMessages(thread.thread_id), {
+        excludeMessageId: userMessage.message_id,
+      });
+      const recoveryPrompt = buildRecoveryPrompt(recoveryTranscript, prompt);
+      appLogger.logWarning("Codex thread rollout was missing; starting a replacement thread", {
+        category: "aiChat",
+        request_id: requestId,
+        thread_id: thread.thread_id,
+        run_id: run.run_id,
+        stale_codex_thread_id: codexThreadIdForRun,
+        recovery_context_chars: recoveryTranscript.length,
+      });
+      codexThread = codex.startThread(threadOptions);
+      streamed = await codexThread.runStreamed(recoveryPrompt, { signal: abortController.signal });
+      threadRecovery = {
+        recovered: true,
+        reason: "missing_rollout",
+        previous_codex_thread_id: codexThreadIdForRun,
+        context_chars: recoveryTranscript.length,
+        notice: "別環境のCodexセッションを再開できなかったため、新しいセッションを作成して応答を保存しました。",
+      };
+    }
     const streamStartedAt = Date.now();
     const items = [];
     let finalResponse = "";
@@ -810,7 +844,7 @@ async function sendMessage(input = {}) {
     if (turnFailure) {
       throw new Error(turnFailure.message || "Codex SDK stream failed.");
     }
-    const codexThreadId = codexThread.id || codexThreadIdForRun || null;
+    const codexThreadId = codexThread.id || (threadRecovery ? null : codexThreadIdForRun) || null;
     const persistCodexThreadId = usePersistentCodexThread && codexThreadId;
 
     if (persistCodexThreadId && codexThreadId !== thread.codex_thread_id) {
@@ -838,6 +872,7 @@ async function sendMessage(input = {}) {
       codex_thread_strategy: codexThreadStrategy,
       codex_thread_reused: Boolean(codexThreadIdForRun),
       codex_thread_persisted: Boolean(persistCodexThreadId),
+      thread_recovered: Boolean(threadRecovery),
       codex_client_reused: codexClientReused,
       message_id: assistantMessage.message_id,
       response_chars: finalResponse.length,
@@ -870,6 +905,7 @@ async function sendMessage(input = {}) {
       items,
       usage,
       referenceContext,
+      threadRecovery,
     };
   } catch (err) {
     const message = err.message || String(err);
