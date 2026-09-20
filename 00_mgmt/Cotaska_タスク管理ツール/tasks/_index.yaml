@@ -6305,12 +6305,12 @@ tasks:
   - id: T-0605
     title: 仕様変更：Cotaskaのアップロード時の参照先変更
     list: null
-    status: doing
+    status: done
     priority: normal
     sort_order: 574
     tags: []
-    due_date: null
-    updated_at: '2026-08-30T00:15:00+09:00'
+    due_date: '2026-09-06'
+    updated_at: '2026-09-06T06:11:03.709Z'
   - id: T-0575
     title: CHG-126-04 既存Portableデータの移行機能を実装する
     list: 仕様変更
@@ -6367,27 +6367,27 @@ tasks:
   - id: T-0609
     title: 仕様変更：プロジェクト名を設定画面から設定
     list: null
-    status: doing
+    status: done
     priority: normal
     sort_order: 578
     tags:
       - CHG-129
       - 仕様変更
       - プロジェクト名
-    due_date: null
-    updated_at: '2026-09-01T10:00:00+09:00'
+    due_date: '2026-09-06'
+    updated_at: '2026-09-06T06:10:57.290Z'
   - id: T-0610
     title: 仕様変更：AIチャットでモデル変更
     list: null
-    status: doing
+    status: done
     priority: normal
     sort_order: 579
     tags:
       - CHG-130
       - 仕様変更
       - AIチャット
-    due_date: null
-    updated_at: '2026-09-01T10:30:00+09:00'
+    due_date: '2026-09-06'
+    updated_at: '2026-09-06T04:58:21.188Z'
   - id: T-0580
     title: BUG-20260823-01 NSISインストール後にCotaska画面が起動しない問題を調査・修正する
     list: 不具合修正
@@ -6506,6 +6506,15 @@ tasks:
       - 画面配置
     due_date: '2026-08-28'
     updated_at: '2026-08-28T13:22:38.577Z'
+  - id: T-0619
+    title: 調査：Codexの新モデル
+    list: null
+    status: done
+    priority: normal
+    sort_order: 588
+    tags: []
+    due_date: '2026-09-06'
+    updated_at: '2026-09-06T06:10:49.544Z'
   - id: T-0589
     title: CHG-126-14 設計：ショートカットの保存先を利用者が選択できるようにする
     list: 仕様変更
@@ -6576,6 +6585,20 @@ tasks:
       - Renderer
     due_date: '2026-08-29'
     updated_at: '2026-08-29T12:44:06.271Z'
+  - id: T-0624
+    title: BUG-20260906-01 AIチャットの最新応答が表示されない競合を修正する
+    list: 不具合修正
+    status: todo
+    priority: normal
+    sort_order: 593
+    tags:
+      - BUG-20260906-01
+      - 不具合修正
+      - AIチャット
+      - Renderer
+      - 競合状態
+    due_date: null
+    updated_at: '2026-09-06T14:34:00+09:00'
   - id: T-0594
     title: BUG-20260828-01 ユーザー確認：入力カーソルと文字選択位置を確認する
     list: 不具合修正
@@ -6629,6 +6652,20 @@ tasks:
       - パス制限
     due_date: 2026-08-28T00:00:00.000Z
     updated_at: '2026-08-28T13:22:46.857Z'
+  - id: T-0628
+    title: 仕様変更：AIチャットの入力欄を可変にしたい
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 597
+    tags:
+      - CHG-132
+      - 仕様変更
+      - AIチャット
+      - 入力欄
+      - リサイズ
+    due_date: '2026-09-20'
+    updated_at: '2026-09-20T13:07:46.716Z'
   - id: T-0598
     title: CHG-127 全設定をプロジェクト単位で管理する
     list: 仕様変更
@@ -6681,6 +6718,20 @@ tasks:
       - settings.yaml
     due_date: null
     updated_at: '2026-08-29T21:41:46+09:00'
+  - id: T-0632
+    title: 仕様変更：AIチャットのリンク先をエクスプローラで開く
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 601
+    tags:
+      - CHG-133
+      - 仕様変更
+      - AIチャット
+      - リンク
+      - エクスプローラー
+    due_date: '2026-09-20'
+    updated_at: '2026-09-20T13:08:00.956Z'
   - id: T-0602
     title: CHG-127-04 ユーザー確認：プロジェクトごとの全設定切替を確認する
     list: 仕様変更
@@ -6745,18 +6796,31 @@ tasks:
       - 実装
     due_date: null
     updated_at: '2026-08-30T00:15:00+09:00'
+  - id: T-0638
+    title: 仕様変更：プロジェクト選択画面のプロジェクト名
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 607
+    tags:
+      - CHG-134
+      - 仕様変更
+      - プロジェクト選択
+      - プロジェクト名
+    due_date: null
+    updated_at: '2026-09-20T12:12:15.792Z'
   - id: T-0608
     title: CHG-128-03 ユーザー確認：GitHub Releasesからの更新確認・取得
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 608
     tags:
       - CHG-128
       - GitHub Releases
       - ユーザー確認
-    due_date: null
-    updated_at: '2026-08-29T23:50:00+09:00'
+    due_date: '2026-09-06'
+    updated_at: '2026-09-06T06:11:03.717Z'
   - id: T-0611
     title: CHG-128-04 実装：公式サイトの取得先をGitHub Releasesへ変更
     list: 仕様変更
@@ -6796,15 +6860,15 @@ tasks:
   - id: T-0614
     title: CHG-129-03 ユーザー確認：プロジェクト名の保存とタイトル表示を確認する
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 614
     tags:
       - CHG-129
       - ユーザー確認
       - プロジェクト名
-    due_date: null
-    updated_at: '2026-09-01T10:00:00+09:00'
+    due_date: '2026-09-06'
+    updated_at: '2026-09-06T06:10:57.298Z'
   - id: T-0615
     title: CHG-130-01 設計：AIチャット欄のモデル選択と設定同期
     list: 仕様変更
@@ -6832,15 +6896,15 @@ tasks:
   - id: T-0617
     title: CHG-130-03 ユーザー確認：AIチャット欄のモデル選択
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 617
     tags:
       - CHG-130
       - ユーザー確認
       - AIチャット
-    due_date: null
-    updated_at: '2026-09-01T10:30:00+09:00'
+    due_date: '2026-09-06'
+    updated_at: '2026-09-06T04:58:21.196Z'
   - id: T-0618
     title: Cotaska v0.4.1 版数更新・インストーラ作成・GitHub Release公開
     list: リリース
@@ -6854,7 +6918,289 @@ tasks:
       - GitHub Releases
     due_date: null
     updated_at: '2026-09-01T12:00:00+09:00'
+  - id: T-0620
+    title: CHG-131-01 設計：AIランタイム更新と現行モデル選択方針を反映する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 620
+    tags:
+      - Codex
+      - ClaudeCode
+      - AIモデル
+      - 設計
+    due_date: null
+    updated_at: '2026-09-06T05:12:00.000Z'
+  - id: T-0621
+    title: CHG-131-02 実装：Codex SDKを更新しGPT-6 Astraに対応する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 621
+    tags:
+      - Codex
+      - GPT-6-Astra
+      - SDK
+      - 実装
+    due_date: null
+    updated_at: '2026-09-06T05:18:00.000Z'
+  - id: T-0622
+    title: CHG-131-03 実装：Claude Agent SDKを更新し廃止済みモデル指定を解消する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 622
+    tags:
+      - ClaudeCode
+      - Claude
+      - SDK
+      - 実装
+    due_date: null
+    updated_at: '2026-09-06T05:18:00.000Z'
+  - id: T-0623
+    title: CHG-131-04 ユーザー確認：更新後のCodex・Claude Codeモデル選択と実行を確認する
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 623
+    tags:
+      - Codex
+      - ClaudeCode
+      - ユーザー確認
+    due_date: '2026-09-06'
+    updated_at: '2026-09-06T06:10:49.556Z'
+  - id: T-0625
+    title: BUG-20260906-01 ユーザー確認：AIチャットの最新応答が即時表示されることを確認する
+    list: 不具合修正
+    status: todo
+    priority: normal
+    sort_order: 625
+    tags:
+      - BUG-20260906-01
+      - ユーザー確認
+      - AIチャット
+      - Renderer
+    due_date: null
+    updated_at: '2026-09-06T14:24:03+09:00'
+  - id: T-0626
+    title: BUG-20260906-01 AIチャット応答完了時の競合制御を設計書へ反映する
+    list: 不具合修正
+    status: done
+    priority: normal
+    sort_order: 626
+    tags:
+      - BUG-20260906-01
+      - 設計書
+      - AIチャット
+      - Renderer
+    due_date: '2026-09-06'
+    updated_at: '2026-09-06T14:33:00+09:00'
+  - id: T-0627
+    title: Cotaska v0.4.2 版数更新・リリースノート・インストーラ作成・GitHub Release公開
+    list: リリース
+    status: done
+    priority: high
+    sort_order: 627
+    tags:
+      - release
+      - v0.4.2
+      - NSIS
+      - GitHub Releases
+    due_date: '2026-09-06'
+    updated_at: '2026-09-06T06:04:06.441Z'
+  - id: T-0629
+    title: CHG-132-01 設計：AIチャット入力欄の高さ変更仕様を反映する
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 629
+    tags:
+      - CHG-132
+      - 設計
+      - AIチャット
+      - 入力欄
+      - リサイズ
+    due_date: null
+    updated_at: '2026-09-19T16:07:49.040+09:00'
+  - id: T-0630
+    title: CHG-132-02 実装：AIチャット入力欄を縦方向へ変更可能にする
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 630
+    tags:
+      - CHG-132
+      - 実装
+      - AIチャット
+      - 入力欄
+      - リサイズ
+    due_date: null
+    updated_at: '2026-09-19T16:07:49.040+09:00'
+  - id: T-0631
+    title: CHG-132-03 ユーザー確認：AIチャット入力欄の高さ変更を確認する
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 631
+    tags:
+      - CHG-132
+      - ユーザー確認
+      - AIチャット
+      - 入力欄
+      - リサイズ
+    due_date: '2026-09-20'
+    updated_at: '2026-09-20T13:07:46.736Z'
+  - id: T-0633
+    title: CHG-133-01 設計：AIチャットリンクのエクスプローラー表示仕様を反映する
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 633
+    tags:
+      - CHG-133
+      - 設計
+      - AIチャット
+      - リンク
+      - エクスプローラー
+    due_date: '2026-09-19'
+    updated_at: '2026-09-19T16:54:05.378+09:00'
+  - id: T-0634
+    title: CHG-133-02 実装：AIチャットのリンク先をエクスプローラーで開く
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 634
+    tags:
+      - CHG-133
+      - 実装
+      - AIチャット
+      - リンク
+      - エクスプローラー
+    due_date: '2026-09-19'
+    updated_at: '2026-09-19T16:54:05.378+09:00'
+  - id: T-0635
+    title: CHG-133-03 ユーザー確認：AIチャットリンクのエクスプローラー表示を確認する
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 635
+    tags:
+      - CHG-133
+      - ユーザー確認
+      - AIチャット
+      - リンク
+      - エクスプローラー
+    due_date: '2026-09-20'
+    updated_at: '2026-09-20T13:08:00.974Z'
+  - id: T-0636
+    title: Cotaska v0.4.3 版数更新・リリースノート作成
+    list: リリース
+    status: done
+    priority: high
+    sort_order: 636
+    tags:
+      - release
+      - v0.4.3
+      - 版数更新
+      - リリースノート
+    due_date: '2026-09-19'
+    updated_at: '2026-09-19T17:04:46.273+09:00'
+  - id: T-0639
+    title: CHG-134-01 設計：プロジェクト選択画面の名称表示仕様を反映する
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 639
+    tags:
+      - CHG-134
+      - 設計
+      - プロジェクト選択
+      - プロジェクト名
+    due_date: null
+    updated_at: '2026-09-20T21:11:45.762+09:00'
+  - id: T-0640
+    title: CHG-134-02 実装：プロジェクト選択画面に設定上のプロジェクト名を表示する
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 640
+    tags:
+      - CHG-134
+      - 実装
+      - プロジェクト選択
+      - プロジェクト名
+    due_date: null
+    updated_at: '2026-09-20T21:11:45.762+09:00'
+  - id: T-0641
+    title: CHG-134-03 ユーザー確認：プロジェクト名と補助表示を確認する
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 641
+    tags:
+      - CHG-134
+      - ユーザー確認
+      - プロジェクト選択
+      - プロジェクト名
+    due_date: null
+    updated_at: '2026-09-20T21:03:13.903+09:00'
+  - id: T-0642
+    title: CHG-135 AIチャットのCodexセッション自動復旧
+    list: 仕様変更
+    status: doing
+    priority: high
+    sort_order: 642
+    tags:
+      - CHG-135
+      - 仕様変更
+      - AIチャット
+      - Codex SDK
+      - セッション復旧
+    due_date: null
+    updated_at: '2026-09-20T21:58:00+09:00'
+  - id: T-0643
+    title: CHG-135-01 設計：Codexセッション自動復旧仕様を反映する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 643
+    tags:
+      - CHG-135
+      - 設計
+      - AIチャット
+      - Codex SDK
+      - セッション復旧
+    due_date: '2026-09-20'
+    updated_at: '2026-09-20T21:50:33+09:00'
+  - id: T-0644
+    title: CHG-135-02 実装：失効したCodexスレッドを自動復旧する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 644
+    tags:
+      - CHG-135
+      - 実装
+      - AIチャット
+      - Codex SDK
+      - セッション復旧
+    due_date: '2026-09-20'
+    updated_at: '2026-09-20T21:58:00+09:00'
+  - id: T-0645
+    title: CHG-135-03 ユーザー確認：別環境コピー後のAIチャット復旧を確認する
+    list: 仕様変更
+    status: todo
+    priority: high
+    sort_order: 645
+    tags:
+      - CHG-135
+      - ユーザー確認
+      - AIチャット
+      - Codex SDK
+      - セッション復旧
+    due_date: null
+    updated_at: '2026-09-20T21:50:33+09:00'
 task_file_roots:
   - .
-next_task_id: 619
-last_updated: '2026-08-31T15:51:31.990Z'
+next_task_id: 646
+last_updated: '2026-09-20T13:08:01.613Z'

@@ -1,8 +1,8 @@
 # Cotaska 設定ファイル
 # このファイルは設定画面から更新されます。日本語コメントは保持されます。
 
-# 表示名: アプリ画面やタイトルに表示する名前
-displayName: "Cotaska～Cotaska開発用～"
+# プロジェクト名: ウィンドウタイトルに「Cotaska プロジェクト名」の形式で表示する名前
+displayName: "～Cotaska開発用～"
 
 # 外部エディタ: タスクファイルを開くときに使うエディタの実行ファイルパス
 # 空欄の場合は .md ファイルの既定アプリで開きます
@@ -40,7 +40,7 @@ aiChat:
   provider: "codex"
 
   # 作業フォルダ（両プロバイダ共通）。未設定時はAI画面で警告する
-  workdir: "D:\\Development\\Git\\EbiSenbei_dev\\Agent_Cotaska"
+  workdir: "C:\\WorkDevelop\\Git\\Agent_Cotaska"
 
   # 参照ファイルの送信方法: always / manual / skip-in-speed（共通）
   referenceSendMode: "always"
@@ -60,7 +60,7 @@ aiChat:
     # Codexモデル名（空欄はアプリ既定）
     model: "gpt-5.6-sol"
     # sandbox mode: read-only / workspace-write / danger-full-access
-    sandboxMode: "workspace-write"
+    sandboxMode: "danger-full-access"
     # performance mode: standard / speed
     performanceMode: "standard"
 
