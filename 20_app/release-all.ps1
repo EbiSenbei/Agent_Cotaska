@@ -1,4 +1,4 @@
-# Cotaska NSIS installer release builder (CHG-126)
+﻿# Cotaska NSIS installer release builder (CHG-126)
 #
 # Usage:
 #   cd 20_app

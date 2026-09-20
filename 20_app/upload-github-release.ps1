@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
 CotaskaのNSISリリース成果物をGitHub Releasesへ公開します。
 
@@ -165,7 +165,8 @@ foreach ($expected in $expectedAssets) {
 }
 
 Write-Host "GitHub Release published and verified." -ForegroundColor Green
-Write-Host "  URL: $($releaseJson.url ?? $releaseUrl)"
+$verifiedReleaseUrl = if ($releaseJson.url) { $releaseJson.url } else { $releaseUrl }
+Write-Host "  URL: $verifiedReleaseUrl"
 Write-Host "  Installer SHA-256: $($artifacts.InstallerSha256)"
 Write-Host "  Blockmap SHA-256:  $($artifacts.BlockmapSha256)"
 Write-Host "  latest.yml SHA-256: $($artifacts.LatestYamlSha256)"
