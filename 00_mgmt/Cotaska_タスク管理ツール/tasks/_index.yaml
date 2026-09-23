@@ -5912,7 +5912,7 @@ tasks:
     sort_order: 532
     tags: []
     due_date: null
-    updated_at: '2026-08-22T07:20:22.343Z'
+    updated_at: '2026-09-23T11:33:09.808Z'
   - id: T-0560
     title: 仕様変更：ゴミ箱の一括削除機能
     list: null
@@ -7200,7 +7200,56 @@ tasks:
       - セッション復旧
     due_date: null
     updated_at: '2026-09-20T21:50:33+09:00'
+  - id: T-0646
+    title: Cotaska v0.4.3 インストーラー作成・GitHub Release公開
+    list: リリース
+    status: doing
+    priority: high
+    sort_order: 646
+    tags:
+      - release
+      - v0.4.3
+      - NSIS
+      - GitHub Releases
+    due_date: '2026-09-19'
+    updated_at: '2026-09-19T17:10:02.795+09:00'
+  - id: T-0647
+    title: サイト見直し：デザイン評価の改善点を反映する
+    list: 販売戦略
+    status: todo
+    priority: high
+    sort_order: 647
+    tags:
+      - サイト見直し
+      - デザイン
+      - レスポンシブ
+    due_date: null
+    updated_at: '2026-09-23T20:26:00+09:00'
+  - id: T-0648
+    title: サイト見直し：実画面の利用例で「自分でも使えそう」を伝える
+    list: 販売戦略
+    status: todo
+    priority: high
+    sort_order: 648
+    tags:
+      - サイト見直し
+      - 利用事例
+      - 初回体験
+    due_date: null
+    updated_at: '2026-09-23T20:16:27.921+09:00'
+  - id: T-0649
+    title: 素材提供依頼：サイト利用例に使うCotaska実画面を用意する
+    list: 販売戦略
+    status: todo
+    priority: normal
+    sort_order: 649
+    tags:
+      - サイト見直し
+      - 利用者作業
+      - 画面コピー
+    due_date: null
+    updated_at: '2026-09-23T20:16:27.921+09:00'
 task_file_roots:
   - .
-next_task_id: 646
-last_updated: '2026-09-20T13:08:01.613Z'
+next_task_id: 650
+last_updated: '2026-09-23T11:51:59.726Z'
