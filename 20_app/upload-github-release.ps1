@@ -119,8 +119,17 @@ if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
 
 Invoke-Gh -Arguments @("auth", "status", "--hostname", "github.com") | Out-Null
 
-$viewOutput = @(& gh release view $tag --repo $Repository --json tagName 2>&1)
-if ($LASTEXITCODE -eq 0) {
+$previousErrorActionPreference = $ErrorActionPreference
+try {
+    # Release未作成は公開前の正常系なので、ghのstderrを例外化せず終了コードと本文を取得する。
+    $ErrorActionPreference = "Continue"
+    $viewOutput = @(& gh release view $tag --repo $Repository --json tagName 2>&1)
+    $viewExitCode = $LASTEXITCODE
+}
+finally {
+    $ErrorActionPreference = $previousErrorActionPreference
+}
+if ($viewExitCode -eq 0) {
     throw "GitHub Release already exists and will not be overwritten: https://github.com/$Repository/releases/tag/$tag"
 }
 $viewText = $viewOutput -join [Environment]::NewLine
