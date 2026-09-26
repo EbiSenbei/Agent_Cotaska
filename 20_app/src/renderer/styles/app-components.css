@@ -1260,6 +1260,21 @@
   padding-left: 20px;
 }
 
+.detail-preview .cotaska-task-list-item {
+  list-style: none;
+}
+
+.detail-preview .cotaska-task-list-checkbox {
+  width: 1em;
+  height: 1em;
+  margin: 0 0.35em 0 -1.35em;
+  vertical-align: -0.1em;
+  accent-color: #6b7f99;
+  opacity: 1;
+  cursor: default;
+  pointer-events: none;
+}
+
 .detail-preview pre {
   background: #f4f6f8;
   border-radius: 8px;

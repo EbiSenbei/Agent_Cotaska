@@ -1,6 +1,70 @@
 import MarkdownIt from "markdown-it";
 
 const markdown = new MarkdownIt({ html: false, linkify: true, breaks: true });
+const TASK_LIST_MARKER_PATTERN = /^[ \t]*\[([ xX])\](?=[ \t\r\n])/;
+
+function findParentListToken(tokens, listItemIndex) {
+  const parentListLevel = tokens[listItemIndex].level - 1;
+  for (let index = listItemIndex - 1; index >= 0; index -= 1) {
+    const token = tokens[index];
+    if (
+      (token.type === "bullet_list_open" || token.type === "ordered_list_open")
+      && token.level === parentListLevel
+    ) {
+      return token;
+    }
+  }
+  return null;
+}
+
+function enableTaskListRendering(markdownInstance) {
+  markdownInstance.core.ruler.before("inline", "cotaska_task_list_markers", (state) => {
+    const { tokens } = state;
+
+    tokens.forEach((inlineToken, index) => {
+      const paragraphOpen = tokens[index - 1];
+      const listItemOpen = tokens[index - 2];
+      if (
+        inlineToken.type !== "inline"
+        || paragraphOpen?.type !== "paragraph_open"
+        || listItemOpen?.type !== "list_item_open"
+      ) {
+        return;
+      }
+
+      const markerMatch = inlineToken.content.match(TASK_LIST_MARKER_PATTERN);
+      if (!markerMatch) return;
+
+      inlineToken.content = inlineToken.content.slice(markerMatch[0].length);
+      inlineToken.meta = {
+        ...inlineToken.meta,
+        cotaskaTaskListChecked: markerMatch[1].toLowerCase() === "x",
+      };
+
+      listItemOpen.attrJoin("class", "cotaska-task-list-item");
+      findParentListToken(tokens, index - 2)?.attrJoin("class", "cotaska-task-list");
+    });
+  });
+
+  markdownInstance.core.ruler.after("inline", "cotaska_task_list_checkboxes", (state) => {
+    state.tokens.forEach((inlineToken) => {
+      if (typeof inlineToken.meta?.cotaskaTaskListChecked !== "boolean") return;
+
+      const checkboxToken = new state.Token("cotaska_task_checkbox", "input", 0);
+      checkboxToken.meta = { checked: inlineToken.meta.cotaskaTaskListChecked };
+      inlineToken.children?.unshift(checkboxToken);
+    });
+  });
+
+  markdownInstance.renderer.rules.cotaska_task_checkbox = (tokens, index) => {
+    const checked = tokens[index].meta?.checked;
+    const checkedAttribute = checked ? " checked" : "";
+    const label = checked ? "完了" : "未完了";
+    return `<input class="cotaska-task-list-checkbox" type="checkbox" disabled aria-label="${label}"${checkedAttribute}>`;
+  };
+}
+
+enableTaskListRendering(markdown);
 
 const escapeHtml = (value) =>
   String(value)
