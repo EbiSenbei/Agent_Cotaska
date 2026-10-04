@@ -6,6 +6,7 @@ describe("withExistingModelOption", () => {
     expect(withExistingModelOption(CODEX_MODEL_OPTIONS, "")).toBe(CODEX_MODEL_OPTIONS);
     expect(withExistingModelOption(CODEX_MODEL_OPTIONS, "gpt-5.6-terra")).toBe(CODEX_MODEL_OPTIONS);
     expect(withExistingModelOption(CODEX_MODEL_OPTIONS, "gpt-6-astra")).toBe(CODEX_MODEL_OPTIONS);
+    expect(withExistingModelOption(CODEX_MODEL_OPTIONS, "gpt-6.1-sol")).toBe(CODEX_MODEL_OPTIONS);
     expect(withExistingModelOption(CLAUDE_MODEL_OPTIONS, "opus")).toBe(CLAUDE_MODEL_OPTIONS);
     expect(withExistingModelOption(CLAUDE_MODEL_OPTIONS, "sonnet")).toBe(CLAUDE_MODEL_OPTIONS);
   });

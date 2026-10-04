@@ -1,8 +1,9 @@
 export const CODEX_MODEL_OPTIONS = [
   { value: "", label: "自動（現在: GPT-5.6 Terra）" },
+  { value: "gpt-6.1-sol", label: "GPT-6.1 Sol" },
   { value: "gpt-6-astra", label: "GPT-6 Astra" },
   { value: "gpt-5.6-terra", label: "GPT-5.6 Terra" },
-  { value: "gpt-5.6-sol", label: "GPT-5.6 sol" },
+  { value: "gpt-5.6-sol", label: "GPT-5.6 Sol" },
 ];
 
 export const CLAUDE_MODEL_OPTIONS = [
