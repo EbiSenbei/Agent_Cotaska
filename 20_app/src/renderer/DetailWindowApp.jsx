@@ -5,6 +5,7 @@ import DetailPane from "./components/DetailPane";
 import { mapFileTask, toFileTaskPayload } from "./lib/taskViewModel";
 
 export default function DetailWindowApp({ taskId }) {
+  const [selectedTaskId, setSelectedTaskId] = useState(taskId);
   const [tasks, setTasks] = useState([]);
   const [lists, setLists] = useState([]);
   const [tags, setTags] = useState([]);
@@ -15,10 +16,10 @@ export default function DetailWindowApp({ taskId }) {
     setTasks((rows || []).map(mapFileTask)); setLists(nextLists || []); setTags(nextTags || []);
   }, []);
   useEffect(() => { load(); return window.cotaskaAPI.onTasksChanged(() => load()); }, [load]);
-  const task = tasks.find((item) => item.id === taskId) || null;
+  const task = tasks.find((item) => item.id === selectedTaskId) || null;
   const save = async (updates) => { await window.cotaskaAPI.tasks.update(toFileTaskPayload(task, updates)); await load(); };
-  return <div className="detail-window-app"><DetailPane task={task} tasks={tasks} lists={lists} tags={tags}
-    onSaved={load} onSelectTask={() => {}} onClose={() => window.close()}
+  return <div className="detail-window-app"><DetailPane key={selectedTaskId} task={task} tasks={tasks} lists={lists} tags={tags}
+    onSaved={load} onSelectTask={(nextTask) => setSelectedTaskId(nextTask.id)} onClose={() => window.close()}
     onToggleComplete={async (current) => { await window.cotaskaAPI.tasks[current.status === "done" ? "reopenTask" : "completeTask"](current.id); await load(); }}
     onSetTaskDue={async (id, value, field) => { await save({ id, [field]: value }); }}
     onSetTaskTags={async (id, nextTags) => { await window.cotaskaAPI.taskTags.set(id, nextTags); await load(); }}
