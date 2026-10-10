@@ -152,6 +152,19 @@ tasks:
       - ダイアログ
     due_date: '2026-08-22'
     updated_at: '2026-08-22T14:16:47.065Z'
+  - id: T-0650
+    title: CHG-136 GFMタスクリスト記法に対応
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 14
+    tags:
+      - CHG-136
+      - 仕様変更
+      - Markdown
+      - タスクリスト
+    due_date: null
+    updated_at: '2026-09-26T11:54:13+09:00'
   - id: T-0460
     title: CHG-106-03 ユーザー確認：Portable更新中ダイアログを確認する
     list: 仕様変更
@@ -6799,7 +6812,7 @@ tasks:
   - id: T-0638
     title: 仕様変更：プロジェクト選択画面のプロジェクト名
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 607
     tags:
@@ -6807,21 +6820,8 @@ tasks:
       - 仕様変更
       - プロジェクト選択
       - プロジェクト名
-    due_date: null
-    updated_at: '2026-09-20T12:12:15.792Z'
-  - id: T-0650
-    title: CHG-136 GFMタスクリスト記法に対応
-    list: 仕様変更
-    status: todo
-    priority: normal
-    sort_order: 14
-    tags:
-      - CHG-136
-      - 仕様変更
-      - Markdown
-      - タスクリスト
-    due_date: null
-    updated_at: '2026-09-26T11:54:13+09:00'
+    due_date: '2026-10-10'
+    updated_at: '2026-10-10T06:41:40.199Z'
   - id: T-0608
     title: CHG-128-03 ユーザー確認：GitHub Releasesからの更新確認・取得
     list: 仕様変更
@@ -6995,6 +6995,15 @@ tasks:
       - Renderer
     due_date: null
     updated_at: '2026-09-06T14:24:03+09:00'
+  - id: T-0656
+    title: Cotaskaの依存部品の見直し
+    list: null
+    status: done
+    priority: normal
+    sort_order: 625
+    tags: []
+    due_date: '2026-09-24'
+    updated_at: '2026-09-24T20:20:00+09:00'
   - id: T-0626
     title: BUG-20260906-01 AIチャット応答完了時の競合制御を設計書へ反映する
     list: 不具合修正
@@ -7008,6 +7017,17 @@ tasks:
       - Renderer
     due_date: '2026-09-06'
     updated_at: '2026-09-06T14:33:00+09:00'
+  - id: T-0657
+    title: 依存更新：脆弱性修正版へ更新する
+    list: null
+    status: done
+    priority: high
+    sort_order: 626
+    tags:
+      - 依存関係
+      - セキュリティ
+    due_date: '2026-09-24'
+    updated_at: '2026-09-24T19:00:00+09:00'
   - id: T-0627
     title: Cotaska v0.4.2 版数更新・リリースノート・インストーラ作成・GitHub Release公開
     list: リリース
@@ -7021,6 +7041,29 @@ tasks:
       - GitHub Releases
     due_date: '2026-09-06'
     updated_at: '2026-09-06T06:04:06.441Z'
+  - id: T-0658
+    title: 依存更新：SDK・ランタイム依存の互換性を確認する
+    list: null
+    status: done
+    priority: high
+    sort_order: 627
+    tags:
+      - 依存関係
+      - SDK
+      - 互換性
+    due_date: '2026-09-24'
+    updated_at: '2026-09-24T19:00:00+09:00'
+  - id: T-0659
+    title: 依存更新：総合検証と結果記録を行う
+    list: null
+    status: done
+    priority: high
+    sort_order: 628
+    tags:
+      - 依存関係
+      - 検証
+    due_date: '2026-09-24'
+    updated_at: '2026-09-24T19:00:00+09:00'
   - id: T-0629
     title: CHG-132-01 設計：AIチャット入力欄の高さ変更仕様を反映する
     list: 仕様変更
@@ -7035,6 +7078,18 @@ tasks:
       - リサイズ
     due_date: null
     updated_at: '2026-09-19T16:07:49.040+09:00'
+  - id: T-0660
+    title: 依存更新：Electron 44等の次期メジャー版へ対応する
+    list: null
+    status: done
+    priority: high
+    sort_order: 629
+    tags:
+      - 依存関係
+      - Electron
+      - メジャー更新
+    due_date: '2026-09-24'
+    updated_at: '2026-09-24T19:45:00+09:00'
   - id: T-0630
     title: CHG-132-02 実装：AIチャット入力欄を縦方向へ変更可能にする
     list: 仕様変更
@@ -7049,6 +7104,19 @@ tasks:
       - リサイズ
     due_date: null
     updated_at: '2026-09-19T16:07:49.040+09:00'
+  - id: T-0661
+    title: Cotaska v0.4.4 版数更新・インストーラー作成
+    list: リリース
+    status: done
+    priority: high
+    sort_order: 630
+    tags:
+      - release
+      - v0.4.4
+      - NSIS
+      - 依存関係
+    due_date: '2026-09-24'
+    updated_at: '2026-09-24T19:54:53+09:00'
   - id: T-0631
     title: CHG-132-03 ユーザー確認：AIチャット入力欄の高さ変更を確認する
     list: 仕様変更
@@ -7063,6 +7131,30 @@ tasks:
       - リサイズ
     due_date: '2026-09-20'
     updated_at: '2026-09-20T13:07:46.736Z'
+  - id: T-0662
+    title: Cotaska v0.4.4 GitHub Release公開
+    list: リリース
+    status: done
+    priority: high
+    sort_order: 631
+    tags:
+      - release
+      - v0.4.4
+      - GitHub Releases
+    due_date: '2026-09-24'
+    updated_at: '2026-09-24T20:20:00+09:00'
+  - id: T-0663
+    title: BUG-20260924-01 GitHubリリース未作成判定で停止する問題を修正する
+    list: 不具合修正
+    status: done
+    priority: high
+    sort_order: 632
+    tags:
+      - BUG-20260924-01
+      - GitHub Releases
+      - PowerShell
+    due_date: '2026-10-10'
+    updated_at: '2026-10-10T06:41:33.960Z'
   - id: T-0633
     title: CHG-133-01 設計：AIチャットリンクのエクスプローラー表示仕様を反映する
     list: 仕様変更
@@ -7077,6 +7169,19 @@ tasks:
       - エクスプローラー
     due_date: '2026-09-19'
     updated_at: '2026-09-19T16:54:05.378+09:00'
+  - id: T-0664
+    title: CHG-134-00 仕様変更票：プロジェクト選択画面のプロジェクト名表示を記載する
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 633
+    tags:
+      - CHG-134
+      - 仕様変更票
+      - プロジェクト選択
+      - プロジェクト名
+    due_date: '2026-09-26'
+    updated_at: '2026-09-26T10:29:12.106+09:00'
   - id: T-0634
     title: CHG-133-02 実装：AIチャットのリンク先をエクスプローラーで開く
     list: 仕様変更
@@ -7091,6 +7196,19 @@ tasks:
       - エクスプローラー
     due_date: '2026-09-19'
     updated_at: '2026-09-19T16:54:05.378+09:00'
+  - id: T-0667
+    title: CHG-136-01 設計：GFMタスクリスト表示仕様を反映する
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 634
+    tags:
+      - CHG-136
+      - 設計
+      - Markdown
+      - タスクリスト
+    due_date: '2026-09-26'
+    updated_at: '2026-09-26T11:51:51+09:00'
   - id: T-0635
     title: CHG-133-03 ユーザー確認：AIチャットリンクのエクスプローラー表示を確認する
     list: 仕様変更
@@ -7105,6 +7223,19 @@ tasks:
       - エクスプローラー
     due_date: '2026-09-20'
     updated_at: '2026-09-20T13:08:00.974Z'
+  - id: T-0665
+    title: CHG-136-02 実装：タスク本文プレビューへGFMタスクリスト表示を追加する
+    list: 仕様変更
+    status: done
+    priority: normal
+    sort_order: 635
+    tags:
+      - CHG-136
+      - 実装
+      - Markdown
+      - タスクリスト
+    due_date: '2026-09-26'
+    updated_at: '2026-09-26T11:54:13+09:00'
   - id: T-0636
     title: Cotaska v0.4.3 版数更新・リリースノート作成
     list: リリース
@@ -7118,6 +7249,19 @@ tasks:
       - リリースノート
     due_date: '2026-09-19'
     updated_at: '2026-09-19T17:04:46.273+09:00'
+  - id: T-0666
+    title: CHG-136-03 ユーザー確認：タスク本文のチェックボックス表示を確認する
+    list: 仕様変更
+    status: todo
+    priority: normal
+    sort_order: 636
+    tags:
+      - CHG-136
+      - ユーザー確認
+      - Markdown
+      - タスクリスト
+    due_date: null
+    updated_at: '2026-09-26T11:51:51+09:00'
   - id: T-0639
     title: CHG-134-01 設計：プロジェクト選択画面の名称表示仕様を反映する
     list: 仕様変更
@@ -7147,7 +7291,7 @@ tasks:
   - id: T-0641
     title: CHG-134-03 ユーザー確認：プロジェクト名と補助表示を確認する
     list: 仕様変更
-    status: todo
+    status: done
     priority: normal
     sort_order: 641
     tags:
@@ -7155,12 +7299,26 @@ tasks:
       - ユーザー確認
       - プロジェクト選択
       - プロジェクト名
+    due_date: '2026-10-10'
+    updated_at: '2026-10-10T06:41:40.214Z'
+  - id: T-0673
+    title: CHG-137 Codex更新への追従とGPT-6.1 Sol対応
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 642
+    tags:
+      - CHG-137
+      - 仕様変更
+      - Codex
+      - Codex SDK
+      - GPT-6.1-Sol
     due_date: null
-    updated_at: '2026-09-20T21:03:13.903+09:00'
+    updated_at: '2026-10-04T20:36:36+09:00'
   - id: T-0642
     title: CHG-135 AIチャットのCodexセッション自動復旧
     list: 仕様変更
-    status: doing
+    status: done
     priority: high
     sort_order: 642
     tags:
@@ -7169,8 +7327,8 @@ tasks:
       - AIチャット
       - Codex SDK
       - セッション復旧
-    due_date: null
-    updated_at: '2026-09-20T21:58:00+09:00'
+    due_date: '2026-10-10'
+    updated_at: '2026-10-10T06:41:07.915Z'
   - id: T-0643
     title: CHG-135-01 設計：Codexセッション自動復旧仕様を反映する
     list: 仕様変更
@@ -7185,6 +7343,19 @@ tasks:
       - セッション復旧
     due_date: '2026-09-20'
     updated_at: '2026-09-20T21:50:33+09:00'
+  - id: T-0674
+    title: CHG-137-01 設計：Codex更新とGPT-6.1 Solの選択方針を反映する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 643
+    tags:
+      - CHG-137
+      - 設計
+      - Codex
+      - GPT-6.1-Sol
+    due_date: null
+    updated_at: '2026-10-03T22:39:17+09:00'
   - id: T-0644
     title: CHG-135-02 実装：失効したCodexスレッドを自動復旧する
     list: 仕様変更
@@ -7199,10 +7370,38 @@ tasks:
       - セッション復旧
     due_date: '2026-09-20'
     updated_at: '2026-09-20T21:58:00+09:00'
+  - id: T-0675
+    title: CHG-137-02 実装：Codex SDKと同梱CLIを0.160.0へ更新する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 644
+    tags:
+      - CHG-137
+      - 実装
+      - Codex SDK
+      - Codex CLI
+      - 依存関係
+    due_date: null
+    updated_at: '2026-10-03T22:39:17+09:00'
+  - id: T-0676
+    title: CHG-137-03 実装：GPT-6.1 SolをCodexモデル選択へ追加する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 645
+    tags:
+      - CHG-137
+      - 実装
+      - Codex
+      - GPT-6.1-Sol
+      - AIチャット
+    due_date: null
+    updated_at: '2026-10-03T22:39:17+09:00'
   - id: T-0645
     title: CHG-135-03 ユーザー確認：別環境コピー後のAIチャット復旧を確認する
     list: 仕様変更
-    status: todo
+    status: done
     priority: high
     sort_order: 645
     tags:
@@ -7211,12 +7410,26 @@ tasks:
       - AIチャット
       - Codex SDK
       - セッション復旧
+    due_date: '2026-10-10'
+    updated_at: '2026-10-10T06:41:07.933Z'
+  - id: T-0677
+    title: CHG-137-04 ユーザー確認：更新後のCodex接続とモデル実行を確認する
+    list: 仕様変更
+    status: done
+    priority: high
+    sort_order: 646
+    tags:
+      - CHG-137
+      - ユーザー確認
+      - Codex
+      - GPT-6.1-Sol
+      - 回帰試験
     due_date: null
-    updated_at: '2026-09-20T21:50:33+09:00'
+    updated_at: '2026-10-04T20:36:36+09:00'
   - id: T-0646
     title: Cotaska v0.4.3 インストーラー作成・GitHub Release公開
     list: リリース
-    status: doing
+    status: done
     priority: high
     sort_order: 646
     tags:
@@ -7225,7 +7438,7 @@ tasks:
       - NSIS
       - GitHub Releases
     due_date: '2026-09-19'
-    updated_at: '2026-09-19T17:10:02.795+09:00'
+    updated_at: '2026-10-10T06:41:02.188Z'
   - id: T-0647
     title: サイト見直し：デザイン評価の改善点を反映する
     list: 販売戦略
@@ -7262,46 +7475,94 @@ tasks:
       - 画面コピー
     due_date: null
     updated_at: '2026-09-23T20:16:27.921+09:00'
-  - id: T-0667
-    title: CHG-136-01 設計：GFMタスクリスト表示仕様を反映する
-    list: 仕様変更
+  - id: T-0693
+    title: Cotaska v0.4.5 版数更新・ビルド・GitHub Release公開
+    list: リリース
     status: done
-    priority: normal
-    sort_order: 634
+    priority: high
+    sort_order: 662
     tags:
-      - CHG-136
-      - 設計
-      - Markdown
-      - タスクリスト
-    due_date: '2026-09-26'
-    updated_at: '2026-09-26T11:51:51+09:00'
-  - id: T-0665
-    title: CHG-136-02 実装：タスク本文プレビューへGFMタスクリスト表示を追加する
-    list: 仕様変更
+      - release
+      - v0.4.5
+      - NSIS
+      - GitHub Releases
+      - CHG-137
+    due_date: '2026-10-04'
+    updated_at: '2026-10-04T20:45:05+09:00'
+  - id: T-0694
+    title: インストーラ起動時のSmartScreen警告を調査し、署名・配布方法を改善する
+    list: 不具合修正
+    status: doing
+    priority: high
+    sort_order: 663
+    tags:
+      - 開発管理
+      - SmartScreen
+      - インストーラ
+      - コード署名
+    due_date: null
+    updated_at: '2026-10-10T05:46:00.744Z'
+  - id: T-0695
+    title: 配布設定と旧版インストーラの署名状態を調査する
+    list: 不具合修正
     status: done
-    priority: normal
-    sort_order: 635
+    priority: high
+    sort_order: 664
     tags:
-      - CHG-136
-      - 実装
-      - Markdown
-      - タスクリスト
-    due_date: '2026-09-26'
-    updated_at: '2026-09-26T11:54:13+09:00'
-  - id: T-0666
-    title: CHG-136-03 ユーザー確認：タスク本文のチェックボックス表示を確認する
-    list: 仕様変更
+      - SmartScreen
+      - 調査
+      - コード署名
+    due_date: '2026-10-10'
+    updated_at: '2026-10-10T05:46:00.744Z'
+  - id: T-0696
+    title: 利用者判断：SmartScreen警告を減らす配布方式を決める
+    list: 不具合修正
+    status: done
+    priority: high
+    sort_order: 665
+    tags:
+      - SmartScreen
+      - ユーザー確認
+      - 配布方針
+    due_date: '2026-10-10'
+    updated_at: '2026-10-10T06:56:31.000Z'
+  - id: T-0697
+    title: 将来検討：Store公開または有料コード署名の準備
+    list: 不具合修正
     status: todo
     priority: normal
-    sort_order: 636
+    sort_order: 666
     tags:
-      - CHG-136
-      - ユーザー確認
-      - Markdown
-      - タスクリスト
+      - SmartScreen
+      - 利用者作業
+      - 証明書
     due_date: null
-    updated_at: '2026-09-26T11:51:51+09:00'
+    updated_at: '2026-10-10T06:56:31.000Z'
+  - id: T-0698
+    title: 無償でできる配布改善と警告時の案内を実装する
+    list: 不具合修正
+    status: doing
+    priority: high
+    sort_order: 667
+    tags:
+      - SmartScreen
+      - 実装
+      - リリース
+    due_date: null
+    updated_at: '2026-10-10T06:59:01.000Z'
+  - id: T-0699
+    title: 実配布ファイルで警告・インストール・更新を確認する
+    list: 不具合修正
+    status: todo
+    priority: high
+    sort_order: 668
+    tags:
+      - SmartScreen
+      - ユーザー確認
+      - 検証
+    due_date: null
+    updated_at: '2026-10-10T05:46:00.744Z'
 task_file_roots:
   - .
-next_task_id: 668
-last_updated: '2026-09-26T03:19:03.628Z'
+next_task_id: 700
+last_updated: '2026-10-10T08:01:58.398Z'
