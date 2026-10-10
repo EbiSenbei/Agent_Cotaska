@@ -6,6 +6,8 @@ Thumbs.db
 
 # Node.js
 20_app/node_modules/
+20_app/setup/node_modules/
+20_app/src/renderer/node_modules/
 20_app/npm-debug.log*
 20_app/yarn-error.log*
 
