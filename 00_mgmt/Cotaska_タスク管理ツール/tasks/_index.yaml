@@ -19,11 +19,11 @@ tasks:
     sort_order: 2
     tags: []
     due_date: null
-    updated_at: '2026-07-20T09:09:13.988Z'
+    updated_at: '2026-10-10T07:54:55.500Z'
   - id: T-0292
     title: Cotaska認知向上：価値提案と想定ユーザーを整理する
     list: 販売戦略
-    status: todo
+    status: done
     priority: normal
     sort_order: 3
     tags:
@@ -31,7 +31,7 @@ tasks:
       - 知名度向上
       - ロードマップ
     due_date: null
-    updated_at: '2026-07-20T09:08:56.677Z'
+    updated_at: '2026-10-10T17:00:56+09:00'
   - id: T-0293
     title: Cotaska認知向上：紹介文とキャッチコピーを作る
     list: 販売戦略
@@ -43,7 +43,7 @@ tasks:
       - 知名度向上
       - コピー
     due_date: null
-    updated_at: '2026-08-27T00:00:00+09:00'
+    updated_at: '2026-10-10T17:00:56+09:00'
   - id: T-0294
     title: Cotaska認知向上：スクリーンショットと短い操作動画を用意する
     list: 販売戦略
