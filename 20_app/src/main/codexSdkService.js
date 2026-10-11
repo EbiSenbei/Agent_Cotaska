@@ -718,6 +718,13 @@ async function sendMessage(input = {}) {
   const usePersistentCodexThread = shouldUsePersistentCodexThread(performanceMode);
   const codexThreadIdForRun = usePersistentCodexThread ? thread.codex_thread_id : null;
   const codexThreadStrategy = usePersistentCodexThread ? "persistent" : "transient";
+  const attachedReferences = aiService.listReferences(thread.thread_id)
+    .filter((reference) => reference.ref_type === "file" && reference.file_path);
+  const attachments = attachedReferences.map((reference) => ({
+    id: reference.reference_id,
+    label: path.basename(reference.file_path.replace(/\\/g, "/")),
+    filePath: reference.file_path,
+  }));
   const referenceContext = buildReferenceContext(thread.thread_id, workdir, settings, {
     ...input,
     performanceMode,
@@ -743,7 +750,15 @@ async function sendMessage(input = {}) {
     thread_id: thread.thread_id,
     role: "user",
     content: text,
+    attachments,
+    consume_reference_ids: attachedReferences.map((reference) => reference.reference_id),
     codex_run_id: run.run_id,
+  });
+  emitRunEvent(input, {
+    type: "message.accepted",
+    thread_id: thread.thread_id,
+    run_id: run.run_id,
+    userMessage,
   });
 
   logAiChatDiagnostics("chat request started", {

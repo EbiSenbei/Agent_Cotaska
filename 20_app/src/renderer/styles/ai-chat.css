@@ -1859,3 +1859,20 @@
   }
 }
 
+
+.ai-message-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0;
+  margin: 8px 0 0;
+  list-style: none;
+}
+.ai-message-attachments li {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding: 4px 8px;
+  border: 1px solid var(--border-color, #d0d5dd);
+  border-radius: 6px;
+  font-size: 12px;
+}

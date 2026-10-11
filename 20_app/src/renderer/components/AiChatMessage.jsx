@@ -12,6 +12,15 @@ export default function AiChatMessage({ message, onCopy, onOpenTask, onOpenLink,
         onOpenLink={onOpenLink}
         onOpenLinkContextMenu={onOpenLinkContextMenu}
       />
+      {message.attachments?.length > 0 && (
+        <ul className="ai-message-attachments" aria-label="添付ファイル">
+          {message.attachments.map((attachment, index) => (
+            <li key={attachment.id || index} title={attachment.filePath}>
+              <span aria-hidden="true">📎 </span>{attachment.label}
+            </li>
+          ))}
+        </ul>
+      )}
       <div className="ai-message-hover-actions" aria-label="メッセージ操作">
         {message.time && <time dateTime={message.createdAt}>{message.time}</time>}
         <button

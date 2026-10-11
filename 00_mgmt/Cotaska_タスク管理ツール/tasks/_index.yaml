@@ -7866,6 +7866,15 @@ tasks:
       - 検証
     due_date: null
     updated_at: '2026-10-10T05:46:00.744Z'
+  - id: T-0706
+    title: 仕様変更：AIチャットの添付ファイルに仕様
+    list: null
+    status: doing
+    priority: normal
+    sort_order: 675
+    tags: []
+    due_date: null
+    updated_at: '2026-10-11T08:10:28.353Z'
   - id: T-0707
     title: 仕様変更：ファイルビューで画像の時は画像を表示するようにしてほしい
     list: null
@@ -7882,7 +7891,7 @@ tasks:
     priority: normal
     sort_order: 677
     tags: []
-    due_date: 2026-10-11T00:00:00.000Z
+    due_date: '2026-10-11T00:00:00.000Z'
     updated_at: '2026-10-11T08:06:08.339Z'
   - id: T-0709
     title: CHG-138-02 ファイルビュー画像表示の実装・検証
@@ -7891,7 +7900,7 @@ tasks:
     priority: normal
     sort_order: 678
     tags: []
-    due_date: 2026-10-11T00:00:00.000Z
+    due_date: '2026-10-11T00:00:00.000Z'
     updated_at: '2026-10-11T08:06:08.339Z'
   - id: T-0710
     title: CHG-138-03 ファイルビュー画像表示のユーザー確認
@@ -7902,7 +7911,34 @@ tasks:
     tags: []
     due_date: null
     updated_at: '2026-10-11T08:04:50.276Z'
+  - id: T-0711
+    title: CHG-139-01 AIチャット添付表示の設計反映
+    list: null
+    status: done
+    priority: normal
+    sort_order: 680
+    tags: []
+    due_date: 2026-10-11T00:00:00.000Z
+    updated_at: '2026-10-11T08:12:21.968Z'
+  - id: T-0712
+    title: CHG-139-02 AIチャット添付履歴と送信後解除の実装・検証
+    list: null
+    status: done
+    priority: normal
+    sort_order: 681
+    tags: []
+    due_date: 2026-10-11T00:00:00.000Z
+    updated_at: '2026-10-11T08:12:21.968Z'
+  - id: T-0713
+    title: CHG-139-03 AIチャット添付表示のユーザー確認
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 682
+    tags: []
+    due_date: null
+    updated_at: '2026-10-11T08:10:28.353Z'
 task_file_roots:
   - .
-next_task_id: 711
-last_updated: '2026-10-11T08:06:08.904Z'
+next_task_id: 714
+last_updated: '2026-10-11T08:18:22.661Z'

@@ -417,6 +417,13 @@ async function sendMessage(input = {}) {
   const model = resolveEffectiveModel(authMode, claudeSettings, input.model);
   const performanceMode = claudeSettings.performanceMode === "speed" ? "speed" : "standard";
 
+  const attachedReferences = aiService.listReferences(thread.thread_id)
+    .filter((reference) => reference.ref_type === "file" && reference.file_path);
+  const attachments = attachedReferences.map((reference) => ({
+    id: reference.reference_id,
+    label: path.basename(reference.file_path.replace(/\\/g, "/")),
+    filePath: reference.file_path,
+  }));
   const referenceContext = aiChatReferences.buildReferenceContext(thread.thread_id, workdir, settings, {
     ...input,
     isSpeedMode: performanceMode === "speed",
@@ -442,7 +449,15 @@ async function sendMessage(input = {}) {
     thread_id: thread.thread_id,
     role: "user",
     content: text,
+    attachments,
+    consume_reference_ids: attachedReferences.map((reference) => reference.reference_id),
     codex_run_id: run.run_id,
+  });
+  emitRunEvent(input, {
+    type: "message.accepted",
+    thread_id: thread.thread_id,
+    run_id: run.run_id,
+    userMessage,
   });
 
   logDiagnostics("chat request started", {

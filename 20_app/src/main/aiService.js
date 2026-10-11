@@ -118,6 +118,9 @@ function normalizeRow(row) {
   if (Object.prototype.hasOwnProperty.call(output, "preview_json")) {
     output.preview = parseJson(output.preview_json, null);
   }
+  if (Object.prototype.hasOwnProperty.call(output, "attachments_json")) {
+    output.attachments = parseJson(output.attachments_json, []);
+  }
   return output;
 }
 
@@ -174,6 +177,10 @@ function migrate() {
       FOREIGN KEY(thread_id) REFERENCES ai_threads(thread_id) ON DELETE CASCADE
     );
   `);
+  const messageColumns = query("PRAGMA table_info(ai_messages)").map((column) => column.name);
+  if (!messageColumns.includes("attachments_json")) {
+    run("ALTER TABLE ai_messages ADD COLUMN attachments_json TEXT NOT NULL DEFAULT '[]'");
+  }
   run(`
     CREATE TABLE IF NOT EXISTS ai_action_proposals (
       proposal_id TEXT PRIMARY KEY,
@@ -370,6 +377,7 @@ function addMessage(input = {}) {
     thread_id: String(input.thread_id),
     role: String(input.role || "user"),
     content: String(input.content || ""),
+    attachments_json: JSON.stringify(Array.isArray(input.attachments) ? input.attachments : []),
     codex_run_id: nullableString(input.codex_run_id),
     token_count: Number.isFinite(Number(input.token_count)) ? Math.round(Number(input.token_count)) : null,
     error_code: nullableString(input.error_code),
@@ -378,8 +386,8 @@ function addMessage(input = {}) {
   };
   run(
     `INSERT INTO ai_messages
-      (message_id, thread_id, role, content, codex_run_id, token_count, error_code, error_message, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (message_id, thread_id, role, content, codex_run_id, token_count, error_code, error_message, created_at, attachments_json)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       message.message_id,
       message.thread_id,
@@ -390,9 +398,14 @@ function addMessage(input = {}) {
       message.error_code,
       message.error_message,
       message.created_at,
+      message.attachments_json,
     ],
   );
   run("UPDATE ai_threads SET updated_at = ?, last_message_at = ? WHERE thread_id = ?", [timestamp, timestamp, message.thread_id]);
+  // Consume only the selection captured for this post; newer additions stay queued.
+  for (const referenceId of input.consume_reference_ids || []) {
+    run("DELETE FROM ai_thread_references WHERE reference_id = ? AND thread_id = ?", [referenceId, message.thread_id]);
+  }
   saveDb();
   return getOne("SELECT * FROM ai_messages WHERE message_id = ?", [message.message_id]);
 }

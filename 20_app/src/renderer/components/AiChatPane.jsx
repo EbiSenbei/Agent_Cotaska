@@ -177,6 +177,7 @@ function AiChatPane({
     author: message.role === "assistant" ? providerLabel : "ユーザー",
     body: message.error_message || message.content || "",
     error: Boolean(message.error_message),
+    attachments: Array.isArray(message.attachments) ? message.attachments : [],
     createdAt: message.created_at,
     time: formatMessageTime(message.created_at),
   });
@@ -679,6 +680,16 @@ function AiChatPane({
       }
       const activeRequest = activeSendRequestRef.current;
       if (!activeRequest?.id || payload?.request_id !== activeRequest.id || activeRequest.canceled) return;
+      if (payload.type === "message.accepted" && payload.userMessage) {
+        const accepted = mapMessage(payload.userMessage);
+        const consumedIds = new Set(accepted.attachments.map((attachment) => attachment.id));
+        setReferences((current) => current.filter((reference) => !consumedIds.has(reference.id)));
+        setMessages((current) => [
+          ...current.filter((message) => message.id !== accepted.id && message.id !== activeRequest.pendingUserMessageId),
+          accepted,
+        ]);
+        return;
+      }
       appendRunEventPayload(payload);
     });
   }, [aiChatApi]);
@@ -1648,9 +1659,13 @@ function AiChatPane({
       role: "user",
       author: "ユーザー",
       body: text,
+      attachments: references.filter((reference) => reference.type === "file").map((reference) => ({
+        id: reference.id, label: reference.filePath.split(/[\\/]/).pop() || reference.label, filePath: reference.filePath,
+      })),
       pending: true,
     };
 
+    activeSendRequestRef.current.pendingUserMessageId = pendingUserMessage.id;
     setDraft("");
     setIsSending(true);
     if (threadId) {
@@ -1691,6 +1706,10 @@ function AiChatPane({
 
       const requestState = activeSendRequestRef.current;
       if (requestState?.id !== requestId || requestState.canceled) return;
+      if (result?.userMessage) {
+        const consumedIds = new Set((result.userMessage.attachments || []).map((attachment) => attachment.id));
+        setReferences((current) => current.filter((reference) => !consumedIds.has(reference.id)));
+      }
       const resultMessages = [result?.userMessage, result?.assistantMessage].filter(Boolean).map(mapMessage);
       if (result?.canceled) {
         setRuntimeState({
@@ -1719,7 +1738,9 @@ function AiChatPane({
       if (resultMessages.length > 0) {
         requestScrollMessagesToBottom();
         setMessages((current) => [
-          ...current.filter((message) => message.id !== pendingUserMessage.id && message.id !== streamingAssistantMessageId),
+          ...current.filter((message) => message.id !== pendingUserMessage.id
+            && message.id !== streamingAssistantMessageId
+            && !resultMessages.some((resultMessage) => resultMessage.id === message.id)),
           ...resultMessages,
         ]);
       }
