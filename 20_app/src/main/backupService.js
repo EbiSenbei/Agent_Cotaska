@@ -6,21 +6,21 @@ const projectContext = require("./projectContext");
 
 const BACKUP_FORMAT_VERSION = 1;
 
-function copyDirectoryWithoutGeneratedFiles(from, to) {
+function copyDirectoryWithoutGeneratedFiles(from, to, excludeIndex = false) {
   fs.cpSync(from, to, {
     recursive: true,
     force: true,
-    filter: (source) => path.basename(source) !== "_index.yaml",
+    filter: (source) => !excludeIndex || path.resolve(source) !== path.resolve(from, '_index.yaml'),
   });
 }
 
-function replaceDirectoryContents(from, to) {
+function replaceDirectoryContents(from, to, excludeIndex = false) {
   fs.mkdirSync(to, { recursive: true });
   for (const entry of fs.readdirSync(to, { withFileTypes: true })) {
     const target = path.join(to, entry.name);
     fs.rmSync(target, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
   }
-  copyDirectoryWithoutGeneratedFiles(from, to);
+  copyDirectoryWithoutGeneratedFiles(from, to, excludeIndex);
 }
 
 function toZipPath(relativePath) {
@@ -30,10 +30,12 @@ function toZipPath(relativePath) {
 function addPathToZip(zip, sourcePath, archivePath) {
   if (!fs.existsSync(sourcePath)) return;
 
-  const stat = fs.statSync(sourcePath);
+  const stat = fs.lstatSync(sourcePath);
+  if (stat.isSymbolicLink()) throw new Error('リンクを含む資料はバックアップできません。');
   if (stat.isDirectory()) {
+    zip.addFile(`${toZipPath(archivePath)}/`, Buffer.alloc(0));
     for (const entry of fs.readdirSync(sourcePath, { withFileTypes: true })) {
-      if (entry.name === "_index.yaml") continue;
+      if (toZipPath(path.join(archivePath, entry.name)) === 'tasks/_index.yaml') continue;
       addPathToZip(zip, path.join(sourcePath, entry.name), path.join(archivePath, entry.name));
     }
     return;
@@ -55,7 +57,17 @@ function createBackupService({
     const requestedTargetDir = String(targetDir || "").trim();
     const rawTargetDir = requestedTargetDir || getDefaultBackupDir();
 
-    const resolvedTargetDir = path.resolve(rawTargetDir);
+    let resolvedTargetDir = path.resolve(rawTargetDir);
+    let existingAncestor = resolvedTargetDir;
+    while (!fs.existsSync(existingAncestor)) existingAncestor = path.dirname(existingAncestor);
+    resolvedTargetDir = path.resolve(fs.realpathSync(existingAncestor), path.relative(existingAncestor, resolvedTargetDir));
+    const activeProject = projectContext.getCurrent();
+    for (const source of [activeProject.tasksDir, activeProject.archiveDir]) {
+      const relative = path.relative(source, resolvedTargetDir);
+      if (!relative || (!relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative))) {
+        return { ok: false, error: 'バックアップ保存先はtasks/archiveの外に指定してください。' };
+      }
+    }
     if (fs.existsSync(resolvedTargetDir) && !fs.statSync(resolvedTargetDir).isDirectory()) {
       return { ok: false, error: "バックアップ保存先に同名のファイルが存在します。" };
     }
@@ -78,6 +90,7 @@ function createBackupService({
       appVersion,
       projectId: project.projectId,
       schemaVersion: project.manifest.schemaVersion,
+      taskStorage: 'task-folders-with-legacy-support',
       excludes: ["tasks/_index.yaml"],
     };
     zip.addFile("manifest.json", Buffer.from(JSON.stringify(manifest, null, 2), "utf8"));
@@ -187,7 +200,7 @@ function createBackupService({
 
     await watcher.stopWatcher();
     try {
-      replaceDirectoryContents(backupTasksDir, path.join(dataDir, "tasks"));
+      replaceDirectoryContents(backupTasksDir, path.join(dataDir, "tasks"), true);
       restoreFile(path.join(backupDataDir, "lists.yaml"), path.join(dataDir, "lists.yaml"));
       restoreFile(path.join(backupDataDir, "settings.yaml"), path.join(dataDir, "settings.yaml"));
       restoreFile(path.join(backupDataDir, "ai.sqlite"), path.join(dataDir, "ai.sqlite"));

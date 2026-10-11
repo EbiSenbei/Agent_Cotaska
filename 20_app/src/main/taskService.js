@@ -11,6 +11,7 @@ const YAML = require('js-yaml');
 const settingsService = require('./settingsService');
 const taskHierarchy = require('./taskHierarchy');
 const projectContext = require('./projectContext');
+const { archiveTask, copyVerified } = require('./taskFileBundle');
 
 const getTasksDir = () => projectContext.getCurrent().tasksDir;
 const getIndexPath = () => projectContext.getCurrent().indexFile;
@@ -135,7 +136,7 @@ function resolveTaskFilePath(taskFilePath, fallbackTaskId = null) {
     if (path.isAbsolute(normalized)) return path.normalize(normalized);
     return path.join(getTasksDir(), normalizeRelativePath(normalized));
   }
-  if (fallbackTaskId) return path.join(getTasksDir(), `${fallbackTaskId}.md`);
+  if (fallbackTaskId) return path.join(getTasksDir(), fallbackTaskId, `${fallbackTaskId}.md`);
   throw new Error('fallbackTaskId is required');
 }
 
@@ -180,6 +181,7 @@ function collectTaskFilesFromRoots(roots) {
     fs.readdirSync(dirPath, { withFileTypes: true }).forEach((entry) => {
       const entryPath = path.join(dirPath, entry.name);
       if (entry.isDirectory()) {
+        if (entry.name === 'attachments' || entry.name.startsWith('.')) return;
         walk(entryPath);
         return;
       }
@@ -441,6 +443,9 @@ function loadInitialTasksFromIndex(indexTasks) {
 
 function applyFileChange(action, filePath) {
   try {
+    if (path.relative(getTasksDir(), filePath).split(path.sep).includes('attachments')) {
+      return { success: true, changed: false, ignored: true };
+    }
     if (path.basename(filePath) === '_index.yaml' || path.extname(filePath).toLowerCase() !== '.md') {
       return { success: true, changed: false, ignored: true };
     }
@@ -705,6 +710,7 @@ function addTask(taskData) {
   nextTaskId++;
 
   const taskFilePath = resolveTaskFilePath(null, newId);
+  if (fs.existsSync(path.dirname(taskFilePath))) throw new Error(`Task folder ${newId} already exists`);
 
   const now = new Date().toISOString();
   const newTask = {
@@ -1057,17 +1063,7 @@ function deleteTask(id) {
   const task = taskCache[id];
   assertMutableTask(task);
   const filePath = task._filePath || resolveTaskFilePath(null, id);
-  const archivePath = path.join(getArchiveDir(), `${id}-archived.md`);
-
-  // archive ディレクトリが無ければ作成
-  if (!fs.existsSync(getArchiveDir())) {
-    fs.mkdirSync(getArchiveDir(), { recursive: true });
-  }
-
-  // ファイルを archive へ移動
-  if (fs.existsSync(filePath)) {
-    fs.renameSync(filePath, archivePath);
-  }
+  archiveTask(filePath, id, getArchiveDir());
 
   // キャッシュから削除
   delete taskCache[id];
@@ -1111,7 +1107,13 @@ function duplicateTask(id) {
     tags: [...(original.tags || [])]
   });
 
-  return duplicated;
+  const attachments = path.join(getTaskBaseDir(id), 'attachments');
+  if (path.basename(getTaskBaseDir(id)) === id && fs.existsSync(attachments)) {
+    copyVerified(attachments, path.join(getTaskBaseDir(duplicated.id), 'attachments'));
+  }
+  updateTaskContent(duplicated.id, original.content || '');
+
+  return getTaskById(duplicated.id);
 }
 
 /**
@@ -1260,6 +1262,23 @@ function getTaskBaseDir(id) {
   return path.dirname(getTaskFilePath(id));
 }
 
+function ensureTaskFolder(id) {
+  const task = taskCache[id];
+  if (!task) throw new Error(`Task ${id} not found`);
+  assertMutableTask(task);
+  const source = getTaskFilePath(id);
+  if (path.basename(path.dirname(source)) === id) return source;
+  const folder = path.join(path.dirname(source), id);
+  if (fs.existsSync(folder)) throw new Error('移動先タスクフォルダが既にあります');
+  fs.mkdirSync(folder);
+  const target = path.join(folder, `${id}.md`);
+  fs.renameSync(source, target);
+  task._filePath = target;
+  knownTaskFilePaths[id] = target;
+  taskFileRoots = deriveTaskFileRootsFromCache(getIndexTasksForRebuild());
+  return target;
+}
+
 /**
  * ファイルに書き込み
  */
@@ -1285,6 +1304,7 @@ function writeTaskFile(task) {
 }
 
 module.exports = {
+  ensureTaskFolder,
   openTaskService,
   getAllTasks,
   getCompletedTasks,

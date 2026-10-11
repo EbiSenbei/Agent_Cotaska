@@ -116,12 +116,12 @@ tasks:
   - id: T-0579
     title: 仕様変更：添付ファイルの扱い
     list: null
-    status: todo
+    status: doing
     priority: normal
     sort_order: 11
     tags: []
     due_date: null
-    updated_at: '2026-09-23T12:35:30.143Z'
+    updated_at: '2026-10-11T08:54:34.892Z'
   - id: T-0624
     title: BUG-20260906-01 AIチャットの最新応答が表示されない競合を修正する
     list: 不具合修正
@@ -169,7 +169,7 @@ tasks:
     priority: normal
     sort_order: 15
     tags: []
-    due_date: '2026-09-26'
+    due_date: 2026-09-26T00:00:00.000Z
     updated_at: '2026-09-26T10:07:44.437+09:00'
   - id: T-0653
     title: 設計：BUG-20260923-01
@@ -2271,7 +2271,7 @@ tasks:
     tags:
       - 起動改善
       - 性能改善
-    due_date: '2026-05-15T00:00:00.000Z'
+    due_date: 2026-05-15T00:00:00.000Z
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0171
     title: 仕様変更：文字サイズの変更
@@ -2336,7 +2336,7 @@ tasks:
     tags:
       - release
       - v0.1.1
-    due_date: '2026-05-15T00:00:00.000Z'
+    due_date: 2026-05-15T00:00:00.000Z
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0176
     title: 仕様変更：設定画面の未実装項目を実装する
@@ -5608,7 +5608,7 @@ tasks:
       - 保守性改善
       - リファクタ
       - 設計整理
-    due_date: '2026-07-18T00:00:00.000Z'
+    due_date: 2026-07-18T00:00:00.000Z
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0495
     title: CHG-113 AIスレッド初回投稿時の一覧表示
@@ -5691,7 +5691,7 @@ tasks:
       - 保守性改善
       - リファクタ
       - タスク管理
-    due_date: '2026-07-18T00:00:00.000Z'
+    due_date: 2026-07-18T00:00:00.000Z
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0491
     title: リリース処理のバージョン管理と共通検証を一本化する
@@ -5703,7 +5703,7 @@ tasks:
       - 保守性改善
       - リリース
       - 自動化
-    due_date: '2026-07-18T00:00:00.000Z'
+    due_date: 2026-07-18T00:00:00.000Z
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0492
     title: CHG-112-01 文書体系再編の設計・仕様変更記録
@@ -6618,7 +6618,7 @@ tasks:
       - 設計
       - 旧Portable移行
       - プロジェクト選択
-    due_date: '2026-08-28T00:00:00.000Z'
+    due_date: 2026-08-28T00:00:00.000Z
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0584
     title: CHG-126-09 実装：旧Portable移行前に2回のフォルダ選択を案内する
@@ -6631,7 +6631,7 @@ tasks:
       - 実装
       - 旧Portable移行
       - メッセージボックス
-    due_date: '2026-08-28T00:00:00.000Z'
+    due_date: 2026-08-28T00:00:00.000Z
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0585
     title: CHG-126-10 ユーザー確認：旧Portable移行の2回のフォルダ選択案内を確認する
@@ -6657,7 +6657,7 @@ tasks:
       - 設計
       - プロジェクト表示
       - 画面配置
-    due_date: '2026-08-28T00:00:00.000Z'
+    due_date: 2026-08-28T00:00:00.000Z
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0587
     title: CHG-126-12 実装：現在プロジェクト表示を画面左下へ移動する
@@ -6670,7 +6670,7 @@ tasks:
       - 実装
       - プロジェクト表示
       - 画面配置
-    due_date: '2026-08-28T00:00:00.000Z'
+    due_date: 2026-08-28T00:00:00.000Z
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0588
     title: CHG-126-13 ユーザー確認：現在プロジェクト表示の左下配置を確認する
@@ -6705,7 +6705,7 @@ tasks:
       - 設計
       - ショートカット
       - 保存先選択
-    due_date: '2026-08-28T00:00:00.000Z'
+    due_date: 2026-08-28T00:00:00.000Z
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0590
     title: CHG-126-15 実装：ショートカットの保存ダイアログを追加する
@@ -6718,7 +6718,7 @@ tasks:
       - 実装
       - ショートカット
       - 保存先選択
-    due_date: '2026-08-28T00:00:00.000Z'
+    due_date: 2026-08-28T00:00:00.000Z
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0591
     title: CHG-126-16 ユーザー確認：ショートカットの任意保存先を確認する
@@ -6802,7 +6802,7 @@ tasks:
       - 設計
       - AI作業フォルダ
       - パス制限
-    due_date: '2026-08-28T00:00:00.000Z'
+    due_date: 2026-08-28T00:00:00.000Z
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0597
     title: CHG-126-18 実装：AI作業フォルダにプロジェクト外を指定可能にする
@@ -6815,7 +6815,7 @@ tasks:
       - 実装
       - AI作業フォルダ
       - パス制限
-    due_date: '2026-08-28T00:00:00.000Z'
+    due_date: 2026-08-28T00:00:00.000Z
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0628
     title: 仕様変更：AIチャットの入力欄を可変にしたい
@@ -7853,11 +7853,11 @@ tasks:
       - 実装
       - リリース
     due_date: null
-    updated_at: '2026-10-10T06:59:01.000Z'
+    updated_at: '2026-10-10T14:33:16.801Z'
   - id: T-0699
     title: 実配布ファイルで警告・インストール・更新を確認する
     list: 不具合修正
-    status: todo
+    status: doing
     priority: high
     sort_order: 668
     tags:
@@ -7865,7 +7865,71 @@ tasks:
       - ユーザー確認
       - 検証
     due_date: null
-    updated_at: '2026-10-10T05:46:00.744Z'
+    updated_at: '2026-10-10T14:33:16.801Z'
+  - id: T-0700
+    title: AI初回導入：Codexログイン導線と利用条件の案内を整える
+    list: 仕様変更
+    status: todo
+    priority: high
+    sort_order: 669
+    tags:
+      - AI初回導入
+      - Codex
+    due_date: null
+    updated_at: '2026-10-10T22:36:34+09:00'
+  - id: T-0701
+    title: 調査・設計：同梱Codexで初回ログインを完了できる方式を確定する
+    list: 仕様変更
+    status: todo
+    priority: high
+    sort_order: 670
+    tags:
+      - AI初回導入
+      - Codex
+    due_date: null
+    updated_at: '2026-10-10T22:36:34+09:00'
+  - id: T-0702
+    title: 実装：CotaskaからCodexログインを開始し認証結果を確認できるようにする
+    list: 仕様変更
+    status: todo
+    priority: high
+    sort_order: 671
+    tags:
+      - AI初回導入
+      - Codex
+    due_date: null
+    updated_at: '2026-10-10T22:36:34+09:00'
+  - id: T-0703
+    title: 案内更新：AI利用の前提条件と初回ログイン手順をサイト・アプリに明記する
+    list: 販売戦略
+    status: todo
+    priority: high
+    sort_order: 672
+    tags:
+      - AI初回導入
+      - Codex
+    due_date: null
+    updated_at: '2026-10-10T22:36:34+09:00'
+  - id: T-0704
+    title: ユーザー確認：AI未設定のWindows環境で初回認証からチャットまで確認する
+    list: 仕様変更
+    status: todo
+    priority: high
+    sort_order: 673
+    tags:
+      - AI初回導入
+      - Codex
+    due_date: null
+    updated_at: '2026-10-10T22:36:34+09:00'
+  - id: T-0705
+    title: 仕様変更：画像コピペできるようにしたい
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 674
+    tags: []
+    due_date: null
+    updated_at: '2026-10-10T14:41:17.066Z'
   - id: T-0706
     title: 仕様変更：AIチャットの添付ファイルに仕様
     list: null
@@ -7891,7 +7955,7 @@ tasks:
     priority: normal
     sort_order: 677
     tags: []
-    due_date: '2026-10-11T00:00:00.000Z'
+    due_date: 2026-10-11T00:00:00.000Z
     updated_at: '2026-10-11T08:06:08.339Z'
   - id: T-0709
     title: CHG-138-02 ファイルビュー画像表示の実装・検証
@@ -7900,7 +7964,7 @@ tasks:
     priority: normal
     sort_order: 678
     tags: []
-    due_date: '2026-10-11T00:00:00.000Z'
+    due_date: 2026-10-11T00:00:00.000Z
     updated_at: '2026-10-11T08:06:08.339Z'
   - id: T-0710
     title: CHG-138-03 ファイルビュー画像表示のユーザー確認
@@ -7938,7 +8002,37 @@ tasks:
     tags: []
     due_date: null
     updated_at: '2026-10-11T08:10:28.353Z'
+  - id: T-0714
+    title: CHG-140-01 タスクフォルダ・添付管理の設計反映
+    list: null
+    status: done
+    priority: normal
+    sort_order: 683
+    tags:
+      - CHG-140
+    due_date: null
+    updated_at: '2026-10-11T09:02:09.918Z'
+  - id: T-0715
+    title: CHG-140-02 タスク添付・アーカイブ・バックアップの実装検証
+    list: null
+    status: done
+    priority: normal
+    sort_order: 684
+    tags:
+      - CHG-140
+    due_date: null
+    updated_at: '2026-10-11T09:02:09.918Z'
+  - id: T-0716
+    title: CHG-140-03 添付管理と移行のユーザー確認
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 685
+    tags:
+      - CHG-140
+    due_date: null
+    updated_at: '2026-10-11T08:54:34.892Z'
 task_file_roots:
   - .
-next_task_id: 714
-last_updated: '2026-10-11T08:18:22.661Z'
+next_task_id: 717
+last_updated: '2026-10-11T09:02:10.487Z'

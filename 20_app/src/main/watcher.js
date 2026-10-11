@@ -73,7 +73,7 @@ async function startWatcher(win) {
     watcher = chokidar.watch(searchRoots, {
       ignored: (filePath) => {
         const base = path.basename(filePath);
-        return base === '_index.yaml' || base.startsWith('.');
+        return base === '_index.yaml' || base.startsWith('.') || base === 'attachments';
       },
       persistent: true,
       awaitWriteFinish: {

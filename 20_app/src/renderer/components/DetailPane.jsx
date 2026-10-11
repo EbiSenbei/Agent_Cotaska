@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import DueDatePopover from "./DueDatePopover";
+import TaskAttachments from './TaskAttachments';
 import { useDebounce } from "../hooks/useDebounce";
 import { findUrlAtIndex, formatCompletedAt, formatDatetime, markdown, renderMarkdownEditorHtml } from "../lib/markdownEditor";
 
@@ -961,6 +962,7 @@ function DetailPaneBody({
       )}
 
       {/* === detail-body: メモ本文 === */}
+      {!isInvalid && <TaskAttachments key={task.id} taskId={task.id} readOnly={task.delete_flag === 1} />}
       <div className="detail-body">
         <div className="body-section-header">▼ タスク詳細</div>
 

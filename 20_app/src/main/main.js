@@ -13,6 +13,7 @@ earlyStartupLogger.logInfo("Main process entry", {
 });
 const AdmZip = require("adm-zip");
 const taskService = require("./taskService");
+const attachmentService = require("./taskFileBundle").createAttachmentService(taskService);
 const listService = require("./listService");
 const watcher = require("./watcher");
 const reminderService = require("./reminderService");
@@ -2156,6 +2157,38 @@ ipcMain.handle("aiChat:cancelRun", async (_e, requestId) => {
     return { ok: false, error: err.message || String(err) };
   }
 });
+
+function notifyAttachmentsChanged(taskId) {
+  for (const window of BrowserWindow.getAllWindows()) {
+    if (!window.isDestroyed()) window.webContents.send('attachments:changed', { taskId });
+  }
+}
+
+for (const action of ['list', 'add', 'open', 'remove', 'restore']) {
+  ipcMain.handle(`attachments:${action}`, async (event, taskId, value) => {
+    await servicesReady;
+    try {
+      let result;
+      if (action === 'add') {
+        const projectRoot = projectContext.getCurrent().rootDir;
+        const owner = BrowserWindow.fromWebContents(event.sender);
+        const options = { title: 'タスクに添付するファイルを選択', properties: ['openFile', 'multiSelections'] };
+        const selected = owner ? await dialog.showOpenDialog(owner, options) : await dialog.showOpenDialog(options);
+        if (selected.canceled) return { ok: true, canceled: true };
+        if (projectContext.getCurrent().rootDir !== projectRoot) throw new Error('プロジェクトが変更されました。再度選択してください');
+        result = attachmentService.add(taskId, selected.filePaths);
+      } else if (action === 'open') {
+        const error = await shell.openPath(attachmentService.file(taskId, value));
+        if (error) throw new Error(error);
+      } else result = attachmentService[action](taskId, value);
+      if (['add', 'remove', 'restore'].includes(action)) notifyAttachmentsChanged(taskId);
+      return { ok: true, result };
+    } catch (error) {
+      if (['add', 'remove', 'restore'].includes(action)) notifyAttachmentsChanged(taskId);
+      return { ok: false, error: error.message };
+    }
+  });
+}
 
 ipcMain.handle("tasks:getAll", async () => {
   await servicesReady;

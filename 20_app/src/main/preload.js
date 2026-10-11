@@ -123,6 +123,18 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
   },
 
   // タスク操作（ファイルベース）
+  attachments: {
+    list: (id) => ipcRenderer.invoke('attachments:list', id),
+    add: (id) => ipcRenderer.invoke('attachments:add', id),
+    open: (id, name) => ipcRenderer.invoke('attachments:open', id, name),
+    remove: (id, name) => ipcRenderer.invoke('attachments:remove', id, name),
+    restore: (id, token) => ipcRenderer.invoke('attachments:restore', id, token),
+    onChanged: (callback) => {
+      const listener = (_event, data) => callback(data);
+      ipcRenderer.on('attachments:changed', listener);
+      return () => ipcRenderer.removeListener('attachments:changed', listener);
+    },
+  },
   tasks: {
     getAll:           ()                                => ipcRenderer.invoke("tasks:getAll"),
     search:           (keyword)                         => ipcRenderer.invoke("tasks:search", keyword),

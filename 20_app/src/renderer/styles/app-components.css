@@ -2434,3 +2434,16 @@ body.is-resizing-detail-sections .detail-section-resize-handle::after {
   display: block;
 }
 
+/* Task attachments share the task detail's compact control layout. */
+.task-attachments { padding: 12px 16px; border-bottom: 1px solid var(--border-color, #ddd); flex-shrink: 0; max-height: 240px; overflow: auto; font-size: 12px; }
+.task-attachments-heading, .task-attachments-list li { display: flex; align-items: center; gap: 8px; }
+.task-attachments-heading { justify-content: space-between; }
+.task-attachments button { font: inherit; color: inherit; padding: 3px 6px; cursor: pointer; }
+.task-attachments button:disabled { cursor: default; opacity: .5; }
+.task-attachments-list { margin: 8px 0; padding: 0; list-style: none; }
+.task-attachments-list li { padding: 3px 0; }
+.task-attachment-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+button.task-attachment-name { border: 0; background: transparent; text-decoration: underline; }
+.task-attachments-empty { color: #888; margin: 8px 0 0; }
+.task-attachments-error { color: #c0392b; overflow-wrap: anywhere; }
+.task-attachments summary { cursor: pointer; }
