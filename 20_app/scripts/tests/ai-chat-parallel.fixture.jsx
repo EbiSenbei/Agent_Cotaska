@@ -1,0 +1,139 @@
+import React from "react";
+import { createRoot } from "react-dom/client";
+import AiChatPane from "../../src/renderer/components/AiChatPane";
+
+const calls = [];
+const runs = new Map();
+const histories = new Map();
+const references = new Map([
+  ["a", [{ reference_id: "file-a", ref_type: "file", file_path: "C:/test/a.md", label: "a.md" }]],
+  ["b", [{ reference_id: "file-b", ref_type: "file", file_path: "C:/test/b.md", label: "b.md" }]],
+]);
+const threads = [{ thread_id: "a", title: "Thread A" }, { thread_id: "b", title: "Thread B" }];
+const creates = [];
+let listener;
+const message = (id, role, content) => ({ message_id: id, role, content, attachments: [], created_at: new Date().toISOString() });
+function finish(call, options = {}) {
+  const assistantMessage = message(`reply-${call.request_id}`, "assistant", `reply ${call.content}`);
+  histories.get(call.thread_id).push(assistantMessage);
+  runs.delete(call.thread_id);
+  call.resolve({ ok: !options.failed, canceled: Boolean(options.canceled), userMessage: call.userMessage, assistantMessage });
+}
+window.cotaskaAPI = {
+  settings: { get: async () => ({ configured: { aiChatWorkdir: true }, settings: { aiChat: { workdir: "C:/test", provider: "codex" } } }) },
+  aiChat: {
+    getDbInfo: async () => ({ ok: true }),
+    listThreads: async () => [...threads],
+    listActiveRuns: async () => [...runs.values()],
+    listMessages: async (id) => [...(histories.get(id) || [])],
+    listReferences: async (id) => [...(references.get(id) || [])],
+    listWorkdirTree: async () => ({ rows: [] }),
+    listRunEvents: async () => [],
+    setActiveThread: async () => {},
+    onRunEvent: (callback) => { listener = callback; return () => {}; },
+    onThreadUpdated: () => () => {},
+    createThread: () => new Promise((resolve) => creates.push((id) => {
+      const thread = { thread_id: id, title: id };
+      threads.push(thread);
+      resolve({ ok: true, thread });
+    })),
+    sendMessage: (input) => new Promise((resolve) => {
+      const userMessage = message(`user-${input.request_id}`, "user", input.content);
+      userMessage.attachments = input.referenceIds.map((id) => ({ id, label: id, filePath: `C:/test/${id}.md` }));
+      references.set(input.thread_id, (references.get(input.thread_id) || []).filter((ref) => !input.referenceIds.includes(ref.reference_id)));
+      const call = { ...input, resolve, userMessage };
+      calls.push(call);
+      runs.set(input.thread_id, { request_id: input.request_id, thread_id: input.thread_id });
+      const history = histories.get(input.thread_id) || [];
+      history.push(userMessage);
+      histories.set(input.thread_id, history);
+      listener({ type: "message.accepted", request_id: input.request_id, thread_id: input.thread_id, userMessage });
+    }),
+    cancelRun: async (id) => { finish(calls.find((call) => call.request_id === id), { canceled: true }); return { ok: true }; },
+  },
+};
+const delay = () => new Promise((resolve) => setTimeout(resolve, 30));
+async function waitFor(check, label) {
+  for (let i = 0; i < 150; i += 1) {
+    if (check()) return;
+    await delay();
+  }
+  throw new Error(`Timeout: ${label}`);
+}
+function assert(value, label) { if (!value) throw new Error(label); }
+async function send(text) {
+  const input = document.querySelector("textarea");
+  Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value").set.call(input, text);
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  await delay();
+  input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+  await delay();
+}
+async function select(title) {
+  [...document.querySelectorAll(".ai-thread-item")].find((row) => row.textContent.includes(title)).click();
+  await delay();
+}
+createRoot(document.getElementById("root")).render(<AiChatPane />);
+async function run() {
+  await waitFor(() => document.querySelectorAll(".ai-thread-item").length === 2, "initial threads");
+  await select("Thread A");
+  await send("A1");
+  await waitFor(() => calls.length === 1, "A started");
+  await send("A2");
+  assert(calls.length === 1, "A2 must wait for A1");
+  await select("Thread B");
+  await send("B1");
+  await waitFor(() => calls.length === 2, "B starts while A unresolved");
+  assert(calls[1].thread_id === "b", "B has its own request");
+  assert(calls[0].referenceIds.join() === "file-a" && calls[1].referenceIds.join() === "file-b", "attachments belong to their threads");
+  await send("B2");
+  finish(calls[0]);
+  await delay(); await delay();
+  assert(calls.length === 2, "background A completion must not release B2");
+  assert(!document.body.textContent.includes("reply A1"), "A reply must not appear on B");
+  assert(document.querySelector('[aria-label="AI処理を中断"]'), "B remains running after A ends");
+  await select("Thread A");
+  await waitFor(() => calls.length === 3, "A2 starts after reopening A");
+  assert(calls[2].content === "A2", "A FIFO preserved");
+  assert(calls[2].referenceIds.length === 0, "queued follow-up must not resend A1 attachments");
+  await send("A3");
+  await select("Thread B");
+  document.querySelector('[aria-label="AI処理を中断"]').click();
+  await delay(); await delay();
+  assert(calls.length === 3, "B cancellation pauses B2");
+  finish(calls[2], { failed: true });
+  await delay();
+  [...document.querySelectorAll("button")].find((button) => button.textContent === "送信を再開").click();
+  await waitFor(() => calls.length === 4, "B resumes despite A failure");
+  assert(calls[3].content === "B2", "accepted B1 must never be retried");
+  await select("Thread A");
+  await delay();
+  assert(calls.length === 4 && document.querySelector(".ai-send-queue").textContent.includes("A3"), "A failure pauses only A3");
+  await select("Thread B");
+  finish(calls[3]);
+  await delay();
+  document.querySelector('[title="新しいスレッド"]').click();
+  await delay();
+  await send("new1");
+  await waitFor(() => creates.length === 1, "first draft creates thread");
+  await send("new1-followup");
+  document.querySelector('[title="新しいスレッド"]').click();
+  await delay();
+  await send("new2");
+  await waitFor(() => creates.length === 2, "second draft creates concurrently");
+  creates[0]("new-thread-1");
+  await waitFor(() => calls.length === 5, "first draft starts in background");
+  assert(document.querySelector(".ai-thread-item.active") === null, "background creation must not change selected draft");
+  creates[1]("new-thread-2");
+  await waitFor(() => calls.length === 6, "second draft starts concurrently");
+  assert(calls[4].thread_id === "new-thread-1" && calls[5].thread_id === "new-thread-2", "drafts remain separate");
+  finish(calls[4]);
+  await delay();
+  assert(!document.body.textContent.includes("reply new1"), "background new reply stays separate");
+  await select("new-thread-1");
+  await waitFor(() => calls.length === 7, "first draft follow-up binds to created thread");
+  assert(calls[6].thread_id === "new-thread-1" && calls[6].content === "new1-followup", "draft FIFO binding");
+  finish(calls[5]); finish(calls[6]);
+  return { ok: true, requests: calls.length, checks: "parallel threads, FIFO, background replies, cancellation, failure isolation, concurrent drafts" };
+}
+run().then((result) => { window.parallelResult = result; }).catch((error) => { window.parallelResult = { ok: false, error: error.stack }; });

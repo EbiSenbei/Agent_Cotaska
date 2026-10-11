@@ -83,6 +83,9 @@ function AiChatPane({
 }) {
   const messageScrollRef = useRef(null);
   const queueRef = useRef(new AiSendQueue());
+  const localRequestsRef = useRef(new Map());
+  const draftThreadKeyRef = useRef(`draft-${Date.now()}-${Math.random()}`);
+  const selectedKeyRef = useRef(null);
   const [queuedMessages, setQueuedMessages] = useState([]);
   const syncQueue = () => setQueuedMessages([...queueRef.current.items]);
   const pendingAutoScrollRef = useRef(false);
@@ -121,7 +124,7 @@ function AiChatPane({
   const [workdirTree, setWorkdirTree] = useState({ rows: [], root: "", truncated: false });
   const [isLoadingWorkdirTree, setIsLoadingWorkdirTree] = useState(false);
   const [expandedWorkdirPaths, setExpandedWorkdirPaths] = useState(() => new Set());
-  const [isSending, setIsSending] = useState(false);
+
   const [streamEvents, setStreamEvents] = useState([]);
   const [expandedStreamEventIds, setExpandedStreamEventIds] = useState(() => new Set());
   const [waitingSeconds, setWaitingSeconds] = useState(0);
@@ -163,6 +166,12 @@ function AiChatPane({
     return map;
   }, [activeRuns]);
   const selectedActiveRun = selectedThreadId ? activeRunByThreadId.get(selectedThreadId) || null : null;
+  const selectedThreadKey = selectedThreadId || draftThreadKeyRef.current;
+  selectedKeyRef.current = selectedThreadKey;
+  const isSending = queueRef.current.isBusy(selectedThreadKey) || Boolean(selectedActiveRun);
+  const updateSelectedThread = (key, update) => {
+    if (selectedKeyRef.current === key) update();
+  };
   const chatTitle = selectedThread?.title || "新しいAIチャット";
 
   const mapThread = (thread) => ({
@@ -649,6 +658,7 @@ function AiChatPane({
       thread.id === normalizedThreadId ? { ...thread, isUnread: false } : thread
     )));
     requestScrollMessagesToBottom();
+    selectedKeyRef.current = normalizedThreadId || draftThreadKeyRef.current;
     setSelectedThreadId(normalizedThreadId);
   };
 
@@ -682,10 +692,15 @@ function AiChatPane({
           ];
         });
       }
-      const activeRequest = activeSendRequestRef.current;
-      if (!activeRequest?.id || payload?.request_id !== activeRequest.id || activeRequest.canceled) return;
+      const localRequest = localRequestsRef.current.get(payload?.thread_id);
+      if (localRequest?.id === payload?.request_id) {
+        if (payload.type === "message.accepted" && payload.userMessage) localRequest.queueItem.accepted = true;
+        else localRequest.events = [...localRequest.events, payload].slice(-50);
+      }
+      const activeRequest = localRequest || activeSendRequestRef.current;
+      if (selectedKeyRef.current !== payload?.thread_id || !activeRequest?.id
+        || payload?.request_id !== activeRequest.id || activeRequest.canceled) return;
       if (payload.type === "message.accepted" && payload.userMessage) {
-        if (activeRequest.queueItem) activeRequest.queueItem.accepted = true;
         const accepted = mapMessage(payload.userMessage);
         const consumedIds = new Set(accepted.attachments.map((attachment) => attachment.id));
         setReferences((current) => current.filter((reference) => !consumedIds.has(reference.id)));
@@ -717,30 +732,30 @@ function AiChatPane({
   useEffect(() => {
     let cancelled = false;
     const hydrateActiveRun = async () => {
-      if (!selectedActiveRun?.request_id) {
-        const currentActive = activeSendRequestRef.current;
-        // A locally-started send owns its lifecycle until sendMessage settles.
-        // The main process removes completed runs before the IPC response can
-        // reach the renderer, so polling must not clear that local request.
-        if (currentActive && !currentActive.local && (currentActive.thread_id || selectedThreadId)) {
-          activeSendRequestRef.current = null;
-          setIsSending(false);
-          setStreamEvents([]);
-          setExpandedStreamEventIds(new Set());
-        }
+      const localRequest = localRequestsRef.current.get(selectedThreadId);
+      if (!selectedActiveRun?.request_id && !localRequest) {
+        activeSendRequestRef.current = null;
+        setStreamEvents([]);
+        setExpandedStreamEventIds(new Set());
         activeRunHydrationKeyRef.current = "";
         return;
       }
-
-      const hydrateKey = `${selectedActiveRun.request_id}:${selectedThreadId}`;
-      if (activeSendRequestRef.current?.local && activeSendRequestRef.current.id === selectedActiveRun.request_id) return;
+      const hydrateKey = `${localRequest?.id || selectedActiveRun.request_id}:${selectedThreadId}`;
+      if (localRequest) {
+        activeSendRequestRef.current = localRequest;
+        if (activeRunHydrationKeyRef.current !== hydrateKey) {
+          setStreamEvents(streamEventsFromPayloads(localRequest.events));
+          setExpandedStreamEventIds(new Set());
+        }
+        activeRunHydrationKeyRef.current = hydrateKey;
+        return;
+      }
       activeSendRequestRef.current = {
         id: selectedActiveRun.request_id,
         run_id: selectedActiveRun.run_id || null,
         thread_id: selectedThreadId,
         canceled: false,
       };
-      setIsSending(true);
       if (activeRunHydrationKeyRef.current === hydrateKey && streamEvents.length > 0) return;
       activeRunHydrationKeyRef.current = hydrateKey;
       try {
@@ -761,7 +776,7 @@ function AiChatPane({
     return () => {
       cancelled = true;
     };
-  }, [aiChatApi, selectedActiveRun?.request_id, selectedActiveRun?.run_id, selectedThreadId]);
+  }, [aiChatApi, selectedActiveRun?.request_id, selectedActiveRun?.run_id, selectedThreadId, queuedMessages]);
 
   useEffect(() => {
     if (sideTab === "files" && workdirTree.rows.length === 0 && !isLoadingWorkdirTree) {
@@ -950,11 +965,12 @@ function AiChatPane({
 
   const handleNewThread = () => {
     activeSendRequestRef.current = null;
+    draftThreadKeyRef.current = `draft-${Date.now()}-${Math.random()}`;
+    selectedKeyRef.current = draftThreadKeyRef.current;
     setSelectedThreadId(null);
     setMessages([]);
     setReferences([]);
     setDraft("");
-    setIsSending(false);
     setStreamEvents([]);
     setExpandedStreamEventIds(new Set());
   };
@@ -1524,12 +1540,11 @@ function AiChatPane({
   };
 
   const handleCancelSend = async () => {
-    const currentRequest = activeSendRequestRef.current;
-    if (!isSending || !currentRequest?.id) return;
-    queueRef.current.paused.add(selectedThreadId);
+    const currentRequest = localRequestsRef.current.get(selectedThreadId) || activeSendRequestRef.current;
+    if (!isSending || !currentRequest?.id || currentRequest.thread_id !== selectedThreadId) return;
+    queueRef.current.paused.add(selectedThreadKey);
     syncQueue();
-    activeSendRequestRef.current = { ...currentRequest, canceled: true };
-    setIsSending(false);
+    currentRequest.canceled = true;
     setStreamEvents([]);
     setExpandedStreamEventIds(new Set());
     setRuntimeState((current) => ({
@@ -1551,18 +1566,18 @@ function AiChatPane({
       const result = await aiChatApi?.cancelRun?.(currentRequest.id);
       await refreshActiveRuns();
       if (result?.ok === false) {
-        setRuntimeState((current) => ({
+        updateSelectedThread(currentRequest.thread_id, () => setRuntimeState((current) => ({
           ...current,
           status: "error",
           message: result.error || "AI処理を中断できませんでした。",
-        }));
+        })));
       }
     } catch (error) {
-      setRuntimeState((current) => ({
+      updateSelectedThread(currentRequest.thread_id, () => setRuntimeState((current) => ({
         ...current,
         status: "error",
         message: error?.message || "AI処理を中断できませんでした。",
-      }));
+      })));
     }
   };
 
@@ -1605,94 +1620,88 @@ function AiChatPane({
   const handleSend = () => {
     const text = draft.trim();
     if (!text) return;
-    queueRef.current.add({ id: `queued-${Date.now()}-${Math.random()}`, threadId: selectedThreadId,
-      text, model: selectedModel, sandboxMode, referenceSendMode,
-      references: isSending || queueRef.current.busy ? [] : [...references] });
+    queueRef.current.add({ id: `queued-${Date.now()}-${Math.random()}`, threadId: selectedThreadId, key: selectedThreadKey,
+      text, title: selectedThread?.title || createDraftThreadTitle(text), model: selectedModel, sandboxMode, referenceSendMode,
+      references: isSending ? [] : [...references] });
     setDraft("");
     syncQueue();
   };
 
   useEffect(() => {
-    if (isSending || selectedActiveRun) return;
-    const item = queueRef.current.take(selectedThreadId);
+    if (selectedActiveRun) return;
+    const item = queueRef.current.take(selectedThreadKey);
     if (!item) return;
-    queueRef.current.busy = true;
     syncQueue();
-    let accepted = false;
-    performSend(item, () => { accepted = true; }).finally(() => {
-      if (!accepted && !item.accepted) {
-        queueRef.current.paused.add(item.threadId);
-        queueRef.current.items.unshift(item);
-      }
-      queueRef.current.busy = false;
+    performSend(item).catch((error) => {
+      item.failed = true;
+      updateSelectedThread(item.key, () => appendAssistantErrorMessage(error?.message || "送信できませんでした。"));
+    }).finally(() => {
+      queueRef.current.finish(item, { accepted: Boolean(item.accepted), failed: Boolean(item.failed) });
       syncQueue();
     });
-  }, [queuedMessages, isSending, selectedThreadId, selectedActiveRun]);
+  }, [queuedMessages, selectedThreadKey, selectedActiveRun]);
 
-  const performSend = async (item, onAccepted) => {
+  const performSend = async (item) => {
     const text = item.text;
     if (!aiChatApi?.sendMessage) {
-      setRuntimeState({
+      updateSelectedThread(item.key, () => setRuntimeState({
         ready: false,
         status: "unavailable",
         message: "送信先が未接続のため、入力内容は送信されませんでした。",
-      });
+      }));
       return;
     }
     try {
       if (!(await isAiWorkdirConfigured())) {
-        setRuntimeState({
+        updateSelectedThread(item.key, () => setRuntimeState({
           ready: false,
           status: "error",
           message: WORKDIR_REQUIRED_MESSAGE,
           action: null,
-        });
-        appendAssistantErrorMessage(WORKDIR_REQUIRED_MESSAGE);
+        }));
+        updateSelectedThread(item.key, () => appendAssistantErrorMessage(WORKDIR_REQUIRED_MESSAGE));
         return;
       }
     } catch (error) {
       const message = error?.message || "設定の作業フォルダを確認できませんでした。";
-      setRuntimeState({
+      updateSelectedThread(item.key, () => setRuntimeState({
         ready: false,
         status: "error",
         message,
         action: null,
-      });
-      appendAssistantErrorMessage(message);
+      }));
+      updateSelectedThread(item.key, () => appendAssistantErrorMessage(message));
       return;
     }
 
-    // Persist a new thread before the provider request begins. This makes the
-    // user's first post visible in the thread list while the AI is responding.
     let threadId = item.threadId;
     if (!threadId) {
-      try {
-        threadId = await ensureThreadForReferences();
-        queueRef.current.items.forEach((queued) => {
-          if (queued.threadId === null) queued.threadId = threadId;
-        });
-        item.threadId = threadId;
-      } catch (error) {
-        setRuntimeState({
-          ready: false,
-          status: "error",
-          message: error?.message || "AIスレッドを作成できませんでした。",
-          action: null,
-        });
-        return;
+      const result = await aiChatApi.createThread({ title: item.title });
+      if (!result?.ok || !result.thread?.thread_id) throw new Error(result?.error || "AIスレッドを作成できませんでした。");
+      threadId = result.thread.thread_id;
+      const oldKey = item.key;
+      queueRef.current.bindThread(item, threadId);
+      if (selectedKeyRef.current === oldKey) {
+        selectedKeyRef.current = threadId;
+        setSelectedThreadId(threadId);
       }
+      syncQueue();
+      await refreshThreads();
     }
 
     const requestId = `ai-send-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const streamingAssistantMessageId = `stream-assistant-${Date.now()}`;
-    activeSendRequestRef.current = {
+    const requestState = {
       id: requestId,
       canceled: false,
       local: true,
       streamingAssistantMessageId,
       thread_id: threadId,
       queueItem: item,
+      events: [],
     };
+    localRequestsRef.current.set(threadId, requestState);
+    if (selectedKeyRef.current === threadId) activeSendRequestRef.current = requestState;
     const pendingUserMessage = {
       id: `pending-user-${Date.now()}`,
       role: "user",
@@ -1704,8 +1713,7 @@ function AiChatPane({
       pending: true,
     };
 
-    activeSendRequestRef.current.pendingUserMessageId = pendingUserMessage.id;
-    setIsSending(true);
+    requestState.pendingUserMessageId = pendingUserMessage.id;
     if (threadId) {
       setActiveRuns((current) => [
         ...current.filter((run) => run.request_id !== requestId && run.thread_id !== threadId),
@@ -1719,15 +1727,18 @@ function AiChatPane({
         },
       ]);
     }
-    setStreamEvents([]);
-    setExpandedStreamEventIds(new Set());
-    requestScrollMessagesToBottom();
-    setMessages((current) => [...current, pendingUserMessage]);
-    setRuntimeState((current) => ({
-      ...current,
-      status: "ready",
-      message: `${providerLabel}へ送信しました。応答を待っています...`,
-    }));
+    updateSelectedThread(threadId, () => {
+      setStreamEvents([]);
+      setExpandedStreamEventIds(new Set());
+      requestScrollMessagesToBottom();
+      setMessages((current) => [...current, pendingUserMessage]);
+      setRuntimeState((current) => ({
+        ...current,
+        status: "ready",
+        message: `${providerLabel}へ送信しました。応答を待っています...`,
+      }));
+
+    });
 
     try {
       const effectiveSandboxMode = normalizeSandboxMode(item.sandboxMode);
@@ -1735,7 +1746,7 @@ function AiChatPane({
       const result = await aiChatApi.sendMessage({
         thread_id: threadId,
         content: text,
-        title: selectedThread?.title || createDraftThreadTitle(text),
+        title: item.title,
         sandboxMode: effectiveSandboxMode,
         model: item.model || undefined,
         referenceIds: item.references.map((reference) => reference.id),
@@ -1743,56 +1754,58 @@ function AiChatPane({
         request_id: requestId,
       });
 
-      const requestState = activeSendRequestRef.current;
       // Accepted posts must never be retried, even after provider failure or cancellation.
-      if (result?.userMessage) onAccepted();
-      if (result?.ok === false || result?.canceled || requestState?.canceled) queueRef.current.paused.add(threadId);
-      if (requestState?.id !== requestId || requestState.canceled) return;
-      if (result?.userMessage) {
-        const consumedIds = new Set((result.userMessage.attachments || []).map((attachment) => attachment.id));
-        setReferences((current) => current.filter((reference) => !consumedIds.has(reference.id)));
-      }
-      const resultMessages = [result?.userMessage, result?.assistantMessage].filter(Boolean).map(mapMessage);
-      if (result?.canceled) {
-        setRuntimeState({
-          ready: true,
-          status: "ready",
-          message: "AI処理を中断しました。",
-          action: null,
-        });
-      } else if (result?.ok === false) {
-        const isAuthError = result.error_kind === "auth";
-        setRuntimeState({
-          ready: false,
-          status: isAuthError ? "auth" : "error",
-          message: result.error || "メッセージ送信に失敗しました。",
-          action: isAuthError ? "codex-auth-settings" : null,
-        });
-      } else {
-        setRuntimeState({
-          ready: true,
-          status: "ready",
-          message: result?.threadRecovery?.notice || `${providerLabel}の応答を保存しました。`,
-          action: null,
-        });
-      }
+      if (result?.userMessage) item.accepted = true;
+      item.failed = result?.ok === false || result?.canceled || requestState.canceled;
+      if (item.failed) queueRef.current.paused.add(threadId);
+      updateSelectedThread(threadId, () => {
+        if (result?.userMessage) {
+          const consumedIds = new Set((result.userMessage.attachments || []).map((attachment) => attachment.id));
+          setReferences((current) => current.filter((reference) => !consumedIds.has(reference.id)));
+        }
+        const resultMessages = [result?.userMessage, result?.assistantMessage].filter(Boolean).map(mapMessage);
+        if (result?.canceled) {
+          setRuntimeState({
+            ready: true,
+            status: "ready",
+            message: "AI処理を中断しました。",
+            action: null,
+          });
+        } else if (result?.ok === false) {
+          const isAuthError = result.error_kind === "auth";
+          setRuntimeState({
+            ready: false,
+            status: isAuthError ? "auth" : "error",
+            message: result.error || "メッセージ送信に失敗しました。",
+            action: isAuthError ? "codex-auth-settings" : null,
+          });
+        } else {
+          setRuntimeState({
+            ready: true,
+            status: "ready",
+            message: result?.threadRecovery?.notice || `${providerLabel}の応答を保存しました。`,
+            action: null,
+          });
+        }
 
-      if (resultMessages.length > 0) {
-        requestScrollMessagesToBottom();
-        setMessages((current) => [
-          ...current.filter((message) => message.id !== pendingUserMessage.id
-            && message.id !== streamingAssistantMessageId
-            && !resultMessages.some((resultMessage) => resultMessage.id === message.id)),
-          ...resultMessages,
-        ]);
-      }
+        if (resultMessages.length > 0) {
+          requestScrollMessagesToBottom();
+          setMessages((current) => [
+            ...current.filter((message) => message.id !== pendingUserMessage.id
+              && message.id !== streamingAssistantMessageId
+              && !resultMessages.some((resultMessage) => resultMessage.id === message.id)),
+            ...resultMessages,
+          ]);
+        }
+
+      });
 
       // DB messages are the source of truth. Re-read them after completion so
       // the UI converges even when polling observes run removal before this
       // sendMessage response or an event/state update arrives out of order.
       try {
         const persistedMessageRows = await aiChatApi.listMessages?.(threadId);
-        if (activeSendRequestRef.current?.id === requestId && Array.isArray(persistedMessageRows)) {
+        if (selectedKeyRef.current === threadId && Array.isArray(persistedMessageRows)) {
           setMessages(persistedMessageRows.map(mapMessage));
           requestScrollMessagesToBottom();
         }
@@ -1801,42 +1814,40 @@ function AiChatPane({
         // DB re-sync is a convergence fallback and must not turn success into failure.
       }
 
-      const mappedThreads = await refreshThreads();
+      await refreshThreads();
       await refreshActiveRuns();
-      const nextThreadId = result?.thread?.thread_id || threadId || mappedThreads[0]?.id || null;
-      setSelectedThreadId((currentThreadId) => (
-        !currentThreadId || currentThreadId === threadId ? nextThreadId : currentThreadId
-      ));
     } catch (error) {
-      const requestState = activeSendRequestRef.current;
+      item.failed = true;
       queueRef.current.paused.add(threadId);
-      if (requestState?.id !== requestId || requestState.canceled) return;
-      setRuntimeState({
-        ready: false,
-        status: "error",
-        message: error?.message || "メッセージ送信に失敗しました。",
-        action: null,
+      updateSelectedThread(threadId, () => {
+        setRuntimeState({
+          ready: false,
+          status: "error",
+          message: error?.message || "メッセージ送信に失敗しました。",
+          action: null,
+        });
+        requestScrollMessagesToBottom();
+        setMessages((current) => [
+          ...current.filter((message) => message.id !== pendingUserMessage.id && message.id !== streamingAssistantMessageId),
+          pendingUserMessage,
+          {
+            id: `error-${Date.now()}`,
+            role: "assistant",
+            author: providerLabel,
+            body: error?.message || "メッセージ送信に失敗しました。",
+            error: true,
+          },
+        ]);
       });
-      requestScrollMessagesToBottom();
-      setMessages((current) => [
-        ...current.filter((message) => message.id !== pendingUserMessage.id && message.id !== streamingAssistantMessageId),
-        pendingUserMessage,
-        {
-          id: `error-${Date.now()}`,
-          role: "assistant",
-          author: providerLabel,
-          body: error?.message || "メッセージ送信に失敗しました。",
-          error: true,
-        },
-      ]);
     } finally {
-      if (activeSendRequestRef.current?.id === requestId) {
-        activeSendRequestRef.current = null;
-        setIsSending(false);
+      if (localRequestsRef.current.get(threadId) === requestState) localRequestsRef.current.delete(threadId);
+      setActiveRuns((current) => current.filter((run) => run.request_id !== requestId));
+      updateSelectedThread(threadId, () => {
+        if (activeSendRequestRef.current?.id === requestId) activeSendRequestRef.current = null;
         setStreamEvents([]);
         setExpandedStreamEventIds(new Set());
-        refreshActiveRuns().catch(() => {});
-      }
+      });
+      refreshActiveRuns().catch(() => {});
     }
   };
 
@@ -2116,11 +2127,11 @@ function AiChatPane({
           </button>
         )}
 
-        {queuedMessages.some((item) => item.threadId === selectedThreadId) && (
+        {queuedMessages.some((item) => item.key === selectedThreadKey) && (
           <div className="ai-send-queue" aria-label="送信待ち" aria-live="polite">
             <div>送信待ち（この画面を開いている間、処理終了後に順次送信）</div>
-            {queueRef.current.paused.has(selectedThreadId) && <button type="button" onClick={() => { queueRef.current.paused.delete(selectedThreadId); syncQueue(); }}>送信を再開</button>}
-            {queuedMessages.filter((item) => item.threadId === selectedThreadId).map((item) => (
+            {queueRef.current.paused.has(selectedThreadKey) && <button type="button" onClick={() => { queueRef.current.paused.delete(selectedThreadKey); syncQueue(); }}>送信を再開</button>}
+            {queuedMessages.filter((item) => item.key === selectedThreadKey).map((item) => (
               <div key={item.id}><span>{item.text}</span><button type="button" onClick={() => { queueRef.current.remove(item.id); syncQueue(); }}>送信待ちを取消</button></div>
             ))}
           </div>
