@@ -8139,7 +8139,7 @@ tasks:
     sort_order: 695
     tags: []
     due_date: null
-    updated_at: '2026-10-11T13:47:20.138963+00:00'
+    updated_at: '2026-10-11T13:55:08.010125+00:00'
   - id: T-0727
     title: CHG-143-01 AI送信待ちの設計更新
     list: null
@@ -8187,7 +8187,37 @@ tasks:
       - BUG-20261011-01
     due_date: null
     updated_at: '2026-10-11T13:47:20.138963+00:00'
+  - id: T-0733
+    title: BUG-20261011-02 AI処理中の入力欄リサイズ設計を反映
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 702
+    tags:
+      - BUG-20261011-02
+    due_date: null
+    updated_at: '2026-10-11T13:55:08.010125+00:00'
+  - id: T-0734
+    title: BUG-20261011-02 AI処理中の入力欄リサイズを修正・検証
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 703
+    tags:
+      - BUG-20261011-02
+    due_date: null
+    updated_at: '2026-10-11T13:55:08.010125+00:00'
+  - id: T-0735
+    title: BUG-20261011-02 処理中の高さ変更をユーザー確認
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 704
+    tags:
+      - BUG-20261011-02
+    due_date: null
+    updated_at: '2026-10-11T13:55:08.010125+00:00'
 task_file_roots:
   - .
-next_task_id: 733
-last_updated: '2026-10-11T13:47:20.664Z'
+next_task_id: 736
+last_updated: '2026-10-11T13:55:08.573Z'

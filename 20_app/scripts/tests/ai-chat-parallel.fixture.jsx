@@ -61,11 +61,41 @@ async function waitFor(check, label) {
   throw new Error(`Timeout: ${label}`);
 }
 function assert(value, label) { if (!value) throw new Error(label); }
-async function send(text) {
+async function checkProcessingResize() {
+  const handle = document.querySelector('[aria-label="入力欄の高さを変更"]');
+  const input = document.querySelector("textarea");
+  const initial = parseFloat(input.style.height);
+  assert(handle.tabIndex === 0 && handle.getAttribute("aria-disabled") !== "true", "processing resize must be focusable");
+  handle.focus();
+  handle.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
+  await delay();
+  assert(parseFloat(input.style.height) > initial, "keyboard resize while processing");
+  handle.dispatchEvent(new KeyboardEvent("keydown", { key: "Home", bubbles: true }));
+  await delay();
+  assert(parseFloat(input.style.height) === initial, "Home restores minimum height");
+  // Synthetic pointer events have no native capture target; exercise the real drag handlers.
+  handle.setPointerCapture = () => {};
+  handle.hasPointerCapture = () => false;
+  handle.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 1, button: 0, clientY: 300, bubbles: true }));
+  await delay();
+  handle.dispatchEvent(new PointerEvent("pointermove", { pointerId: 1, clientY: 220, bubbles: true }));
+  await delay();
+  assert(parseFloat(input.style.height) === initial + 80, "pointer resize while processing");
+  handle.dispatchEvent(new PointerEvent("pointerup", { pointerId: 1, bubbles: true }));
+  await delay();
+  handle.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+  await delay();
+  assert(parseFloat(input.style.height) === initial, "double-click resets height");
+}
+async function type(text) {
   const input = document.querySelector("textarea");
   Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value").set.call(input, text);
   input.dispatchEvent(new Event("input", { bubbles: true }));
   await delay();
+}
+async function send(text) {
+  await type(text);
+  const input = document.querySelector("textarea");
   input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
   await delay();
 }
@@ -79,6 +109,7 @@ async function run() {
   await select("Thread A");
   await send("A1");
   await waitFor(() => calls.length === 1, "A started");
+  await checkProcessingResize();
   await send("A2");
   assert(calls.length === 1, "A2 must wait for A1");
   await select("Thread B");
@@ -110,8 +141,15 @@ async function run() {
   await delay();
   assert(calls.length === 4 && document.querySelector(".ai-send-queue").textContent.includes("A3"), "A failure pauses only A3");
   await select("Thread B");
+  await type("編集中の下書き");
+  const resizeHandle = document.querySelector('[aria-label="入力欄の高さを変更"]');
+  resizeHandle.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
+  await delay();
+  const draftHeight = document.querySelector("textarea").style.height;
   finish(calls[3]);
   await delay();
+  assert(document.querySelector("textarea").value === "編集中の下書き", "completion preserves draft text");
+  assert(document.querySelector("textarea").style.height === draftHeight, "completion preserves height while drafting");
   document.querySelector('[title="新しいスレッド"]').click();
   await delay();
   await send("new1");
@@ -134,6 +172,6 @@ async function run() {
   await waitFor(() => calls.length === 7, "first draft follow-up binds to created thread");
   assert(calls[6].thread_id === "new-thread-1" && calls[6].content === "new1-followup", "draft FIFO binding");
   finish(calls[5]); finish(calls[6]);
-  return { ok: true, requests: calls.length, checks: "parallel threads, FIFO, background replies, cancellation, failure isolation, concurrent drafts" };
+  return { ok: true, requests: calls.length, checks: "parallel threads, FIFO, background replies, cancellation, failure isolation, concurrent drafts, processing resize, draft height preservation" };
 }
 run().then((result) => { window.parallelResult = result; }).catch((error) => { window.parallelResult = { ok: false, error: error.stack }; });

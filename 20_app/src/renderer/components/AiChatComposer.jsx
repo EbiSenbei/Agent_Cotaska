@@ -51,9 +51,9 @@ export default function AiChatComposer({
   }, [resizeResetKey, resetInputHeight]);
 
   useEffect(() => {
-    if (wasSendingRef.current && !isSending) resetInputHeight();
+    if (wasSendingRef.current && !isSending && !draft && !resizeStateRef.current) resetInputHeight();
     wasSendingRef.current = isSending;
-  }, [isSending, resetInputHeight]);
+  }, [isSending, draft, resetInputHeight]);
 
   useEffect(() => {
     const clampToViewport = () => {
@@ -64,7 +64,7 @@ export default function AiChatComposer({
   }, []);
 
   const handleResizePointerDown = (event) => {
-    if (isSending || event.button !== 0) return;
+    if (event.button !== 0) return;
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
     resizeStateRef.current = {
@@ -96,7 +96,6 @@ export default function AiChatComposer({
   };
 
   const handleResizeKeyDown = (event) => {
-    if (isSending) return;
     let nextHeight = inputHeight;
     if (event.key === "ArrowUp") nextHeight += AI_COMPOSER_KEYBOARD_STEP;
     else if (event.key === "ArrowDown") nextHeight -= AI_COMPOSER_KEYBOARD_STEP;
@@ -124,8 +123,7 @@ export default function AiChatComposer({
         aria-valuemin={AI_COMPOSER_MIN_HEIGHT}
         aria-valuemax={maximumInputHeight}
         aria-valuenow={inputHeight}
-        aria-disabled={isSending}
-        tabIndex={isSending ? -1 : 0}
+        tabIndex={0}
         title="上へドラッグして入力欄を広げる"
         onDoubleClick={resetInputHeight}
         onKeyDown={handleResizeKeyDown}

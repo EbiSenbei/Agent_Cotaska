@@ -13,6 +13,9 @@ describe("処理中の入力", () => {
       expect(html.match(/<textarea[^>]*>/)[0]).not.toContain("disabled");
       expect(html).toContain('aria-label="送信待ちに追加"');
       expect(html).toContain('aria-label="AI処理を中断"');
+      const handle = html.match(/<div[^>]*role="separator"[^>]*>/)[0];
+      expect(handle).toContain('tabindex="0"');
+      expect(handle).not.toContain('aria-disabled="true"');
     } finally { globalThis.window = previous; }
   });
 });
