@@ -124,6 +124,7 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
 
   // タスク操作（ファイルベース）
   attachments: {
+    preview: (id, name) => ipcRenderer.invoke('attachments:preview', id, name),
     pasteImage: (id) => ipcRenderer.invoke('attachments:pasteImage', id),
     readImage: (id, reference) => ipcRenderer.invoke('attachments:readImage', id, reference),
     list: (id) => ipcRenderer.invoke('attachments:list', id),

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import DueDatePopover from "./DueDatePopover";
 import TaskAttachments from './TaskAttachments';
+import DocumentPreview, { documentAttachmentName } from './DocumentPreview';
 import { useDebounce } from "../hooks/useDebounce";
 import { findUrlAtIndex, formatCompletedAt, formatDatetime, markdown, renderMarkdownEditorHtml } from "../lib/markdownEditor";
 
@@ -135,6 +136,8 @@ function DetailPaneBody({
   const [taskTags, setTaskTags] = useState(task.tags || []);
   const [newTagName, setNewTagName] = useState("");
   const [previewMode, setPreviewMode] = useState(false);
+  const [documentPreview, setDocumentPreview] = useState(null);
+  useEffect(() => { setDocumentPreview(null); }, [task.id]);
   const [dueEditorOpen, setDueEditorOpen] = useState(null);
   const [completedAt, setCompletedAt] = useState(task.completed_at || null);
   const [metaOpen, setMetaOpen] = useState(true);
@@ -666,6 +669,9 @@ function DetailPaneBody({
     const href = String(anchor.getAttribute("href") || "").trim();
     if (!href) return;
 
+    const attachmentName = documentAttachmentName(href);
+    if (attachmentName) { setDocumentPreview(attachmentName); return; }
+
     setOpenExternalError("");
     try {
       const result = await window.cotaskaAPI?.shell?.openTaskTarget?.(task.id, href);
@@ -990,7 +996,8 @@ function DetailPaneBody({
       )}
 
       {/* === detail-body: メモ本文 === */}
-      {!isInvalid && <TaskAttachments key={task.id} taskId={task.id} readOnly={task.delete_flag === 1} />}
+      {!isInvalid && <TaskAttachments key={task.id} taskId={task.id} readOnly={task.delete_flag === 1} onPreview={setDocumentPreview} />}
+      {!isInvalid && documentPreview && <DocumentPreview key={`${task.id}/${documentPreview}`} taskId={task.id} name={documentPreview} onClose={() => setDocumentPreview(null)} />}
       <div className="detail-body">
         <div className="body-section-header">▼ タスク詳細</div>
         {imageError && <p className="task-attachments-error" role="alert">{imageError}</p>}

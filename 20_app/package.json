@@ -5,8 +5,8 @@
   "main": "src/main/main.js",
   "scripts": {
     "check:runtime": "node scripts/verify-runtime.js",
-    "predev": "npm run check:runtime",
-    "prebuild": "npm run check:runtime",
+    "predev": "npm run check:runtime && node scripts/prepare-pdf-assets.js",
+    "prebuild": "npm run check:runtime && node scripts/prepare-pdf-assets.js",
     "dev": "vite --config vite.config.mjs",
     "build": "vite build --config vite.config.mjs",
     "start": "electron .",
@@ -108,6 +108,7 @@
     "gray-matter": "^4.0.3",
     "js-yaml": "^5.4.2",
     "markdown-it": "^15.0.2",
+    "pdfjs-dist": "^6.4.299",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "sql.js": "^1.14.2"

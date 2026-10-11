@@ -14,6 +14,7 @@ earlyStartupLogger.logInfo("Main process entry", {
 const AdmZip = require("adm-zip");
 const taskService = require("./taskService");
 const attachmentService = require("./taskFileBundle").createAttachmentService(taskService);
+const documentPreviewService = require('./documentPreview').createDocumentPreviewService({ attachments: attachmentService });
 const listService = require("./listService");
 const watcher = require("./watcher");
 const reminderService = require("./reminderService");
@@ -2164,12 +2165,16 @@ function notifyAttachmentsChanged(taskId) {
   }
 }
 
-for (const action of ['list', 'add', 'open', 'remove', 'restore', 'pasteImage', 'readImage']) {
+for (const action of ['list', 'add', 'open', 'remove', 'restore', 'pasteImage', 'readImage', 'preview']) {
   ipcMain.handle(`attachments:${action}`, async (event, taskId, value) => {
     await servicesReady;
     try {
       let result;
-      if (action === 'pasteImage') {
+      if (action === 'preview') {
+        const root = projectContext.getCurrent().rootDir;
+        result = await documentPreviewService.preview(taskId, value);
+        if (projectContext.getCurrent().rootDir !== root) throw new Error('プロジェクトが変更されました。再度開いてください。');
+      } else if (action === 'pasteImage') {
         const image = clipboard.readImage();
         if (image.isEmpty()) throw new Error('Clipboard contains no image');
         result = attachmentService.saveImage(taskId, image.toPNG());

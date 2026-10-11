@@ -12,6 +12,7 @@ Thumbs.db
 20_app/yarn-error.log*
 
 # Build outputs
+20_app/src/renderer/public/pdfjs/
 20_app/dist/
 20_app/build/
 20_app/temp/
