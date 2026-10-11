@@ -8035,36 +8035,36 @@ tasks:
   - id: T-0717
     title: CHG-141 仕様変更：Markdown画像表示とクリップボード画像貼り付け
     list: null
-    status: todo
+    status: doing
     priority: normal
     sort_order: 686
     tags:
       - CHG-141
       - 添付ファイル
     due_date: null
-    updated_at: '2026-10-11T09:15:06.803Z'
+    updated_at: '2026-10-11T09:20:38.795697+00:00'
   - id: T-0718
     title: CHG-141-01 Markdown画像表示と画像貼り付けの設計
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 687
     tags:
       - CHG-141
       - 添付ファイル
-    due_date: null
-    updated_at: '2026-10-11T09:15:06.803Z'
+    due_date: 2026-10-11T00:00:00.000Z
+    updated_at: '2026-10-11T09:20:38.795697+00:00'
   - id: T-0719
     title: CHG-141-02 Markdown画像表示と画像貼り付けの実装・検証
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 688
     tags:
       - CHG-141
       - 添付ファイル
-    due_date: null
-    updated_at: '2026-10-11T09:15:06.803Z'
+    due_date: 2026-10-11T00:00:00.000Z
+    updated_at: '2026-10-11T09:20:38.795697+00:00'
   - id: T-0720
     title: CHG-141-03 Markdown画像表示と画像貼り付けのユーザー確認
     list: null
@@ -8134,4 +8134,4 @@ tasks:
 task_file_roots:
   - .
 next_task_id: 726
-last_updated: '2026-10-11T09:15:07.451Z'
+last_updated: '2026-10-11T09:25:10.978Z'

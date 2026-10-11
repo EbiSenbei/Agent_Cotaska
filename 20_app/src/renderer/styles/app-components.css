@@ -2447,3 +2447,5 @@ button.task-attachment-name { border: 0; background: transparent; text-decoratio
 .task-attachments-empty { color: #888; margin: 8px 0 0; }
 .task-attachments-error { color: #c0392b; overflow-wrap: anywhere; }
 .task-attachments summary { cursor: pointer; }
+
+.detail-preview img { max-width: 100%; height: auto; object-fit: contain; }

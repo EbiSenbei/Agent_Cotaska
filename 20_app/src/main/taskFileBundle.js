@@ -156,6 +156,30 @@ function createAttachmentService(taskService) {
     assertPlain(target);
     return target;
   }
+  function saveImage(id, bytes) {
+    if (!Buffer.isBuffer(bytes) || !bytes.length || bytes.length > 20 * 1024 * 1024) throw new Error('Image must be between 1 byte and 20MB');
+    const dir = directory(id, true);
+    const name = uniqueName(dir, `image-${Date.now()}.png`);
+    fs.writeFileSync(path.join(dir, name), bytes, { flag: 'wx' });
+    return { name, relativePath: `attachments/${name}` };
+  }
+  function readImage(id, reference) {
+    if (typeof reference !== 'string') throw new Error('Invalid image reference');
+    const relative = decodeURIComponent(reference);
+    if (!relative || /[\\:\x00-\x1f]/.test(relative) || path.isAbsolute(relative)) throw new Error('Use a relative image path');
+    const base = taskService.getTaskBaseDir(id);
+    const target = path.resolve(base, relative);
+    const resolved = path.relative(base, target);
+    if (resolved.startsWith('..') || path.isAbsolute(resolved)) throw new Error('Images outside the task cannot be displayed');
+    assertPlain(base, true);
+    const parts = resolved.split(path.sep);
+    let current = base;
+    parts.forEach((part, index) => { current = path.join(current, part); assertPlain(current, index < parts.length - 1); });
+    if (fs.statSync(target).size > 20 * 1024 * 1024) throw new Error('Image exceeds 20MB');
+    const image = require('./aiImagePreview').readImagePreview(target);
+    if (!image) throw new Error('Unsupported image format');
+    return image;
+  }
   function remove(id, name) {
     if (taskService.getTaskById(id)?.delete_flag === 1) throw new Error('ゴミ箱の添付は変更できません');
     const source = file(id, name);
@@ -184,7 +208,7 @@ function createAttachmentService(taskService) {
     fs.rmdirSync(folder);
     return name;
   }
-  return { list, add, file, remove, restore };
+  return { list, add, file, remove, restore, saveImage, readImage };
 }
 
 module.exports = { archiveTask, copyVerified, createAttachmentService };

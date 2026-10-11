@@ -2164,12 +2164,16 @@ function notifyAttachmentsChanged(taskId) {
   }
 }
 
-for (const action of ['list', 'add', 'open', 'remove', 'restore']) {
+for (const action of ['list', 'add', 'open', 'remove', 'restore', 'pasteImage', 'readImage']) {
   ipcMain.handle(`attachments:${action}`, async (event, taskId, value) => {
     await servicesReady;
     try {
       let result;
-      if (action === 'add') {
+      if (action === 'pasteImage') {
+        const image = clipboard.readImage();
+        if (image.isEmpty()) throw new Error('Clipboard contains no image');
+        result = attachmentService.saveImage(taskId, image.toPNG());
+      } else if (action === 'add') {
         const projectRoot = projectContext.getCurrent().rootDir;
         const owner = BrowserWindow.fromWebContents(event.sender);
         const options = { title: 'タスクに添付するファイルを選択', properties: ['openFile', 'multiSelections'] };
@@ -2181,10 +2185,10 @@ for (const action of ['list', 'add', 'open', 'remove', 'restore']) {
         const error = await shell.openPath(attachmentService.file(taskId, value));
         if (error) throw new Error(error);
       } else result = attachmentService[action](taskId, value);
-      if (['add', 'remove', 'restore'].includes(action)) notifyAttachmentsChanged(taskId);
+      if (['add', 'remove', 'restore', 'pasteImage'].includes(action)) notifyAttachmentsChanged(taskId);
       return { ok: true, result };
     } catch (error) {
-      if (['add', 'remove', 'restore'].includes(action)) notifyAttachmentsChanged(taskId);
+      if (['add', 'remove', 'restore', 'pasteImage'].includes(action)) notifyAttachmentsChanged(taskId);
       return { ok: false, error: error.message };
     }
   });

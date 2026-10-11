@@ -158,6 +158,34 @@ function DetailPaneBody({
   const subtaskResizeRef = useRef(null);
   const detailPaneRef = useRef(null);
   const markdownHighlightRef = useRef(null);
+  const previewRef = useRef(null);
+  const pastePending = useRef(false);
+  const activeImageTask = useRef(task.id);
+  activeImageTask.current = task.id;
+  const [imageError, setImageError] = useState('');
+  const [pastingImage, setPastingImage] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      for (const img of previewRef.current?.querySelectorAll('img') || []) {
+        const reference = img.dataset.imageReference || img.getAttribute('src');
+        img.dataset.imageReference = reference;
+        if (/^https?:/i.test(reference)) continue;
+        img.removeAttribute('src');
+        try {
+          const result = await window.cotaskaAPI.attachments.readImage(task.id, reference);
+          if (!result?.ok) throw new Error(result?.error || 'Image could not be loaded');
+          if (!cancelled) img.src = result.result.url;
+        } catch (error) {
+          if (!cancelled) { img.alt = `Image unavailable: ${img.alt || reference}`; img.title = error.message; }
+        }
+      }
+    };
+    load();
+    const unsubscribe = window.cotaskaAPI?.attachments?.onChanged?.((event) => { if (event.taskId === task.id) load(); });
+    return () => { cancelled = true; unsubscribe?.(); };
+  }, [task.id, contentText, previewMode]);
+
   const footerContextMenuRef = useRef(null);
   const [openExternalError, setOpenExternalError] = useState("");
   const [footerContextMenu, setFooterContextMenu] = useState(null);
@@ -965,9 +993,11 @@ function DetailPaneBody({
       {!isInvalid && <TaskAttachments key={task.id} taskId={task.id} readOnly={task.delete_flag === 1} />}
       <div className="detail-body">
         <div className="body-section-header">▼ タスク詳細</div>
+        {imageError && <p className="task-attachments-error" role="alert">{imageError}</p>}
 
         {previewMode ? (
           <div
+            ref={previewRef}
             className={`detail-preview${contentText ? "" : " detail-preview--empty"}`}
             style={detailContentFontStyle}
             onClick={handlePreviewLinkClick}
@@ -989,9 +1019,31 @@ function DetailPaneBody({
               style={detailContentFontStyle}
               value={contentText}
               placeholder="メモを入力..."
-              readOnly={isInvalid}
+              readOnly={isInvalid || pastingImage}
               spellCheck={false}
               title={hoveredEditorUrl ? EDITOR_LINK_TOOLTIP : ""}
+              onPaste={async (event) => {
+                if (!Array.from(event.clipboardData?.items || []).some((item) => item.type.startsWith('image/'))) return;
+                event.preventDefault();
+                if (isInvalid || task.delete_flag === 1 || pastePending.current) return;
+                const target = event.currentTarget;
+                const start = target.selectionStart, end = target.selectionEnd;
+                const original = target.value;
+                pastePending.current = true;
+                setPastingImage(true);
+                setImageError('');
+                try {
+                  const result = await window.cotaskaAPI.attachments.pasteImage(task.id);
+                  if (!result?.ok) throw new Error(result?.error || 'Image could not be saved');
+                  if (!target.isConnected || activeImageTask.current !== task.id || target.value !== original) return;
+                  const reference = `![Image](<${result.result.relativePath}>)`;
+                  const nextContent = original.slice(0, start) + reference + original.slice(end);
+                  setContentText(nextContent);
+                  debouncedSave(titleText, nextContent);
+                  requestAnimationFrame(() => { target.focus(); target.setSelectionRange(start + reference.length, start + reference.length); });
+                } catch (error) { setImageError(error.message); }
+                finally { pastePending.current = false; setPastingImage(false); }
+              }}
               onScroll={handleEditorScroll}
               onMouseMove={handleEditorMouseMove}
               onMouseLeave={() => setHoveredEditorUrl(null)}

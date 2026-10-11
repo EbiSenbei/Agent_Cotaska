@@ -155,3 +155,22 @@ test('legacy ZIP and empty tasks directory remain restorable', async () => {
   expect((await service.restoreBackup(empty.backupPath)).ok).toBe(true);
   expect(tasks.getAllTasks()).toHaveLength(0);
 });
+
+
+test('image saving and reading preserve bundles and reject unsafe references', () => {
+  const task = tasks.addTask({ title: '??' });
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=', 'base64');
+  const first = attachments.saveImage(task.id, png);
+  const second = attachments.saveImage(task.id, png);
+  expect(first.name).not.toBe(second.name);
+  expect(attachments.readImage(task.id, first.relativePath).url).toBe(`data:image/png;base64,${png.toString('base64')}`);
+  attachments.add(task.id, [source('日本語 画像.png', png)]);
+  expect(attachments.readImage(task.id, 'attachments/' + encodeURIComponent('日本語 画像.png')).preview_type).toBe('image');
+  for (const ref of ['../settings.yaml', '%2e%2e/settings.yaml', 'C:/outside.png', 'attachments/missing.png']) expect(() => attachments.readImage(task.id, ref)).toThrow();
+  expect(() => attachments.saveImage(task.id, Buffer.alloc(0))).toThrow();
+  tasks.updateTaskContent(task.id, `![??](<${first.relativePath}>)`);
+  const duplicate = tasks.duplicateTask(task.id);
+  expect(attachments.readImage(duplicate.id, first.relativePath).url).toContain('data:image/png');
+  attachments.remove(task.id, first.name);
+  expect(() => attachments.readImage(task.id, first.relativePath)).toThrow();
+});
