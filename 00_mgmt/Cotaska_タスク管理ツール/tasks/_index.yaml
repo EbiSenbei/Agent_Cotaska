@@ -8131,7 +8131,43 @@ tasks:
       - 添付ファイル
     due_date: null
     updated_at: '2026-10-11T09:15:06.803Z'
+  - id: T-0726
+    title: 仕様変更：AI処理中にもチャット入力可能とする
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 695
+    tags: []
+    due_date: null
+    updated_at: '2026-10-11T09:47:40.8845410Z'
+  - id: T-0727
+    title: CHG-143-01 AI送信待ちの設計更新
+    list: null
+    status: done
+    priority: normal
+    sort_order: 696
+    tags: []
+    due_date: 2026-10-11T00:00:00.000Z
+    updated_at: '2026-10-11T09:47:24.233366+00:00'
+  - id: T-0728
+    title: CHG-143-02 AI送信待ちの実装と検証
+    list: null
+    status: done
+    priority: normal
+    sort_order: 697
+    tags: []
+    due_date: 2026-10-11T00:00:00.000Z
+    updated_at: '2026-10-11T09:47:24.233366+00:00'
+  - id: T-0729
+    title: CHG-143-03 AI処理中入力と順次送信のユーザー確認
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 698
+    tags: []
+    due_date: null
+    updated_at: '2026-10-11T09:44:11.925439+00:00'
 task_file_roots:
   - .
-next_task_id: 726
-last_updated: '2026-10-11T09:32:55.706Z'
+next_task_id: 730
+last_updated: '2026-10-11T09:47:41.409Z'

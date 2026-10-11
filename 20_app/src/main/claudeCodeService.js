@@ -418,7 +418,8 @@ async function sendMessage(input = {}) {
   const performanceMode = claudeSettings.performanceMode === "speed" ? "speed" : "standard";
 
   const attachedReferences = aiService.listReferences(thread.thread_id)
-    .filter((reference) => reference.ref_type === "file" && reference.file_path);
+    .filter((reference) => reference.ref_type === "file" && reference.file_path)
+    .filter((reference) => !Array.isArray(input.referenceIds) || input.referenceIds.includes(reference.reference_id));
   const attachments = attachedReferences.map((reference) => ({
     id: reference.reference_id,
     label: path.basename(reference.file_path.replace(/\\/g, "/")),

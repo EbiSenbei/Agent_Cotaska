@@ -136,7 +136,6 @@ export default function AiChatComposer({
       />
       <textarea
         value={draft}
-        disabled={isSending}
         onChange={onDraftChange}
         onKeyDown={onDraftKeyDown}
         placeholder="フォローアップの変更を求める"
@@ -174,6 +173,7 @@ export default function AiChatComposer({
           </select>
         </label>
         <span className="ai-compose-spacer" />
+        {isSending && <button type="button" className="ai-send-button" onClick={onSend} disabled={!draft.trim()} aria-label="送信待ちに追加" title="送信待ちに追加">↑</button>}
         <button type="button" className={`ai-send-button${isSending ? " is-sending" : ""}`} onClick={isSending ? onCancel : onSend} disabled={!isSending && !draft.trim()} title={isSending ? "中断" : "送信"} aria-label={isSending ? "AI処理を中断" : "送信"}>{isSending ? "■" : "↑"}</button>
       </div>
     </footer>

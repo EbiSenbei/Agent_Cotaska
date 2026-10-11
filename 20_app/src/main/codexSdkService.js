@@ -471,6 +471,7 @@ function buildReferenceContext(threadId, workdir, settings, options = {}) {
   const refs = aiService
     .listReferences(threadId)
     .filter((ref) => ref.ref_type === "file" && ref.file_path)
+    .filter((ref) => !Array.isArray(options.referenceIds) || options.referenceIds.includes(ref.reference_id))
     .slice(0, Math.max(0, maxFiles));
   const chunks = [];
   let totalChars = 0;
@@ -719,7 +720,8 @@ async function sendMessage(input = {}) {
   const codexThreadIdForRun = usePersistentCodexThread ? thread.codex_thread_id : null;
   const codexThreadStrategy = usePersistentCodexThread ? "persistent" : "transient";
   const attachedReferences = aiService.listReferences(thread.thread_id)
-    .filter((reference) => reference.ref_type === "file" && reference.file_path);
+    .filter((reference) => reference.ref_type === "file" && reference.file_path)
+    .filter((reference) => !Array.isArray(input.referenceIds) || input.referenceIds.includes(reference.reference_id));
   const attachments = attachedReferences.map((reference) => ({
     id: reference.reference_id,
     label: path.basename(reference.file_path.replace(/\\/g, "/")),

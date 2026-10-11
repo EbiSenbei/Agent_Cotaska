@@ -1876,3 +1876,21 @@
   border-radius: 6px;
   font-size: 12px;
 }
+.ai-send-queue {
+  padding: 8px 16px;
+  max-height: 160px;
+  overflow: auto;
+  font-size: 12px;
+}
+.ai-send-queue > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+}
+.ai-send-queue span {
+  flex: 1;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.ai-send-queue button { flex-shrink: 0; }

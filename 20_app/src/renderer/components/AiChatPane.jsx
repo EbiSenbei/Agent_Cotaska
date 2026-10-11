@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import AiChatMessage from "./AiChatMessage";
 import AiChatComposer from "./AiChatComposer";
+import { AiSendQueue } from "./aiSendQueue";
 import AiChatContextPanel from "./AiChatContextPanel";
 import AiMarkdownPreview, { formatMessageTime } from "./AiMarkdownPreview";
 import { useExitPresence } from "../hooks/useExitPresence";
@@ -81,6 +82,9 @@ function AiChatPane({
   onAddTag,
 }) {
   const messageScrollRef = useRef(null);
+  const queueRef = useRef(new AiSendQueue());
+  const [queuedMessages, setQueuedMessages] = useState([]);
+  const syncQueue = () => setQueuedMessages([...queueRef.current.items]);
   const pendingAutoScrollRef = useRef(false);
   const activeSendRequestRef = useRef(null);
   const activeRunHydrationKeyRef = useRef("");
@@ -681,6 +685,7 @@ function AiChatPane({
       const activeRequest = activeSendRequestRef.current;
       if (!activeRequest?.id || payload?.request_id !== activeRequest.id || activeRequest.canceled) return;
       if (payload.type === "message.accepted" && payload.userMessage) {
+        if (activeRequest.queueItem) activeRequest.queueItem.accepted = true;
         const accepted = mapMessage(payload.userMessage);
         const consumedIds = new Set(accepted.attachments.map((attachment) => attachment.id));
         setReferences((current) => current.filter((reference) => !consumedIds.has(reference.id)));
@@ -728,6 +733,7 @@ function AiChatPane({
       }
 
       const hydrateKey = `${selectedActiveRun.request_id}:${selectedThreadId}`;
+      if (activeSendRequestRef.current?.local && activeSendRequestRef.current.id === selectedActiveRun.request_id) return;
       activeSendRequestRef.current = {
         id: selectedActiveRun.request_id,
         run_id: selectedActiveRun.run_id || null,
@@ -1520,6 +1526,8 @@ function AiChatPane({
   const handleCancelSend = async () => {
     const currentRequest = activeSendRequestRef.current;
     if (!isSending || !currentRequest?.id) return;
+    queueRef.current.paused.add(selectedThreadId);
+    syncQueue();
     activeSendRequestRef.current = { ...currentRequest, canceled: true };
     setIsSending(false);
     setStreamEvents([]);
@@ -1559,7 +1567,7 @@ function AiChatPane({
   };
 
   const handleDraftKeyDown = (event) => {
-    if (event.isComposing) return;
+    if (event.isComposing || event.nativeEvent?.isComposing || event.keyCode === 229) return;
 
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
@@ -1594,9 +1602,35 @@ function AiChatPane({
     event.preventDefault();
   };
 
-  const handleSend = async () => {
+  const handleSend = () => {
     const text = draft.trim();
-    if (!text || isSending) return;
+    if (!text) return;
+    queueRef.current.add({ id: `queued-${Date.now()}-${Math.random()}`, threadId: selectedThreadId,
+      text, model: selectedModel, sandboxMode, referenceSendMode,
+      references: isSending || queueRef.current.busy ? [] : [...references] });
+    setDraft("");
+    syncQueue();
+  };
+
+  useEffect(() => {
+    if (isSending || selectedActiveRun) return;
+    const item = queueRef.current.take(selectedThreadId);
+    if (!item) return;
+    queueRef.current.busy = true;
+    syncQueue();
+    let accepted = false;
+    performSend(item, () => { accepted = true; }).finally(() => {
+      if (!accepted && !item.accepted) {
+        queueRef.current.paused.add(item.threadId);
+        queueRef.current.items.unshift(item);
+      }
+      queueRef.current.busy = false;
+      syncQueue();
+    });
+  }, [queuedMessages, isSending, selectedThreadId, selectedActiveRun]);
+
+  const performSend = async (item, onAccepted) => {
+    const text = item.text;
     if (!aiChatApi?.sendMessage) {
       setRuntimeState({
         ready: false,
@@ -1630,10 +1664,14 @@ function AiChatPane({
 
     // Persist a new thread before the provider request begins. This makes the
     // user's first post visible in the thread list while the AI is responding.
-    let threadId = selectedThreadId;
+    let threadId = item.threadId;
     if (!threadId) {
       try {
         threadId = await ensureThreadForReferences();
+        queueRef.current.items.forEach((queued) => {
+          if (queued.threadId === null) queued.threadId = threadId;
+        });
+        item.threadId = threadId;
       } catch (error) {
         setRuntimeState({
           ready: false,
@@ -1653,20 +1691,20 @@ function AiChatPane({
       local: true,
       streamingAssistantMessageId,
       thread_id: threadId,
+      queueItem: item,
     };
     const pendingUserMessage = {
       id: `pending-user-${Date.now()}`,
       role: "user",
       author: "ユーザー",
       body: text,
-      attachments: references.filter((reference) => reference.type === "file").map((reference) => ({
+      attachments: item.references.filter((reference) => reference.type === "file").map((reference) => ({
         id: reference.id, label: reference.filePath.split(/[\\/]/).pop() || reference.label, filePath: reference.filePath,
       })),
       pending: true,
     };
 
     activeSendRequestRef.current.pendingUserMessageId = pendingUserMessage.id;
-    setDraft("");
     setIsSending(true);
     if (threadId) {
       setActiveRuns((current) => [
@@ -1692,19 +1730,23 @@ function AiChatPane({
     }));
 
     try {
-      const effectiveSandboxMode = normalizeSandboxMode(sandboxMode);
-      const effectiveReferenceSendMode = normalizeReferenceSendMode(referenceSendMode);
+      const effectiveSandboxMode = normalizeSandboxMode(item.sandboxMode);
+      const effectiveReferenceSendMode = normalizeReferenceSendMode(item.referenceSendMode);
       const result = await aiChatApi.sendMessage({
         thread_id: threadId,
         content: text,
         title: selectedThread?.title || createDraftThreadTitle(text),
         sandboxMode: effectiveSandboxMode,
-        model: selectedModel || undefined,
+        model: item.model || undefined,
+        referenceIds: item.references.map((reference) => reference.id),
         referenceSendMode: effectiveReferenceSendMode === "default" ? undefined : effectiveReferenceSendMode,
         request_id: requestId,
       });
 
       const requestState = activeSendRequestRef.current;
+      // Accepted posts must never be retried, even after provider failure or cancellation.
+      if (result?.userMessage) onAccepted();
+      if (result?.ok === false || result?.canceled || requestState?.canceled) queueRef.current.paused.add(threadId);
       if (requestState?.id !== requestId || requestState.canceled) return;
       if (result?.userMessage) {
         const consumedIds = new Set((result.userMessage.attachments || []).map((attachment) => attachment.id));
@@ -1767,6 +1809,7 @@ function AiChatPane({
       ));
     } catch (error) {
       const requestState = activeSendRequestRef.current;
+      queueRef.current.paused.add(threadId);
       if (requestState?.id !== requestId || requestState.canceled) return;
       setRuntimeState({
         ready: false,
@@ -2073,6 +2116,15 @@ function AiChatPane({
           </button>
         )}
 
+        {queuedMessages.some((item) => item.threadId === selectedThreadId) && (
+          <div className="ai-send-queue" aria-label="送信待ち" aria-live="polite">
+            <div>送信待ち（この画面を開いている間、処理終了後に順次送信）</div>
+            {queueRef.current.paused.has(selectedThreadId) && <button type="button" onClick={() => { queueRef.current.paused.delete(selectedThreadId); syncQueue(); }}>送信を再開</button>}
+            {queuedMessages.filter((item) => item.threadId === selectedThreadId).map((item) => (
+              <div key={item.id}><span>{item.text}</span><button type="button" onClick={() => { queueRef.current.remove(item.id); syncQueue(); }}>送信待ちを取消</button></div>
+            ))}
+          </div>
+        )}
         <AiChatComposer
           draft={draft}
           isSending={isSending}
