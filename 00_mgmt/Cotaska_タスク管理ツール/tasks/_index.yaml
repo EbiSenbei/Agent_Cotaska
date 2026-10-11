@@ -8139,7 +8139,7 @@ tasks:
     sort_order: 695
     tags: []
     due_date: null
-    updated_at: '2026-10-11T09:47:40.8845410Z'
+    updated_at: '2026-10-11T11:21:27.431858+00:00'
   - id: T-0727
     title: CHG-143-01 AI送信待ちの設計更新
     list: null
@@ -8170,4 +8170,4 @@ tasks:
 task_file_roots:
   - .
 next_task_id: 730
-last_updated: '2026-10-11T09:47:41.409Z'
+last_updated: '2026-10-11T11:21:27.431858+00:00'
