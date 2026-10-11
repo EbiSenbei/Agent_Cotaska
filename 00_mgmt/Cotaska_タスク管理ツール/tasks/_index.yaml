@@ -121,7 +121,7 @@ tasks:
     sort_order: 11
     tags: []
     due_date: null
-    updated_at: '2026-10-11T08:54:34.892Z'
+    updated_at: '2026-10-11T09:15:06.803Z'
   - id: T-0624
     title: BUG-20260906-01 AIチャットの最新応答が表示されない競合を修正する
     list: 不具合修正
@@ -8032,7 +8032,106 @@ tasks:
       - CHG-140
     due_date: null
     updated_at: '2026-10-11T08:54:34.892Z'
+  - id: T-0717
+    title: CHG-141 仕様変更：Markdown画像表示とクリップボード画像貼り付け
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 686
+    tags:
+      - CHG-141
+      - 添付ファイル
+    due_date: null
+    updated_at: '2026-10-11T09:15:06.803Z'
+  - id: T-0718
+    title: CHG-141-01 Markdown画像表示と画像貼り付けの設計
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 687
+    tags:
+      - CHG-141
+      - 添付ファイル
+    due_date: null
+    updated_at: '2026-10-11T09:15:06.803Z'
+  - id: T-0719
+    title: CHG-141-02 Markdown画像表示と画像貼り付けの実装・検証
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 688
+    tags:
+      - CHG-141
+      - 添付ファイル
+    due_date: null
+    updated_at: '2026-10-11T09:15:06.803Z'
+  - id: T-0720
+    title: CHG-141-03 Markdown画像表示と画像貼り付けのユーザー確認
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 689
+    tags:
+      - CHG-141
+      - 添付ファイル
+    due_date: null
+    updated_at: '2026-10-11T09:15:06.803Z'
+  - id: T-0721
+    title: CHG-142 仕様変更：PDF・PowerPointのプレビュー
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 690
+    tags:
+      - CHG-142
+      - 添付ファイル
+    due_date: null
+    updated_at: '2026-10-11T09:15:06.803Z'
+  - id: T-0722
+    title: CHG-142-01 PDF・PowerPointプレビュー方式の調査と設計
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 691
+    tags:
+      - CHG-142
+      - 添付ファイル
+    due_date: null
+    updated_at: '2026-10-11T09:15:06.803Z'
+  - id: T-0723
+    title: CHG-142-02 PDFプレビューの実装・検証
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 692
+    tags:
+      - CHG-142
+      - 添付ファイル
+    due_date: null
+    updated_at: '2026-10-11T09:15:06.803Z'
+  - id: T-0724
+    title: CHG-142-03 PowerPointプレビューの実装・検証
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 693
+    tags:
+      - CHG-142
+      - 添付ファイル
+    due_date: null
+    updated_at: '2026-10-11T09:15:06.803Z'
+  - id: T-0725
+    title: CHG-142-04 PDF・PowerPointプレビューのユーザー確認
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 694
+    tags:
+      - CHG-142
+      - 添付ファイル
+    due_date: null
+    updated_at: '2026-10-11T09:15:06.803Z'
 task_file_roots:
   - .
-next_task_id: 717
-last_updated: '2026-10-11T09:02:10.487Z'
+next_task_id: 726
+last_updated: '2026-10-11T09:15:07.451Z'
