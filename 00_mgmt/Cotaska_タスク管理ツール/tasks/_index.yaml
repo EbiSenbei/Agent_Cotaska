@@ -8139,7 +8139,7 @@ tasks:
     sort_order: 695
     tags: []
     due_date: null
-    updated_at: '2026-10-11T13:55:08.010125+00:00'
+    updated_at: '2026-10-11T14:03:04.443579+00:00'
   - id: T-0727
     title: CHG-143-01 AI送信待ちの設計更新
     list: null
@@ -8206,7 +8206,7 @@ tasks:
     tags:
       - BUG-20261011-02
     due_date: null
-    updated_at: '2026-10-11T13:55:08.010125+00:00'
+    updated_at: '2026-10-11T14:03:04.443579+00:00'
   - id: T-0735
     title: BUG-20261011-02 処理中の高さ変更をユーザー確認
     list: null
@@ -8220,4 +8220,4 @@ tasks:
 task_file_roots:
   - .
 next_task_id: 736
-last_updated: '2026-10-11T13:55:08.573Z'
+last_updated: '2026-10-11T14:03:04.443579+00:00'
