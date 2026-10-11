@@ -4,6 +4,7 @@ const { pathToFileURL } = require("url");
 const crypto = require("crypto");
 const { spawn } = require("child_process");
 const fs = require("fs");
+const { readImagePreview } = require("./aiImagePreview");
 const earlyStartupLogger = require("./earlyStartupLogger");
 earlyStartupLogger.installProcessErrorHandlers();
 earlyStartupLogger.logInfo("Main process entry", {
@@ -1781,6 +1782,8 @@ ipcMain.handle("aiChat:previewFile", async (_e, filePath) => {
       content: "",
       url: "",
     };
+    const imagePreview = readImagePreview(targetPath);
+    if (imagePreview) return { ...result, ...imagePreview };
     if (extension === ".pdf") {
       result.preview_type = "pdf";
       result.url = pathToFileURL(targetPath).toString();

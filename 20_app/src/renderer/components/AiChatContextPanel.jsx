@@ -1,6 +1,7 @@
 import React from "react";
 import DetailPane from "./DetailPane";
 import AiMarkdownPreview from "./AiMarkdownPreview";
+import AiImagePreview from "./AiImagePreview";
 
 export default function AiChatContextPanel({
   contextPanel, tasks, lists, tags, filePreviewMode, isMarkdownFile,
@@ -40,6 +41,7 @@ export default function AiChatContextPanel({
             {contextPanel.file?.preview_type === "text" && isMarkdownFile(contextPanel.file) && filePreviewMode && <div className="ai-file-preview-markdown"><AiMarkdownPreview content={contextPanel.file.content || ""} onOpenTask={onSelectTask} onOpenLink={(href) => onOpenLink(href, contextPanel.file?.path || "")} onOpenLinkContextMenu={(href, x, y) => onOpenLinkContextMenu(href, x, y, contextPanel.file?.path || "")} /></div>}
             {contextPanel.file?.preview_type === "text" && (!isMarkdownFile(contextPanel.file) || !filePreviewMode) && <textarea className="ai-file-preview-editor" value={contextPanel.file.content || ""} readOnly />}
             {contextPanel.file?.preview_type === "pdf" && <iframe className="ai-file-preview-pdf" src={contextPanel.file.url} title={contextPanel.file.label || "PDF"} />}
+            {contextPanel.file?.preview_type === "image" && <AiImagePreview key={contextPanel.file.path + contextPanel.file.url} file={contextPanel.file} />}
             {contextPanel.file?.preview_type === "unsupported" && <p className="ai-muted-text">このファイル形式はプレビューに対応していません。</p>}
           </section>
         )}
