@@ -116,12 +116,12 @@ tasks:
   - id: T-0579
     title: 仕様変更：添付ファイルの扱い
     list: null
-    status: doing
+    status: done
     priority: normal
     sort_order: 11
     tags: []
-    due_date: null
-    updated_at: '2026-10-12T09:12:02.587Z'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T10:34:59.273Z'
   - id: T-0624
     title: BUG-20260906-01 AIチャットの最新応答が表示されない競合を修正する
     list: 不具合修正
@@ -7876,31 +7876,31 @@ tasks:
       - AI初回導入
       - Codex
     due_date: null
-    updated_at: '2026-10-10T22:36:34+09:00'
+    updated_at: '2026-10-12T20:32:04.6776869+09:00'
   - id: T-0701
-    title: 調査・設計：同梱Codexで初回ログインを完了できる方式を確定する
+    title: CHG-152-01 調査・設計：同梱Codexで初回ログインを完了できる方式を確定する
     list: 仕様変更
-    status: todo
+    status: done
     priority: high
     sort_order: 670
     tags:
       - AI初回導入
       - Codex
-    due_date: null
-    updated_at: '2026-10-10T22:36:34+09:00'
+    due_date: 2026-10-12T00:00:00.000Z
+    updated_at: '2026-10-12T20:32:04.6776869+09:00'
   - id: T-0702
-    title: 実装：CotaskaからCodexログインを開始し認証結果を確認できるようにする
+    title: CHG-152-02 実装：CotaskaからCodexログインを開始し認証結果を確認できるようにする
     list: 仕様変更
-    status: todo
+    status: done
     priority: high
     sort_order: 671
     tags:
       - AI初回導入
       - Codex
-    due_date: null
-    updated_at: '2026-10-10T22:36:34+09:00'
+    due_date: 2026-10-12T00:00:00.000Z
+    updated_at: '2026-10-12T20:32:04.6776869+09:00'
   - id: T-0703
-    title: 案内更新：AI利用の前提条件と初回ログイン手順をサイト・アプリに明記する
+    title: CHG-152-03 案内更新：AI利用の前提条件と初回ログイン手順をサイト・アプリに明記する
     list: 販売戦略
     status: todo
     priority: high
@@ -7909,9 +7909,9 @@ tasks:
       - AI初回導入
       - Codex
     due_date: null
-    updated_at: '2026-10-10T22:36:34+09:00'
+    updated_at: '2026-10-12T20:32:04.6776869+09:00'
   - id: T-0704
-    title: ユーザー確認：AI未設定のWindows環境で初回認証からチャットまで確認する
+    title: CHG-152-04 ユーザー確認：AI未設定のWindows環境で初回認証からチャットまで確認する
     list: 仕様変更
     status: todo
     priority: high
@@ -7920,7 +7920,7 @@ tasks:
       - AI初回導入
       - Codex
     due_date: null
-    updated_at: '2026-10-10T22:36:34+09:00'
+    updated_at: '2026-10-12T20:32:04.6776869+09:00'
   - id: T-0706
     title: 仕様変更：AIチャットの添付ファイルに仕様
     list: null
@@ -8026,14 +8026,14 @@ tasks:
   - id: T-0717
     title: CHG-141 仕様変更：Markdown画像表示とクリップボード画像貼り付け
     list: null
-    status: doing
+    status: done
     priority: normal
     sort_order: 686
     tags:
       - CHG-141
       - 添付ファイル
-    due_date: null
-    updated_at: '2026-10-11T09:20:38.795697+00:00'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T11:21:27.392Z'
   - id: T-0718
     title: CHG-141-01 Markdown画像表示と画像貼り付けの設計
     list: null
@@ -8271,12 +8271,12 @@ tasks:
   - id: T-0742
     title: 仕様変更：AIチャットに画像コピペできるようにしたい
     list: null
-    status: doing
+    status: done
     priority: normal
     sort_order: 711
     tags: []
-    due_date: null
-    updated_at: '2026-10-12T09:27:34.061Z'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T11:21:09.669Z'
   - id: T-0743
     title: BUG-20261012-01 画像プレビューのCSP制限修正と利用者確認
     list: null
@@ -8426,86 +8426,14 @@ tasks:
   - id: T-0757
     title: CHG-149-03 画像貼り付け命名の利用者確認
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 726
     tags:
       - CHG-149
       - CHG-141
-    due_date: null
-    updated_at: '2026-10-12T09:12:05.3652742+00:00'
-  - id: T-0758
-    title: CHG-146 参照設定と画像説明の削除 設計更新
-    list: null
-    status: done
-    priority: normal
-    sort_order: 758
-    tags:
-      - CHG-146
-    due_date: 2026-10-12T00:00:00.000Z
-    updated_at: '2026-10-12T09:13:47.972Z'
-  - id: T-0759
-    title: CHG-146 参照設定と画像説明の削除 実装・検証
-    list: null
-    status: done
-    priority: normal
-    sort_order: 759
-    tags:
-      - CHG-146
-    due_date: 2026-10-12T00:00:00.000Z
-    updated_at: '2026-10-12T09:13:47.972Z'
-  - id: T-0760
-    title: CHG-146 参照設定と画像説明の削除 利用者確認
-    list: null
-    status: todo
-    priority: normal
-    sort_order: 760
-    tags:
-      - CHG-146
-    due_date: null
-    updated_at: '2026-10-12T09:13:47.972Z'
-  - id: T-0761
-    title: CHG-150 参照設定廃止の設計反映
-    list: null
-    status: done
-    priority: normal
-    sort_order: 761
-    tags:
-      - CHG-150
     due_date: '2026-10-12'
-    updated_at: '2026-10-12T09:12:01.898Z'
-  - id: T-0762
-    title: CHG-150-01 添付の常時送信を実装・検証
-    list: null
-    status: done
-    priority: normal
-    sort_order: 762
-    tags:
-      - CHG-150
-    due_date: '2026-10-12'
-    updated_at: '2026-10-12T09:12:01.898Z'
-  - id: T-0763
-    title: CHG-150 参照設定廃止のユーザー確認
-    list: null
-    status: todo
-    priority: normal
-    sort_order: 763
-    tags:
-      - CHG-150
-    due_date: null
-    updated_at: '2026-10-12T09:10:05.117Z'
-  - id: T-0764
-    title: タスク詳細の画像貼り付けとファイル名統一の確認
-    list: null
-    status: todo
-    priority: normal
-    sort_order: 764
-    tags:
-      - 画像貼り付け
-      - CHG-141
-      - CHG-146
-    due_date: null
-    updated_at: '2026-10-12T09:12:02.587Z'
+    updated_at: '2026-10-12T11:21:25.900Z'
   - id: T-0767
     title: 仕様変更：ClaudeCodeのBedrockの場合
     list: null
@@ -8548,6 +8476,110 @@ tasks:
       - CHG-151
     due_date: null
     updated_at: '2026-10-12T10:49:54.483Z'
+  - id: T-0758
+    title: CHG-146 参照設定と画像説明の削除 設計更新
+    list: null
+    status: done
+    priority: normal
+    sort_order: 758
+    tags:
+      - CHG-146
+    due_date: 2026-10-12T00:00:00.000Z
+    updated_at: '2026-10-12T09:13:47.972Z'
+  - id: T-0759
+    title: CHG-146 参照設定と画像説明の削除 実装・検証
+    list: null
+    status: done
+    priority: normal
+    sort_order: 759
+    tags:
+      - CHG-146
+    due_date: 2026-10-12T00:00:00.000Z
+    updated_at: '2026-10-12T09:13:47.972Z'
+  - id: T-0760
+    title: CHG-146 参照設定と画像説明の削除 利用者確認
+    list: null
+    status: done
+    priority: normal
+    sort_order: 760
+    tags:
+      - CHG-146
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T11:21:06.333Z'
+  - id: T-0761
+    title: CHG-150 参照設定廃止の設計反映
+    list: null
+    status: done
+    priority: normal
+    sort_order: 761
+    tags:
+      - CHG-150
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T09:12:01.898Z'
+  - id: T-0762
+    title: CHG-150-01 添付の常時送信を実装・検証
+    list: null
+    status: done
+    priority: normal
+    sort_order: 762
+    tags:
+      - CHG-150
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T09:12:01.898Z'
+  - id: T-0763
+    title: CHG-150 参照設定廃止のユーザー確認
+    list: null
+    status: done
+    priority: normal
+    sort_order: 763
+    tags:
+      - CHG-150
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T11:21:38.501Z'
+  - id: T-0764
+    title: タスク詳細の画像貼り付けとファイル名統一の確認
+    list: null
+    status: done
+    priority: normal
+    sort_order: 764
+    tags:
+      - 画像貼り付け
+      - CHG-141
+      - CHG-146
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T10:34:55.557Z'
+  - id: T-0765
+    title: BUG-20261012-03 期限が長い日付文字列になりタスク名が隠れる問題を修正
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 765
+    tags:
+      - BUG-20261012-03
+    due_date: null
+    updated_at: '2026-10-12T10:47:37.825Z'
+  - id: T-0766
+    title: BUG-20261012-03 期限表示とタスク名のユーザー確認
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 766
+    tags:
+      - BUG-20261012-03
+    due_date: null
+    updated_at: '2026-10-12T10:47:37.825Z'
+  - id: T-0771
+    title: Cotaska v0.5.0 版数更新・リリースノート・配布物生成・GitHub公開
+    list: リリース
+    status: done
+    priority: normal
+    sort_order: 771
+    tags:
+      - 開発管理
+      - リリース
+      - v0.5.0
+    due_date: null
+    updated_at: '2026-10-12T20:51:04.3566410+09:00'
 task_file_roots:
   - .
   - T-0001
@@ -9283,9 +9315,12 @@ task_file_roots:
   - T-0762
   - T-0763
   - T-0764
+  - T-0765
+  - T-0766
   - T-0767
   - T-0768
   - T-0769
   - T-0770
-next_task_id: 771
-last_updated: '2026-10-12T10:51:37.022Z'
+  - T-0771
+next_task_id: 772
+last_updated: '2026-10-12T11:51:04.906Z'
