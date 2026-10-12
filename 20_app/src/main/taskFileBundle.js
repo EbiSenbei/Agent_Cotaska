@@ -112,6 +112,11 @@ function createAttachmentService(taskService) {
         files.push({ name: entry.name, size: stat.size, relativePath: `attachments/${entry.name}` });
       }
     }
+    const chatDir = path.join(dir, 'ai-chat');
+    if (fs.existsSync(chatDir)) for (const entry of filesIn(chatDir)) {
+      const name = `ai-chat/${entry.relative}`;
+      files.push({ name, size: fs.statSync(entry.file).size, relativePath: `attachments/${name}`, isAiChat: true });
+    }
     const removedDir = path.join(dir, '.removed');
     if (fs.existsSync(removedDir)) {
       assertPlain(removedDir, true);
@@ -149,10 +154,15 @@ function createAttachmentService(taskService) {
     return added;
   }
   function file(id, name) {
-    assertName(name);
+    const isAiChat = typeof name === 'string' && /^ai-chat\/thread_[0-9a-f-]{36}\/clip-image_\d{8}_\d{6}_[0-9a-f]{12}\.(png|jpg|webp)$/.test(name);
+    if (!isAiChat) assertName(name);
     const dir = directory(id);
     if (!dir) throw new Error('添付がありません');
     const target = path.join(dir, name);
+    if (isAiChat) {
+      let current = dir;
+      for (const part of name.split('/').slice(0, -1)) { current = path.join(current, part); assertPlain(current, true); }
+    }
     assertPlain(target);
     return target;
   }
@@ -181,6 +191,7 @@ function createAttachmentService(taskService) {
     return image;
   }
   function remove(id, name) {
+    if (String(name).startsWith('ai-chat/')) throw new Error('AIチャット画像はチャットの添付解除・履歴整理から削除してください。');
     if (taskService.getTaskById(id)?.delete_flag === 1) throw new Error('ゴミ箱の添付は変更できません');
     const source = file(id, name);
     const base = path.join(path.dirname(source), '.removed');

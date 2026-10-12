@@ -446,73 +446,7 @@ function formatReferencePath(workdir, filePath) {
 
 function buildReferenceContext(threadId, workdir, settings, options = {}) {
   const performanceMode = normalizePerformanceMode(options.performanceMode || options.performance_mode, (settings.codex || settings).performanceMode);
-  const configuredMode = normalizeReferenceSendMode(settings.referenceSendMode);
-  const requestedMode = options.referenceSendMode || options.reference_send_mode;
-  const referenceSendMode = requestedMode === "force"
-    ? "always"
-    : requestedMode === "skip"
-      ? "manual"
-      : normalizeReferenceSendMode(requestedMode, configuredMode);
-  const shouldSendReferences = referenceSendMode === "always"
-    || (referenceSendMode === "skip-in-speed" && performanceMode !== "speed");
-  if (!shouldSendReferences) {
-    return {
-      promptPrefix: "",
-      usedCount: 0,
-      totalChars: 0,
-      skipped: [],
-      sendMode: referenceSendMode,
-      sent: false,
-      skippedReason: referenceSendMode === "manual" ? "manual" : "speed",
-    };
-  }
-  const maxFiles = Number(settings.maxReferenceFiles || 10);
-  const maxChars = Number(settings.maxReferenceChars || 100000);
-  const refs = aiService
-    .listReferences(threadId)
-    .filter((ref) => ref.ref_type === "file" && ref.file_path)
-    .filter((ref) => !Array.isArray(options.referenceIds) || options.referenceIds.includes(ref.reference_id))
-    .slice(0, Math.max(0, maxFiles));
-  const chunks = [];
-  let totalChars = 0;
-  const skipped = [];
-
-  refs.forEach((ref) => {
-    const filePath = resolveReferenceFilePath(workdir, ref.file_path);
-    if (!filePath || !fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
-      skipped.push(ref.label || ref.file_path);
-      return;
-    }
-    const content = fs.readFileSync(filePath, "utf8");
-    const remaining = maxChars - totalChars;
-    if (remaining <= 0) {
-      skipped.push(ref.label || ref.file_path);
-      return;
-    }
-    const sliced = content.slice(0, remaining);
-    totalChars += sliced.length;
-    chunks.push([
-      `### ${ref.label || path.basename(filePath)}`,
-      `path: ${formatReferencePath(workdir, filePath)}`,
-      "```",
-      sliced,
-      "```",
-    ].join("\n"));
-    if (content.length > sliced.length) {
-      skipped.push(`${ref.label || ref.file_path} (truncated)`);
-    }
-  });
-
-  if (chunks.length === 0) {
-    return { promptPrefix: "", usedCount: 0, totalChars, skipped, sendMode: referenceSendMode, sent: false, skippedReason: "empty" };
-  }
-  const promptPrefix = [
-    "以下はCotaskaで選択された参照ファイルです。回答時の根拠として使ってください。",
-    ...chunks,
-    skipped.length > 0 ? `参照上限により省略または切り詰めたファイル: ${skipped.join(", ")}` : "",
-    "",
-  ].filter(Boolean).join("\n\n");
-  return { promptPrefix, usedCount: chunks.length, totalChars, skipped, sendMode: referenceSendMode, sent: true, skippedReason: null };
+  return require('./aiChatReferences').buildReferenceContext(threadId, workdir, settings, { ...options, isSpeedMode: performanceMode === 'speed' });
 }
 
 function getRequestId(input = {}) {
@@ -795,7 +729,7 @@ async function sendMessage(input = {}) {
     let streamed;
     let threadRecovery = null;
     try {
-      streamed = await codexThread.runStreamed(prompt, { signal: abortController.signal });
+      streamed = await codexThread.runStreamed(require("./aiClipboardImages").codexImageInput(prompt, referenceContext.images), { signal: abortController.signal });
     } catch (resumeError) {
       if (!codexThreadIdForRun || !isMissingCodexRolloutError(resumeError)) throw resumeError;
 
@@ -813,7 +747,7 @@ async function sendMessage(input = {}) {
         recovery_context_chars: recoveryTranscript.length,
       });
       codexThread = codex.startThread(threadOptions);
-      streamed = await codexThread.runStreamed(recoveryPrompt, { signal: abortController.signal });
+      streamed = await codexThread.runStreamed(require("./aiClipboardImages").codexImageInput(recoveryPrompt, referenceContext.images), { signal: abortController.signal });
       threadRecovery = {
         recovered: true,
         reason: "missing_rollout",
@@ -996,6 +930,7 @@ async function sendMessage(input = {}) {
       error_kind: userFacingError.error_kind,
     };
   } finally {
+    require("./aiClipboardImages").restoreFailedImageReferences(aiService, thread.thread_id, run.run_id, attachedReferences);
     if (requestId) {
       activeRequests.delete(requestId);
     }

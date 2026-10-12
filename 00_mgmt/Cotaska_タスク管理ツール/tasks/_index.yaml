@@ -8271,12 +8271,12 @@ tasks:
   - id: T-0742
     title: 仕様変更：AIチャットに画像コピペできるようにしたい
     list: null
-    status: todo
+    status: doing
     priority: normal
     sort_order: 711
     tags: []
     due_date: null
-    updated_at: '2026-10-12T07:01:11.988Z'
+    updated_at: '2026-10-12T07:57:10.777Z'
   - id: T-0743
     title: BUG-20261012-01 画像プレビューのCSP制限修正と利用者確認
     list: null
@@ -8288,6 +8288,36 @@ tasks:
       - 画像プレビュー
     due_date: null
     updated_at: '2026-10-12T07:08:23.0931566+00:00'
+  - id: T-0744
+    title: CHG-146 設計書反映と画像送信方式確認
+    list: null
+    status: done
+    priority: normal
+    sort_order: 713
+    tags:
+      - CHG-146
+    due_date: 2026-10-12T00:00:00.000Z
+    updated_at: '2026-10-12T07:57:10.777Z'
+  - id: T-0745
+    title: CHG-146-01 AIチャット画像貼り付け実装・検証
+    list: null
+    status: done
+    priority: normal
+    sort_order: 714
+    tags:
+      - CHG-146
+    due_date: 2026-10-12T00:00:00.000Z
+    updated_at: '2026-10-12T07:57:10.777Z'
+  - id: T-0746
+    title: CHG-146 AIチャット画像貼り付けユーザー確認
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 715
+    tags:
+      - CHG-146
+    due_date: null
+    updated_at: '2026-10-12T07:57:10.777Z'
   - id: T-0747
     title: BUG-20261012-02 タスク詳細の画像貼り付けAPI修正と利用者確認
     list: null
@@ -9055,10 +9085,13 @@ task_file_roots:
   - T-0741
   - T-0742
   - T-0743
+  - T-0744
+  - T-0745
+  - T-0746
   - T-0747
   - T-0748
   - T-0749
   - T-0750
   - T-0751
 next_task_id: 752
-last_updated: '2026-10-12T07:45:46.688Z'
+last_updated: '2026-10-12T07:57:11.315Z'

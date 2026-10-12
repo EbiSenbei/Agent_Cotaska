@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import AiImageThumbnail from './AiImageThumbnail';
 import {
   AI_COMPOSER_KEYBOARD_STEP,
   AI_COMPOSER_MIN_HEIGHT,
@@ -9,6 +10,8 @@ import {
 export default function AiChatComposer({
   draft,
   isSending,
+  isPasting = false,
+  onPaste,
   isDragOver,
   references,
   model,
@@ -136,22 +139,25 @@ export default function AiChatComposer({
         value={draft}
         onChange={onDraftChange}
         onKeyDown={onDraftKeyDown}
+        onPaste={onPaste}
         placeholder="フォローアップの変更を求める"
         style={{ height: `${inputHeight}px` }}
       />
+      {isPasting && <div role="status">画像を保存しています…</div>}
+      {references.some((ref) => ref.filePath?.startsWith("cotaska-image:")) && <div className="ai-image-send-notice">{referenceSendMode === "skip" ? "画像は今回AIへ送信しません。" : referenceSendMode === "default" ? "画像も設定の参照送信条件に従います。送信しない設定ではAIへ渡しません。" : "画像をAIへ送信します。"}</div>}
       {references.length > 0 && (
         <div className="ai-compose-attachments" aria-label="添付ファイル">
           {references.map((reference) => (
             <span key={reference.id} className="ai-compose-attachment" title={reference.filePath || reference.label} role="button" tabIndex={0} onClick={() => onReferenceClick(reference)} onKeyDown={(event) => onReferenceKeyDown(event, reference)}>
-              <span className="ai-compose-attachment-icon">F</span>
+              {reference.filePath?.startsWith('cotaska-image:') ? <AiImageThumbnail filePath={reference.filePath} /> : <span className="ai-compose-attachment-icon">F</span>}
               <span className="ai-compose-attachment-name">{reference.label}</span>
-              <button type="button" onClick={(event) => { event.stopPropagation(); onRemoveReference(reference.id); }} disabled={isSending} aria-label={`${reference.label}を外す`} title="添付を外す">×</button>
+              <button type="button" onClick={(event) => { event.stopPropagation(); onRemoveReference(reference.id); }} disabled={isSending || isPasting} aria-label={`${reference.label}を外す`} title="添付を外す">×</button>
             </span>
           ))}
         </div>
       )}
       <div className="ai-compose-toolbar">
-        <button type="button" className="ai-compose-icon-btn" onClick={onAddReferences} disabled={isSending} title="ファイル添付" aria-label="ファイル添付">＋</button>
+        <button type="button" className="ai-compose-icon-btn" onClick={onAddReferences} disabled={isSending || isPasting} title="ファイル添付" aria-label="ファイル添付">＋</button>
         <label className="ai-model-control" title={isModelSelectionDisabled ? "Bedrockのモデルは設定画面で変更します" : "選択すると既定モデルも変更されます"}>
           <span>モデル</span>
           <select value={model} disabled={isSending || isModelSelectionDisabled} aria-label="AIモデル" onChange={onModelChange}>
@@ -160,19 +166,19 @@ export default function AiChatComposer({
         </label>
         <label className="ai-permission-control" title="権限設定">
           <span>ⓘ</span>
-          <select value={sandboxMode} disabled={isSending} aria-label="権限設定" onChange={onSandboxModeChange}>
+          <select value={sandboxMode} disabled={isSending || isPasting} aria-label="権限設定" onChange={onSandboxModeChange}>
             {sandboxOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select>
         </label>
         <label className="ai-permission-control" title="参照ファイル送信">
           <span>添</span>
-          <select value={referenceSendMode} disabled={isSending} aria-label="参照ファイル送信" onChange={onReferenceSendModeChange}>
+          <select value={referenceSendMode} disabled={isSending || isPasting} aria-label="参照ファイル送信" onChange={onReferenceSendModeChange}>
             {referenceSendOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select>
         </label>
         <span className="ai-compose-spacer" />
-        {isSending && <button type="button" className="ai-send-button" onClick={onSend} disabled={!draft.trim()} aria-label="送信待ちに追加" title="送信待ちに追加">↑</button>}
-        <button type="button" className={`ai-send-button${isSending ? " is-sending" : ""}`} onClick={isSending ? onCancel : onSend} disabled={!isSending && !draft.trim()} title={isSending ? "中断" : "送信"} aria-label={isSending ? "AI処理を中断" : "送信"}>{isSending ? "■" : "↑"}</button>
+        {isSending && <button type="button" className="ai-send-button" onClick={onSend} disabled={isPasting || !draft.trim()} aria-label="送信待ちに追加" title="送信待ちに追加">↑</button>}
+        <button type="button" className={`ai-send-button${isSending ? " is-sending" : ""}`} onClick={isSending ? onCancel : onSend} disabled={isPasting || (!isSending && !draft.trim())} title={isSending ? "中断" : "送信"} aria-label={isSending ? "AI処理を中断" : "送信"}>{isSending ? "■" : "↑"}</button>
       </div>
     </footer>
   );

@@ -3,6 +3,7 @@
 const path = require("path");
 const fs = require("fs");
 const aiService = require("./aiService");
+const clipboardImages = require('./aiClipboardImages');
 
 const REFERENCE_SEND_MODES = new Set(["always", "manual", "skip-in-speed"]);
 
@@ -21,6 +22,7 @@ function ensurePathInside(baseDir, targetPath) {
 
 function resolveReferenceFilePath(workdir, referencePath) {
   if (!referencePath) return null;
+  if (clipboardImages.parseLocator(referencePath)) return clipboardImages.resolveImage(referencePath);
   if (path.isAbsolute(referencePath)) return path.resolve(referencePath);
   return ensurePathInside(workdir, referencePath);
 }
@@ -59,19 +61,31 @@ function buildReferenceContext(threadId, workdir, settings, options = {}) {
   }
   const maxFiles = Number(settings.maxReferenceFiles || 10);
   const maxChars = Number(settings.maxReferenceChars || 100000);
-  const refs = aiService
+  const selectedRefs = aiService
     .listReferences(threadId)
     .filter((ref) => ref.ref_type === "file" && ref.file_path)
-    .filter((ref) => !Array.isArray(options.referenceIds) || options.referenceIds.includes(ref.reference_id))
-    .slice(0, Math.max(0, maxFiles));
+    .filter((ref) => !Array.isArray(options.referenceIds) || options.referenceIds.includes(ref.reference_id));
+  if (selectedRefs.slice(Math.max(0, maxFiles)).some((ref) => clipboardImages.parseLocator(ref.file_path))) throw new Error('画像の参照件数上限を超えています。');
+  const refs = selectedRefs.slice(0, Math.max(0, maxFiles));
   const chunks = [];
+  const images = [];
   let totalChars = 0;
   const skipped = [];
 
   refs.forEach((ref) => {
     const filePath = resolveReferenceFilePath(workdir, ref.file_path);
     if (!filePath || !fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+      if (/\.(png|jpe?g|webp)$/i.test(filePath || ref.file_path)) throw new Error('送信する画像が見つかりません。添付を確認してください。');
       skipped.push(ref.label || ref.file_path);
+      return;
+    }
+    if (/\.(gif|bmp|ico|avif)$/i.test(filePath)) throw new Error('AI画像入力はPNG・JPEG・WebPに対応しています。');
+    if (/\.(png|jpe?g|webp)$/i.test(filePath)) {
+      if (fs.statSync(filePath).size > clipboardImages.MAX_IMAGE_BYTES) throw new Error('画像は1枚10MiB以内にしてください。');
+      const bytes = fs.readFileSync(filePath);
+      const format = clipboardImages.validateImage(bytes);
+      images.push({ path: filePath, bytes, mime: format.mime });
+      if (images.reduce((sum, image) => sum + image.bytes.length, 0) > clipboardImages.MAX_TOTAL_BYTES) throw new Error('画像の合計は20MiB以内にしてください。');
       return;
     }
     const content = fs.readFileSync(filePath, "utf8");
@@ -94,7 +108,7 @@ function buildReferenceContext(threadId, workdir, settings, options = {}) {
     }
   });
 
-  if (chunks.length === 0) {
+  if (chunks.length === 0 && images.length === 0) {
     return { promptPrefix: "", usedCount: 0, totalChars, skipped, sendMode: referenceSendMode, sent: false, skippedReason: "empty" };
   }
   const promptPrefix = [
@@ -103,7 +117,7 @@ function buildReferenceContext(threadId, workdir, settings, options = {}) {
     skipped.length > 0 ? `参照上限により省略または切り詰めたファイル: ${skipped.join(", ")}` : "",
     "",
   ].filter(Boolean).join("\n\n");
-  return { promptPrefix, usedCount: chunks.length, totalChars, skipped, sendMode: referenceSendMode, sent: true, skippedReason: null };
+  return { promptPrefix: chunks.length ? promptPrefix : '', images, usedCount: chunks.length + images.length, totalChars, skipped, sendMode: referenceSendMode, sent: true, skippedReason: null };
 }
 
 module.exports = {

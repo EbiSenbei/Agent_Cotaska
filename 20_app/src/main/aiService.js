@@ -574,11 +574,15 @@ function purgeOldData(days) {
     "SELECT thread_id FROM ai_threads WHERE thread_status = 'archived' AND updated_at < ?",
     [cutoff],
   );
+  const removedImageLocators = archivedThreads.flatMap((thread) => [
+    ...listReferences(thread.thread_id).map((ref) => ref.file_path),
+    ...listMessages(thread.thread_id).flatMap((message) => (message.attachments || []).map((attachment) => attachment.filePath)),
+  ]).filter((value) => typeof value === 'string' && value.startsWith('cotaska-image:'));
   archivedThreads.forEach((thread) => {
     run("DELETE FROM ai_threads WHERE thread_id = ?", [thread.thread_id]);
   });
   saveDb();
-  return { ok: true, deletedThreads: archivedThreads.length, cutoff };
+  return { ok: true, deletedThreads: archivedThreads.length, cutoff, removedImageLocators };
 }
 
 function getDbInfo() {

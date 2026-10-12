@@ -107,7 +107,7 @@ export default function TaskAttachments({ taskId, readOnly = false, onPreview })
             <button type="button" className="task-attachment-name" disabled={busy} title={file.name} onClick={() => run('open', file.name)}>{file.name}</button>
             <span>{file.size < 1024 ? `${file.size} B` : `${(file.size / 1024).toFixed(1)} KB`}</span>
             {/\.(pdf|pptx?)$/i.test(file.name) && <button type="button" disabled={busy} onClick={() => onPreview?.(file.name)}>プレビュー</button>}
-            <button type="button" disabled={readOnly || busy} title="取り外したファイルは復元できます" onClick={() => run('remove', file.name)}>取り外す</button>
+            <button type="button" disabled={readOnly || busy || file.isAiChat} title={file.isAiChat ? "チャット画像はAIチャットから整理できます" : "取り外したファイルは復元できます"} onClick={() => run('remove', file.name)}>取り外す</button>
           </li>
         ))}
       </ul>

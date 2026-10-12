@@ -1468,6 +1468,29 @@ ipcMain.handle("backup:restore", async (_e, sourceDir) => {
   }
 });
 
+const clipboardImageStore = require('./aiClipboardImages').createImageStore(aiService, taskService,
+  (threadId) => ['codex', 'claude'].some((provider) => aiProviderRegistry.resolveProvider(provider).listActiveRuns().some((run) => run.thread_id === threadId)));
+ipcMain.handle('aiChat:pasteImages', async (_event, threadId, images) => {
+  await servicesReady;
+  try {
+    const maxFiles = Number(settingsService.getSettings().settings.aiChat?.maxReferenceFiles || 10);
+    if (!Array.isArray(images) || images.length > maxFiles) throw new Error('画像の件数上限を超えています。');
+    for (const image of images || []) {
+      if (typeof image?.base64 !== 'string' || image.base64.length > 14 * 1024 * 1024) throw new Error('画像データが不正です。');
+      if (nativeImage.createFromBuffer(Buffer.from(image.base64, 'base64')).isEmpty()) throw new Error('画像を読み込めませんでした。');
+    }
+    const result = clipboardImageStore.save(threadId, images, maxFiles);
+    const taskId = aiService.getThread(threadId)?.primary_task_id;
+    if (taskId) notifyAttachmentsChanged(taskId);
+    return result;
+  } catch (error) { return { ok: false, error: error.message }; }
+});
+ipcMain.handle('aiChat:getImageUsage', async () => {
+  await servicesReady;
+  try { return { ok: true, ...clipboardImageStore.usage() }; }
+  catch (error) { return { ok: false, error: error.message }; }
+});
+
 ipcMain.handle("aiChat:getDbInfo", async () => {
   await servicesReady;
   try {
@@ -1683,6 +1706,7 @@ const AI_TEXT_PREVIEW_EXTENSIONS = new Set([
 
 function resolveAiPreviewFilePath(filePath) {
   if (!filePath) throw new Error("ファイルパスが指定されていません。");
+  if (require("./aiClipboardImages").parseLocator(filePath)) return require("./aiClipboardImages").resolveImage(filePath);
   if (path.isAbsolute(String(filePath))) return path.resolve(String(filePath));
   const { targetPath } = resolveWorkdirPath(filePath);
   return targetPath;
@@ -1962,7 +1986,9 @@ ipcMain.handle("aiChat:createTaskChatThread", async (_e, taskId) => {
 ipcMain.handle("aiChat:removeReference", async (_e, referenceId) => {
   await servicesReady;
   try {
-    return aiService.removeReference(referenceId);
+    const result = clipboardImageStore.remove(referenceId);
+    for (const window of BrowserWindow.getAllWindows()) if (!window.isDestroyed()) window.webContents.send('attachments:changed', { taskId: result.taskId });
+    return result;
   } catch (err) {
     logger.error("aiChat:removeReference failed", err);
     return { ok: false, error: err.message || String(err) };
@@ -2092,7 +2118,16 @@ ipcMain.handle("aiChat:listRunEvents", async (_e, input) => {
 ipcMain.handle("aiChat:purgeOldData", async (_e, days) => {
   await servicesReady;
   try {
-    return aiService.purgeOldData(days);
+    const result = aiService.purgeOldData(days);
+    try {
+      const usage = clipboardImageStore.cleanup(result.removedImageLocators, true);
+      for (const locator of result.removedImageLocators) {
+        const taskId = require('./aiClipboardImages').parseLocator(locator)?.taskId;
+        if (taskId) notifyAttachmentsChanged(taskId);
+      }
+      return { ...result, ...usage };
+    }
+    catch (error) { return { ...result, imageCleanupError: error.message }; }
   } catch (err) {
     logger.error("aiChat:purgeOldData failed", err);
     return { ok: false, error: err.message || String(err) };
@@ -3058,6 +3093,7 @@ async function initializeServicesAfterWindowReady() {
   });
   await listService.openListService();
   await aiService.openAiService();
+  try { clipboardImageStore.cleanup(); } catch (error) { logger.warn("画像整理を完了できませんでした", error); }
 
   const svcDuration = Date.now() - svcStartTime;
   logger.info("Services initialized");

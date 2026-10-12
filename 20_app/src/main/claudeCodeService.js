@@ -480,7 +480,7 @@ async function sendMessage(input = {}) {
     const sdkLoadedAt = Date.now();
     const pathToClaudeCodeExecutable = resolveClaudeExecutablePath();
     const q = sdk.query({
-      prompt,
+      prompt: referenceContext.images?.length ? require("./aiClipboardImages").claudeImageInput(prompt, referenceContext.images) : prompt,
       options: {
         cwd: workdir,
         permissionMode,
@@ -643,6 +643,7 @@ async function sendMessage(input = {}) {
       error_kind: userFacingError.error_kind,
     };
   } finally {
+    require("./aiClipboardImages").restoreFailedImageReferences(aiService, thread.thread_id, run.run_id, attachedReferences);
     restoreEnv(prevEnv);
     if (requestId) {
       activeRequests.delete(requestId);

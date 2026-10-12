@@ -50,6 +50,8 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
   },
 
   aiChat: {
+    pasteImages: (threadId, images) => ipcRenderer.invoke('aiChat:pasteImages', threadId, images),
+    getImageUsage: () => ipcRenderer.invoke('aiChat:getImageUsage'),
     getDbInfo: () => ipcRenderer.invoke("aiChat:getDbInfo"),
     checkAuthStatus: (provider) => ipcRenderer.invoke("aiChat:checkAuthStatus", provider),
     listThreads: (options) => ipcRenderer.invoke("aiChat:listThreads", options),

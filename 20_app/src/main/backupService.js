@@ -62,10 +62,10 @@ function createBackupService({
     while (!fs.existsSync(existingAncestor)) existingAncestor = path.dirname(existingAncestor);
     resolvedTargetDir = path.resolve(fs.realpathSync(existingAncestor), path.relative(existingAncestor, resolvedTargetDir));
     const activeProject = projectContext.getCurrent();
-    for (const source of [activeProject.tasksDir, activeProject.archiveDir]) {
+    for (const source of [activeProject.tasksDir, activeProject.archiveDir, path.join(activeProject.rootDir, 'ai-chat')]) {
       const relative = path.relative(source, resolvedTargetDir);
       if (!relative || (!relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative))) {
-        return { ok: false, error: 'バックアップ保存先はtasks/archiveの外に指定してください。' };
+        return { ok: false, error: 'バックアップ保存先はtasks/archive/ai-chatの外に指定してください。' };
       }
     }
     if (fs.existsSync(resolvedTargetDir) && !fs.statSync(resolvedTargetDir).isDirectory()) {
@@ -107,6 +107,8 @@ function createBackupService({
     addIfExists(project.archiveDir, "archive");
     addIfExists(project.listsFile, "lists.yaml");
     addIfExists(project.aiDatabaseFile, "ai.sqlite");
+    addIfExists(path.join(project.rootDir, 'ai-chat', 'images'), 'ai-chat/images');
+    addIfExists(path.join(project.rootDir, 'ai-chat', 'image-manifest.json'), 'ai-chat/image-manifest.json');
 
     zip.writeZip(backupPath);
 
@@ -204,6 +206,8 @@ function createBackupService({
       restoreFile(path.join(backupDataDir, "lists.yaml"), path.join(dataDir, "lists.yaml"));
       restoreFile(path.join(backupDataDir, "settings.yaml"), path.join(dataDir, "settings.yaml"));
       restoreFile(path.join(backupDataDir, "ai.sqlite"), path.join(dataDir, "ai.sqlite"));
+      if (fs.existsSync(path.join(backupDataDir, 'ai-chat', 'images'))) replaceDirectoryContents(path.join(backupDataDir, 'ai-chat', 'images'), path.join(dataDir, 'ai-chat', 'images'));
+      restoreFile(path.join(backupDataDir, 'ai-chat', 'image-manifest.json'), path.join(dataDir, 'ai-chat', 'image-manifest.json'));
       if (fs.existsSync(path.join(backupDataDir, "archive"))) replaceDirectoryContents(path.join(backupDataDir, "archive"), path.join(dataDir, "archive"));
 
       const rebuild = taskService.rebuildCache();

@@ -139,6 +139,8 @@ function AiChatPane({
   const [threadRenameTarget, setThreadRenameTarget] = useState(null);
   const threadRenamePresence = useExitPresence(threadRenameTarget);
   const [threadRenameValue, setThreadRenameValue] = useState("");
+  const [isPasting, setIsPasting] = useState(false);
+  const pastingRef = useRef(false);
   const [isComposeDragOver, setIsComposeDragOver] = useState(false);
   const [runtimeState, setRuntimeState] = useState({
     ready: false,
@@ -1039,7 +1041,7 @@ function AiChatPane({
     }
     const mappedThreads = await refreshThreads();
     const createdThreadId = result.thread.thread_id;
-    setSelectedThreadId(createdThreadId);
+    updateSelectedThread(selectedThreadKey, () => setSelectedThreadId(createdThreadId));
     if (!mappedThreads.some((thread) => thread.id === createdThreadId)) {
       setThreads((current) => [mapThread(result.thread), ...current]);
     }
@@ -1117,6 +1119,53 @@ function AiChatPane({
         status: "error",
         message: error?.message || "参照ファイルの追加に失敗しました。",
       });
+    }
+  };
+
+  const handlePasteImages = async (event) => {
+    const items = Array.from(event.clipboardData?.items || []).filter((item) => item.kind === 'file' && item.type.startsWith('image/'));
+    if (!items.length) return;
+    event.preventDefault();
+    if (isSending || pastingRef.current) {
+      setRuntimeState((current) => ({ ...current, status: 'warning', message: 'AI応答中・画像保存中は画像を追加できません。' }));
+      return;
+    }
+    const files = items.map((item) => item.getAsFile());
+    if (files.some((file) => !file || !['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 10 * 1024 * 1024)) {
+      setRuntimeState((current) => ({ ...current, status: 'warning', message: 'PNG・JPEG・WebPの画像（1枚10MiB以内）を貼り付けてください。' }));
+      return;
+    }
+    if (files.reduce((sum, file) => sum + file.size, 0) > 20 * 1024 * 1024) {
+      setRuntimeState((current) => ({ ...current, status: 'warning', message: '画像の合計は20MiB以内にしてください。' }));
+      return;
+    }
+    const originalKey = selectedThreadKey;
+    pastingRef.current = true;
+    setIsPasting(true);
+    try {
+      if (!aiChatApi?.pasteImages) throw new Error('画像貼り付けAPIが利用できません。');
+      const threadId = await ensureThreadForReferences();
+      const projectInfo = await aiChatApi.getDbInfo();
+      const images = await Promise.all(files.map((file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve({ base64: String(reader.result).split(',')[1] });
+        reader.onerror = () => reject(new Error('画像を読み込めませんでした。'));
+        reader.readAsDataURL(file);
+      })));
+      const latestProject = await aiChatApi.getDbInfo();
+      if (!projectInfo?.ok || latestProject?.path !== projectInfo.path) throw new Error('プロジェクトが変更されたため貼り付けを中止しました。');
+      const result = await aiChatApi.pasteImages(threadId, images);
+      if (!result?.ok) throw new Error(result?.error || '画像の保存に失敗しました。');
+      if (selectedKeyRef.current === threadId || selectedKeyRef.current === originalKey) {
+        const rows = await aiChatApi.listReferences(threadId);
+        if (selectedKeyRef.current === threadId || selectedKeyRef.current === originalKey) setReferences(rows.map(mapReference));
+      }
+      setRuntimeState((current) => ({ ...current, status: result.imageWarning ? 'warning' : 'ready', message: `画像を${images.length}枚添付しました。${result.imageWarning ? '画像保存容量が500MiBを超えています。設定から整理してください。' : ''}` }));
+    } catch (error) {
+      setRuntimeState((current) => ({ ...current, status: 'error', message: error.message || '画像の貼り付けに失敗しました。' }));
+    } finally {
+      pastingRef.current = false;
+      setIsPasting(false);
     }
   };
 
@@ -1619,7 +1668,7 @@ function AiChatPane({
 
   const handleSend = () => {
     const text = draft.trim();
-    if (!text) return;
+    if (!text || pastingRef.current) return;
     queueRef.current.add({ id: `queued-${Date.now()}-${Math.random()}`, threadId: selectedThreadId, key: selectedThreadKey,
       text, title: selectedThread?.title || createDraftThreadTitle(text), model: selectedModel, sandboxMode, referenceSendMode,
       references: isSending ? [] : [...references] });
@@ -1805,6 +1854,8 @@ function AiChatPane({
       // sendMessage response or an event/state update arrives out of order.
       try {
         const persistedMessageRows = await aiChatApi.listMessages?.(threadId);
+        const persistedReferences = await aiChatApi.listReferences?.(threadId);
+        if (selectedKeyRef.current === threadId && Array.isArray(persistedReferences)) setReferences(persistedReferences.map(mapReference));
         if (selectedKeyRef.current === threadId && Array.isArray(persistedMessageRows)) {
           setMessages(persistedMessageRows.map(mapMessage));
           requestScrollMessagesToBottom();
@@ -2140,6 +2191,8 @@ function AiChatPane({
         <AiChatComposer
           draft={draft}
           isSending={isSending}
+          isPasting={isPasting}
+          onPaste={handlePasteImages}
           isDragOver={isComposeDragOver}
           references={references}
           model={isBedrockModel ? bedrockModelId : selectedModel}

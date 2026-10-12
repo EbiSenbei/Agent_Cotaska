@@ -150,6 +150,7 @@ function SettingsPane({ focusRequest, onOpenGuide, onProjectNameSaved }) {
   const [restoreDir, setRestoreDir] = useState("");
   const [restoreStatus, setRestoreStatus] = useState("");
   const [restoreError, setRestoreError] = useState("");
+  const [imageUsage, setImageUsage] = useState(null);
   const [aiCleanupStatus, setAiCleanupStatus] = useState("");
   const [aiCleanupError, setAiCleanupError] = useState("");
   const [authStatus, setAuthStatus] = useState({
@@ -176,6 +177,8 @@ function SettingsPane({ focusRequest, onOpenGuide, onProjectNameSaved }) {
   };
 
   const loadSettings = async () => {
+    const usage = await window.cotaskaAPI?.aiChat?.getImageUsage?.();
+    if (usage?.ok) setImageUsage(usage);
     const result = await window.cotaskaAPI?.settings?.get?.();
     if (result?.settings) {
       const normalized = normalizeSettings(result.settings);
@@ -309,12 +312,14 @@ function SettingsPane({ focusRequest, onOpenGuide, onProjectNameSaved }) {
     setAiCleanupStatus("");
     setAiCleanupError("");
     const days = Number(settings.aiChat.retentionDays || 90);
-    if (!window.confirm(`${days}日以前のアーカイブ済みAIデータを完全削除します。タスク本体は削除されません。続行しますか？`)) return;
+    if (!window.confirm(`${days}日以前のアーカイブ済みAIデータを完全削除します。関連画像も削除され、画像プレビューは利用できなくなります。タスク本体は削除されません。続行しますか？`)) return;
     const result = await window.cotaskaAPI?.aiChat?.purgeOldData?.(days);
     if (!result?.ok) {
       setAiCleanupError(result?.error || "AIデータ削除に失敗しました。");
       return;
     }
+    if (result.imageBytes !== undefined) setImageUsage(result);
+    if (result.imageCleanupError) setAiCleanupError(`履歴は削除済みですが、画像整理に失敗しました: ${result.imageCleanupError}。再度整理を実行してください。`);
     setAiCleanupStatus(`AIデータを削除しました。削除スレッド数: ${result.deletedThreads ?? 0}`);
   };
 
@@ -804,7 +809,8 @@ function SettingsPane({ focusRequest, onOpenGuide, onProjectNameSaved }) {
                           古いAIデータを削除
                         </button>
                       </div>
-                      <div className="settings-help-text">指定日数以前のアーカイブ済みAIスレッドと関連履歴を削除します。タスク本体は削除しません。</div>
+                      <div className="settings-help-text">指定日数以前のアーカイブ済みAIスレッド・履歴と、ほかの履歴や添付で使用していない画像を削除します。画像の自動期限削除は行いません。タスク本体は削除しません。</div>
+                      {imageUsage && <div className="settings-help-text">チャット画像保存容量: {(imageUsage.imageBytes / 1024 / 1024).toFixed(1)} MiB（アーカイブとプレビュー用キャッシュを含む）{imageUsage.imageWarning ? ' — 500MiBを超えています。古いチャットの整理をご検討ください。' : ''}</div>}
                       {(aiCleanupStatus || aiCleanupError) && (
                         <div className={`settings-message ${aiCleanupError ? "settings-message--error" : "settings-message--success"}`}>
                           {aiCleanupError || aiCleanupStatus}

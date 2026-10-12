@@ -1,5 +1,6 @@
 import React from "react";
 import AiMarkdownPreview from "./AiMarkdownPreview";
+import AiImageThumbnail from './AiImageThumbnail';
 
 export default function AiChatMessage({ message, onCopy, onOpenTask, onOpenLink, onOpenLinkContextMenu, onReferenceClick }) {
   return (
@@ -17,7 +18,7 @@ export default function AiChatMessage({ message, onCopy, onOpenTask, onOpenLink,
           {message.attachments.map((attachment, index) => (
             <li key={attachment.id || index} title={attachment.filePath}>
               <button type="button" disabled={!attachment.filePath} onClick={() => onReferenceClick?.(attachment)}>
-                <span aria-hidden="true">📎</span>
+                {attachment.filePath?.startsWith('cotaska-image:') ? <AiImageThumbnail filePath={attachment.filePath} /> : <span aria-hidden="true">📎</span>}
                 {attachment.label}
               </button>
             </li>
