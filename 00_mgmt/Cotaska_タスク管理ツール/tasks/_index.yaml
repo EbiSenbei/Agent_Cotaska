@@ -121,7 +121,7 @@ tasks:
     sort_order: 11
     tags: []
     due_date: null
-    updated_at: '2026-10-12T08:28:37.569Z'
+    updated_at: '2026-10-12T09:12:02.587Z'
   - id: T-0624
     title: BUG-20260906-01 AIチャットの最新応答が表示されない競合を修正する
     list: 不具合修正
@@ -7924,21 +7924,21 @@ tasks:
   - id: T-0706
     title: 仕様変更：AIチャットの添付ファイルに仕様
     list: null
-    status: done
+    status: todo
     priority: normal
     sort_order: 675
     tags: []
     due_date: '2026-10-12'
-    updated_at: '2026-10-12T06:13:55.191Z'
+    updated_at: '2026-10-12T09:12:01.898Z'
   - id: T-0707
     title: 仕様変更：ファイルビューで画像の時は画像を表示するようにしてほしい
     list: null
-    status: doing
+    status: done
     priority: normal
     sort_order: 676
     tags: []
-    due_date: null
-    updated_at: '2026-10-11T08:04:50.276Z'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T08:54:40.518Z'
   - id: T-0708
     title: CHG-138-01 ファイルビュー画像表示の設計反映
     list: null
@@ -7960,39 +7960,39 @@ tasks:
   - id: T-0710
     title: CHG-138-03 ファイルビュー画像表示のユーザー確認
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 679
     tags: []
-    due_date: null
-    updated_at: '2026-10-11T08:04:50.276Z'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T08:54:39.130Z'
   - id: T-0711
     title: CHG-139-01 AIチャット添付表示の設計反映
     list: null
-    status: done
+    status: todo
     priority: normal
     sort_order: 680
     tags: []
     due_date: 2026-10-11T00:00:00.000Z
-    updated_at: '2026-10-11T08:12:21.968Z'
+    updated_at: '2026-10-12T09:04:42.755Z'
   - id: T-0712
     title: CHG-139-02 AIチャット添付履歴と送信後解除の実装・検証
     list: null
-    status: done
+    status: todo
     priority: normal
     sort_order: 681
     tags: []
     due_date: 2026-10-11T00:00:00.000Z
-    updated_at: '2026-10-11T08:12:21.968Z'
+    updated_at: '2026-10-12T09:04:42.755Z'
   - id: T-0713
     title: CHG-139-03 AIチャット添付表示のユーザー確認
     list: null
-    status: done
+    status: todo
     priority: normal
     sort_order: 682
     tags: []
     due_date: '2026-10-12'
-    updated_at: '2026-10-12T06:13:55.199Z'
+    updated_at: '2026-10-12T09:04:42.755Z'
   - id: T-0714
     title: CHG-140-01 タスクフォルダ・添付管理の設計反映
     list: null
@@ -8016,13 +8016,13 @@ tasks:
   - id: T-0716
     title: CHG-140-03 添付管理と移行のユーザー確認
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 685
     tags:
       - CHG-140
-    due_date: null
-    updated_at: '2026-10-11T08:54:34.892Z'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T08:36:33.954Z'
   - id: T-0717
     title: CHG-141 仕様変更：Markdown画像表示とクリップボード画像貼り付け
     list: null
@@ -8059,14 +8059,14 @@ tasks:
   - id: T-0720
     title: CHG-141-03 Markdown画像表示と画像貼り付けのユーザー確認
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 689
     tags:
       - CHG-141
       - 添付ファイル
-    due_date: null
-    updated_at: '2026-10-11T09:15:06.803Z'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T09:15:50.969Z'
   - id: T-0721
     title: CHG-142 仕様変更：PDF・PowerPointのプレビュー
     list: null
@@ -8211,13 +8211,13 @@ tasks:
   - id: T-0738
     title: CHG-144-03 添付欄の配置と折りたたみ ユーザー確認
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 702
     tags:
       - CHG-144
-    due_date: null
-    updated_at: '2026-10-12T06:12:29.054Z'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T08:42:30.130Z'
   - id: T-0734
     title: BUG-20261011-02 AI処理中の入力欄リサイズを修正・検証
     list: null
@@ -8261,13 +8261,13 @@ tasks:
   - id: T-0741
     title: CHG-145-03 添付ファイルのドラッグ＆ドロップ ユーザー確認
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 705
     tags:
       - CHG-145
     due_date: '2026-10-12'
-    updated_at: '2026-10-12T07:44:21.850Z'
+    updated_at: '2026-10-12T08:42:42.309Z'
   - id: T-0742
     title: 仕様変更：AIチャットに画像コピペできるようにしたい
     list: null
@@ -8276,18 +8276,18 @@ tasks:
     sort_order: 711
     tags: []
     due_date: null
-    updated_at: '2026-10-12T08:10:29.288Z'
+    updated_at: '2026-10-12T09:13:47.972Z'
   - id: T-0743
     title: BUG-20261012-01 画像プレビューのCSP制限修正と利用者確認
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 712
     tags:
       - BUG-20261012-01
       - 画像プレビュー
-    due_date: null
-    updated_at: '2026-10-12T07:08:23.0931566+00:00'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T09:16:12.963Z'
   - id: T-0744
     title: CHG-146 設計書反映と画像送信方式確認
     list: null
@@ -8311,33 +8311,33 @@ tasks:
   - id: T-0746
     title: CHG-146 AIチャット画像貼り付けユーザー確認
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 715
     tags:
       - CHG-146
-    due_date: null
-    updated_at: '2026-10-12T08:10:29.288Z'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T09:16:05.547Z'
   - id: T-0747
     title: BUG-20261012-02 タスク詳細の画像貼り付けAPI修正と利用者確認
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 716
     tags:
       - BUG-20261012-02
       - CHG-141
-    due_date: null
-    updated_at: '2026-10-12T07:21:23.8186490+00:00'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T09:02:17.857Z'
   - id: T-0748
     title: 仕様変更：タスク詳細のボタンレイアウトの変更
     list: null
-    status: doing
+    status: done
     priority: normal
     sort_order: 717
     tags: []
-    due_date: null
-    updated_at: '2026-10-12T07:44:18.038Z'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T09:16:28.550Z'
   - id: T-0749
     title: CHG-147-01 タスク詳細アクションの設計反映
     list: null
@@ -8363,14 +8363,14 @@ tasks:
   - id: T-0751
     title: CHG-147-03 タスク詳細メニューのユーザー確認
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 720
     tags:
       - 開発管理
       - CHG-147
-    due_date: null
-    updated_at: '2026-10-12T07:44:18.038Z'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T09:16:28.557Z'
   - id: T-0752
     title: CHG-148-01 添付ファイル操作メニュー 設計
     list: null
@@ -8394,13 +8394,13 @@ tasks:
   - id: T-0754
     title: CHG-148-03 添付ファイル操作メニュー 利用者確認
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 723
     tags:
       - CHG-148
-    due_date: null
-    updated_at: '2026-10-12T08:25:48.965Z'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T08:53:31.805Z'
   - id: T-0755
     title: CHG-149-01 画像貼り付け命名の設計更新
     list: null
@@ -8433,7 +8433,79 @@ tasks:
       - CHG-149
       - CHG-141
     due_date: null
-    updated_at: '2026-10-12T09:04:04.7154121+00:00'
+    updated_at: '2026-10-12T09:12:05.3652742+00:00'
+  - id: T-0758
+    title: CHG-146 参照設定と画像説明の削除 設計更新
+    list: null
+    status: done
+    priority: normal
+    sort_order: 758
+    tags:
+      - CHG-146
+    due_date: 2026-10-12T00:00:00.000Z
+    updated_at: '2026-10-12T09:13:47.972Z'
+  - id: T-0759
+    title: CHG-146 参照設定と画像説明の削除 実装・検証
+    list: null
+    status: done
+    priority: normal
+    sort_order: 759
+    tags:
+      - CHG-146
+    due_date: 2026-10-12T00:00:00.000Z
+    updated_at: '2026-10-12T09:13:47.972Z'
+  - id: T-0760
+    title: CHG-146 参照設定と画像説明の削除 利用者確認
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 760
+    tags:
+      - CHG-146
+    due_date: null
+    updated_at: '2026-10-12T09:13:47.972Z'
+  - id: T-0761
+    title: CHG-150 参照設定廃止の設計反映
+    list: null
+    status: done
+    priority: normal
+    sort_order: 761
+    tags:
+      - CHG-150
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T09:12:01.898Z'
+  - id: T-0762
+    title: CHG-150-01 添付の常時送信を実装・検証
+    list: null
+    status: done
+    priority: normal
+    sort_order: 762
+    tags:
+      - CHG-150
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T09:12:01.898Z'
+  - id: T-0763
+    title: CHG-150 参照設定廃止のユーザー確認
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 763
+    tags:
+      - CHG-150
+    due_date: null
+    updated_at: '2026-10-12T09:10:05.117Z'
+  - id: T-0764
+    title: タスク詳細の画像貼り付けとファイル名統一の確認
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 764
+    tags:
+      - 画像貼り付け
+      - CHG-141
+      - CHG-146
+    due_date: null
+    updated_at: '2026-10-12T09:12:02.587Z'
 task_file_roots:
   - .
   - T-0001
@@ -9162,5 +9234,12 @@ task_file_roots:
   - T-0755
   - T-0756
   - T-0757
-next_task_id: 758
-last_updated: '2026-10-12T09:04:43.280Z'
+  - T-0758
+  - T-0759
+  - T-0760
+  - T-0761
+  - T-0762
+  - T-0763
+  - T-0764
+next_task_id: 765
+last_updated: '2026-10-12T09:16:29.061Z'
