@@ -139,7 +139,8 @@ describe('チャットのクリップボード画像', () => {
       expect(context.images[0].bytes).toEqual(png);
       expect(context.promptPrefix).toBe('');
       expect(context.usedCount).toBe(1);
-      expect(build(threadId, root, {}, { referenceSendMode: 'skip' }).sent).toBe(false);
+      expect(context.imageSendNotice).toBeUndefined();
+      expect(build(threadId, root, { referenceSendMode: 'manual' }, { referenceSendMode: 'skip', isSpeedMode: true }).images).toHaveLength(1);
       expect(build(threadId, root, {}, { referenceIds: [] }).usedCount).toBe(0);
       refs.unshift({ ref_type: 'file', file_path: 'a.txt' });
       expect(() => build(threadId, root, { maxReferenceFiles: 1 })).toThrow('件数上限');

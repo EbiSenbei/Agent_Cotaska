@@ -34,38 +34,15 @@ function formatReferencePath(workdir, filePath) {
 }
 
 // 参照ファイルの内容を集約し、プロンプト前置き文字列を構築する。
-// settings: aiChat 設定（referenceSendMode / maxReferenceFiles / maxReferenceChars を参照）
-// options: { performanceMode, referenceSendMode(force/skip/明示値) }
-// isSpeedMode: 高速モードか（プロバイダごとに判定して渡す）
+// 選択した添付は常に送信する。旧送信設定と高速モードは送信可否に影響させない。
 function buildReferenceContext(threadId, workdir, settings, options = {}) {
-  const isSpeedMode = options.isSpeedMode === true;
-  const configuredMode = normalizeReferenceSendMode(settings.referenceSendMode);
-  const requestedMode = options.referenceSendMode || options.reference_send_mode;
-  const referenceSendMode = requestedMode === "force"
-    ? "always"
-    : requestedMode === "skip"
-      ? "manual"
-      : normalizeReferenceSendMode(requestedMode, configuredMode);
-  const shouldSendReferences = referenceSendMode === "always"
-    || (referenceSendMode === "skip-in-speed" && !isSpeedMode);
-  if (!shouldSendReferences) {
-    return {
-      promptPrefix: "",
-      usedCount: 0,
-      totalChars: 0,
-      skipped: [],
-      sendMode: referenceSendMode,
-      sent: false,
-      skippedReason: referenceSendMode === "manual" ? "manual" : "speed",
-    };
-  }
+  const selectedRefs = aiService.listReferences(threadId)
+    .filter((ref) => ref.ref_type === 'file' && ref.file_path)
+    .filter((ref) => !Array.isArray(options.referenceIds) || options.referenceIds.includes(ref.reference_id));
+  const referenceSendMode = "always";
   const maxFiles = Number(settings.maxReferenceFiles || 10);
   const maxChars = Number(settings.maxReferenceChars || 100000);
-  const selectedRefs = aiService
-    .listReferences(threadId)
-    .filter((ref) => ref.ref_type === "file" && ref.file_path)
-    .filter((ref) => !Array.isArray(options.referenceIds) || options.referenceIds.includes(ref.reference_id));
-  if (selectedRefs.slice(Math.max(0, maxFiles)).some((ref) => clipboardImages.parseLocator(ref.file_path))) throw new Error('画像の参照件数上限を超えています。');
+  if (selectedRefs.length > maxFiles) throw new Error('添付ファイルの件数上限を超えています。添付を減らしてください。');
   const refs = selectedRefs.slice(0, Math.max(0, maxFiles));
   const chunks = [];
   const images = [];
@@ -76,8 +53,7 @@ function buildReferenceContext(threadId, workdir, settings, options = {}) {
     const filePath = resolveReferenceFilePath(workdir, ref.file_path);
     if (!filePath || !fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
       if (/\.(png|jpe?g|webp)$/i.test(filePath || ref.file_path)) throw new Error('送信する画像が見つかりません。添付を確認してください。');
-      skipped.push(ref.label || ref.file_path);
-      return;
+      throw new Error(`添付ファイルが見つかりません: ${ref.label || ref.file_path}`);
     }
     if (/\.(gif|bmp|ico|avif)$/i.test(filePath)) throw new Error('AI画像入力はPNG・JPEG・WebPに対応しています。');
     if (/\.(png|jpe?g|webp)$/i.test(filePath)) {
@@ -90,10 +66,7 @@ function buildReferenceContext(threadId, workdir, settings, options = {}) {
     }
     const content = fs.readFileSync(filePath, "utf8");
     const remaining = maxChars - totalChars;
-    if (remaining <= 0) {
-      skipped.push(ref.label || ref.file_path);
-      return;
-    }
+    if (content.length > remaining) throw new Error('添付ファイルの文字数上限を超えています。添付を減らすか設定の上限を変更してください。');
     const sliced = content.slice(0, remaining);
     totalChars += sliced.length;
     chunks.push([

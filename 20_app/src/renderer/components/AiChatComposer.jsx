@@ -19,8 +19,6 @@ export default function AiChatComposer({
   isModelSelectionDisabled,
   sandboxMode,
   sandboxOptions,
-  referenceSendMode,
-  referenceSendOptions,
   resizeResetKey,
   onDraftChange,
   onDraftKeyDown,
@@ -33,7 +31,6 @@ export default function AiChatComposer({
   onRemoveReference,
   onModelChange,
   onSandboxModeChange,
-  onReferenceSendModeChange,
   onSend,
   onCancel,
 }) {
@@ -144,7 +141,6 @@ export default function AiChatComposer({
         style={{ height: `${inputHeight}px` }}
       />
       {isPasting && <div role="status">画像を保存しています…</div>}
-      {references.some((ref) => ref.filePath?.startsWith("cotaska-image:")) && <div className="ai-image-send-notice">{referenceSendMode === "skip" ? "画像は今回AIへ送信しません。" : referenceSendMode === "default" ? "画像も設定の参照送信条件に従います。送信しない設定ではAIへ渡しません。" : "画像をAIへ送信します。"}</div>}
       {references.length > 0 && (
         <div className="ai-compose-attachments" aria-label="添付ファイル">
           {references.map((reference) => (
@@ -168,12 +164,6 @@ export default function AiChatComposer({
           <span>ⓘ</span>
           <select value={sandboxMode} disabled={isSending || isPasting} aria-label="権限設定" onChange={onSandboxModeChange}>
             {sandboxOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-          </select>
-        </label>
-        <label className="ai-permission-control" title="参照ファイル送信">
-          <span>添</span>
-          <select value={referenceSendMode} disabled={isSending || isPasting} aria-label="参照ファイル送信" onChange={onReferenceSendModeChange}>
-            {referenceSendOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select>
         </label>
         <span className="ai-compose-spacer" />

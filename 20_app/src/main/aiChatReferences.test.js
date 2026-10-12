@@ -23,6 +23,17 @@ describe("予約投稿の参照分離", () => {
       expect(result.promptPrefix).toContain("次の添付");
       expect(result.promptPrefix).not.toContain("最初の添付");
       expect(buildReferenceContext("t", directory, {}).usedCount).toBe(2);
+      for (const mode of ["manual", "skip-in-speed"]) {
+        for (const override of ["skip", "manual", "skip-in-speed"]) {
+          expect(buildReferenceContext("t", directory, { referenceSendMode: mode }, {
+            referenceSendMode: override, isSpeedMode: true, referenceIds: ["2"],
+          }).promptPrefix).toContain("次の添付");
+        }
+      }
+      expect(() => buildReferenceContext("t", directory, { maxReferenceFiles: 1 })).toThrow("件数上限");
+      expect(() => buildReferenceContext("t", directory, { maxReferenceChars: 1 })).toThrow("文字数上限");
+      service.listReferences = () => [{ reference_id: "missing", ref_type: "file", file_path: "missing.txt" }];
+      expect(() => buildReferenceContext("t", directory, {})).toThrow("見つかりません");
     } finally {
       service.listReferences = original;
       fs.rmSync(directory, { recursive: true, force: true });

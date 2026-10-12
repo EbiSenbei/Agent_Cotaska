@@ -68,6 +68,7 @@ async function run() {
   assert(!document.querySelector('.ai-compose-attachment'), 'async attachment must not leak to switched thread');
   await select('Image A');
   await waitFor(() => document.querySelector('.ai-image-thumbnail'), 'thumbnail restored');
+  assert(!document.body.textContent.includes('画像も設定の参照送信条件に従います。'), 'no persistent explanation');
   assert(pasted[0].images[0].base64 === png && pasted[0].threadId === a, 'image bytes and original thread');
   document.querySelector('[aria-label$="を外す"]').click();
   await waitFor(() => !document.querySelector('.ai-compose-attachment'), 'remove attachment');
@@ -76,8 +77,11 @@ async function run() {
   assert(document.querySelector('textarea').value === 'この画像を説明', 'failure preserves draft');
   paste('image/gif'); await delay(); assert(pasted.length === 2, 'unsupported format rejected');
   paste(); await waitFor(() => pasted.length === 3, 'third paste'); pasted[2].finish(); await delay();
+  assert(!document.querySelector('[aria-label="参照ファイル送信"]'), 'reference selector removed');
+  assert(!document.body.textContent.includes('今回、画像はAIへ送信されません。'), 'no image warning before sending');
   document.querySelector('[aria-label="送信"]').click();
   await waitFor(() => sent.length === 1, 'send');
+  assert(!document.body.textContent.includes('今回、画像はAIへ送信されません。'), 'no image warning after sending');
   paste(); await delay(); assert(pasted.length === 3, 'image paste rejected during AI response');
   assert(sent[0].input.referenceIds.length === 1, 'captured image reference is sent');
   sent[0].finish(); await delay();

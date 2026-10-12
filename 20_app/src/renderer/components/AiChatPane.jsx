@@ -32,12 +32,6 @@ const SANDBOX_OPTIONS = [
   { value: "danger-full-access", label: "フルアクセス" },
 ];
 const SANDBOX_VALUES = new Set(SANDBOX_OPTIONS.map((option) => option.value));
-const REFERENCE_SEND_OPTIONS = [
-  { value: "default", label: "参照:設定" },
-  { value: "force", label: "参照:送る" },
-  { value: "skip", label: "参照:送らない" },
-];
-const REFERENCE_SEND_VALUES = new Set(REFERENCE_SEND_OPTIONS.map((option) => option.value));
 const MESSAGE_BOTTOM_PROXIMITY_PX = 96;
 const WORKDIR_REQUIRED_MESSAGE = "作業フォルダを設定してください。設定画面で作業フォルダを選択してから送信してください。";
 
@@ -55,9 +49,6 @@ function normalizeSandboxMode(value) {
   return normalizeOption(value, SANDBOX_VALUES, "read-only");
 }
 
-function normalizeReferenceSendMode(value) {
-  return normalizeOption(value, REFERENCE_SEND_VALUES, "default");
-}
 
 function openCodexAuthSettings() {
   window.dispatchEvent(new CustomEvent("cotaska:openSettings", { detail: { target: "codex-auth" } }));
@@ -132,7 +123,6 @@ function AiChatPane({
   const [selectedModel, setSelectedModel] = useState("");
   const [claudeAuthMode, setClaudeAuthMode] = useState("claude-login");
   const [bedrockModelId, setBedrockModelId] = useState("");
-  const [referenceSendMode, setReferenceSendMode] = useState("default");
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   const [workdirContextMenu, setWorkdirContextMenu] = useState(null);
   const [threadContextMenu, setThreadContextMenu] = useState(null);
@@ -582,9 +572,6 @@ function AiChatPane({
         const initialSandboxMode = aiChatSettings.codex?.sandboxMode || aiChatSettings.sandboxMode;
         if (!cancelled && initialSandboxMode) {
           setSandboxMode(normalizeSandboxMode(initialSandboxMode));
-        }
-        if (!cancelled && settingsResult?.settings?.aiChat?.referenceSendMode === "manual") {
-          setReferenceSendMode("skip");
         }
         const isWorkdirConfigured = settingsResult?.configured?.aiChatWorkdir !== false
           && Boolean(String(settingsResult?.settings?.aiChat?.workdir || "").trim());
@@ -1670,7 +1657,7 @@ function AiChatPane({
     const text = draft.trim();
     if (!text || pastingRef.current) return;
     queueRef.current.add({ id: `queued-${Date.now()}-${Math.random()}`, threadId: selectedThreadId, key: selectedThreadKey,
-      text, title: selectedThread?.title || createDraftThreadTitle(text), model: selectedModel, sandboxMode, referenceSendMode,
+      text, title: selectedThread?.title || createDraftThreadTitle(text), model: selectedModel, sandboxMode,
       references: isSending ? [] : [...references] });
     setDraft("");
     syncQueue();
@@ -1791,7 +1778,6 @@ function AiChatPane({
 
     try {
       const effectiveSandboxMode = normalizeSandboxMode(item.sandboxMode);
-      const effectiveReferenceSendMode = normalizeReferenceSendMode(item.referenceSendMode);
       const result = await aiChatApi.sendMessage({
         thread_id: threadId,
         content: text,
@@ -1799,7 +1785,6 @@ function AiChatPane({
         sandboxMode: effectiveSandboxMode,
         model: item.model || undefined,
         referenceIds: item.references.map((reference) => reference.id),
-        referenceSendMode: effectiveReferenceSendMode === "default" ? undefined : effectiveReferenceSendMode,
         request_id: requestId,
       });
 
@@ -2200,8 +2185,6 @@ function AiChatPane({
           isModelSelectionDisabled={isBedrockModel}
           sandboxMode={sandboxMode}
           sandboxOptions={SANDBOX_OPTIONS}
-          referenceSendMode={referenceSendMode}
-          referenceSendOptions={REFERENCE_SEND_OPTIONS}
           resizeResetKey={selectedThreadId}
           onDraftChange={(event) => {
             draftHistoryIndexRef.current = -1;
@@ -2217,7 +2200,6 @@ function AiChatPane({
           onRemoveReference={handleRemoveReference}
           onModelChange={handleModelChange}
           onSandboxModeChange={handleSandboxModeChange}
-          onReferenceSendModeChange={(event) => setReferenceSendMode(normalizeReferenceSendMode(event.target.value))}
           onSend={handleSend}
           onCancel={handleCancelSend}
         />

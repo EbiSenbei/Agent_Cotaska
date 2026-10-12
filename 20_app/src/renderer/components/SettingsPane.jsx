@@ -729,17 +729,6 @@ function SettingsPane({ focusRequest, onOpenGuide, onProjectNameSaved }) {
                   <tr>
                     <th>AI参照上限</th>
                     <td>
-                      <select
-                        className="settings-select-input"
-                        value={settings.aiChat.referenceSendMode}
-                        aria-label="AI参照ファイルの送信方法"
-                        onChange={(e) => updateSettingState({ aiChat: { referenceSendMode: e.target.value } })}
-                      >
-                        <option value="always">常に送信</option>
-                        <option value="manual">手動指定時のみ送信</option>
-                        <option value="skip-in-speed">高速モードでは送信しない</option>
-                      </select>
-                      <div className="settings-help-text">添付した参照ファイルの内容をAIへ送信する方法を設定します。</div>
                       <div className="settings-task-loading-row">
                         <div className="settings-unit-field settings-compact-unit-field">
                           <span className="settings-inline-label">ファイル</span>

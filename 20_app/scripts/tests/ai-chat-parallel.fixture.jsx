@@ -108,6 +108,7 @@ createRoot(document.getElementById("root")).render(<AiChatPane />);
 async function run() {
   await waitFor(() => document.querySelectorAll(".ai-thread-item").length === 2, "initial threads");
   await select("Thread A");
+  assert(!document.querySelector('[aria-label="参照ファイル送信"]'), "reference send selector is removed");
   await send("A1");
   await waitFor(() => calls.length === 1, "A started");
   await checkProcessingResize();
