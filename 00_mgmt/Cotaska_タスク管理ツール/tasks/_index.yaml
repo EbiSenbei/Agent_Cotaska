@@ -8299,6 +8299,48 @@ tasks:
       - CHG-141
     due_date: null
     updated_at: '2026-10-12T07:21:23.8186490+00:00'
+  - id: T-0748
+    title: 仕様変更：タスク詳細のボタンレイアウトの変更
+    list: null
+    status: doing
+    priority: normal
+    sort_order: 717
+    tags: []
+    due_date: null
+    updated_at: '2026-10-12T07:44:18.038Z'
+  - id: T-0749
+    title: CHG-147-01 タスク詳細アクションの設計反映
+    list: null
+    status: done
+    priority: normal
+    sort_order: 718
+    tags:
+      - 開発管理
+      - CHG-147
+    due_date: 2026-10-12T00:00:00.000Z
+    updated_at: '2026-10-12T07:44:47.429Z'
+  - id: T-0750
+    title: CHG-147-02 タスク詳細メニューの実装と検証
+    list: null
+    status: done
+    priority: normal
+    sort_order: 719
+    tags:
+      - 開発管理
+      - CHG-147
+    due_date: 2026-10-12T00:00:00.000Z
+    updated_at: '2026-10-12T07:44:47.429Z'
+  - id: T-0751
+    title: CHG-147-03 タスク詳細メニューのユーザー確認
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 720
+    tags:
+      - 開発管理
+      - CHG-147
+    due_date: null
+    updated_at: '2026-10-12T07:44:18.038Z'
 task_file_roots:
   - .
   - T-0001
@@ -9014,5 +9056,9 @@ task_file_roots:
   - T-0742
   - T-0743
   - T-0747
-next_task_id: 748
-last_updated: '2026-10-12T07:21:24.317Z'
+  - T-0748
+  - T-0749
+  - T-0750
+  - T-0751
+next_task_id: 752
+last_updated: '2026-10-12T07:45:46.688Z'

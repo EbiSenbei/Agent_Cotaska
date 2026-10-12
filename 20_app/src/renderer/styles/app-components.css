@@ -724,6 +724,36 @@
   flex-shrink: 0;
 }
 
+.detail-more-actions { position: relative; }
+.detail-actions-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 100;
+  min-width: 190px;
+  padding: 4px;
+  border: 1px solid #d0d7e2;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 4px 16px #0002;
+}
+.detail-actions-popover button {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #4b5b73;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.detail-actions-popover button:hover,
+.detail-actions-popover button:focus-visible { background: #f5f8fc; }
+
 .icon-action-btn {
   border: 1px solid #d0d7e2;
   background: #fff;

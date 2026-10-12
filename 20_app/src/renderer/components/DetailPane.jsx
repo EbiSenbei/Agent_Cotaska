@@ -136,6 +136,28 @@ function DetailPaneBody({
   const [taskTags, setTaskTags] = useState(task.tags || []);
   const [newTagName, setNewTagName] = useState("");
   const [previewMode, setPreviewMode] = useState(false);
+  const [actionsOpen, setActionsOpen] = useState(false);
+  const actionsMenuRef = useRef(null);
+  const actionsButtonRef = useRef(null);
+  useEffect(() => { setActionsOpen(false); }, [task.id]);
+  useEffect(() => {
+    if (!actionsOpen) return;
+    const closeOutside = (event) => {
+      if (!actionsMenuRef.current?.contains(event.target)) setActionsOpen(false);
+    };
+    const closeEscape = (event) => {
+      if (event.key === "Escape") {
+        setActionsOpen(false);
+        actionsButtonRef.current?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", closeOutside);
+    document.addEventListener("keydown", closeEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOutside);
+      document.removeEventListener("keydown", closeEscape);
+    };
+  }, [actionsOpen]);
   const [documentPreview, setDocumentPreview] = useState(null);
   useEffect(() => { setDocumentPreview(null); }, [task.id]);
   const [dueEditorOpen, setDueEditorOpen] = useState(null);
@@ -785,15 +807,30 @@ function DetailPaneBody({
           >
             {previewMode ? "✏" : "🔍"}
           </button>
-          <button
-            type="button"
-            className="icon-action-btn external"
-            onClick={handleOpenInExternalApp}
-            title="新しいアプリで開く"
-            aria-label="新しいアプリで開く"
-          >
-            ↗
-          </button>
+          <div className="detail-more-actions" ref={actionsMenuRef}
+            onBlur={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget)) setActionsOpen(false);
+            }}>
+            <button type="button" className="icon-action-btn" ref={actionsButtonRef}
+              onClick={() => setActionsOpen((open) => !open)}
+              title="その他の操作" aria-label="その他の操作" aria-expanded={actionsOpen}>
+              …
+            </button>
+            {actionsOpen && (
+              <div className="detail-actions-popover" role="group" aria-label="その他の操作">
+                <button type="button" onClick={() => {
+                  setActionsOpen(false);
+                  actionsButtonRef.current?.focus();
+                  openTaskTarget(".");
+                }}>タスクフォルダを開く</button>
+                <button type="button" onClick={() => {
+                  setActionsOpen(false);
+                  actionsButtonRef.current?.focus();
+                  handleOpenInExternalApp();
+                }}>新しいアプリで開く</button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
       {(openExternalError || pathCopyMessage) && (
