@@ -118,11 +118,11 @@ function formatCheckedAt(value) {
 }
 
 function getAuthGuide(status) {
-  if (status === "available") return "Codexを利用できる認証状態です。";
+  if (status === "available") return "Codexの認証情報を確認しました。モデルの利用権・利用枠は送信時に確認されます。";
   if (status === "sdk_missing") return "Cotaskaの依存関係を確認してください。配布版ではCodex SDKを同梱する想定です。";
   if (status === "cli_unavailable") return "Codex CLIを実行できません。インストール状態、ウイルス対策ソフト、実行権限を確認してください。";
-  if (status === "login_required") return "ターミナルで codex login を実行し、ブラウザでログインを完了してから再確認してください。";
-  if (status === "expired_possible") return "Codexの認証情報が期限切れ、無効、または権限不足の可能性があります。codex login で再ログインしてから再確認してください。";
+  if (status === "login_required") return "「Codexにログイン」を押し、ブラウザで認証を完了してください。";
+  if (status === "expired_possible") return "認証情報が期限切れ、無効、または権限不足の可能性があります。「Codexにログイン」で再ログインしてください。";
   return "状態を確認できませんでした。Codexのログイン状態とネットワークを確認してから再確認してください。";
 }
 
@@ -161,6 +161,38 @@ function SettingsPane({ focusRequest, onOpenGuide, onProjectNameSaved }) {
     needsLogin: false,
   });
   const [checkingAuth, setCheckingAuth] = useState(false);
+  const [loginStatus, setLoginStatus] = useState({ status: "idle", active: false });
+  const [loginBusy, setLoginBusy] = useState(false);
+  const lastLoginAuthRef = useRef(null);
+  useEffect(() => {
+    let disposed = false;
+    let timer;
+    const poll = async () => {
+      try {
+        const result = await window.cotaskaAPI?.aiChat?.getCodexLoginStatus?.();
+        if (!disposed && result) {
+          setLoginStatus(result);
+          if (settings.aiChat.provider === "codex" && result.authStatus && lastLoginAuthRef.current !== result.authStatus.checkedAt) {
+            lastLoginAuthRef.current = result.authStatus.checkedAt;
+            setAuthStatus(result.authStatus);
+          }
+        }
+      } catch (_) {
+        if (!disposed) setLoginStatus({ status: "error", active: true, message: "ログイン状態を取得できません。設定を開き直して確認してください。" });
+      } finally { if (!disposed) timer = setTimeout(poll, 1000); }
+    };
+    void poll();
+    return () => { disposed = true; clearTimeout(timer); };
+  }, [settings.aiChat.provider]);
+  const changeCodexLogin = async (cancel = false) => {
+    setLoginBusy(true);
+    try {
+      const api = window.cotaskaAPI?.aiChat;
+      setLoginStatus(await (cancel ? api.cancelCodexLogin() : api.startCodexLogin()));
+    } catch (_) {
+      setErrorMessage("ログイン操作に失敗しました。設定を開き直して状態を確認してください。");
+    } finally { setLoginBusy(false); }
+  };
   const [bedrockErrors, setBedrockErrors] = useState({ region: false, modelId: false, awsProfile: false });
   const workdirSectionRef = useRef(null);
   const authSectionRef = useRef(null);
@@ -877,12 +909,16 @@ function SettingsPane({ focusRequest, onOpenGuide, onProjectNameSaved }) {
                               {authStatus.version && <div className="settings-help-text">Codex CLI: {authStatus.version}</div>}
                               <div className="settings-help-text">{getAuthGuide(authStatus.status)}</div>
                               <div className="settings-help-text">CotaskaはOpenAI APIキー、Codex access token、Codex認証ファイルの内容を保存しません。</div>
+                              <div className="settings-help-text">配布版はCodex実行環境を同梱します。ChatGPTアプリや外部CLIの事前インストールは不要です。AI利用にはアカウント認証と対応するモデル・利用枠が必要です。連携先の料金はCotaskaとは別に適用されます。無料プランでのCotaska動作は未検証です。</div>
+                              <div className="settings-auth-message" role="status">{loginStatus.message}</div>
+                              <button type="button" className="settings-secondary-btn" disabled={loginBusy || loginStatus.active || checkingAuth} onClick={() => changeCodexLogin(false)}>Codexにログイン</button>
+                              {loginStatus.active && <button type="button" className="settings-secondary-btn" disabled={loginBusy || loginStatus.status === "checking" || loginStatus.status === "stopping"} onClick={() => changeCodexLogin(true)}>ログインを中断</button>}
                             </div>
                             <button
                               type="button"
                               className="settings-secondary-btn"
                               onClick={checkCodexAuthStatus}
-                              disabled={checkingAuth}
+                              disabled={checkingAuth || loginStatus.active || loginBusy}
                             >
                               {checkingAuth ? "確認中..." : "再確認"}
                             </button>

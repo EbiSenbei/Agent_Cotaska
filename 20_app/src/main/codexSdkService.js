@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require("fs");
-const { execFile } = require("child_process");
+const { execFile, spawn } = require("child_process");
 const aiService = require("./aiService");
 const settingsService = require("./settingsService");
 const appLogger = require("./appLogger");
@@ -937,7 +937,14 @@ async function sendMessage(input = {}) {
   }
 }
 
+const codexLogin = require("./codexLogin").createCodexLogin({
+  spawn, resolveBinary: resolveBundledCodexBinary, buildEnv: buildCodexEnv, checkAuthStatus,
+});
+
 module.exports = {
+  startLogin: codexLogin.start,
+  getLoginStatus: codexLogin.getStatus,
+  cancelLogin: codexLogin.cancel,
   checkAuthStatus,
   cancelRun,
   listActiveRuns,

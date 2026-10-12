@@ -1501,6 +1501,14 @@ ipcMain.handle("aiChat:getDbInfo", async () => {
   }
 });
 
+ipcMain.handle("aiChat:startCodexLogin", async () => {
+  await servicesReady;
+  return codexSdkService.startLogin();
+});
+ipcMain.handle("aiChat:getCodexLoginStatus", () => codexSdkService.getLoginStatus());
+ipcMain.handle("aiChat:cancelCodexLogin", () => codexSdkService.cancelLogin());
+app.on("before-quit", () => codexSdkService.cancelLogin());
+
 ipcMain.handle("aiChat:checkAuthStatus", async (_e, provider) => {
   await servicesReady;
   try {
