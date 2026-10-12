@@ -8288,6 +8288,17 @@ tasks:
       - 画像プレビュー
     due_date: null
     updated_at: '2026-10-12T07:08:23.0931566+00:00'
+  - id: T-0747
+    title: BUG-20261012-02 タスク詳細の画像貼り付けAPI修正と利用者確認
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 716
+    tags:
+      - BUG-20261012-02
+      - CHG-141
+    due_date: null
+    updated_at: '2026-10-12T07:21:23.8186490+00:00'
 task_file_roots:
   - .
   - T-0001
@@ -9002,5 +9013,6 @@ task_file_roots:
   - T-0741
   - T-0742
   - T-0743
-next_task_id: 744
-last_updated: '2026-10-12T07:10:19.300Z'
+  - T-0747
+next_task_id: 748
+last_updated: '2026-10-12T07:21:24.317Z'

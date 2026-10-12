@@ -1,4 +1,5 @@
-const { app, BrowserWindow, ipcMain, Menu, dialog, globalShortcut, shell, clipboard, net } = require("electron");
+const { app, BrowserWindow, ipcMain, Menu, dialog, globalShortcut, shell, clipboard, nativeImage, net } = require("electron");
+const { readClipboardPng } = require('./clipboardImage');
 const path = require("path");
 const { pathToFileURL } = require("url");
 const crypto = require("crypto");
@@ -2175,9 +2176,10 @@ for (const action of ['list', 'add', 'addDroppedFiles', 'open', 'remove', 'resto
         result = await documentPreviewService.preview(taskId, value);
         if (projectContext.getCurrent().rootDir !== root) throw new Error('プロジェクトが変更されました。再度開いてください。');
       } else if (action === 'pasteImage') {
-        const image = clipboard.readImage();
-        if (image.isEmpty()) throw new Error('Clipboard contains no image');
-        result = attachmentService.saveImage(taskId, image.toPNG());
+        const root = projectContext.getCurrent().rootDir;
+        const png = await readClipboardPng(clipboard, nativeImage);
+        if (projectContext.getCurrent().rootDir !== root) throw new Error('プロジェクトが変更されました。再度貼り付けてください。');
+        result = attachmentService.saveImage(taskId, png);
       } else if (action === 'addDroppedFiles') {
         if (!Array.isArray(value) || !value.length || value.some((filePath) => typeof filePath !== 'string' || !path.isAbsolute(filePath))) {
           throw new Error('ローカルのファイルをドロップしてください。');
