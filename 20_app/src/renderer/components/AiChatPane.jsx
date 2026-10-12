@@ -2069,6 +2069,7 @@ function AiChatPane({
             </div>
           ) : messages.map((message) => (
             <AiChatMessage
+              onReferenceClick={handleReferenceClick}
               key={message.id}
               message={message}
               onCopy={handleCopyMessage}

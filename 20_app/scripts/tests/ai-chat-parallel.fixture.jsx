@@ -29,6 +29,7 @@ window.cotaskaAPI = {
     listReferences: async (id) => [...(references.get(id) || [])],
     listWorkdirTree: async () => ({ rows: [] }),
     listRunEvents: async () => [],
+    previewFile: async (filePath) => ({ ok: true, path: filePath, label: filePath.split('/').pop(), preview_type: 'text', content: '添付ファイルの内容' }),
     setActiveThread: async () => {},
     onRunEvent: (callback) => { listener = callback; return () => {}; },
     onThreadUpdated: () => () => {},
@@ -172,6 +173,19 @@ async function run() {
   await waitFor(() => calls.length === 7, "first draft follow-up binds to created thread");
   assert(calls[6].thread_id === "new-thread-1" && calls[6].content === "new1-followup", "draft FIFO binding");
   finish(calls[5]); finish(calls[6]);
+  const attachmentMessage = message('attachment-check', 'user', '添付クリック確認');
+  attachmentMessage.attachments = [
+    { id: 'task-file', label: 'T-0001.md', filePath: 'C:/test/tasks/T-0001/T-0001.md' },
+    { id: 'text-file', label: '日本語 資料.txt', filePath: 'C:/test/日本語 資料.txt' },
+  ];
+  histories.set('a', [attachmentMessage]);
+  await select('Thread A');
+  await waitFor(() => document.querySelectorAll('.ai-message-attachments button').length === 2, 'attachment buttons');
+  document.querySelectorAll('.ai-message-attachments button')[0].click();
+  await waitFor(() => document.querySelector('.ai-task-detail-panel'), 'task attachment opens right task detail');
+  assert(document.querySelector('.ai-right-subtitle').textContent === 'T-0001', 'task attachment resolves task ID');
+  document.querySelectorAll('.ai-message-attachments button')[1].click();
+  await waitFor(() => document.querySelector('.ai-file-preview-editor')?.value === '添付ファイルの内容', 'file attachment opens right file view');
   return { ok: true, requests: calls.length, checks: "parallel threads, FIFO, background replies, cancellation, failure isolation, concurrent drafts, processing resize, draft height preservation" };
 }
 run().then((result) => { window.parallelResult = result; }).catch((error) => { window.parallelResult = { ok: false, error: error.stack }; });

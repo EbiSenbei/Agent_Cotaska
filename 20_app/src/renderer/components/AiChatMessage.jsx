@@ -1,7 +1,7 @@
 import React from "react";
 import AiMarkdownPreview from "./AiMarkdownPreview";
 
-export default function AiChatMessage({ message, onCopy, onOpenTask, onOpenLink, onOpenLinkContextMenu }) {
+export default function AiChatMessage({ message, onCopy, onOpenTask, onOpenLink, onOpenLinkContextMenu, onReferenceClick }) {
   return (
     <article className={`ai-message ai-message--${message.role}${message.streaming ? " ai-message--streaming" : ""}`}>
       <div className="ai-message-author">{message.author}</div>
@@ -16,7 +16,10 @@ export default function AiChatMessage({ message, onCopy, onOpenTask, onOpenLink,
         <ul className="ai-message-attachments" aria-label="添付ファイル">
           {message.attachments.map((attachment, index) => (
             <li key={attachment.id || index} title={attachment.filePath}>
-              <span aria-hidden="true">📎 </span>{attachment.label}
+              <button type="button" disabled={!attachment.filePath} onClick={() => onReferenceClick?.(attachment)}>
+                <span aria-hidden="true">📎</span>
+                {attachment.label}
+              </button>
             </li>
           ))}
         </ul>
