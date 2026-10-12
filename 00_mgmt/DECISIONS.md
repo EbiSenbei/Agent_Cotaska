@@ -1138,6 +1138,13 @@ T-0767に基づき、Bedrock時のAIチャットモデル欄をAWSプロファ�
 - 現行CHG-126以降の規則に従い、NSIS成果物名はCotaska-0.5.0-win-x64.exeとする。AGENTS.mdの両配布系統公開指示も満たすため、同一ビルドのwin-unpackedから、利用者データを含まないPortable ZIPを互換成果物として作成する。旧ランチャーや旧タスクデータを流用しない。
 - バージョン・リリースノートをコミット・プッシュしてから生成し、検証結果は追記して保存する。既存の未コミットタスク変更・添付を保持し、既存の利用者確認待ちは勝手に完了しない。
 
+### v0.5.0 公開結果
+
+- be488162b4b1e0adb732e4fb5a3c3ff3163a95bdをビルド元とし、release-all.ps1で132テスト・本番ビルド・NSIS生成・更新情報整合・同梱CLI・製品情報・Renderer起動/正常終了を検証。
+- 同じwin-unpackedからPortable ZIPを作成。137ファイルのSHA-256一致とZIP CRCを確認し、利用者データの混入なし。旧Portable環境への上書き更新用ではないことをREADMEとリリースノートに明記。
+- EbiSenbei/cotaska-siteのv0.5.0へ5成果物を下書き状態でアップロードし、名前・サイズ・GitHub SHA-256一致を確認して通常Release/最新版として公開。URL: https://github.com/EbiSenbei/cotaska-site/releases/tag/v0.5.0
+- インストール操作、ローカルタスクマスター同期、Cloudflare公開は今回の依頼に含まれず未実施。既存の利用者確認タスクは状態を維持。
+
 
 ## 2026-10-12 CHG-152 Codex初回ログイン
 
