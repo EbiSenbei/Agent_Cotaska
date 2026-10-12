@@ -8276,7 +8276,7 @@ tasks:
     sort_order: 711
     tags: []
     due_date: null
-    updated_at: '2026-10-12T09:13:47.972Z'
+    updated_at: '2026-10-12T09:27:34.061Z'
   - id: T-0743
     title: BUG-20261012-01 画像プレビューのCSP制限修正と利用者確認
     list: null
@@ -9242,4 +9242,4 @@ task_file_roots:
   - T-0763
   - T-0764
 next_task_id: 765
-last_updated: '2026-10-12T09:16:29.061Z'
+last_updated: '2026-10-12T09:27:34.555Z'
