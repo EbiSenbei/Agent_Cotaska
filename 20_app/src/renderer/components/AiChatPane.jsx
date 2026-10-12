@@ -122,7 +122,7 @@ function AiChatPane({
   const [sandboxMode, setSandboxMode] = useState("read-only");
   const [selectedModel, setSelectedModel] = useState("");
   const [claudeAuthMode, setClaudeAuthMode] = useState("claude-login");
-  const [bedrockModelId, setBedrockModelId] = useState("");
+  const [bedrockAwsProfile, setBedrockAwsProfile] = useState("");
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   const [workdirContextMenu, setWorkdirContextMenu] = useState(null);
   const [threadContextMenu, setThreadContextMenu] = useState(null);
@@ -143,10 +143,10 @@ function AiChatPane({
   const isBedrockModel = aiProvider === "claude" && claudeAuthMode === "bedrock";
   const modelOptions = useMemo(() => {
     if (isBedrockModel) {
-      return [{ value: bedrockModelId, label: bedrockModelId || "BedrockモデルID未設定" }];
+      return [{ value: bedrockAwsProfile, label: bedrockAwsProfile || "AWSプロファイル名未設定" }];
     }
     return withExistingModelOption(aiProvider === "claude" ? CLAUDE_MODEL_OPTIONS : CODEX_MODEL_OPTIONS, selectedModel);
-  }, [aiProvider, bedrockModelId, isBedrockModel, selectedModel]);
+  }, [aiProvider, bedrockAwsProfile, isBedrockModel, selectedModel]);
 
   const aiChatApi = useMemo(() => getAiChatApi(), []);
   const selectedThread = threads.find((thread) => thread.id === selectedThreadId) || null;
@@ -567,7 +567,7 @@ function AiChatPane({
           const provider = aiChatSettings.provider === "claude" ? "claude" : "codex";
           setSelectedModel(String(aiChatSettings[provider]?.model || ""));
           setClaudeAuthMode(String(aiChatSettings.claude?.authMode || "claude-login"));
-          setBedrockModelId(String(aiChatSettings.claude?.bedrock?.modelId || ""));
+          setBedrockAwsProfile(String(aiChatSettings.claude?.bedrock?.awsProfile || ""));
         }
         const initialSandboxMode = aiChatSettings.codex?.sandboxMode || aiChatSettings.sandboxMode;
         if (!cancelled && initialSandboxMode) {
@@ -781,7 +781,7 @@ function AiChatPane({
         setSelectedModel(String(event.detail[provider]?.model || ""));
       }
       setClaudeAuthMode(String(event.detail?.claude?.authMode || "claude-login"));
-      setBedrockModelId(String(event.detail?.claude?.bedrock?.modelId || ""));
+      setBedrockAwsProfile(String(event.detail?.claude?.bedrock?.awsProfile || ""));
       const changedSandboxMode = event.detail?.codex?.sandboxMode || event.detail?.sandboxMode;
       if (changedSandboxMode) {
         setSandboxMode(normalizeSandboxMode(changedSandboxMode));
@@ -2180,7 +2180,7 @@ function AiChatPane({
           onPaste={handlePasteImages}
           isDragOver={isComposeDragOver}
           references={references}
-          model={isBedrockModel ? bedrockModelId : selectedModel}
+          model={isBedrockModel ? bedrockAwsProfile : selectedModel}
           modelOptions={modelOptions}
           isModelSelectionDisabled={isBedrockModel}
           sandboxMode={sandboxMode}

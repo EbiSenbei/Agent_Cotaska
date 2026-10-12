@@ -8506,6 +8506,48 @@ tasks:
       - CHG-146
     due_date: null
     updated_at: '2026-10-12T09:12:02.587Z'
+  - id: T-0767
+    title: 仕様変更：ClaudeCodeのBedrockの場合
+    list: null
+    status: doing
+    priority: normal
+    sort_order: 736
+    tags: []
+    due_date: null
+    updated_at: '2026-10-12T10:49:54.483Z'
+  - id: T-0768
+    title: CHG-151 設計反映：BedrockのAWSプロファイル表示
+    list: null
+    status: done
+    priority: normal
+    sort_order: 737
+    tags:
+      - 開発管理
+      - CHG-151
+    due_date: 2026-10-12T00:00:00.000Z
+    updated_at: '2026-10-12T10:51:36.507Z'
+  - id: T-0769
+    title: CHG-151-01 AIチャットのAWSプロファイル表示を実装
+    list: null
+    status: done
+    priority: normal
+    sort_order: 738
+    tags:
+      - 開発管理
+      - CHG-151
+    due_date: 2026-10-12T00:00:00.000Z
+    updated_at: '2026-10-12T10:51:36.507Z'
+  - id: T-0770
+    title: CHG-151 ユーザー確認：BedrockのAWSプロファイル表示
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 739
+    tags:
+      - 開発管理
+      - CHG-151
+    due_date: null
+    updated_at: '2026-10-12T10:49:54.483Z'
 task_file_roots:
   - .
   - T-0001
@@ -9241,5 +9283,9 @@ task_file_roots:
   - T-0762
   - T-0763
   - T-0764
-next_task_id: 765
-last_updated: '2026-10-12T09:27:34.555Z'
+  - T-0767
+  - T-0768
+  - T-0769
+  - T-0770
+next_task_id: 771
+last_updated: '2026-10-12T10:51:37.022Z'

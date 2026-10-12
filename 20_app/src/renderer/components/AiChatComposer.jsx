@@ -154,9 +154,9 @@ export default function AiChatComposer({
       )}
       <div className="ai-compose-toolbar">
         <button type="button" className="ai-compose-icon-btn" onClick={onAddReferences} disabled={isSending || isPasting} title="ファイル添付" aria-label="ファイル添付">＋</button>
-        <label className="ai-model-control" title={isModelSelectionDisabled ? "Bedrockのモデルは設定画面で変更します" : "選択すると既定モデルも変更されます"}>
-          <span>モデル</span>
-          <select value={model} disabled={isSending || isModelSelectionDisabled} aria-label="AIモデル" onChange={onModelChange}>
+        <label className="ai-model-control" title={isModelSelectionDisabled ? "AWSプロファイル名は設定画面で変更します" : "選択すると既定モデルも変更されます"}>
+          <span>{isModelSelectionDisabled ? "AWSプロファイル名" : "モデル"}</span>
+          <select value={model} disabled={isSending || isModelSelectionDisabled} aria-label={isModelSelectionDisabled ? "AWSプロファイル名" : "AIモデル"} onChange={onModelChange}>
             {modelOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select>
         </label>
