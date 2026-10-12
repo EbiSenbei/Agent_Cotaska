@@ -216,6 +216,13 @@ function loadTaskFromFile(filePath) {
       content: parsed.content,
       _filePath: filePath
     };
+    // YAML timestamps must cross IPC as strings, not Date objects.
+    for (const field of ['due_date', 'deadline_date']) {
+      if (task[field] instanceof Date) {
+        task[field] = Number.isNaN(task[field].getTime()) ? null
+          : task[field].toISOString().replace(/T00:00:00\.000Z$/, '');
+      }
+    }
     // 廃止済みフィールドを読み込み時に除去
     delete task.is_manual_progress;
     delete task.task_file_path;

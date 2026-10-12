@@ -1,9 +1,15 @@
 const MAX_TASK_TREE_DEPTH = 5;
+function normalizeTaskDate(value) {
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value.toISOString().replace(/T00:00:00\.000Z$/, '');
+  }
+  return value || null;
+}
 // ── Markdownファイル → UI オブジェクトの変換 ────────────────────────────────────
 function formatDue(due_date) {
   if (!due_date) return "";
 
-  const raw = String(due_date).trim();
+  const raw = String(normalizeTaskDate(due_date) || '').trim();
   const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}:\d{2}))?/);
   if (!match) return raw;
 
@@ -14,14 +20,14 @@ function formatDue(due_date) {
 
 function dueDatePart(due_date) {
   if (!due_date) return null;
-  const raw = String(due_date).trim();
+  const raw = String(normalizeTaskDate(due_date) || '').trim();
   const match = raw.match(/^(\d{4}-\d{2}-\d{2})/);
   return match ? match[1] : null;
 }
 
 function dueDateSortValue(due_date) {
   if (!due_date) return null;
-  const raw = String(due_date).trim();
+  const raw = String(normalizeTaskDate(due_date) || '').trim();
   const match = raw.match(/^(\d{4}-\d{2}-\d{2})(?:[T\s](\d{2}:\d{2}))?/);
   if (!match) return null;
   return `${match[1]}T${match[2] || "00:00"}`;
@@ -44,6 +50,7 @@ function isActiveDateTask(task) {
 
 // T-031: frontmatterフィールドに対応（file-first architecture）
 function mapFileTask(taskData) {
+  taskData = { ...taskData, due_date: normalizeTaskDate(taskData.due_date), deadline_date: normalizeTaskDate(taskData.deadline_date) };
   const today = localDateString();
   const progressStatus = normalizeProgressStatusValue(taskData.progress_status, taskData.status);
   const task = {
