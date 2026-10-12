@@ -30,6 +30,19 @@ function backupService() {
   return createBackupService({ appVersion: 'test', appDisplayName: 'Cotaska', getDefaultBackupDir: () => path.join(sandbox, 'backups'), getMainWindow: () => null, settingsService: {}, taskService: tasks, watcher: { stopWatcher: async () => {}, startWatcher: async () => {} } });
 }
 
+test('mixed files and a directory are rejected before copying any file', () => {
+  const task = tasks.addTask({ title: 'ドロップ' });
+  const original = source('元ファイル.txt', 'コピー元を保持');
+  const directory = path.join(sandbox, 'フォルダ');
+  fs.mkdirSync(directory);
+  expect(() => attachments.add(task.id, [original, directory])).toThrow();
+  expect(attachments.list(task.id).files).toHaveLength(0);
+  expect(fs.readFileSync(original, 'utf8')).toBe('コピー元を保持');
+  attachments.add(task.id, [original]);
+  expect(fs.readFileSync(original, 'utf8')).toBe('コピー元を保持');
+  expect(fs.readFileSync(attachments.file(task.id, '元ファイル.txt'), 'utf8')).toBe('コピー元を保持');
+});
+
 test('new tasks, attachment Markdown exclusion, safe names, removal and restore', async () => {
   const task = tasks.addTask({ title: '添付' });
   expect(tasks.getTaskFilePath(task.id)).toBe(path.join(root, 'tasks', task.id, `${task.id}.md`));

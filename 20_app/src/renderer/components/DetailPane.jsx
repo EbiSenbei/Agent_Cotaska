@@ -996,7 +996,6 @@ function DetailPaneBody({
       )}
 
       {/* === detail-body: メモ本文 === */}
-      {!isInvalid && <TaskAttachments key={task.id} taskId={task.id} readOnly={task.delete_flag === 1} onPreview={setDocumentPreview} />}
       {!isInvalid && documentPreview && <DocumentPreview key={`${task.id}/${documentPreview}`} taskId={task.id} name={documentPreview} onClose={() => setDocumentPreview(null)} />}
       <div className="detail-body">
         <div className="body-section-header">▼ タスク詳細</div>
@@ -1065,6 +1064,8 @@ function DetailPaneBody({
           </div>
         )}
       </div>
+
+      {!isInvalid && <TaskAttachments key={task.id} taskId={task.id} readOnly={task.delete_flag === 1} onPreview={setDocumentPreview} />}
 
       {relatedSubtasks.length > 0 && subtasksOpen && (
         <div

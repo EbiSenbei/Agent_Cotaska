@@ -4,6 +4,9 @@ export default function TaskAttachments({ taskId, readOnly = false, onPreview })
   const [data, setData] = useState({ files: [], removed: [] });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const dragDepth = useRef(0);
   const current = useRef(taskId);
   current.current = taskId;
   const api = window.cotaskaAPI?.attachments;
@@ -13,6 +16,9 @@ export default function TaskAttachments({ taskId, readOnly = false, onPreview })
     setData({ files: [], removed: [] });
     setError('');
     setBusy(false);
+    setOpen(false);
+    setDragging(false);
+    dragDepth.current = 0;
     async function refresh() {
       if (!api) return;
       try {
@@ -43,10 +49,54 @@ export default function TaskAttachments({ taskId, readOnly = false, onPreview })
     finally { if (current.current === id) setBusy(false); }
   }
 
+  function isFileDrag(event) {
+    return Array.from(event.dataTransfer?.types || []).includes('Files');
+  }
+
+  const canDrop = !readOnly && !busy && Boolean(api?.addDroppedFiles);
+
   return (
-    <section className="task-attachments" aria-label="添付ファイル" aria-busy={busy}>
-      <div className="task-attachments-heading">
+    <details
+      className={`task-attachments${dragging ? ' task-attachments--dragging' : ''}`}
+      aria-label="添付ファイル" aria-busy={busy}
+      open={open} onToggle={(event) => setOpen(event.currentTarget.open)}
+      onDragEnter={(event) => {
+        if (!isFileDrag(event)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        dragDepth.current++;
+        if (canDrop) setDragging(true);
+      }}
+      onDragOver={(event) => {
+        if (!isFileDrag(event)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        event.dataTransfer.dropEffect = canDrop ? 'copy' : 'none';
+      }}
+      onDragLeave={(event) => {
+        if (!isFileDrag(event)) return;
+        event.stopPropagation();
+        dragDepth.current = Math.max(0, dragDepth.current - 1);
+        if (!dragDepth.current) setDragging(false);
+      }}
+      onDrop={(event) => {
+        if (!isFileDrag(event) && !event.dataTransfer?.files?.length) return;
+        event.preventDefault();
+        event.stopPropagation();
+        dragDepth.current = 0;
+        setDragging(false);
+        if (!canDrop) return;
+        const files = Array.from(event.dataTransfer.files);
+        if (!files.length) return;
+        setOpen(true);
+        run('addDroppedFiles', files);
+      }}
+    >
+      <summary className="task-attachments-heading">
         <strong>添付ファイル <span>({data.files.length})</span></strong>
+        {dragging && <span className="task-attachments-drop-hint">ドロップして添付</span>}
+      </summary>
+      <div className="task-attachments-actions">
         <button type="button" disabled={readOnly || busy || !api} onClick={() => run('add')}>ファイルを追加</button>
       </div>
       {error && <p className="task-attachments-error" role="alert">{error}</p>}
@@ -69,6 +119,6 @@ export default function TaskAttachments({ taskId, readOnly = false, onPreview })
           </ul>
         </details>
       )}
-    </section>
+    </details>
   );
 }

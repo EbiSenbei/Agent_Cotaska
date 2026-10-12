@@ -124,6 +124,13 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
 
   // タスク操作（ファイルベース）
   attachments: {
+    addDroppedFiles: (id, files) => {
+      const paths = Array.from(files || []).map((file) => webUtils.getPathForFile(file));
+      if (!paths.length || paths.some((filePath) => !filePath)) {
+        return Promise.resolve({ ok: false, error: 'ローカルのファイルをドロップしてください。' });
+      }
+      return ipcRenderer.invoke('attachments:addDroppedFiles', id, paths);
+    },
     preview: (id, name) => ipcRenderer.invoke('attachments:preview', id, name),
     pasteImage: (id) => ipcRenderer.invoke('attachments:pasteImage', id),
     readImage: (id, reference) => ipcRenderer.invoke('attachments:readImage', id, reference),

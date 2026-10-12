@@ -2165,7 +2165,7 @@ function notifyAttachmentsChanged(taskId) {
   }
 }
 
-for (const action of ['list', 'add', 'open', 'remove', 'restore', 'pasteImage', 'readImage', 'preview']) {
+for (const action of ['list', 'add', 'addDroppedFiles', 'open', 'remove', 'restore', 'pasteImage', 'readImage', 'preview']) {
   ipcMain.handle(`attachments:${action}`, async (event, taskId, value) => {
     await servicesReady;
     try {
@@ -2178,6 +2178,11 @@ for (const action of ['list', 'add', 'open', 'remove', 'restore', 'pasteImage', 
         const image = clipboard.readImage();
         if (image.isEmpty()) throw new Error('Clipboard contains no image');
         result = attachmentService.saveImage(taskId, image.toPNG());
+      } else if (action === 'addDroppedFiles') {
+        if (!Array.isArray(value) || !value.length || value.some((filePath) => typeof filePath !== 'string' || !path.isAbsolute(filePath))) {
+          throw new Error('ローカルのファイルをドロップしてください。');
+        }
+        result = attachmentService.add(taskId, value);
       } else if (action === 'add') {
         const projectRoot = projectContext.getCurrent().rootDir;
         const owner = BrowserWindow.fromWebContents(event.sender);
@@ -2190,10 +2195,10 @@ for (const action of ['list', 'add', 'open', 'remove', 'restore', 'pasteImage', 
         const error = await shell.openPath(attachmentService.file(taskId, value));
         if (error) throw new Error(error);
       } else result = attachmentService[action](taskId, value);
-      if (['add', 'remove', 'restore', 'pasteImage'].includes(action)) notifyAttachmentsChanged(taskId);
+      if (['add', 'addDroppedFiles', 'remove', 'restore', 'pasteImage'].includes(action)) notifyAttachmentsChanged(taskId);
       return { ok: true, result };
     } catch (error) {
-      if (['add', 'remove', 'restore', 'pasteImage'].includes(action)) notifyAttachmentsChanged(taskId);
+      if (['add', 'addDroppedFiles', 'remove', 'restore', 'pasteImage'].includes(action)) notifyAttachmentsChanged(taskId);
       return { ok: false, error: error.message };
     }
   });
