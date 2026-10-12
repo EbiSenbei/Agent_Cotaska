@@ -2201,12 +2201,14 @@ function notifyAttachmentsChanged(taskId) {
   }
 }
 
-for (const action of ['list', 'add', 'addDroppedFiles', 'open', 'remove', 'restore', 'pasteImage', 'readImage', 'preview']) {
+for (const action of ['list', 'add', 'addDroppedFiles', 'open', 'reveal', 'delete', 'pasteImage', 'readImage', 'preview']) {
   ipcMain.handle(`attachments:${action}`, async (event, taskId, value) => {
     await servicesReady;
     try {
       let result;
-      if (action === 'preview') {
+      if (action === 'delete' || action === 'reveal') {
+        await require('./attachmentFileActions').performAttachmentFileAction({ taskService, attachmentService, shell }, action, taskId, value);
+      } else if (action === 'preview') {
         const root = projectContext.getCurrent().rootDir;
         result = await documentPreviewService.preview(taskId, value);
         if (projectContext.getCurrent().rootDir !== root) throw new Error('プロジェクトが変更されました。再度開いてください。');
@@ -2232,10 +2234,10 @@ for (const action of ['list', 'add', 'addDroppedFiles', 'open', 'remove', 'resto
         const error = await shell.openPath(attachmentService.file(taskId, value));
         if (error) throw new Error(error);
       } else result = attachmentService[action](taskId, value);
-      if (['add', 'addDroppedFiles', 'remove', 'restore', 'pasteImage'].includes(action)) notifyAttachmentsChanged(taskId);
+      if (['add', 'addDroppedFiles', 'delete', 'pasteImage'].includes(action)) notifyAttachmentsChanged(taskId);
       return { ok: true, result };
     } catch (error) {
-      if (['add', 'addDroppedFiles', 'remove', 'restore', 'pasteImage'].includes(action)) notifyAttachmentsChanged(taskId);
+      if (['add', 'addDroppedFiles', 'delete', 'pasteImage'].includes(action)) notifyAttachmentsChanged(taskId);
       return { ok: false, error: error.message };
     }
   });

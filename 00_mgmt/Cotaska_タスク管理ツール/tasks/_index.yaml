@@ -121,7 +121,7 @@ tasks:
     sort_order: 11
     tags: []
     due_date: null
-    updated_at: '2026-10-12T06:21:32.313Z'
+    updated_at: '2026-10-12T08:28:37.569Z'
   - id: T-0624
     title: BUG-20260906-01 AIチャットの最新応答が表示されない競合を修正する
     list: 不具合修正
@@ -8070,14 +8070,14 @@ tasks:
   - id: T-0721
     title: CHG-142 仕様変更：PDF・PowerPointのプレビュー
     list: null
-    status: doing
+    status: done
     priority: normal
     sort_order: 690
     tags:
       - CHG-142
       - 添付ファイル
-    due_date: null
-    updated_at: '2026-10-11T09:32:35.646Z'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T07:10:18.674Z'
   - id: T-0722
     title: CHG-142-01 PDF・PowerPointプレビュー方式の調査と設計
     list: null
@@ -8088,7 +8088,7 @@ tasks:
       - CHG-142
       - 添付ファイル
     due_date: 2026-10-11T00:00:00.000Z
-    updated_at: '2026-10-11T09:32:35.646Z'
+    updated_at: '2026-10-12T07:08:49.797Z'
   - id: T-0723
     title: CHG-142-02 PDFプレビューの実装・検証
     list: null
@@ -8099,29 +8099,29 @@ tasks:
       - CHG-142
       - 添付ファイル
     due_date: 2026-10-11T00:00:00.000Z
-    updated_at: '2026-10-11T09:32:35.646Z'
+    updated_at: '2026-10-12T07:08:49.804Z'
   - id: T-0724
     title: CHG-142-03 PowerPointプレビューの実装・検証
     list: null
-    status: doing
+    status: done
     priority: normal
     sort_order: 693
     tags:
       - CHG-142
       - 添付ファイル
-    due_date: null
-    updated_at: '2026-10-11T09:32:35.646Z'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T07:10:18.674Z'
   - id: T-0725
     title: CHG-142-04 PDF・PowerPointプレビューのユーザー確認
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 694
     tags:
       - CHG-142
       - 添付ファイル
-    due_date: null
-    updated_at: '2026-10-11T09:32:35.646Z'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T07:10:18.674Z'
   - id: T-0726
     title: 仕様変更：AI処理中にもチャット入力可能とする
     list: null
@@ -8266,8 +8266,8 @@ tasks:
     sort_order: 705
     tags:
       - CHG-145
-    due_date: null
-    updated_at: '2026-10-12T06:19:53.355Z'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T07:44:21.850Z'
   - id: T-0742
     title: 仕様変更：AIチャットに画像コピペできるようにしたい
     list: null
@@ -8276,7 +8276,7 @@ tasks:
     sort_order: 711
     tags: []
     due_date: null
-    updated_at: '2026-10-12T07:57:10.777Z'
+    updated_at: '2026-10-12T08:10:29.288Z'
   - id: T-0743
     title: BUG-20261012-01 画像プレビューのCSP制限修正と利用者確認
     list: null
@@ -8317,7 +8317,7 @@ tasks:
     tags:
       - CHG-146
     due_date: null
-    updated_at: '2026-10-12T07:57:10.777Z'
+    updated_at: '2026-10-12T08:10:29.288Z'
   - id: T-0747
     title: BUG-20261012-02 タスク詳細の画像貼り付けAPI修正と利用者確認
     list: null
@@ -8371,6 +8371,36 @@ tasks:
       - CHG-147
     due_date: null
     updated_at: '2026-10-12T07:44:18.038Z'
+  - id: T-0752
+    title: CHG-148-01 添付ファイル操作メニュー 設計
+    list: null
+    status: done
+    priority: normal
+    sort_order: 721
+    tags:
+      - CHG-148
+    due_date: null
+    updated_at: '2026-10-12T08:28:37.569Z'
+  - id: T-0753
+    title: CHG-148-02 添付ファイル操作メニュー 実装・検証
+    list: null
+    status: done
+    priority: normal
+    sort_order: 722
+    tags:
+      - CHG-148
+    due_date: null
+    updated_at: '2026-10-12T08:28:37.569Z'
+  - id: T-0754
+    title: CHG-148-03 添付ファイル操作メニュー 利用者確認
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 723
+    tags:
+      - CHG-148
+    due_date: null
+    updated_at: '2026-10-12T08:25:48.965Z'
 task_file_roots:
   - .
   - T-0001
@@ -9093,5 +9123,8 @@ task_file_roots:
   - T-0749
   - T-0750
   - T-0751
-next_task_id: 752
-last_updated: '2026-10-12T07:57:11.315Z'
+  - T-0752
+  - T-0753
+  - T-0754
+next_task_id: 755
+last_updated: '2026-10-12T08:28:38.117Z'

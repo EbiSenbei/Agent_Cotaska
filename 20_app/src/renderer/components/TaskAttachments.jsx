@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import AttachmentMenu from './AttachmentMenu';
 
 export default function TaskAttachments({ taskId, readOnly = false, onPreview }) {
   const [data, setData] = useState({ files: [], removed: [] });
@@ -107,18 +108,10 @@ export default function TaskAttachments({ taskId, readOnly = false, onPreview })
             <button type="button" className="task-attachment-name" disabled={busy} title={file.name} onClick={() => run('open', file.name)}>{file.name}</button>
             <span>{file.size < 1024 ? `${file.size} B` : `${(file.size / 1024).toFixed(1)} KB`}</span>
             {/\.(pdf|pptx?)$/i.test(file.name) && <button type="button" disabled={busy} onClick={() => onPreview?.(file.name)}>プレビュー</button>}
-            <button type="button" disabled={readOnly || busy || file.isAiChat} title={file.isAiChat ? "チャット画像はAIチャットから整理できます" : "取り外したファイルは復元できます"} onClick={() => run('remove', file.name)}>取り外す</button>
+            <AttachmentMenu file={file} busy={busy} readOnly={readOnly} onAction={run} />
           </li>
         ))}
       </ul>
-      {!!data.removed.length && (
-        <details>
-          <summary>取り外したファイル ({data.removed.length})</summary>
-          <ul className="task-attachments-list">
-            {data.removed.map((file) => <li key={file.token}><span className="task-attachment-name">{file.name}</span><button type="button" disabled={readOnly || busy} onClick={() => run('restore', file.token)}>復元</button></li>)}
-          </ul>
-        </details>
-      )}
     </details>
   );
 }

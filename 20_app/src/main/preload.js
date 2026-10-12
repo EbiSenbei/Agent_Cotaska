@@ -139,8 +139,8 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
     list: (id) => ipcRenderer.invoke('attachments:list', id),
     add: (id) => ipcRenderer.invoke('attachments:add', id),
     open: (id, name) => ipcRenderer.invoke('attachments:open', id, name),
-    remove: (id, name) => ipcRenderer.invoke('attachments:remove', id, name),
-    restore: (id, token) => ipcRenderer.invoke('attachments:restore', id, token),
+    reveal: (id, name) => ipcRenderer.invoke('attachments:reveal', id, name),
+    delete: (id, name) => ipcRenderer.invoke('attachments:delete', id, name),
     onChanged: (callback) => {
       const listener = (_event, data) => callback(data);
       ipcRenderer.on('attachments:changed', listener);
