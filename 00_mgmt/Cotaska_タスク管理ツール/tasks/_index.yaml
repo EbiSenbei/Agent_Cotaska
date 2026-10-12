@@ -8401,6 +8401,39 @@ tasks:
       - CHG-148
     due_date: null
     updated_at: '2026-10-12T08:25:48.965Z'
+  - id: T-0755
+    title: CHG-149-01 画像貼り付け命名の設計更新
+    list: null
+    status: done
+    priority: normal
+    sort_order: 724
+    tags:
+      - CHG-149
+      - CHG-141
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T09:04:04.7154121+00:00'
+  - id: T-0756
+    title: CHG-149-02 画像貼り付け共通命名の実装・検証
+    list: null
+    status: done
+    priority: normal
+    sort_order: 725
+    tags:
+      - CHG-149
+      - CHG-141
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T09:04:04.7154121+00:00'
+  - id: T-0757
+    title: CHG-149-03 画像貼り付け命名の利用者確認
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 726
+    tags:
+      - CHG-149
+      - CHG-141
+    due_date: null
+    updated_at: '2026-10-12T09:04:04.7154121+00:00'
 task_file_roots:
   - .
   - T-0001
@@ -9126,5 +9159,8 @@ task_file_roots:
   - T-0752
   - T-0753
   - T-0754
-next_task_id: 755
-last_updated: '2026-10-12T08:28:38.117Z'
+  - T-0755
+  - T-0756
+  - T-0757
+next_task_id: 758
+last_updated: '2026-10-12T09:04:43.280Z'

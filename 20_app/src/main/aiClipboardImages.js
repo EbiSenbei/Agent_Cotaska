@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { createClipboardImageName } = require('./clipboardImageName');
 const AdmZip = require('adm-zip');
 const projectContext = require('./projectContext');
 
@@ -111,12 +112,10 @@ function createImageStore(aiService, taskService, isThreadBusy = (id) => aiServi
     }
     const folder = taskId ? path.relative(project.rootDir, taskService.getTaskBaseDir(taskId)).replace(/\\/g, '/') + `/attachments/ai-chat/${threadId}` : `ai-chat/images/${threadId}`;
     const now = new Date();
-    const pad = (v) => String(v).padStart(2, '0');
-    const stamp = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
     const added = [];
     try {
       for (const image of images) {
-        const name = `clip-image_${stamp}_${crypto.randomBytes(6).toString('hex')}.${image.extension}`;
+        const name = createClipboardImageName(image.extension, now);
         const file = safePath(project.rootDir, `${folder}/${name}`, true);
         const manifest = readManifest();
         fs.writeFileSync(file, image.bytes, { flag: 'wx' });

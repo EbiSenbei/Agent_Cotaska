@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { createClipboardImageName } = require('./clipboardImageName');
 const AdmZip = require('adm-zip');
 
 function filesIn(root) {
@@ -169,7 +170,7 @@ function createAttachmentService(taskService) {
   function saveImage(id, bytes) {
     if (!Buffer.isBuffer(bytes) || !bytes.length || bytes.length > 20 * 1024 * 1024) throw new Error('Image must be between 1 byte and 20MB');
     const dir = directory(id, true);
-    const name = uniqueName(dir, `image-${Date.now()}.png`);
+    const name = createClipboardImageName('png');
     fs.writeFileSync(path.join(dir, name), bytes, { flag: 'wx' });
     return { name, relativePath: `attachments/${name}` };
   }

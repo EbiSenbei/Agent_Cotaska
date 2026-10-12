@@ -176,6 +176,8 @@ test('image saving and reading preserve bundles and reject unsafe references', (
   const first = attachments.saveImage(task.id, png);
   const second = attachments.saveImage(task.id, png);
   expect(first.name).not.toBe(second.name);
+  expect(first.name).toMatch(/^clip-image_\d{8}_\d{6}_[0-9a-f]{12}\.png$/);
+  expect(first.relativePath).toBe(`attachments/${first.name}`);
   expect(attachments.readImage(task.id, first.relativePath).url).toBe(`data:image/png;base64,${png.toString('base64')}`);
   attachments.add(task.id, [source('日本語 画像.png', png)]);
   expect(attachments.readImage(task.id, 'attachments/' + encodeURIComponent('日本語 画像.png')).preview_type).toBe('image');
