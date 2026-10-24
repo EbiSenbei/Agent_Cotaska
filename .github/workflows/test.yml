@@ -9,12 +9,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22.23.4
+          node-version-file: 20_app/.nvmrc
           cache: npm
-          cache-dependency-path: Cotaska/20_app/package-lock.json
+          cache-dependency-path: 20_app/package-lock.json
       - run: npm ci
-        working-directory: Cotaska/20_app
+        working-directory: 20_app
       - run: npm test
-        working-directory: Cotaska/20_app
+        working-directory: 20_app
       - run: npm run build
-        working-directory: Cotaska/20_app
+        working-directory: 20_app

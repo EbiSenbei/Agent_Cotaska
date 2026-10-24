@@ -4,14 +4,14 @@ const path = require('path');
 const AdmZip = require('adm-zip');
 const context = require('../../src/main/projectContext');
 const tasks = require('../../src/main/taskService');
-const { createAttachmentService } = require('../../src/main/taskFileBundle');
+const { createAttachmentService, copyVerified } = require('../../src/main/taskFileBundle');
 const { createBackupService } = require('../../src/main/backupService');
 
 let sandbox;
 let root;
 let attachments;
 beforeEach(async () => {
-  sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'cotaska-bundle-'));
+  sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'cotaska-bundle-日本語-'));
   root = path.join(sandbox, 'project');
   fs.mkdirSync(root);
   context.setCurrent(root, { projectId: 'test', schemaVersion: 1, name: 'test' });
@@ -41,6 +41,18 @@ test('mixed files and a directory are rejected before copying any file', () => {
   attachments.add(task.id, [original]);
   expect(fs.readFileSync(original, 'utf8')).toBe('コピー元を保持');
   expect(fs.readFileSync(attachments.file(task.id, '元ファイル.txt'), 'utf8')).toBe('コピー元を保持');
+});
+
+test('verified copy preserves source and existing destination on collision', () => {
+  const from = path.join(sandbox, 'コピー元');
+  const to = path.join(sandbox, 'コピー先');
+  fs.mkdirSync(from);
+  fs.writeFileSync(path.join(from, '資料.txt'), '元資料');
+  copyVerified(from, to);
+  fs.writeFileSync(path.join(to, '資料.txt'), '既存資料');
+  expect(() => copyVerified(from, to)).toThrow();
+  expect(fs.readFileSync(path.join(from, '資料.txt'), 'utf8')).toBe('元資料');
+  expect(fs.readFileSync(path.join(to, '資料.txt'), 'utf8')).toBe('既存資料');
 });
 
 test('new tasks, attachment Markdown exclusion, safe names, removal and restore', async () => {
@@ -102,6 +114,7 @@ test('duplicate includes body and removed files; archive ZIP is byte exact', () 
   expect(zip.readAsText('a.txt')).toBe('添付本文');
   expect(zip.getEntries().some((e) => e.entryName.startsWith('.removed/'))).toBe(true);
   expect(fs.existsSync(path.join(root, 'tasks', task.id))).toBe(false);
+  expect(fs.readdirSync(path.join(root, 'archive')).some((name) => name.startsWith('.archiving-'))).toBe(false);
   expect(attachments.list(duplicate.id).files).toHaveLength(1);
 });
 

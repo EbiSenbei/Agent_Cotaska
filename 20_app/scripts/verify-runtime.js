@@ -1,6 +1,6 @@
-const REQUIRED_NODE_MAJOR = 22;
-const REQUIRED_NODE_MINOR = 23;
-const REQUIRED_NODE_PATCH = 4;
+const REQUIRED_NODE_MAJOR = 24;
+const REQUIRED_NODE_MINOR = 22;
+const REQUIRED_NODE_PATCH = 1;
 
 const [major, minor, patch] = process.versions.node.split(".").map(Number);
 const isSupported = major === REQUIRED_NODE_MAJOR && (
@@ -9,7 +9,7 @@ const isSupported = major === REQUIRED_NODE_MAJOR && (
 
 if (!isSupported) {
   console.error([
-    `CotaskaのビルドにはNode.js 22.23.4以上の22系が必要です（現在: ${process.version}）。`,
+    `CotaskaのビルドにはNode.js 24.22.1以上の24系が必要です（現在: ${process.version}）。`,
     "20_app/.nvmrc または 20_app/setup/install/01_setup_nodejs.ps1 を使用してNode.jsを切り替えてください。",
   ].join("\n"));
   process.exit(1);

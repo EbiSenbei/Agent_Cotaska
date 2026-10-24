@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    Node.js v22.23.4 を nvm-windows 経由でセットアップする
+    Node.js v24.22.1 を nvm-windows 経由でセットアップする
 .PARAMETER Proxy
     プロキシURL（例: http://proxygate2.nic.nec.co.jp:8080）
 .EXAMPLE

@@ -34,12 +34,17 @@ function archiveTask(filePath, id, archiveDir) {
   fs.mkdirSync(archiveDir, { recursive: true });
   const destination = path.join(archiveDir, id);
   if (fs.existsSync(destination)) throw new Error('同じIDのアーカイブが既にあります');
-  const stage = fs.mkdtempSync(path.join(archiveDir, '.archiving-'));
+  const stageRoot = fs.mkdtempSync(path.join(archiveDir, '.archiving-'));
+  // Node 24 rejects an existing directory when errorOnExist is enabled, even if empty.
+  const stage = path.join(stageRoot, id);
   const folder = path.dirname(filePath);
   const bundled = path.basename(folder) === id;
   try {
     if (bundled) copyVerified(folder, stage);
-    else fs.copyFileSync(filePath, path.join(stage, `${id}.md`), fs.constants.COPYFILE_EXCL);
+    else {
+      fs.mkdirSync(stage);
+      fs.copyFileSync(filePath, path.join(stage, `${id}.md`), fs.constants.COPYFILE_EXCL);
+    }
     const attachments = path.join(stage, 'attachments');
     if (fs.existsSync(attachments)) {
       const entries = filesIn(attachments);
@@ -59,6 +64,7 @@ function archiveTask(filePath, id, archiveDir) {
     // Publish only after all copies and ZIP entries are verified.
     if (fs.existsSync(destination)) throw new Error('アーカイブ先が変更されました');
     fs.renameSync(stage, destination);
+    fs.rmdirSync(stageRoot);
     if (bundled) fs.rmSync(folder, { recursive: true });
     else fs.unlinkSync(filePath);
     return destination;
