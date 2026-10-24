@@ -1964,10 +1964,13 @@
 
 /* CHG-154: composer model/reasoning popup is portaled to avoid pane clipping. */
 .ai-reasoning-trigger {
+  display: inline-flex; align-items: center; min-width: 0; max-width: 100%; box-sizing: border-box;
   min-height: 30px; border: 1px solid #d0d7e1; border-radius: 8px;
   background: #f7f9fc; color: #42627d; padding: 4px 9px; font: inherit;
   font-size: 12px; cursor: pointer;
 }
+.ai-reasoning-trigger-model { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ai-reasoning-trigger-level, .ai-reasoning-trigger > [aria-hidden] { flex-shrink: 0; white-space: nowrap; }
 .ai-reasoning-trigger:active { transform: scale(.98); }
 .ai-reasoning-popup {
   position: fixed; z-index: 2000; box-sizing: border-box; width: min(320px, calc(100vw - 16px));

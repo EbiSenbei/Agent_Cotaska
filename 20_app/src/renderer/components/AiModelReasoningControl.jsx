@@ -63,12 +63,18 @@ export default function AiModelReasoningControl({ model, modelOptions = [], isMo
 
   const level = reasoningLevels.find((item) => item.value === draft);
   const label = level?.label || (isSpeedAuto ? "自動・速度優先" : "自動");
+  const modelLabel = isModelSelectionDisabled
+    ? executionModel || "モデル未設定"
+    : modelOptions.find((option) => option.value === model)?.label || model || "自動";
+  const triggerLabel = `${modelLabel}：${label}`;
   const commit = (value) => { setValue(value); onReasoningChange?.(value); };
   return <>
     <button ref={trigger} type="button" className="ai-reasoning-trigger" aria-haspopup="dialog"
+      title={triggerLabel} aria-label={`モデルと思考量：${triggerLabel}`}
       aria-expanded={open} aria-controls={open ? id : undefined}
       onClick={(event) => { setKeyboardOpen(event.detail === 0); if (open) close(true); else setOpen(true); }}>
-      思考：{label} <span aria-hidden="true">▾</span>
+      <span className="ai-reasoning-trigger-model">{modelLabel}</span>
+      <span className="ai-reasoning-trigger-level">：{label}</span> <span aria-hidden="true">▾</span>
     </button>
     {presence.presentValue && createPortal(
       <div ref={popup} id={id} className={`ai-reasoning-popup${presence.isExiting ? " is-exiting" : ""}${keyboardOpen ? " is-keyboard" : ""}`}
