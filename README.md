@@ -133,6 +133,7 @@ cd 20_app
 個別実行は `npm.cmd test -- tests/main/settingsService.test.js` のように指定できます。
 
 `scripts/test-*.mjs` と `scripts/tests/*.fixture.jsx` は非表示Electronを使う独立した操作検証です。
+AI履歴の復帰・完了同期と非同期読込の競合は、Node.js 22.23.4の環境で `npm.cmd run test:ai-history` を実行して確認できます。実AI通信・利用者データへの書込は行いません。
 スキル配下の `*.test.cjs` はそのスキル専用の検証です。これらは各実行入口との対応を保って現位置に置き、Vitestの探索対象には含めません。
 electron-builderは `dist/renderer/**` と `src/main/**` 等を配布対象とし、`tests/` や上記検証スクリプトを同梱しません。
 

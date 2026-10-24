@@ -16,6 +16,7 @@
     "test": "vitest run --config vite.config.mjs",
     "test:ai-parallel": "node scripts/test-ai-chat-parallel.mjs",
     "test:ai-waiting": "node scripts/test-ai-chat-parallel.mjs --waiting",
+    "test:ai-history": "node scripts/test-ai-chat-parallel.mjs --history",
     "test:ai-reasoning": "node scripts/test-ai-chat-parallel.mjs --reasoning",
     "test:watch": "vitest --config vite.config.mjs"
   },

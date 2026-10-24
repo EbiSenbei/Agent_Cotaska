@@ -1578,7 +1578,7 @@ ipcMain.handle("aiChat:listMessages", async (_e, threadId) => {
     return aiService.listMessages(threadId);
   } catch (err) {
     logger.error("aiChat:listMessages failed", err);
-    return [];
+    throw new Error("AIメッセージ履歴を読み込めませんでした。");
   }
 });
 
@@ -1598,7 +1598,7 @@ ipcMain.handle("aiChat:listReferences", async (_e, threadId) => {
     return aiService.listReferences(threadId);
   } catch (err) {
     logger.error("aiChat:listReferences failed", err);
-    return [];
+    throw new Error("AI参照ファイルを読み込めませんでした。");
   }
 });
 

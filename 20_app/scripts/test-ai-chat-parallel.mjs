@@ -9,7 +9,8 @@ import { spawn } from "node:child_process";
 
 const require = createRequire(import.meta.url);
 const appDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const fixtureName = process.argv.includes("--waiting") ? "ai-chat-waiting.fixture.jsx"
+const fixtureName = process.argv.includes("--history") ? "ai-chat-history.fixture.jsx"
+  : process.argv.includes("--waiting") ? "ai-chat-waiting.fixture.jsx"
   : process.argv.includes("--reasoning") ? "ai-reasoning.fixture.jsx" : "ai-chat-parallel.fixture.jsx";
 const fixture = path.join(appDir, "scripts/tests", fixtureName).replaceAll("\\", "/");
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "cotaska-parallel-test-"));

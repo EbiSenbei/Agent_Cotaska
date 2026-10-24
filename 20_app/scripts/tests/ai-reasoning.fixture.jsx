@@ -50,7 +50,9 @@ async function open() { if (!popup()) trigger().click(); await wait(popup, "popu
 async function choose(text) { button(text).click(); await delay(); await wait(() => !popup()?.querySelector('[role="status"]'), "save"); await delay(); }
 async function changeModel(model) {
   const select = popup().querySelector("select"); select.value = model; select.dispatchEvent(new Event("change", { bubbles: true }));
-  await delay(100);
+  await delay();
+  await wait(() => !popup()?.querySelector('[role="status"]'), "model save");
+  await delay();
 }
 async function send(text) {
   const input = document.querySelector("textarea");

@@ -84,6 +84,17 @@ function AiChatPane({
   const pendingAutoScrollRef = useRef(false);
   const activeSendRequestRef = useRef(null);
   const activeRunHydrationKeyRef = useRef("");
+  const historyReadVersionRef = useRef(0);
+  const observedHistoryRunRef = useRef(null);
+  const pendingHistorySyncRef = useRef(null);
+  const mountedRef = useRef(false);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      historyReadVersionRef.current += 1;
+    };
+  }, []);
   const draftHistoryIndexRef = useRef(-1);
   const [sideTab, setSideTab] = useState("threads");
   const [contextPanel, setContextPanel] = useState(null);
@@ -551,6 +562,35 @@ function AiChatPane({
     }
   };
 
+  const refreshThreadHistory = async (threadId) => {
+    if (!mountedRef.current || selectedKeyRef.current !== threadId) return false;
+    const version = ++historyReadVersionRef.current;
+    const isCurrent = () => mountedRef.current && selectedKeyRef.current === threadId
+      && historyReadVersionRef.current === version;
+    try {
+      const [messageRows, referenceRows] = await Promise.all([
+        aiChatApi.listMessages(threadId),
+        aiChatApi.listReferences(threadId),
+      ]);
+      if (!isCurrent()) return false;
+      if (!Array.isArray(messageRows) || !Array.isArray(referenceRows)) {
+        throw new Error("AIスレッドの読み込みに失敗しました。");
+      }
+      setMessages(messageRows.map(mapMessage));
+      setReferences(referenceRows.map(mapReference));
+      requestScrollMessagesToBottom();
+      return true;
+    } catch (error) {
+      // Keep the displayed history (including the send response) on read failure.
+      if (isCurrent()) setRuntimeState((current) => ({
+        ...current,
+        status: "error",
+        message: error?.message || "AIスレッドの読み込みに失敗しました。",
+      }));
+      return false;
+    }
+  };
+
   const updateScrollBottomButton = () => {
     const element = messageScrollRef.current;
     if (!element) return;
@@ -671,7 +711,9 @@ function AiChatPane({
       thread.id === normalizedThreadId ? { ...thread, isUnread: false } : thread
     )));
     requestScrollMessagesToBottom();
-    selectedKeyRef.current = normalizedThreadId || draftThreadKeyRef.current;
+    const nextKey = normalizedThreadId || draftThreadKeyRef.current;
+    if (selectedKeyRef.current !== nextKey) historyReadVersionRef.current += 1;
+    selectedKeyRef.current = nextKey;
     setSelectedThreadId(normalizedThreadId);
   };
 
@@ -715,6 +757,7 @@ function AiChatPane({
       if (selectedKeyRef.current !== payload?.thread_id || !activeRequest?.id
         || payload?.request_id !== activeRequest.id || activeRequest.canceled) return;
       if (payload.type === "message.accepted" && payload.userMessage) {
+        historyReadVersionRef.current += 1;
         const accepted = mapMessage(payload.userMessage);
         const consumedIds = new Set(accepted.attachments.map((attachment) => attachment.id));
         setReferences((current) => current.filter((reference) => !consumedIds.has(reference.id)));
@@ -742,6 +785,33 @@ function AiChatPane({
     }, 2500);
     return () => window.clearInterval(timer);
   }, [aiChatApi]);
+
+  useEffect(() => {
+    const previous = observedHistoryRunRef.current;
+    const requestId = selectedActiveRun?.request_id;
+    const localRequest = localRequestsRef.current.get(selectedThreadId);
+    const sameThread = previous?.threadId === selectedThreadId;
+    if (!sameThread) pendingHistorySyncRef.current = null;
+    if (sameThread && previous.requestId && previous.requestId !== requestId) {
+      historyReadVersionRef.current += 1;
+      // Local sends sync from their completion response. Restored runs have no
+      // such callback in this pane, so polling must restore their saved history.
+      if (!previous.local) pendingHistorySyncRef.current = { threadId: selectedThreadId, inFlight: false };
+    }
+    observedHistoryRunRef.current = {
+      threadId: selectedThreadId,
+      requestId,
+      local: Boolean(requestId && (localRequest?.id === requestId || (sameThread && previous.requestId === requestId && previous.local))),
+    };
+    if (localRequest) pendingHistorySyncRef.current = null;
+    const pending = pendingHistorySyncRef.current;
+    if (!pending || pending.inFlight) return;
+    pending.inFlight = true;
+    refreshThreadHistory(pending.threadId).then((applied) => {
+      if (applied && pendingHistorySyncRef.current === pending) pendingHistorySyncRef.current = null;
+    }).finally(() => { pending.inFlight = false; });
+    // Failed or superseded reads retry on the next successful active-run poll.
+  }, [activeRuns, selectedThreadId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -818,35 +888,12 @@ function AiChatPane({
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
     draftHistoryIndexRef.current = -1;
-    const loadThreadData = async () => {
-      if (!aiChatApi || !selectedThreadId) {
-        setMessages([]);
-        setReferences([]);
-        return;
-      }
-      try {
-        const [messageRows, referenceRows] = await Promise.all([
-          aiChatApi.listMessages?.(selectedThreadId),
-          aiChatApi.listReferences?.(selectedThreadId),
-        ]);
-        if (cancelled) return;
-        setMessages(Array.isArray(messageRows) ? messageRows.map(mapMessage) : []);
-        setReferences(Array.isArray(referenceRows) ? referenceRows.map(mapReference) : []);
-        requestScrollMessagesToBottom();
-      } catch (error) {
-        if (cancelled) return;
-        setRuntimeState({
-          ready: false,
-          status: "error",
-          message: error?.message || "AIスレッドの読み込みに失敗しました。",
-        });
-      }
-    };
-    loadThreadData();
+    setMessages([]);
+    setReferences([]);
+    if (aiChatApi && selectedThreadId) refreshThreadHistory(selectedThreadId);
     return () => {
-      cancelled = true;
+      historyReadVersionRef.current += 1;
     };
   }, [aiChatApi, selectedThreadId]);
 
@@ -1821,6 +1868,7 @@ function AiChatPane({
       events: [],
     };
     localRequestsRef.current.set(threadId, requestState);
+    updateSelectedThread(threadId, () => { historyReadVersionRef.current += 1; });
     if (selectedKeyRef.current === threadId) activeSendRequestRef.current = requestState;
     const pendingUserMessage = {
       id: `pending-user-${Date.now()}`,
@@ -1878,6 +1926,7 @@ function AiChatPane({
       item.failed = result?.ok === false || result?.canceled || requestState.canceled;
       if (item.failed) queueRef.current.paused.add(threadId);
       updateSelectedThread(threadId, () => {
+        historyReadVersionRef.current += 1;
         if (result?.userMessage) {
           const consumedIds = new Set((result.userMessage.attachments || []).map((attachment) => attachment.id));
           setReferences((current) => current.filter((reference) => !consumedIds.has(reference.id)));
@@ -1922,18 +1971,7 @@ function AiChatPane({
       // DB messages are the source of truth. Re-read them after completion so
       // the UI converges even when polling observes run removal before this
       // sendMessage response or an event/state update arrives out of order.
-      try {
-        const persistedMessageRows = await aiChatApi.listMessages?.(threadId);
-        const persistedReferences = await aiChatApi.listReferences?.(threadId);
-        if (selectedKeyRef.current === threadId && Array.isArray(persistedReferences)) setReferences(persistedReferences.map(mapReference));
-        if (selectedKeyRef.current === threadId && Array.isArray(persistedMessageRows)) {
-          setMessages(persistedMessageRows.map(mapMessage));
-          requestScrollMessagesToBottom();
-        }
-      } catch (_error) {
-        // The completion response above already contains the final messages;
-        // DB re-sync is a convergence fallback and must not turn success into failure.
-      }
+      await refreshThreadHistory(threadId);
 
       await refreshThreads();
       await refreshActiveRuns();
@@ -1941,6 +1979,7 @@ function AiChatPane({
       item.failed = true;
       queueRef.current.paused.add(threadId);
       updateSelectedThread(threadId, () => {
+        historyReadVersionRef.current += 1;
         setRuntimeState({
           ready: false,
           status: "error",
