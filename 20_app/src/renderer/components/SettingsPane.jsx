@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { getReasoningLevels, normalizeReasoning } from "./aiReasoningUtils";
 import { CLAUDE_MODEL_OPTIONS, CODEX_MODEL_OPTIONS } from "./aiModelOptions";
 
 const SETTINGS_TABS = [
@@ -42,11 +43,13 @@ const DEFAULT_SETTINGS = {
     maxReferenceChars: 100000,
     codex: {
       model: "",
+      reasoningEffort: "auto",
       sandboxMode: "read-only",
       performanceMode: "standard",
     },
     claude: {
       model: "",
+      reasoningEffort: "auto",
       performanceMode: "standard",
       authMode: "local",
       permissionMode: "acceptEdits",
@@ -94,10 +97,11 @@ function mergeAiChat(rawAiChat) {
   return {
     ...def,
     ...src,
-    codex: { ...def.codex, ...(src.codex || {}) },
+    codex: { ...def.codex, ...(src.codex || {}), reasoningEffort: normalizeReasoning("codex", src.codex?.model, src.codex?.reasoningEffort) },
     claude: {
       ...def.claude,
       ...claudeSrc,
+      reasoningEffort: normalizeReasoning("claude", claudeSrc.authMode === "bedrock" ? claudeSrc.bedrock?.modelId : claudeSrc.model, claudeSrc.reasoningEffort, claudeSrc.authMode),
       bedrock: { ...def.claude.bedrock, ...(claudeSrc.bedrock || {}) },
     },
   };
@@ -208,6 +212,14 @@ function SettingsPane({ focusRequest, onOpenGuide, onProjectNameSaved }) {
     }
   };
 
+  useEffect(() => {
+    const changed = (event) => {
+      if (event.detail) setSettings((current) => normalizeSettings({ ...current, aiChat: event.detail }));
+    };
+    window.addEventListener("cotaska:aiChatSettingsChanged", changed);
+    return () => window.removeEventListener("cotaska:aiChatSettingsChanged", changed);
+  }, []);
+
   const loadSettings = async () => {
     const usage = await window.cotaskaAPI?.aiChat?.getImageUsage?.();
     if (usage?.ok) setImageUsage(usage);
@@ -259,6 +271,16 @@ function SettingsPane({ focusRequest, onOpenGuide, onProjectNameSaved }) {
   }, []);
 
   const updateSettingState = (patch) => {
+    for (const provider of ["codex", "claude"]) {
+      const changed = patch.aiChat?.[provider];
+      if (!changed) continue;
+      const next = { ...settings.aiChat[provider], ...changed,
+        bedrock: { ...settings.aiChat[provider].bedrock, ...changed.bedrock } };
+      const model = provider === "claude" && next.authMode === "bedrock" ? next.bedrock.modelId : next.model;
+      if (next.reasoningEffort !== "auto" && normalizeReasoning(provider, model, next.reasoningEffort, next.authMode) === "auto") {
+        setStatusMessage("このモデル・接続先では選択中の思考量に対応していないため、自動に戻しました。");
+      }
+    }
     setSettings((current) => normalizeSettings({
       ...current,
       ...patch,
@@ -862,7 +884,14 @@ function SettingsPane({ focusRequest, onOpenGuide, onProjectNameSaved }) {
                               <option value={settings.aiChat.codex.model}>{settings.aiChat.codex.model}（既存設定）</option>
                             )}
                           </select>
-                          <div className="settings-help-text">AIチャットの既定モデルです。チャット画面では変更できません。自動はCotaskaの既定モデルを使用します。</div>
+                          <div className="settings-help-text">AIチャットの既定モデルです。チャット欄でも変更でき、保存後に同期します。自動はCotaskaの既定モデルを使用します。</div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>思考量</th>
+                        <td>
+                          <ReasoningSetting provider="codex" settings={settings.aiChat.codex}
+                            onChange={(value) => updateSettingState({ aiChat: { codex: { reasoningEffort: value } } })} />
                         </td>
                       </tr>
                       <tr>
@@ -972,7 +1001,14 @@ function SettingsPane({ focusRequest, onOpenGuide, onProjectNameSaved }) {
                               <option value={settings.aiChat.claude.model}>{settings.aiChat.claude.model}（既存設定）</option>
                             )}
                           </select>
-                          <div className="settings-help-text">AIチャットの既定モデルです。チャット画面では変更できません。Bedrock選択時は下のBedrockモデルIDを使用します。</div>
+                          <div className="settings-help-text">AIチャットの既定モデルです。チャット欄でも変更でき、保存後に同期します。Bedrock選択時は下のBedrockモデルIDを使用します。</div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>思考量</th>
+                        <td>
+                          <ReasoningSetting provider="claude" settings={settings.aiChat.claude}
+                            onChange={(value) => updateSettingState({ aiChat: { claude: { reasoningEffort: value } } })} />
                         </td>
                       </tr>
                       <tr>
@@ -1153,3 +1189,16 @@ function SettingsPane({ focusRequest, onOpenGuide, onProjectNameSaved }) {
 }
 
 export default SettingsPane;
+
+function ReasoningSetting({ provider, settings, onChange }) {
+  const model = provider === "claude" && settings.authMode === "bedrock" ? settings.bedrock?.modelId : settings.model;
+  const levels = getReasoningLevels(provider, model, settings.authMode);
+  return <>
+    <select className="settings-select-input" aria-label={`${provider === "codex" ? "Codex" : "Claude"}思考量`}
+      value={settings.reasoningEffort || "auto"} onChange={(event) => onChange(event.target.value)}>
+      <option value="auto">{provider === "codex" && settings.performanceMode === "speed" ? "自動・速度優先" : "自動"}</option>
+      {levels.map((level) => <option key={level.value} value={level.value}>{level.label}：{level.description}</option>)}
+    </select>
+    <div className="settings-help-text">{levels.length ? "自動はモデル・既存設定に従います。明示した思考量を優先します。高い段階ほど応答時間・使用量が増える傾向があります。" : "このモデル・接続先では対応を確認できないため、自動を使います。"}</div>
+  </>;
+}

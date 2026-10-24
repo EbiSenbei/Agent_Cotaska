@@ -24,6 +24,7 @@ const settingsService = require("./settingsService");
 const aiService = require("./aiService");
 const codexSdkService = require("./codexSdkService");
 const aiProviderRegistry = require("./aiProviderRegistry");
+const { withRuntimeAuth } = require("./aiReasoning");
 const logger     = require("./logger");
 const appLogger  = require("./appLogger");
 earlyStartupLogger.setSecondaryLogger(appLogger);
@@ -1381,11 +1382,11 @@ ipcMain.handle("updates:download", async () => downloadAutoUpdate());
 
 ipcMain.handle("updates:install", async () => installAutoUpdate());
 
-ipcMain.handle("settings:get", async () => settingsService.getSettings());
+ipcMain.handle("settings:get", async () => withRuntimeAuth(settingsService.getSettings(), app.isPackaged));
 
 ipcMain.handle("settings:update", async (_e, patch) => {
   try {
-    const result = settingsService.updateSettings(patch);
+    const result = withRuntimeAuth(settingsService.updateSettings(patch), app.isPackaged);
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.setTitle(formatWindowTitle(result.settings.displayName));
     }
@@ -2111,7 +2112,7 @@ ipcMain.handle("aiChat:listRuns", async (_e, threadId) => {
 ipcMain.handle("aiChat:listActiveRuns", async () => {
   await servicesReady;
   try {
-    return aiProviderRegistry.resolveProvider().listActiveRuns();
+    return ["codex", "claude"].flatMap((provider) => aiProviderRegistry.resolveProvider(provider).listActiveRuns());
   } catch (err) {
     logger.error("aiChat:listActiveRuns failed", err);
     return [];
@@ -2121,7 +2122,7 @@ ipcMain.handle("aiChat:listActiveRuns", async () => {
 ipcMain.handle("aiChat:listRunEvents", async (_e, input) => {
   await servicesReady;
   try {
-    return aiProviderRegistry.resolveProvider().listRunEvents(input || {});
+    return ["codex", "claude"].flatMap((provider) => aiProviderRegistry.resolveProvider(provider).listRunEvents(input || {}));
   } catch (err) {
     logger.error("aiChat:listRunEvents failed", err);
     return [];
@@ -2169,7 +2170,7 @@ ipcMain.handle("aiChat:sendMessage", async (_e, input) => {
       pendingAiSends.set(threadId, (pendingAiSends.get(threadId) || 0) + 1);
       claimedThread = true;
     }
-    const result = await aiProviderRegistry.resolveProvider().sendMessage({
+    const result = await aiProviderRegistry.resolveProvider(input?.executionSettings?.provider).sendMessage({
       ...(input || {}),
       onEvent: (payload) => {
         if (mainWindow && !mainWindow.isDestroyed()) {
@@ -2216,7 +2217,9 @@ ipcMain.handle("aiChat:sendMessage", async (_e, input) => {
 ipcMain.handle("aiChat:cancelRun", async (_e, requestId) => {
   await servicesReady;
   try {
-    return aiProviderRegistry.resolveProvider().cancelRun(requestId);
+    const provider = ["codex", "claude"].map((name) => aiProviderRegistry.resolveProvider(name))
+      .find((service) => service.listActiveRuns().some((run) => run.request_id === requestId));
+    return provider ? provider.cancelRun(requestId) : { ok: false, error: "中断対象のAI処理が見つかりませんでした。" };
   } catch (err) {
     logger.error("aiChat:cancelRun failed", err);
     return { ok: false, error: err.message || String(err) };

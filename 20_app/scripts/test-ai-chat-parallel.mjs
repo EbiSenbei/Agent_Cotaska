@@ -9,7 +9,7 @@ import { spawn } from "node:child_process";
 
 const require = createRequire(import.meta.url);
 const appDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const fixture = path.join(appDir, "scripts/tests/ai-chat-parallel.fixture.jsx").replaceAll("\\", "/");
+const fixture = path.join(appDir, "scripts/tests", process.argv.includes("--reasoning") ? "ai-reasoning.fixture.jsx" : "ai-chat-parallel.fixture.jsx").replaceAll("\\", "/");
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "cotaska-parallel-test-"));
 const runner = path.join(tempDir, "runner.cjs");
 const harnessMiddleware = (_req, res) => {
@@ -25,13 +25,44 @@ const profile=require('node:path').join(__dirname,'profile');
 require('node:fs').mkdirSync(profile,{recursive:true});
 app.setPath('userData',profile);
 app.whenReady().then(async()=>{
-  const win=new BrowserWindow({show:false,webPreferences:{contextIsolation:true,nodeIntegration:false}});
+  setTimeout(()=>{console.error('Integration test watchdog timed out');app.exit(1);},60000).unref();
+  const win=new BrowserWindow({show:false,webPreferences:{contextIsolation:true,nodeIntegration:false,backgroundThrottling:false,offscreen:Boolean(process.env.COTASKA_TEST_ARTIFACT_DIR)}});
   win.webContents.on('console-message',(event)=>{if(event.level==='error')console.error(event.message);});
   try {
     await win.loadURL(process.argv[2]);
     for(let i=0;i<600;i++) {
+      const nativeInput=await win.webContents.executeJavaScript('window.testNativeInput || null');
+      if(nativeInput && !nativeInput.done) {
+        win.webContents.focus();
+        for(const event of nativeInput.events) win.webContents.sendInputEvent(event);
+        await win.webContents.executeJavaScript('window.testNativeInput.done = true');
+      }
       const result=await win.webContents.executeJavaScript('window.parallelResult || null');
-      if(result) {console.log(JSON.stringify(result)); app.exit(result.ok?0:1); return;}
+      if(result) {
+        if(result.ok && process.env.COTASKA_TEST_ARTIFACT_DIR) {
+          const fs=require('node:fs'),path=require('node:path');
+          const dir=process.env.COTASKA_TEST_ARTIFACT_DIR;
+          fs.mkdirSync(dir,{recursive:true});
+          await win.webContents.executeJavaScript("document.querySelector('#settings-test')?.style.setProperty('display','none')");
+          win.setContentSize(520,720);
+          win.webContents.debugger.attach('1.3');
+          for(const theme of ['light','dark']) {
+            await win.webContents.debugger.sendCommand('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:theme},{name:'prefers-reduced-motion',value:'reduce'}]});
+            await new Promise(resolve=>setTimeout(resolve,180));
+            const colors=await win.webContents.executeJavaScript("({dark:matchMedia('(prefers-color-scheme: dark)').matches,bg:getComputedStyle(document.querySelector('.ai-reasoning-popup')).backgroundColor})");
+            if(colors.dark!==(theme==='dark')) throw new Error('Theme emulation failed: '+JSON.stringify(colors));
+            result[theme]=colors.bg;
+            const visible=await win.webContents.executeJavaScript("(()=>{const r=document.querySelector('.ai-reasoning-popup').getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight})()");
+            if(!visible) throw new Error('Narrow popup outside viewport');
+            fs.writeFileSync(path.join(dir,'reasoning-'+theme+'.png'),(await win.capturePage()).toPNG());
+          }
+          const duration=await win.webContents.executeJavaScript("getComputedStyle(document.querySelector('.ai-reasoning-popup')).transitionDuration");
+          if(duration!=='0s') throw new Error('Reduced motion transition remains active');
+          win.webContents.debugger.detach();
+          result.artifacts=dir;
+        }
+        console.log(JSON.stringify(result)); app.exit(result.ok?0:1); return;
+      }
       await new Promise(resolve=>setTimeout(resolve,50));
     }
     throw new Error('Integration test timed out');

@@ -1,3 +1,4 @@
+const { resolveExecutionSettings } = require("./aiReasoning");
 // Claude Code 連携（@anthropic-ai/claude-agent-sdk）。
 // codexSdkService と同一シグネチャ・同一返却スキーマを実装する共通インターフェース。
 // 認証は2系統: local（ローカルサブスク・個人利用限定） / bedrock（AWS・配布可）。
@@ -379,6 +380,9 @@ function restoreEnv(prev) {
 }
 
 async function sendMessage(input = {}) {
+  const { aiChat: settings, claude: savedClaudeSettings } = getClaudeSettings();
+  const execution = resolveExecutionSettings(settings, input, "claude", Boolean(app?.isPackaged));
+  const claudeSettings = { ...savedClaudeSettings, authMode: execution.authMode, bedrock: execution.bedrock };
   const startedAt = Date.now();
   await aiService.openAiService();
   const inputThreadId = input.thread_id || input.threadId;
@@ -407,15 +411,14 @@ async function sendMessage(input = {}) {
     });
   }
 
-  const { aiChat: settings, claude: claudeSettings } = getClaudeSettings();
   const workdir = resolveRequiredWorkdir(input.workdir || settings.workdir);
   const authMode = resolveAuthMode(claudeSettings);
   const permissionMode = normalizePermissionMode(
     sandboxToPermissionMode(input.sandboxMode || input.sandbox_mode || input.sandbox) || claudeSettings.permissionMode,
     claudeSettings.permissionMode,
   );
-  const model = resolveEffectiveModel(authMode, claudeSettings, input.model);
-  const performanceMode = claudeSettings.performanceMode === "speed" ? "speed" : "standard";
+  const model = execution.model || DEFAULT_CLAUDE_MODEL;
+  const performanceMode = execution.performanceMode;
 
   const attachedReferences = aiService.listReferences(thread.thread_id)
     .filter((reference) => reference.ref_type === "file" && reference.file_path)
@@ -485,6 +488,7 @@ async function sendMessage(input = {}) {
         cwd: workdir,
         permissionMode,
         model,
+        ...(execution.sdkEffort ? { effort: execution.sdkEffort } : {}),
         maxTurns: Number(input.maxTurns || 20),
         abortController,
         ...(pathToClaudeCodeExecutable ? { pathToClaudeCodeExecutable } : {}),

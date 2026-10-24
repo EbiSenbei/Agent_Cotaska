@@ -20,6 +20,24 @@ afterEach(() => {
 });
 
 describe("settingsService プロジェクト設定", () => {
+  test("思考量をプロバイダー別に保持し、非対応モデル変更時は自動に戻す", () => {
+    const root = tempRoot();
+    settingsService.configureDataDir(tempRoot());
+    projectContext.setCurrent(root, { projectId: "reasoning-test", name: "reasoning" });
+    settingsService.updateSettings({ aiChat: { codex: { model: "gpt-6.1-sol", reasoningEffort: "high" }, claude: { model: "opus", reasoningEffort: "low" } } });
+    const saved = settingsService.getSettings().settings.aiChat;
+    expect(saved.codex.reasoningEffort).toBe("high");
+    expect(saved.claude.reasoningEffort).toBe("low");
+    const result = settingsService.updateSettings({ aiChat: { codex: { model: "unknown" } } });
+    expect(result.settings.aiChat.codex.reasoningEffort).toBe("auto");
+    expect(settingsService.getSettings().settings.aiChat.claude.reasoningEffort).toBe("low");
+    const previous = fs.readFileSync(path.join(root, "settings.yaml"), "utf8");
+    const rename = vi.spyOn(fs, "renameSync").mockImplementation(() => { throw new Error("save failed"); });
+    try { expect(() => settingsService.updateSettings({ aiChat: { claude: { reasoningEffort: "high" } } })).toThrow("save failed"); }
+    finally { rename.mockRestore(); }
+    expect(fs.readFileSync(path.join(root, "settings.yaml"), "utf8")).toBe(previous);
+    expect(fs.readdirSync(root).filter((file) => file.endsWith(".tmp"))).toEqual([]);
+  });
   test("プロジェクト外の作業フォルダをsettings.yamlへ保存して再読込できる", () => {
     const settingsDir = tempRoot();
     const projectRoot = tempRoot();

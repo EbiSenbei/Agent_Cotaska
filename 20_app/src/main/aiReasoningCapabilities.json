@@ -1,0 +1,10 @@
+{
+  "levels": [
+    { "value": "low", "label": "軽", "description": "速度・使用量を重視" },
+    { "value": "medium", "label": "中", "description": "速度と検討の深さを両立" },
+    { "value": "high", "label": "高", "description": "複雑な課題をじっくり検討。応答時間・使用量が増える傾向があります。" }
+  ],
+  "codexModels": ["gpt-6.1-sol", "gpt-6-astra", "gpt-6-sol", "gpt-6-luna", "gpt-5.6-terra", "gpt-5.6-sol"],
+  "claudeLocalAliases": ["opus", "sonnet"],
+  "claudeModelPattern": "(?:^|[./:])(?:anthropic[.])?claude-(?:opus-(?:4-[5678]|5(?:-5)?)|sonnet-(?:4-6|5(?:-5)?))(?:[-:.]|$)"
+}

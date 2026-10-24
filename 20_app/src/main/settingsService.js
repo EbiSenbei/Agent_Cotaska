@@ -1,3 +1,4 @@
+const { normalizeEffort } = require("./aiReasoning");
 const fs = require("fs");
 const path = require("path");
 const yaml = require("js-yaml");
@@ -62,6 +63,7 @@ const DEFAULT_SETTINGS = {
     // --- Codex 固有 ---
     codex: {
       model: "",
+      reasoningEffort: "auto",
       sandboxMode: "read-only",
       performanceMode: "standard",
     },
@@ -69,6 +71,7 @@ const DEFAULT_SETTINGS = {
     claude: {
       // 空欄は Claude Code 側の既定モデルを使用する（設定画面では「自動」）。
       model: "",
+      reasoningEffort: "auto",
       performanceMode: "standard",
       // 認証方式: local（ローカルサブスク・個人利用限定） / bedrock（クラウドプロバイダ・配布可）
       authMode: "local",
@@ -281,12 +284,14 @@ function mergeAiChat(rawAiChat) {
     maxReferenceChars: clampNumber(src.maxReferenceChars, 1000, 1000000, def.maxReferenceChars),
     codex: {
       model: String(codexSrc.model ?? legacyModel ?? def.codex.model),
+      reasoningEffort: normalizeEffort("codex", codexSrc.model ?? legacyModel, codexSrc.reasoningEffort),
       sandboxMode: normalizeSandboxMode(codexSrc.sandboxMode ?? legacySandbox),
       performanceMode: normalizePerformanceMode(codexSrc.performanceMode ?? legacyPerformance),
     },
     claude: {
       // 空文字は「自動」として有効な値のため、|| ではなく nullish 判定を使う。
       model: String(claudeSrc.model ?? def.claude.model),
+      reasoningEffort: normalizeEffort("claude", claudeSrc.authMode === "bedrock" ? bedrockSrc.modelId : claudeSrc.model, claudeSrc.reasoningEffort, claudeSrc.authMode),
       performanceMode: normalizePerformanceMode(claudeSrc.performanceMode),
       authMode: normalizeClaudeAuthMode(claudeSrc.authMode),
       permissionMode: normalizeClaudePermissionMode(claudeSrc.permissionMode),
@@ -423,6 +428,7 @@ function renderSettingsYaml(settings) {
     `    sandboxMode: ${escaped(normalized.aiChat.codex.sandboxMode)}`,
     "    # performance mode: standard / speed",
     `    performanceMode: ${escaped(normalized.aiChat.codex.performanceMode)}`,
+    `    reasoningEffort: ${escaped(normalized.aiChat.codex.reasoningEffort)}`,
     "",
     "  # --- Claude Code 固有 ---",
     "  claude:",
@@ -430,6 +436,7 @@ function renderSettingsYaml(settings) {
     `    model: ${escaped(normalized.aiChat.claude.model)}`,
     "    # performance mode: standard / speed",
     `    performanceMode: ${escaped(normalized.aiChat.claude.performanceMode)}`,
+    `    reasoningEffort: ${escaped(normalized.aiChat.claude.reasoningEffort)}`,
     "    # 認証方式: local（ローカルサブスク・個人利用限定） / bedrock（クラウドプロバイダ・配布可）",
     `    authMode: ${escaped(normalized.aiChat.claude.authMode)}`,
     "    # 権限モード: plan / acceptEdits / bypassPermissions",
@@ -600,7 +607,14 @@ function updateSettings(patch) {
   validateAiWorkdir(next.aiChat?.workdir);
   validateAiChatBedrock(next.aiChat);
 
-  fs.writeFileSync(getSettingsPath(), renderSettingsYaml(next), "utf8");
+  const settingsPath = getSettingsPath();
+  const temporaryPath = `${settingsPath}.${require("crypto").randomUUID()}.tmp`;
+  try {
+    fs.writeFileSync(temporaryPath, renderSettingsYaml(next), { encoding: "utf8", flag: "wx" });
+    fs.renameSync(temporaryPath, settingsPath);
+  } finally {
+    if (fs.existsSync(temporaryPath)) fs.unlinkSync(temporaryPath);
+  }
   return {
     ok: true,
     settings: next,

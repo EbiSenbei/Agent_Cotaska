@@ -1,3 +1,4 @@
+const { resolveExecutionSettings } = require("./aiReasoning");
 const path = require("path");
 const fs = require("fs");
 const { execFile, spawn } = require("child_process");
@@ -20,7 +21,6 @@ const MAX_CACHED_RUN_EVENTS = 80;
 const SPEED_PROFILE = {
   webSearchMode: "disabled",
   multiAgentEnabled: false,
-  modelReasoningEffort: "low",
 };
 const AUTH_STATUS_LABELS = {
   available: "利用可能",
@@ -382,14 +382,13 @@ function buildThreadOptions(thread, options = {}) {
   const settings = settingsService.getSettings().settings.aiChat || {};
   const codexSettings = settings.codex || settings;
   const sandboxMode = normalizeSandboxMode(options.sandboxMode || options.sandbox_mode || options.sandbox, codexSettings.sandboxMode);
-  const performanceMode = normalizePerformanceMode(options.performanceMode || options.performance_mode, codexSettings.performanceMode);
   return {
     workingDirectory: resolveRequiredWorkdir(options.workdir || settings.workdir),
     sandboxMode,
     approvalPolicy: "never",
     skipGitRepoCheck: true,
-    model: resolveCodexModel(options.model || codexSettings.model),
-    modelReasoningEffort: performanceMode === "speed" ? SPEED_PROFILE.modelReasoningEffort : undefined,
+    model: resolveCodexModel(Object.hasOwn(options, "model") ? options.model : codexSettings.model),
+    modelReasoningEffort: resolveExecutionSettings(settings, options, "codex").sdkEffort,
   };
 }
 
@@ -401,14 +400,14 @@ function resolveRequiredWorkdir(value) {
   return workdir;
 }
 
-function buildPerformanceDiagnostics(performanceMode) {
+function buildPerformanceDiagnostics(performanceMode, effort) {
   const isSpeed = performanceMode === "speed";
   return {
     performance_mode: performanceMode,
     fast_mode_requested: isSpeed,
     web_search_mode: isSpeed ? SPEED_PROFILE.webSearchMode : null,
     multi_agent_enabled: isSpeed ? SPEED_PROFILE.multiAgentEnabled : null,
-    model_reasoning_effort: isSpeed ? SPEED_PROFILE.modelReasoningEffort : null,
+    model_reasoning_effort: effort || null,
   };
 }
 
@@ -616,6 +615,9 @@ function cancelRun(requestId) {
 }
 
 async function sendMessage(input = {}) {
+  const settings = settingsService.getSettings().settings.aiChat || {};
+  const execution = resolveExecutionSettings(settings, input, "codex");
+  input = { ...input, executionSettings: execution, model: execution.model, performanceMode: execution.performanceMode };
   const startedAt = Date.now();
   await aiService.openAiService();
   const inputThreadId = input.thread_id || input.threadId;
@@ -644,12 +646,11 @@ async function sendMessage(input = {}) {
     });
   }
 
-  const settings = settingsService.getSettings().settings.aiChat || {};
   const codexSettings = settings.codex || settings;
   const workdir = resolveRequiredWorkdir(input.workdir || settings.workdir);
   const sandboxMode = normalizeSandboxMode(input.sandboxMode || input.sandbox_mode || input.sandbox, codexSettings.sandboxMode);
   const performanceMode = normalizePerformanceMode(input.performanceMode || input.performance_mode, codexSettings.performanceMode);
-  const model = resolveCodexModel(input.model || codexSettings.model);
+  const model = resolveCodexModel(execution.model);
   const usePersistentCodexThread = shouldUsePersistentCodexThread(performanceMode);
   const codexThreadIdForRun = usePersistentCodexThread ? thread.codex_thread_id : null;
   const codexThreadStrategy = usePersistentCodexThread ? "persistent" : "transient";
@@ -706,9 +707,10 @@ async function sendMessage(input = {}) {
     codex_thread_strategy: codexThreadStrategy,
     codex_thread_reused: Boolean(codexThreadIdForRun),
     sandbox: sandboxMode,
-    ...buildPerformanceDiagnostics(performanceMode),
+    ...buildPerformanceDiagnostics(performanceMode, execution.sdkEffort),
     workdir,
     model,
+    model_reasoning_effort: execution.sdkEffort || null,
     prompt_chars: prompt.length,
     user_input_chars: text.length,
     reference_files: referenceContext.usedCount,
@@ -827,7 +829,7 @@ async function sendMessage(input = {}) {
       codex_client_reused: codexClientReused,
       message_id: assistantMessage.message_id,
       response_chars: finalResponse.length,
-      ...buildPerformanceDiagnostics(performanceMode),
+      ...buildPerformanceDiagnostics(performanceMode, execution.sdkEffort),
       usage,
       timings_ms: {
         total: completedAt - startedAt,

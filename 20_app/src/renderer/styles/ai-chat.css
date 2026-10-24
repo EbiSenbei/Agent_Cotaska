@@ -1473,6 +1473,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .ai-compose-icon-btn {
@@ -1960,3 +1961,46 @@
 
 .ai-image-thumbnail { width: 36px; height: 36px; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
 .ai-message-attachments button { display: inline-flex; align-items: center; gap: 8px; color: inherit; background: transparent; border: 0; cursor: pointer; }
+
+/* CHG-154: composer model/reasoning popup is portaled to avoid pane clipping. */
+.ai-reasoning-trigger {
+  min-height: 30px; border: 1px solid #d0d7e1; border-radius: 8px;
+  background: #f7f9fc; color: #42627d; padding: 4px 9px; font: inherit;
+  font-size: 12px; cursor: pointer;
+}
+.ai-reasoning-trigger:active { transform: scale(.98); }
+.ai-reasoning-popup {
+  position: fixed; z-index: 2000; box-sizing: border-box; width: min(320px, calc(100vw - 16px));
+  padding: 16px; overflow: auto; border: 1px solid #d0d7e1; border-radius: 12px;
+  background: #fff; color: #25364a; box-shadow: 0 8px 28px #15243b26; font-size: 13px;
+  opacity: 1; transform: translateY(0) scale(1); transform-origin: bottom left;
+  transition: opacity 130ms cubic-bezier(.23,1,.32,1), transform 130ms cubic-bezier(.23,1,.32,1);
+}
+@starting-style { .ai-reasoning-popup { opacity: 0; transform: translateY(3px) scale(.98); } }
+.ai-reasoning-popup.is-exiting { opacity: 0; transform: translateY(3px) scale(.98); pointer-events: none; }
+.ai-reasoning-model { display: grid; gap: 8px; }
+.ai-reasoning-model select { width: 100%; min-width: 0; padding: 7px; border: 1px solid #c9d2df; border-radius: 6px; background: #f5f7fa; color: inherit; font: inherit; }
+.ai-reasoning-heading { display: flex; align-items: center; justify-content: space-between; margin: 12px 0 8px; }
+.ai-reasoning-popup button { font: inherit; color: inherit; border: 1px solid #c9d2df; border-radius: 6px; background: transparent; padding: 5px 10px; cursor: pointer; }
+.ai-reasoning-heading button { border: 0; font-size: 18px; }
+.ai-reasoning-popup button[aria-pressed="true"] { background: #e8f1ff; border-color: #467cb7; color: #235f9e; }
+.ai-reasoning-popup button:disabled, .ai-reasoning-popup select:disabled { opacity: .6; cursor: default; }
+.ai-reasoning-popup input[type="range"] { width: 100%; margin: 12px 0 2px; accent-color: #3b79bb; touch-action: none; }
+.ai-reasoning-ticks { display: flex; justify-content: space-between; }
+.ai-reasoning-ticks button { min-width: 40px; }
+.ai-reasoning-help { font-size: 11px; line-height: 1.6; color: #64748b; overflow-wrap: anywhere; }
+.ai-reasoning-description { min-height: 40px; line-height: 1.6; }
+.ai-reasoning-popup :focus-visible, .ai-reasoning-trigger:focus-visible { outline: 2px solid #3878c0; outline-offset: 2px; }
+.ai-reasoning-popup.is-keyboard { transition: none; }
+@media (prefers-color-scheme: dark) {
+  .ai-reasoning-popup { background: #272c34; color: #edf1f7; border-color: #555e6e; box-shadow: 0 8px 28px #0006; }
+  .ai-reasoning-model select { background: #303742; border-color: #626c7d; }
+  .ai-reasoning-help { color: #b1bccb; }
+  .ai-reasoning-popup button { border-color: #626c7d; }
+  .ai-reasoning-popup button[aria-pressed="true"] { background: #284564; color: #daebff; border-color: #82b4ee; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ai-reasoning-popup { transition: none; }
+  .ai-reasoning-popup.is-exiting { transform: none; }
+  @starting-style { .ai-reasoning-popup { transform: none; } }
+}

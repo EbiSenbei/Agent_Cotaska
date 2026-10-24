@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import AiChatMessage from "./AiChatMessage";
 import AiChatComposer from "./AiChatComposer";
+import { captureExecutionSettings, getReasoningLevels } from "./aiReasoningUtils";
 import AiThreadMenu from "./AiThreadMenu";
 import { AiSendQueue } from "./aiSendQueue";
 import AiChatContextPanel from "./AiChatContextPanel";
@@ -125,6 +126,10 @@ function AiChatPane({
   const [waitingSeconds, setWaitingSeconds] = useState(0);
   const [sandboxMode, setSandboxMode] = useState("read-only");
   const [selectedModel, setSelectedModel] = useState("");
+  const [chatSettings, setChatSettings] = useState({});
+  const [isSavingModelSettings, setIsSavingModelSettings] = useState(false);
+  const savingModelSettingsRef = useRef(false);
+  const executionSettings = captureExecutionSettings(chatSettings);
   const [claudeAuthMode, setClaudeAuthMode] = useState("claude-login");
   const [bedrockAwsProfile, setBedrockAwsProfile] = useState("");
   const [showScrollBottom, setShowScrollBottom] = useState(false);
@@ -574,6 +579,7 @@ function AiChatPane({
           setAiProvider(aiChatSettings.provider === "claude" ? "claude" : "codex");
           const provider = aiChatSettings.provider === "claude" ? "claude" : "codex";
           setSelectedModel(String(aiChatSettings[provider]?.model || ""));
+          setChatSettings(aiChatSettings);
           setClaudeAuthMode(String(aiChatSettings.claude?.authMode || "claude-login"));
           setBedrockAwsProfile(String(aiChatSettings.claude?.bedrock?.awsProfile || ""));
         }
@@ -784,6 +790,7 @@ function AiChatPane({
 
   useEffect(() => {
     const handleAiChatSettingsChanged = (event) => {
+      if (event.detail) setChatSettings(event.detail);
       if (event.detail?.provider) {
         const provider = event.detail.provider === "claude" ? "claude" : "codex";
         setAiProvider(provider);
@@ -1483,24 +1490,27 @@ function AiChatPane({
     }
   };
 
-  const handleModelChange = async (event) => {
-    const nextModel = String(event.target.value || "");
-    const previousModel = selectedModel;
-    setSelectedModel(nextModel);
-    const patch = { aiChat: { [aiProvider]: { model: nextModel } } };
+  const saveModelSettings = async (changes) => {
+    if (savingModelSettingsRef.current) return;
+    savingModelSettingsRef.current = true;
+    setIsSavingModelSettings(true);
     try {
-      const result = await window.cotaskaAPI?.settings?.update?.(patch);
-      if (result?.ok === false) throw new Error(result.error || "モデル設定を保存できませんでした。");
-      const aiChatSettings = result?.settings?.aiChat;
-      if (aiChatSettings) {
-        window.dispatchEvent(new CustomEvent("cotaska:aiChatSettingsChanged", { detail: aiChatSettings }));
-      }
-      setRuntimeState((current) => ({ ...current, status: "ready", message: "既定モデルを変更しました。次の送信から適用します。" }));
+      const result = await window.cotaskaAPI?.settings?.update?.({ aiChat: { [aiProvider]: changes } });
+      if (!result?.ok || !result.settings?.aiChat) throw new Error(result?.error || "モデル・思考設定を保存できませんでした。");
+      const next = result.settings.aiChat;
+      const reset = Object.hasOwn(changes, "model") && executionSettings.reasoningEffort !== "auto" && next[aiProvider]?.reasoningEffort === "auto";
+      window.dispatchEvent(new CustomEvent("cotaska:aiChatSettingsChanged", { detail: next }));
+      setRuntimeState((current) => ({ ...current, status: "ready", message: reset
+        ? "このモデルは選択中の思考量に対応していないため、自動に戻しました。"
+        : "モデル・思考設定を保存しました。次の送信から適用します。" }));
     } catch (error) {
-      setSelectedModel(previousModel);
-      setRuntimeState((current) => ({ ...current, status: "error", message: error?.message || "モデル設定を保存できませんでした。" }));
+      setRuntimeState((current) => ({ ...current, status: "error", message: error?.message || "モデル・思考設定を保存できませんでした。" }));
+    } finally {
+      savingModelSettingsRef.current = false;
+      setIsSavingModelSettings(false);
     }
   };
+  const handleModelChange = (event) => saveModelSettings({ model: String(event.target.value || "") });
 
   const showLinkOpenError = (target, message) => {
     setContextPanel({
@@ -1714,9 +1724,10 @@ function AiChatPane({
   const handleSend = () => {
     if (selectedThread?.status === "archived" || threadMutationRef.current.has(selectedThreadKey)) return;
     const text = draft.trim();
-    if (!text || pastingRef.current) return;
+    if (!text || pastingRef.current || savingModelSettingsRef.current) return;
     queueRef.current.add({ id: `queued-${Date.now()}-${Math.random()}`, threadId: selectedThreadId, key: selectedThreadKey,
       text, title: selectedThread?.title || createDraftThreadTitle(text), model: selectedModel, sandboxMode,
+      executionSettings: captureExecutionSettings(chatSettings),
       references: isSending ? [] : [...references] });
     setDraft("");
     syncQueue();
@@ -1842,7 +1853,8 @@ function AiChatPane({
         content: text,
         title: item.title,
         sandboxMode: effectiveSandboxMode,
-        model: item.model || undefined,
+        model: item.model,
+        executionSettings: item.executionSettings,
         referenceIds: item.references.map((reference) => reference.id),
         request_id: requestId,
       });
@@ -2264,12 +2276,18 @@ function AiChatPane({
         ) : <AiChatComposer
           draft={draft}
           isSending={isSending}
-          isPasting={isPasting}
+          isPasting={isPasting || isSavingModelSettings}
           onPaste={handlePasteImages}
           isDragOver={isComposeDragOver}
           references={references}
           model={isBedrockModel ? bedrockAwsProfile : selectedModel}
           modelOptions={modelOptions}
+          reasoningEffort={executionSettings.reasoningEffort}
+          reasoningLevels={getReasoningLevels(aiProvider, executionSettings.model, executionSettings.authMode)}
+          isSpeedAuto={aiProvider === "codex" && executionSettings.performanceMode === "speed"}
+          isSavingModelSettings={isSavingModelSettings}
+          executionModel={isBedrockModel ? executionSettings.model : ""}
+          onReasoningChange={(value) => saveModelSettings({ reasoningEffort: value })}
           isModelSelectionDisabled={isBedrockModel}
           sandboxMode={sandboxMode}
           sandboxOptions={SANDBOX_OPTIONS}
