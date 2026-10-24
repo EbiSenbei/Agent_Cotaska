@@ -64,6 +64,8 @@ Cotaska/
 20_app/
   src/main/       Electron メインプロセス、サービス層
   src/renderer/   React UI
+  tests/main/     メインプロセスの自動テスト
+  tests/renderer/ React UI の自動テスト（src と同じ階層構成）
   setup/          セットアップ関連ファイル
   package.json    npm scripts と依存定義
 ```
@@ -112,6 +114,27 @@ cd 20_app
 cd 20_app
 .\start-dev.ps1
 ```
+
+## 自動テスト
+
+単体・回帰テストは `20_app/tests/` 配下へ配置し、`src/` 側の階層とファイル名に対応させます。
+例: `src/main/settingsService.js` → `tests/main/settingsService.test.js`、
+`src/renderer/components/AiChatComposer.jsx` → `tests/renderer/components/AiChatComposer.test.jsx`。
+今後追加するテストもこの配置に統一し、テスト専用の補助ファイルやフィクスチャも `tests/` 配下へ置きます。
+
+```powershell
+cd 20_app
+..\..\v22.14.0\npm.cmd test
+..\..\v22.14.0\npm.cmd run test:watch
+```
+
+両コマンドは `vite.config.mjs` を使い、アプリルートを基準に
+`tests/main/**/*.test.js` と `tests/renderer/**/*.test.{js,jsx}` を検出します。
+個別実行は `npm.cmd test -- tests/main/settingsService.test.js` のように指定できます。
+
+`scripts/test-*.mjs` と `scripts/tests/*.fixture.jsx` は非表示Electronを使う独立した操作検証です。
+スキル配下の `*.test.cjs` はそのスキル専用の検証です。これらは各実行入口との対応を保って現位置に置き、Vitestの探索対象には含めません。
+electron-builderは `dist/renderer/**` と `src/main/**` 等を配布対象とし、`tests/` や上記検証スクリプトを同梱しません。
 
 ## ビルド
 
