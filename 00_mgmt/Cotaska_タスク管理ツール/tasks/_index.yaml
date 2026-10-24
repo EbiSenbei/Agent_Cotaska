@@ -43,7 +43,7 @@ tasks:
       - 知名度向上
       - 素材
     due_date: null
-    updated_at: '2026-09-23T12:35:30.143Z'
+    updated_at: '2026-10-24T23:19:46.856+09:00'
   - id: T-0295
     title: Cotaska認知向上：公開・ダウンロード導線を整える
     list: 販売戦略
@@ -169,7 +169,7 @@ tasks:
     priority: normal
     sort_order: 15
     tags: []
-    due_date: 2026-09-26T00:00:00.000Z
+    due_date: '2026-09-26'
     updated_at: '2026-09-26T10:07:44.437+09:00'
   - id: T-0653
     title: 設計：BUG-20260923-01
@@ -2271,7 +2271,7 @@ tasks:
     tags:
       - 起動改善
       - 性能改善
-    due_date: 2026-05-15T00:00:00.000Z
+    due_date: '2026-05-15'
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0171
     title: 仕様変更：文字サイズの変更
@@ -2336,7 +2336,7 @@ tasks:
     tags:
       - release
       - v0.1.1
-    due_date: 2026-05-15T00:00:00.000Z
+    due_date: '2026-05-15'
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0176
     title: 仕様変更：設定画面の未実装項目を実装する
@@ -5608,7 +5608,7 @@ tasks:
       - 保守性改善
       - リファクタ
       - 設計整理
-    due_date: 2026-07-18T00:00:00.000Z
+    due_date: '2026-07-18'
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0495
     title: CHG-113 AIスレッド初回投稿時の一覧表示
@@ -5691,7 +5691,7 @@ tasks:
       - 保守性改善
       - リファクタ
       - タスク管理
-    due_date: 2026-07-18T00:00:00.000Z
+    due_date: '2026-07-18'
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0491
     title: リリース処理のバージョン管理と共通検証を一本化する
@@ -5703,7 +5703,7 @@ tasks:
       - 保守性改善
       - リリース
       - 自動化
-    due_date: 2026-07-18T00:00:00.000Z
+    due_date: '2026-07-18'
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0492
     title: CHG-112-01 文書体系再編の設計・仕様変更記録
@@ -6618,7 +6618,7 @@ tasks:
       - 設計
       - 旧Portable移行
       - プロジェクト選択
-    due_date: 2026-08-28T00:00:00.000Z
+    due_date: '2026-08-28'
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0584
     title: CHG-126-09 実装：旧Portable移行前に2回のフォルダ選択を案内する
@@ -6631,7 +6631,7 @@ tasks:
       - 実装
       - 旧Portable移行
       - メッセージボックス
-    due_date: 2026-08-28T00:00:00.000Z
+    due_date: '2026-08-28'
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0585
     title: CHG-126-10 ユーザー確認：旧Portable移行の2回のフォルダ選択案内を確認する
@@ -6657,7 +6657,7 @@ tasks:
       - 設計
       - プロジェクト表示
       - 画面配置
-    due_date: 2026-08-28T00:00:00.000Z
+    due_date: '2026-08-28'
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0587
     title: CHG-126-12 実装：現在プロジェクト表示を画面左下へ移動する
@@ -6670,7 +6670,7 @@ tasks:
       - 実装
       - プロジェクト表示
       - 画面配置
-    due_date: 2026-08-28T00:00:00.000Z
+    due_date: '2026-08-28'
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0588
     title: CHG-126-13 ユーザー確認：現在プロジェクト表示の左下配置を確認する
@@ -6705,7 +6705,7 @@ tasks:
       - 設計
       - ショートカット
       - 保存先選択
-    due_date: 2026-08-28T00:00:00.000Z
+    due_date: '2026-08-28'
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0590
     title: CHG-126-15 実装：ショートカットの保存ダイアログを追加する
@@ -6718,7 +6718,7 @@ tasks:
       - 実装
       - ショートカット
       - 保存先選択
-    due_date: 2026-08-28T00:00:00.000Z
+    due_date: '2026-08-28'
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0591
     title: CHG-126-16 ユーザー確認：ショートカットの任意保存先を確認する
@@ -6802,7 +6802,7 @@ tasks:
       - 設計
       - AI作業フォルダ
       - パス制限
-    due_date: 2026-08-28T00:00:00.000Z
+    due_date: '2026-08-28'
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0597
     title: CHG-126-18 実装：AI作業フォルダにプロジェクト外を指定可能にする
@@ -6815,7 +6815,7 @@ tasks:
       - 実装
       - AI作業フォルダ
       - パス制限
-    due_date: 2026-08-28T00:00:00.000Z
+    due_date: '2026-08-28'
     updated_at: '2026-09-23T12:35:50.204Z'
   - id: T-0628
     title: 仕様変更：AIチャットの入力欄を可変にしたい
@@ -7510,7 +7510,7 @@ tasks:
     sort_order: 641
     tags: []
     due_date: null
-    updated_at: '2026-09-27T08:27:00.157Z'
+    updated_at: '2026-10-24T12:00:37.116Z'
   - id: T-0673
     title: CHG-137 Codex更新への追従とGPT-6.1 Sol対応
     list: 仕様変更
@@ -7869,14 +7869,14 @@ tasks:
   - id: T-0700
     title: AI初回導入：Codexログイン導線と利用条件の案内を整える
     list: 仕様変更
-    status: todo
+    status: done
     priority: high
     sort_order: 669
     tags:
       - AI初回導入
       - Codex
-    due_date: null
-    updated_at: '2026-10-12T20:32:04.6776869+09:00'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T13:16:17.763Z'
   - id: T-0701
     title: CHG-152-01 調査・設計：同梱Codexで初回ログインを完了できる方式を確定する
     list: 仕様変更
@@ -7886,7 +7886,7 @@ tasks:
     tags:
       - AI初回導入
       - Codex
-    due_date: 2026-10-12T00:00:00.000Z
+    due_date: '2026-10-12'
     updated_at: '2026-10-12T20:32:04.6776869+09:00'
   - id: T-0702
     title: CHG-152-02 実装：CotaskaからCodexログインを開始し認証結果を確認できるようにする
@@ -7897,39 +7897,39 @@ tasks:
     tags:
       - AI初回導入
       - Codex
-    due_date: 2026-10-12T00:00:00.000Z
+    due_date: '2026-10-12'
     updated_at: '2026-10-12T20:32:04.6776869+09:00'
   - id: T-0703
     title: CHG-152-03 案内更新：AI利用の前提条件と初回ログイン手順をサイト・アプリに明記する
     list: 販売戦略
-    status: todo
+    status: done
     priority: high
     sort_order: 672
     tags:
       - AI初回導入
       - Codex
-    due_date: null
-    updated_at: '2026-10-12T20:32:04.6776869+09:00'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T13:16:17.791Z'
   - id: T-0704
     title: CHG-152-04 ユーザー確認：AI未設定のWindows環境で初回認証からチャットまで確認する
     list: 仕様変更
-    status: todo
+    status: done
     priority: high
     sort_order: 673
     tags:
       - AI初回導入
       - Codex
-    due_date: null
-    updated_at: '2026-10-12T20:32:04.6776869+09:00'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T13:16:17.798Z'
   - id: T-0706
     title: 仕様変更：AIチャットの添付ファイルに仕様
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 675
     tags: []
     due_date: '2026-10-12'
-    updated_at: '2026-10-12T09:12:01.898Z'
+    updated_at: '2026-10-12T13:16:12.518Z'
   - id: T-0707
     title: 仕様変更：ファイルビューで画像の時は画像を表示するようにしてほしい
     list: null
@@ -7946,7 +7946,7 @@ tasks:
     priority: normal
     sort_order: 677
     tags: []
-    due_date: 2026-10-11T00:00:00.000Z
+    due_date: '2026-10-11'
     updated_at: '2026-10-11T08:06:08.339Z'
   - id: T-0709
     title: CHG-138-02 ファイルビュー画像表示の実装・検証
@@ -7955,7 +7955,7 @@ tasks:
     priority: normal
     sort_order: 678
     tags: []
-    due_date: 2026-10-11T00:00:00.000Z
+    due_date: '2026-10-11'
     updated_at: '2026-10-11T08:06:08.339Z'
   - id: T-0710
     title: CHG-138-03 ファイルビュー画像表示のユーザー確認
@@ -7969,30 +7969,30 @@ tasks:
   - id: T-0711
     title: CHG-139-01 AIチャット添付表示の設計反映
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 680
     tags: []
-    due_date: 2026-10-11T00:00:00.000Z
-    updated_at: '2026-10-12T09:04:42.755Z'
+    due_date: '2026-10-11'
+    updated_at: '2026-10-12T13:16:12.536Z'
   - id: T-0712
     title: CHG-139-02 AIチャット添付履歴と送信後解除の実装・検証
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 681
     tags: []
-    due_date: 2026-10-11T00:00:00.000Z
-    updated_at: '2026-10-12T09:04:42.755Z'
+    due_date: '2026-10-11'
+    updated_at: '2026-10-12T13:16:12.544Z'
   - id: T-0713
     title: CHG-139-03 AIチャット添付表示のユーザー確認
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 682
     tags: []
     due_date: '2026-10-12'
-    updated_at: '2026-10-12T09:04:42.755Z'
+    updated_at: '2026-10-12T13:16:12.555Z'
   - id: T-0714
     title: CHG-140-01 タスクフォルダ・添付管理の設計反映
     list: null
@@ -8043,7 +8043,7 @@ tasks:
     tags:
       - CHG-141
       - 添付ファイル
-    due_date: 2026-10-11T00:00:00.000Z
+    due_date: '2026-10-11'
     updated_at: '2026-10-11T09:20:38.795697+00:00'
   - id: T-0719
     title: CHG-141-02 Markdown画像表示と画像貼り付けの実装・検証
@@ -8054,7 +8054,7 @@ tasks:
     tags:
       - CHG-141
       - 添付ファイル
-    due_date: 2026-10-11T00:00:00.000Z
+    due_date: '2026-10-11'
     updated_at: '2026-10-11T09:20:38.795697+00:00'
   - id: T-0720
     title: CHG-141-03 Markdown画像表示と画像貼り付けのユーザー確認
@@ -8087,7 +8087,7 @@ tasks:
     tags:
       - CHG-142
       - 添付ファイル
-    due_date: 2026-10-11T00:00:00.000Z
+    due_date: '2026-10-11'
     updated_at: '2026-10-12T07:08:49.797Z'
   - id: T-0723
     title: CHG-142-02 PDFプレビューの実装・検証
@@ -8098,7 +8098,7 @@ tasks:
     tags:
       - CHG-142
       - 添付ファイル
-    due_date: 2026-10-11T00:00:00.000Z
+    due_date: '2026-10-11'
     updated_at: '2026-10-12T07:08:49.804Z'
   - id: T-0724
     title: CHG-142-03 PowerPointプレビューの実装・検証
@@ -8138,7 +8138,7 @@ tasks:
     priority: normal
     sort_order: 696
     tags: []
-    due_date: 2026-10-11T00:00:00.000Z
+    due_date: '2026-10-11'
     updated_at: '2026-10-11T09:47:24.233366+00:00'
   - id: T-0728
     title: CHG-143-02 AI送信待ちの実装と検証
@@ -8147,7 +8147,7 @@ tasks:
     priority: normal
     sort_order: 697
     tags: []
-    due_date: 2026-10-11T00:00:00.000Z
+    due_date: '2026-10-11'
     updated_at: '2026-10-11T09:47:24.233366+00:00'
   - id: T-0729
     title: CHG-143-03 AI処理中入力と順次送信のユーザー確認
@@ -8296,7 +8296,7 @@ tasks:
     sort_order: 713
     tags:
       - CHG-146
-    due_date: 2026-10-12T00:00:00.000Z
+    due_date: '2026-10-12'
     updated_at: '2026-10-12T07:57:10.777Z'
   - id: T-0745
     title: CHG-146-01 AIチャット画像貼り付け実装・検証
@@ -8306,7 +8306,7 @@ tasks:
     sort_order: 714
     tags:
       - CHG-146
-    due_date: 2026-10-12T00:00:00.000Z
+    due_date: '2026-10-12'
     updated_at: '2026-10-12T07:57:10.777Z'
   - id: T-0746
     title: CHG-146 AIチャット画像貼り付けユーザー確認
@@ -8347,7 +8347,7 @@ tasks:
     tags:
       - 開発管理
       - CHG-147
-    due_date: 2026-10-12T00:00:00.000Z
+    due_date: '2026-10-12'
     updated_at: '2026-10-12T07:44:47.429Z'
   - id: T-0750
     title: CHG-147-02 タスク詳細メニューの実装と検証
@@ -8358,7 +8358,7 @@ tasks:
     tags:
       - 開発管理
       - CHG-147
-    due_date: 2026-10-12T00:00:00.000Z
+    due_date: '2026-10-12'
     updated_at: '2026-10-12T07:44:47.429Z'
   - id: T-0751
     title: CHG-147-03 タスク詳細メニューのユーザー確認
@@ -8437,12 +8437,12 @@ tasks:
   - id: T-0767
     title: 仕様変更：ClaudeCodeのBedrockの場合
     list: null
-    status: doing
+    status: done
     priority: normal
     sort_order: 736
     tags: []
-    due_date: null
-    updated_at: '2026-10-12T10:49:54.483Z'
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T12:00:43.524Z'
   - id: T-0768
     title: CHG-151 設計反映：BedrockのAWSプロファイル表示
     list: null
@@ -8452,7 +8452,7 @@ tasks:
     tags:
       - 開発管理
       - CHG-151
-    due_date: 2026-10-12T00:00:00.000Z
+    due_date: '2026-10-12'
     updated_at: '2026-10-12T10:51:36.507Z'
   - id: T-0769
     title: CHG-151-01 AIチャットのAWSプロファイル表示を実装
@@ -8463,19 +8463,58 @@ tasks:
     tags:
       - 開発管理
       - CHG-151
-    due_date: 2026-10-12T00:00:00.000Z
+    due_date: '2026-10-12'
     updated_at: '2026-10-12T10:51:36.507Z'
   - id: T-0770
     title: CHG-151 ユーザー確認：BedrockのAWSプロファイル表示
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 739
     tags:
       - 開発管理
       - CHG-151
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T12:00:43.553Z'
+  - id: T-0772
+    title: 仕様変更：AIチャット画面の[…]
+    list: null
+    status: done
+    priority: normal
+    sort_order: 741
+    tags: []
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T13:53:01.822Z'
+  - id: T-0773
+    title: CHG-153-01 AIチャット操作メニュー 設計更新
+    list: 開発管理
+    status: done
+    priority: normal
+    sort_order: 742
+    tags:
+      - CHG-153
     due_date: null
-    updated_at: '2026-10-12T10:49:54.483Z'
+    updated_at: '2026-10-24T12:30:22.316Z'
+  - id: T-0774
+    title: CHG-153-02 AIチャット操作メニュー 実装・検証
+    list: 開発管理
+    status: done
+    priority: normal
+    sort_order: 743
+    tags:
+      - CHG-153
+    due_date: null
+    updated_at: '2026-10-24T12:30:22.316Z'
+  - id: T-0775
+    title: CHG-153 AIチャット操作メニュー ユーザー確認
+    list: 開発管理
+    status: done
+    priority: normal
+    sort_order: 744
+    tags:
+      - CHG-153
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T13:53:01.831Z'
   - id: T-0758
     title: CHG-146 参照設定と画像説明の削除 設計更新
     list: null
@@ -8484,7 +8523,7 @@ tasks:
     sort_order: 758
     tags:
       - CHG-146
-    due_date: 2026-10-12T00:00:00.000Z
+    due_date: '2026-10-12'
     updated_at: '2026-10-12T09:13:47.972Z'
   - id: T-0759
     title: CHG-146 参照設定と画像説明の削除 実装・検証
@@ -8494,7 +8533,7 @@ tasks:
     sort_order: 759
     tags:
       - CHG-146
-    due_date: 2026-10-12T00:00:00.000Z
+    due_date: '2026-10-12'
     updated_at: '2026-10-12T09:13:47.972Z'
   - id: T-0760
     title: CHG-146 参照設定と画像説明の削除 利用者確認
@@ -8551,23 +8590,33 @@ tasks:
   - id: T-0765
     title: BUG-20261012-03 期限が長い日付文字列になりタスク名が隠れる問題を修正
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 765
     tags:
       - BUG-20261012-03
-    due_date: null
-    updated_at: '2026-10-12T10:47:37.825Z'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T13:16:12.564Z'
   - id: T-0766
     title: BUG-20261012-03 期限表示とタスク名のユーザー確認
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 766
     tags:
       - BUG-20261012-03
-    due_date: null
-    updated_at: '2026-10-12T10:47:37.825Z'
+    due_date: '2026-10-12'
+    updated_at: '2026-10-12T13:16:12.572Z'
+  - id: T-0799
+    title: 不具合：AIチャットの処理時間がリセットされる
+    list: null
+    status: done
+    priority: normal
+    sort_order: 768
+    tags:
+      - BUG-20261024-01
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T13:53:15.290Z'
   - id: T-0771
     title: Cotaska v0.5.0 版数更新・リリースノート・配布物生成・GitHub公開
     list: リリース
@@ -8580,6 +8629,479 @@ tasks:
       - v0.5.0
     due_date: null
     updated_at: '2026-10-12T20:51:04.3566410+09:00'
+  - id: T-0776
+    title: 仕様変更：AIチャットのモデル・思考量選択UI
+    list: 開発管理
+    status: done
+    priority: normal
+    sort_order: 772
+    tags:
+      - CHG-154
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T13:53:20.195Z'
+  - id: T-0777
+    title: CHG-154-01 モデル・思考量選択UI 設計更新
+    list: 開発管理
+    status: done
+    priority: normal
+    sort_order: 773
+    tags:
+      - CHG-154
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T12:52:11.006Z'
+  - id: T-0778
+    title: CHG-154-02 モデル・思考量選択UI 実装・検証
+    list: 開発管理
+    status: done
+    priority: normal
+    sort_order: 774
+    tags:
+      - CHG-154
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T12:52:11.006Z'
+  - id: T-0779
+    title: CHG-154-03 モデル・思考量選択UI ユーザー確認
+    list: 開発管理
+    status: done
+    priority: normal
+    sort_order: 775
+    tags:
+      - CHG-154
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T13:53:20.201Z'
+  - id: T-0780
+    title: Cotaskaのソース構造・冗長処理・性能を10観点で調査する
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 776
+    tags:
+      - 開発管理
+      - ソース調査
+      - 保守性改善
+    due_date: null
+    updated_at: '2026-10-24T12:27:26.822Z'
+  - id: T-0781
+    title: ソース調査01：責務の分離とコード構造を調査する
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 777
+    tags:
+      - 開発管理
+      - ソース調査
+      - 保守性改善
+    due_date: null
+    updated_at: '2026-10-24T12:27:26.822Z'
+  - id: T-0782
+    title: ソース調査02：重複・冗長な処理を調査する
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 778
+    tags:
+      - 開発管理
+      - ソース調査
+      - 保守性改善
+    due_date: null
+    updated_at: '2026-10-24T12:27:26.822Z'
+  - id: T-0783
+    title: ソース調査03：タスク更新・通知・再取得の重複を調査する
+    list: null
+    status: todo
+    priority: high
+    sort_order: 779
+    tags:
+      - 開発管理
+      - ソース調査
+      - 保守性改善
+    due_date: null
+    updated_at: '2026-10-24T12:27:26.822Z'
+  - id: T-0784
+    title: ソース調査04：ファイル入出力とインデックス処理の負荷を調査する
+    list: null
+    status: todo
+    priority: high
+    sort_order: 780
+    tags:
+      - 開発管理
+      - ソース調査
+      - 保守性改善
+    due_date: null
+    updated_at: '2026-10-24T12:27:26.822Z'
+  - id: T-0785
+    title: ソース調査05：Reactの再描画と状態管理を調査する
+    list: null
+    status: todo
+    priority: high
+    sort_order: 781
+    tags:
+      - 開発管理
+      - ソース調査
+      - 保守性改善
+    due_date: null
+    updated_at: '2026-10-24T12:27:26.822Z'
+  - id: T-0786
+    title: ソース調査06：タスク件数増加時の計算量を調査する
+    list: null
+    status: todo
+    priority: high
+    sort_order: 782
+    tags:
+      - 開発管理
+      - ソース調査
+      - 保守性改善
+    due_date: null
+    updated_at: '2026-10-24T12:27:26.822Z'
+  - id: T-0813
+    title: 仕様変更：AIチャットについて「思考」ではなくモデル名を明記してほしい
+    list: null
+    status: doing
+    priority: normal
+    sort_order: 782
+    tags: []
+    due_date: null
+    updated_at: '2026-10-24T14:27:04.079Z'
+  - id: T-0787
+    title: ソース調査07：起動・プロジェクト切り替え時の処理を調査する
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 783
+    tags:
+      - 開発管理
+      - ソース調査
+      - 保守性改善
+    due_date: null
+    updated_at: '2026-10-24T12:27:26.822Z'
+  - id: T-0814
+    title: CHG-155-01 設計：モデル名表示を反映する
+    list: 開発管理
+    status: done
+    priority: normal
+    sort_order: 783
+    tags:
+      - CHG-155
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T14:27:04.079Z'
+  - id: T-0788
+    title: ソース調査08：AIチャット・添付・プレビューの負荷を調査する
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 784
+    tags:
+      - 開発管理
+      - ソース調査
+      - 保守性改善
+    due_date: null
+    updated_at: '2026-10-24T12:27:26.822Z'
+  - id: T-0815
+    title: CHG-155-02 実装・検証：モデル名と思考量を表示する
+    list: 開発管理
+    status: done
+    priority: normal
+    sort_order: 784
+    tags:
+      - CHG-155
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T14:27:04.079Z'
+  - id: T-0789
+    title: ソース調査09：リソース解放と非同期処理の競合を調査する
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 785
+    tags:
+      - 開発管理
+      - ソース調査
+      - 保守性改善
+    due_date: null
+    updated_at: '2026-10-24T12:27:26.822Z'
+  - id: T-0816
+    title: CHG-155-03 ユーザー確認：モデル名と思考量を確認する
+    list: 開発管理
+    status: todo
+    priority: normal
+    sort_order: 785
+    tags:
+      - CHG-155
+    due_date: null
+    updated_at: '2026-10-24T14:24:17.649Z'
+  - id: T-0790
+    title: ソース調査10：不要コード・依存関係と検証範囲を調査する
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 786
+    tags:
+      - 開発管理
+      - ソース調査
+      - 保守性改善
+    due_date: null
+    updated_at: '2026-10-24T12:27:26.822Z'
+  - id: T-0791
+    title: CotaskaのNode.js・依存部品をセキュリティ修正版へ更新する
+    list: null
+    status: done
+    priority: high
+    sort_order: 787
+    tags:
+      - 開発管理
+      - 依存関係
+      - セキュリティ
+      - Node.js
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T14:03:15.329Z'
+  - id: T-0792
+    title: 依存更新：Node.jsを22.23.4へ更新し開発・CI・ビルド環境を統一する
+    list: null
+    status: done
+    priority: high
+    sort_order: 788
+    tags:
+      - 開発管理
+      - 依存関係
+      - セキュリティ
+      - Node.js
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T13:44:14.241Z'
+  - id: T-0793
+    title: 依存更新：Electron・Markdown・開発ツールと間接依存の脆弱性を解消する
+    list: null
+    status: done
+    priority: high
+    sort_order: 789
+    tags:
+      - 開発管理
+      - 依存関係
+      - セキュリティ
+      - Node.js
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T13:44:14.241Z'
+  - id: T-0794
+    title: 依存更新：Claude・Codex SDKを更新してAI機能の互換性を確認する
+    list: null
+    status: done
+    priority: high
+    sort_order: 790
+    tags:
+      - 開発管理
+      - 依存関係
+      - セキュリティ
+      - Node.js
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T13:44:14.241Z'
+  - id: T-0795
+    title: 依存更新：React・YAML・SQLite・更新機能の依存版を揃える
+    list: null
+    status: done
+    priority: high
+    sort_order: 791
+    tags:
+      - 開発管理
+      - 依存関係
+      - セキュリティ
+      - Node.js
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T13:44:14.241Z'
+  - id: T-0796
+    title: 依存更新：監査・テスト・ビルド・配布構成を総合検証する
+    list: null
+    status: done
+    priority: high
+    sort_order: 792
+    tags:
+      - 開発管理
+      - 依存関係
+      - セキュリティ
+      - Node.js
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T13:44:14.241Z'
+  - id: T-0797
+    title: 依存更新：更新後のCotaskaを利用者が確認する
+    list: null
+    status: done
+    priority: high
+    sort_order: 793
+    tags:
+      - 開発管理
+      - 依存関係
+      - セキュリティ
+      - Node.js
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T13:50:52.017Z'
+  - id: T-0798
+    title: AIチャットの実行時画像データをGit管理外にする
+    list: null
+    status: done
+    priority: normal
+    sort_order: 794
+    tags:
+      - 開発管理
+      - Git
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T12:41:30.000Z'
+  - id: T-0800
+    title: 自動テストを20_app/tests配下へ集約する
+    list: null
+    status: done
+    priority: normal
+    sort_order: 795
+    tags:
+      - 開発管理
+      - 保守性改善
+      - テスト
+      - フォルダ構成
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T13:51:12.311Z'
+  - id: T-0801
+    title: 不具合：AIチャットの完了応答が画面から消える
+    list: 開発管理
+    status: todo
+    priority: normal
+    sort_order: 796
+    tags:
+      - BUG-20261024-02
+    due_date: null
+    updated_at: '2026-10-24T13:56:01.688Z'
+  - id: T-0802
+    title: BUG-20261024-01 待機時間の計測・復元ルールを設計へ反映
+    list: 開発管理
+    status: done
+    priority: normal
+    sort_order: 797
+    tags:
+      - BUG-20261024-01
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T13:05:35.007Z'
+  - id: T-0803
+    title: BUG-20261024-01 AIチャット待機時間のユーザー確認
+    list: 開発管理
+    status: done
+    priority: normal
+    sort_order: 798
+    tags:
+      - BUG-20261024-01
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T13:53:15.298Z'
+  - id: T-0804
+    title: 現行方式へ戻せる状態でCodex app-server方式を追加する
+    list: 開発管理
+    status: todo
+    priority: normal
+    sort_order: 799
+    tags:
+      - 開発管理
+      - AIチャット
+      - Codex
+      - app-server
+    due_date: null
+    updated_at: '2026-10-24T13:19:30.723Z'
+  - id: T-0805
+    title: T-0791依存更新版v0.5.1のインストーラーを生成・検証する
+    list: 開発管理
+    status: done
+    priority: normal
+    sort_order: 805
+    tags:
+      - T-0791
+      - リリース
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T13:44:14.241Z'
+  - id: T-0806
+    title: Node.js 22.23.4の大規模fs.cpSync異常終了を調査する
+    list: 開発管理
+    status: todo
+    priority: normal
+    sort_order: 806
+    tags:
+      - T-0791
+      - Node.js
+      - BUG-20261024-03
+    due_date: null
+    updated_at: '2026-10-24T14:29:07.579Z'
+  - id: T-0807
+    title: BUG-20261024-02 完了履歴の再取得・競合防止を設計へ反映
+    list: 開発管理
+    status: done
+    priority: normal
+    sort_order: 807
+    tags:
+      - BUG-20261024-02
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T13:54:00.000Z'
+  - id: T-0808
+    title: BUG-20261024-02 AIチャット完了応答のユーザー確認
+    list: 開発管理
+    status: todo
+    priority: normal
+    sort_order: 808
+    tags:
+      - BUG-20261024-02
+    due_date: null
+    updated_at: '2026-10-24T13:54:00.000Z'
+  - id: T-0809
+    title: Node24.22.1への移行方針と環境文書を更新する
+    list: 開発管理
+    status: done
+    priority: normal
+    sort_order: 809
+    tags:
+      - BUG-20261024-03
+      - Node.js
+      - リリース
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T14:12:40.254Z'
+  - id: T-0810
+    title: Node24.22.1へ開発・CI環境を統一しインストーラーを再作成する
+    list: 開発管理
+    status: todo
+    priority: normal
+    sort_order: 810
+    tags:
+      - BUG-20261024-03
+      - Node.js
+      - リリース
+    due_date: null
+    updated_at: '2026-10-24T14:39:46.281Z'
+  - id: T-0811
+    title: Node24.22.1移行版の起動・主要機能をユーザー確認する
+    list: 開発管理
+    status: todo
+    priority: normal
+    sort_order: 811
+    tags:
+      - BUG-20261024-03
+      - BUG-20261024-04
+      - Node.js
+      - リリース
+    due_date: null
+    updated_at: '2026-10-24T14:29:07.579Z'
+  - id: T-0812
+    title: BUG-20261024-04 Node24のアーカイブ作業先衝突を修正する
+    list: 開発管理
+    status: todo
+    priority: normal
+    sort_order: 812
+    tags:
+      - BUG-20261024-04
+      - Node.js
+      - アーカイブ
+    due_date: null
+    updated_at: '2026-10-24T14:29:07.579Z'
+  - id: T-0817
+    title: Node24移行をGitHubへ保存しv0.5.1を公開する
+    list: 開発管理
+    status: done
+    priority: normal
+    sort_order: 817
+    tags:
+      - リリース
+      - v0.5.1
+      - T-0810
+    due_date: '2026-10-24'
+    updated_at: '2026-10-24T14:39:46.281Z'
 task_file_roots:
   - .
   - T-0001
@@ -9322,5 +9844,51 @@ task_file_roots:
   - T-0769
   - T-0770
   - T-0771
-next_task_id: 772
-last_updated: '2026-10-12T11:51:04.906Z'
+  - T-0772
+  - T-0773
+  - T-0774
+  - T-0775
+  - T-0776
+  - T-0777
+  - T-0778
+  - T-0779
+  - T-0780
+  - T-0781
+  - T-0782
+  - T-0783
+  - T-0784
+  - T-0785
+  - T-0786
+  - T-0787
+  - T-0788
+  - T-0789
+  - T-0790
+  - T-0791
+  - T-0792
+  - T-0793
+  - T-0794
+  - T-0795
+  - T-0796
+  - T-0797
+  - T-0798
+  - T-0799
+  - T-0800
+  - T-0801
+  - T-0802
+  - T-0803
+  - T-0804
+  - T-0805
+  - T-0806
+  - T-0807
+  - T-0808
+  - T-0809
+  - T-0810
+  - T-0811
+  - T-0812
+  - T-0813
+  - T-0814
+  - T-0815
+  - T-0816
+  - T-0817
+next_task_id: 818
+last_updated: '2026-10-24T14:39:46.776Z'
