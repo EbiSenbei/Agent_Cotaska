@@ -14,7 +14,7 @@
 .\01_setup_nodejs.ps1
 ```
 
-- nvm-windows 経由で Node.js v22.14.0 をインストール
+- nvm-windows 経由で Node.js v22.23.4 をインストール
 - プロキシ環境の場合は `-Proxy` オプションを指定
 
 ```powershell

@@ -1,4 +1,4 @@
-param(
+﻿param(
 	[Parameter(Mandatory = $true)]
 	[string]$ExePath,
 
@@ -33,7 +33,8 @@ $resolvedIconPath = (Resolve-Path -LiteralPath $IconPath).Path
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $appDir = Resolve-Path (Join-Path $scriptDir "..\..")
-$nodeDir = Resolve-Path (Join-Path $appDir "..\..\v22.14.0")
+. (Join-Path $appDir "scripts\resolve-node.ps1")
+$nodeDir = Split-Path -Parent (Resolve-CotaskaNode -AppDir $appDir)
 $nodeExe = Join-Path $nodeDir "node.exe"
 $npmCmd = Join-Path $nodeDir "npm.cmd"
 $env:PATH = "$nodeDir;$env:PATH"

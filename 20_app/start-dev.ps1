@@ -4,7 +4,9 @@
 $ErrorActionPreference = "Stop"
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$nodeExe = (Resolve-Path (Join-Path $scriptDir "..\..\v22.14.0\node.exe")).Path
+. (Join-Path $scriptDir "scripts\resolve-node.ps1")
+$nodeExe = Resolve-CotaskaNode -AppDir $scriptDir
+$env:Path = "$(Split-Path -Parent $nodeExe);$env:Path"
 $electronCli = Join-Path $scriptDir "node_modules\electron\cli.js"
 
 $env:NODE_ENV = "production"

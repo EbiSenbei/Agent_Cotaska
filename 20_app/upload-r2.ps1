@@ -1,4 +1,4 @@
-# Cotaska R2 upload script
+﻿# Cotaska R2 upload script
 # Uploads the current NSIS release assets to the R2 latest/ prefix only.
 
 param(
@@ -12,8 +12,8 @@ $repoRoot = (Resolve-Path (Join-Path $scriptDir "..")).Path
 . (Join-Path $scriptDir "scripts\release-common.ps1")
 $releaseArtifacts = Assert-CotaskaInstallerReleaseArtifacts -AppDir $scriptDir
 $gitCommit = Get-CotaskaGitCommit -RepoRoot $repoRoot
-$nodeFromRepo = Join-Path $repoRoot "v22.14.0\node.exe"
-$nodeExe = if (Test-Path -LiteralPath $nodeFromRepo) { $nodeFromRepo } else { "node" }
+. (Join-Path $scriptDir "scripts\resolve-node.ps1")
+$nodeExe = Resolve-CotaskaNode -AppDir $scriptDir
 $resolvedConfigPath = if ([System.IO.Path]::IsPathRooted($ConfigPath)) {
     $ConfigPath
 } else {

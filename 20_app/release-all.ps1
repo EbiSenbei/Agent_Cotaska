@@ -12,7 +12,8 @@ $ErrorActionPreference = "Stop"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = (Resolve-Path (Join-Path $scriptDir "..")).Path
 $releaseDir = Join-Path $scriptDir "release"
-$nodeDir = Resolve-Path (Join-Path $scriptDir "..\..\v22.14.0")
+. (Join-Path $scriptDir "scripts\resolve-node.ps1")
+$nodeDir = Split-Path -Parent (Resolve-CotaskaNode -AppDir $scriptDir)
 $npmCmd = Join-Path $nodeDir "npm.cmd"
 $npmCacheDir = Join-Path ([System.IO.Path]::GetTempPath()) "cotaska-npm-cache"
 

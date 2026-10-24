@@ -1,6 +1,6 @@
 {
   "name": "cotaska",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Cotaska - ローカルタスク管理システム",
   "main": "src/main/main.js",
   "scripts": {
@@ -23,18 +23,18 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "npm@10.9.2",
+  "packageManager": "npm@10.9.9",
   "engines": {
-    "node": ">=22.14.0 <23",
-    "npm": ">=10.9.2 <11"
+    "node": ">=22.23.4 <23",
+    "npm": ">=10.9.9 <11"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^6.1.1",
-    "electron": "^44.4.5",
-    "electron-builder": "^26.15.3",
+    "@vitejs/plugin-react": "^6.1.2",
+    "electron": "^44.9.3",
+    "electron-builder": "^26.18.0",
     "rcedit": "^5.0.2",
-    "vite": "^8.3.0",
-    "vitest": "^5.0.1"
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
   },
   "build": {
     "appId": "com.cotaska.app",
@@ -104,17 +104,17 @@
     }
   },
   "dependencies": {
-    "@anthropic-ai/claude-agent-sdk": "0.3.281",
-    "@openai/codex-sdk": "0.160.0",
+    "@anthropic-ai/claude-agent-sdk": "0.3.310",
+    "@openai/codex-sdk": "0.164.0",
     "adm-zip": "^0.6.1",
     "chokidar": "^5.0.0",
-    "electron-updater": "^6.8.9",
+    "electron-updater": "^6.8.11",
     "gray-matter": "^4.0.3",
-    "js-yaml": "^5.4.2",
-    "markdown-it": "^15.0.2",
+    "js-yaml": "^5.5.0",
+    "markdown-it": "^15.0.3",
     "pdfjs-dist": "^6.4.299",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0",
-    "sql.js": "^1.14.2"
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "sql.js": "^1.15.1"
   }
 }

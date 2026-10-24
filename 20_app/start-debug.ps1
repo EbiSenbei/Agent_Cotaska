@@ -1,4 +1,4 @@
-# Cotaska debug launcher
+﻿# Cotaska debug launcher
 # Starts Cotaska with NODE_ENV=development.
 # Run this script from any directory:
 #   powershell -ExecutionPolicy Bypass -File .\start-debug.ps1
@@ -35,32 +35,8 @@ function Stop-CotaskaDebugProcesses {
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $electronCli = Join-Path $scriptDir "node_modules\electron\cli.js"
 
-$nodeCandidates = @(
-    (Join-Path $scriptDir "..\..\v22.14.0\node.exe"),
-    (Join-Path $env:USERPROFILE ".cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe"),
-    "node.exe"
-)
-
-$nodeExe = $null
-foreach ($candidate in $nodeCandidates) {
-    try {
-        $resolved = (Resolve-Path $candidate -ErrorAction Stop).Path
-        if (Test-Path -LiteralPath $resolved) {
-            $nodeExe = $resolved
-            break
-        }
-    } catch {
-        $command = Get-Command $candidate -ErrorAction SilentlyContinue
-        if ($command) {
-            $nodeExe = $command.Source
-            break
-        }
-    }
-}
-
-if ([string]::IsNullOrWhiteSpace($nodeExe) -or -not (Test-Path -LiteralPath $nodeExe)) {
-    throw "Node.js was not found. Install Node.js or provide bundled node.exe."
-}
+. (Join-Path $scriptDir "scripts\resolve-node.ps1")
+$nodeExe = Resolve-CotaskaNode -AppDir $scriptDir
 if (-not (Test-Path -LiteralPath $electronCli)) {
     throw "Electron CLI was not found. Run npm install first: $electronCli"
 }

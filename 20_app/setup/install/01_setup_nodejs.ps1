@@ -1,6 +1,6 @@
-<#
+﻿<#
 .SYNOPSIS
-    Node.js v22.14.0 を nvm-windows 経由でセットアップする
+    Node.js v22.23.4 を nvm-windows 経由でセットアップする
 .PARAMETER Proxy
     プロキシURL（例: http://proxygate2.nic.nec.co.jp:8080）
 .EXAMPLE
@@ -12,7 +12,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$NodeVersion = "22.14.0"
+$appDir = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
+$NodeVersion = (Get-Content -LiteralPath (Join-Path $appDir ".nvmrc") -Raw).Trim()
 
 Write-Host "=== Cotaska: Node.js セットアップ ===" -ForegroundColor Cyan
 
@@ -79,12 +80,10 @@ if (-not (Test-Path (Join-Path $nodeDir "node.exe"))) {
 Write-Host "[INFO] Node.js v$NodeVersion をアクティブ化..."
 nvm use $NodeVersion
 
-# nvm use が失敗した場合のフォールバック（PATH直接追加）
-$nodeExe = Join-Path $nodeDir "node.exe"
-if ((Get-Command node -ErrorAction SilentlyContinue) -eq $null) {
-    Write-Host "[WARN] nvm use が反映されません。PATHに直接追加します..." -ForegroundColor Yellow
-    $env:Path = "$nodeDir;$env:Path"
-}
+# Use the selected runtime for this session even if nvm activation has not propagated.
+$env:Path = "$nodeDir;$env:Path"
+& (Join-Path $nodeDir "node.exe") (Join-Path $appDir "scripts\verify-runtime.js")
+if ($LASTEXITCODE -ne 0) { throw "Node.js runtime validation failed." }
 
 # --- 確認 ---
 $nodeVer = node -v 2>&1
