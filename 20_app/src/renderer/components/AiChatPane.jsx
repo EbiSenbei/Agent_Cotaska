@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import AiChatMessage from "./AiChatMessage";
 import AiChatComposer from "./AiChatComposer";
+import AiThreadMenu from "./AiThreadMenu";
 import { AiSendQueue } from "./aiSendQueue";
 import AiChatContextPanel from "./AiChatContextPanel";
 import AiMarkdownPreview, { formatMessageTime } from "./AiMarkdownPreview";
@@ -109,6 +110,9 @@ function AiChatPane({
   const [sideSearchQuery, setSideSearchQuery] = useState("");
   const [filePreviewMode, setFilePreviewMode] = useState(false);
   const [threads, setThreads] = useState([]);
+  const [showArchivedThreads, setShowArchivedThreads] = useState(false);
+  const [archiveNotice, setArchiveNotice] = useState(null);
+  const threadMutationRef = useRef(new Set());
   const [activeRuns, setActiveRuns] = useState([]);
   const [messages, setMessages] = useState([]);
   const [references, setReferences] = useState([]);
@@ -355,14 +359,15 @@ function AiChatPane({
 
   const normalizeSearchValue = (value) => String(value || "").trim().toLowerCase();
   const sideSearchText = normalizeSearchValue(sideSearchQuery);
+  const listedThreads = threads.filter((thread) => (thread.status === "archived") === showArchivedThreads);
   const filteredThreads = sideSearchText
-    ? threads.filter((thread) => [
+    ? listedThreads.filter((thread) => [
       thread.title,
       thread.subtitle,
       thread.id,
       ...(thread.badges || []),
     ].some((value) => normalizeSearchValue(value).includes(sideSearchText)))
-    : threads;
+    : listedThreads;
   const filteredWorkdirRows = useMemo(() => {
     if (!sideSearchText) return workdirTree.rows;
     const matchingPaths = new Set();
@@ -382,7 +387,10 @@ function AiChatPane({
   const visibleWorkdirRows = filteredWorkdirRows.filter(isWorkdirEntryVisible);
 
   const closeWorkdirContextMenu = () => setWorkdirContextMenu(null);
-  const closeThreadContextMenu = () => setThreadContextMenu(null);
+  const closeThreadContextMenu = (restoreFocus = false) => {
+    if (restoreFocus) threadContextMenu?.trigger?.focus();
+    setThreadContextMenu(null);
+  };
 
   const updateContextPanelWidth = (nextWidth) => {
     const clamped = clampContextPanelWidth(nextWidth);
@@ -481,7 +489,7 @@ function AiChatPane({
 
   const refreshThreads = async () => {
     if (!aiChatApi?.listThreads) return [];
-    const threadRows = await aiChatApi.listThreads();
+    const threadRows = await aiChatApi.listThreads({ includeArchived: true });
     const mapped = Array.isArray(threadRows) ? threadRows.map(mapThread) : [];
     setThreads(mapped);
     return mapped;
@@ -597,7 +605,7 @@ function AiChatPane({
         if (cancelled) return;
         setSelectedThreadId((current) => {
           if (current && mapped.some((thread) => thread.id === current)) return current;
-          return mapped[0]?.id || null;
+          return mapped.find((thread) => thread.status !== "archived")?.id || null;
         });
       } catch (error) {
         if (cancelled) return;
@@ -639,6 +647,7 @@ function AiChatPane({
   }, [aiChatApi]);
 
   const handleSelectThread = (threadId) => {
+    closeThreadContextMenu();
     const normalizedThreadId = String(threadId || "").trim() || null;
     // useEffect を待つと、並行して完了したAI返信の通知判定に切替後の状態が間に合わない。
     // 選択操作の時点でmain processにも反映する。
@@ -871,9 +880,11 @@ function AiChatPane({
     };
     window.addEventListener("click", close);
     window.addEventListener("keydown", closeOnEscape);
+    window.addEventListener("resize", close);
     return () => {
       window.removeEventListener("click", close);
       window.removeEventListener("keydown", closeOnEscape);
+      window.removeEventListener("resize", close);
     };
   }, [threadContextMenu]);
 
@@ -953,6 +964,8 @@ function AiChatPane({
   }, [aiChatApi, taskChatRequest, onTaskChatRequestProcessed]);
 
   const handleNewThread = () => {
+    closeThreadContextMenu();
+    setShowArchivedThreads(false);
     activeSendRequestRef.current = null;
     draftThreadKeyRef.current = `draft-${Date.now()}-${Math.random()}`;
     selectedKeyRef.current = draftThreadKeyRef.current;
@@ -964,17 +977,30 @@ function AiChatPane({
     setExpandedStreamEventIds(new Set());
   };
 
+  const getArchiveDisabledReason = (threadId) => {
+    if (activeRunByThreadId.has(threadId) || queueRef.current.isBusy(threadId)) return "AI処理中・送信準備中はアーカイブできません";
+    if (queueRef.current.items.some((item) => item.key === threadId)) return "送信予約を取り消してからアーカイブしてください";
+    return "";
+  };
+
   const handleArchiveThread = async (threadId) => {
     if (!threadId || !aiChatApi?.archiveThread) return;
+    if (getArchiveDisabledReason(threadId) || threadMutationRef.current.has(threadId)) return;
+    threadMutationRef.current.add(threadId);
+    closeThreadContextMenu(true);
     try {
       const result = await aiChatApi.archiveThread(threadId);
       if (result?.ok === false) {
         throw new Error(result.error || "AIスレッドをアーカイブできませんでした。");
       }
       const mappedThreads = await refreshThreads();
-      if (selectedThreadId === threadId) {
-        const nextThreadId = mappedThreads[0]?.id || null;
+      setArchiveNotice({ threadId, title: threads.find((thread) => thread.id === threadId)?.title || "スレッド" });
+      if (selectedKeyRef.current === threadId) {
+        const nextThreadId = mappedThreads.find((thread) => thread.status !== "archived")?.id || null;
+        selectedKeyRef.current = nextThreadId || draftThreadKeyRef.current;
         setSelectedThreadId(nextThreadId);
+        setDraft("");
+        setStreamEvents([]);
         if (!nextThreadId) {
           setMessages([]);
           setReferences([]);
@@ -992,6 +1018,38 @@ function AiChatPane({
         status: "error",
         message: error?.message || "AIスレッドをアーカイブできませんでした。",
       });
+    } finally {
+      threadMutationRef.current.delete(threadId);
+    }
+  };
+
+  const handleRestoreThread = async (threadId) => {
+    if (!threadId || !aiChatApi?.updateThread || threadMutationRef.current.has(threadId)) return;
+    threadMutationRef.current.add(threadId);
+    closeThreadContextMenu(true);
+    try {
+      const result = await aiChatApi.updateThread(threadId, { thread_status: "active" });
+      if (result?.ok === false) throw new Error(result.error || "スレッドを復元できませんでした。");
+      await refreshThreads();
+      setArchiveNotice(null);
+      setShowArchivedThreads(false);
+      setSideTab("threads");
+      handleSelectThread(threadId);
+    } catch (error) {
+      setRuntimeState((current) => ({ ...current, status: "error", message: error?.message || "スレッドを復元できませんでした。" }));
+    } finally {
+      threadMutationRef.current.delete(threadId);
+    }
+  };
+
+  const handleOpenThreadTaskFolder = async (thread) => {
+    closeThreadContextMenu(true);
+    if (!thread?.primaryTaskId) return;
+    try {
+      const result = await window.cotaskaAPI?.shell?.openTaskTarget?.(thread.primaryTaskId, ".");
+      if (!result?.ok) throw new Error(result?.error || "タスクフォルダを開けませんでした。");
+    } catch (error) {
+      setRuntimeState((current) => ({ ...current, status: "error", message: error?.message || "タスクフォルダを開けませんでした。" }));
     }
   };
 
@@ -1654,6 +1712,7 @@ function AiChatPane({
   };
 
   const handleSend = () => {
+    if (selectedThread?.status === "archived" || threadMutationRef.current.has(selectedThreadKey)) return;
     const text = draft.trim();
     if (!text || pastingRef.current) return;
     queueRef.current.add({ id: `queued-${Date.now()}-${Math.random()}`, threadId: selectedThreadId, key: selectedThreadKey,
@@ -1664,7 +1723,7 @@ function AiChatPane({
   };
 
   useEffect(() => {
-    if (selectedActiveRun) return;
+    if (selectedActiveRun || selectedThread?.status === "archived" || threadMutationRef.current.has(selectedThreadKey)) return;
     const item = queueRef.current.take(selectedThreadKey);
     if (!item) return;
     syncQueue();
@@ -1675,7 +1734,7 @@ function AiChatPane({
       queueRef.current.finish(item, { accepted: Boolean(item.accepted), failed: Boolean(item.failed) });
       syncQueue();
     });
-  }, [queuedMessages, selectedThreadKey, selectedActiveRun]);
+  }, [queuedMessages, selectedThreadKey, selectedActiveRun, selectedThread?.status]);
 
   const performSend = async (item) => {
     const text = item.text;
@@ -1919,14 +1978,20 @@ function AiChatPane({
 
         {sideTab === "threads" ? (
           <div className="ai-thread-list">
-            <div className="ai-section-label">AIスレッド</div>
+            <div className="ai-thread-list-heading">
+              <div className="ai-section-label">{showArchivedThreads ? "アーカイブ済み" : "AIスレッド"}</div>
+              <button type="button" className="ai-thread-filter" aria-pressed={showArchivedThreads}
+                onClick={() => { closeThreadContextMenu(); setShowArchivedThreads((value) => !value); }}>
+                {showArchivedThreads ? "通常の一覧へ" : "アーカイブ済み"}
+              </button>
+            </div>
             {filteredThreads.length === 0 ? (
               <div className="ai-empty-state">
-                <strong>{sideSearchText ? "一致するスレッドはありません" : "スレッドはまだありません"}</strong>
-                <span>{sideSearchText ? "検索条件を変更してください。" : "中央の入力欄から送信すると、新しいAIスレッドを作成します。"}</span>
+                <strong>{sideSearchText ? "一致するスレッドはありません" : showArchivedThreads ? "アーカイブ済みのスレッドはありません" : "スレッドはまだありません"}</strong>
+                <span>{sideSearchText ? "検索条件を変更してください。" : showArchivedThreads ? "アーカイブした会話はここから閲覧・復元できます。" : "中央の入力欄から送信すると、新しいAIスレッドを作成します。"}</span>
               </div>
             ) : filteredThreads.map((thread) => {
-              const isThreadRunning = activeRunByThreadId.has(thread.id);
+              const isThreadRunning = activeRunByThreadId.has(thread.id) || queueRef.current.isBusy(thread.id);
               return (
                 <div
                   key={thread.id}
@@ -1935,9 +2000,10 @@ function AiChatPane({
                   onContextMenu={(event) => {
                     event.preventDefault();
                     handleSelectThread(thread.id);
-                    setThreadContextMenu({ thread, x: event.clientX, y: event.clientY });
+                    setThreadContextMenu({ thread, x: event.clientX, y: event.clientY, trigger: event.currentTarget });
                   }}
                   onKeyDown={(event) => {
+                    if (event.target !== event.currentTarget) return;
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
                       handleSelectThread(thread.id);
@@ -1969,11 +2035,12 @@ function AiChatPane({
                     <button
                       type="button"
                       className="ai-thread-action-btn ai-thread-action-btn--archive"
-                      title="チャットをアーカイブ"
-                      aria-label={`${thread.title}をアーカイブ`}
-                      onClick={() => handleArchiveThread(thread.id)}
+                      title={thread.status === "archived" ? "スレッドを復元" : getArchiveDisabledReason(thread.id) || "チャットをアーカイブ"}
+                      aria-label={`${thread.title}を${thread.status === "archived" ? "復元" : "アーカイブ"}`}
+                      disabled={thread.status !== "archived" && Boolean(getArchiveDisabledReason(thread.id))}
+                      onClick={() => thread.status === "archived" ? handleRestoreThread(thread.id) : handleArchiveThread(thread.id)}
                     >
-                      <span className="ai-thread-archive-icon" aria-hidden="true" />
+                      {thread.status === "archived" ? "↩" : <span className="ai-thread-archive-icon" aria-hidden="true" />}
                     </button>
                   </span>
                   <span className="ai-mini-badges">
@@ -2074,9 +2141,25 @@ function AiChatPane({
             >
               ↩
             </button>
-            <button className="ai-icon-button" type="button" title="メニュー">⋯</button>
+            <button className="ai-icon-button" type="button" title={selectedThread ? "スレッド操作" : "送信後にスレッド操作を利用できます"}
+              aria-label="スレッド操作" aria-haspopup="menu" aria-expanded={Boolean(threadContextMenu)}
+              disabled={!selectedThread}
+              onClick={(event) => {
+                event.stopPropagation();
+                if (threadContextMenu) { closeThreadContextMenu(true); return; }
+                const rect = event.currentTarget.getBoundingClientRect();
+                setThreadContextMenu({ thread: selectedThread, x: rect.right - 260, y: rect.bottom + 4, trigger: event.currentTarget });
+              }}>⋯</button>
           </div>
         </header>
+
+        {archiveNotice && (
+          <div className="ai-archive-notice" role="status">
+            <span>「{archiveNotice.title}」をアーカイブしました。</span>
+            <button type="button" onClick={() => handleRestoreThread(archiveNotice.threadId)}>元に戻す</button>
+            <button type="button" aria-label="アーカイブ通知を閉じる" onClick={() => setArchiveNotice(null)}>×</button>
+          </div>
+        )}
 
         {runtimeState.message && runtimeState.status !== "ready" && (
           <div
@@ -2173,7 +2256,12 @@ function AiChatPane({
             ))}
           </div>
         )}
-        <AiChatComposer
+        {selectedThread?.status === "archived" ? (
+          <div className="ai-archive-notice">
+            <span>アーカイブ済みのスレッドです。復元すると会話を再開できます。</span>
+            <button type="button" onClick={() => handleRestoreThread(selectedThreadId)}>スレッドを復元</button>
+          </div>
+        ) : <AiChatComposer
           draft={draft}
           isSending={isSending}
           isPasting={isPasting}
@@ -2202,32 +2290,17 @@ function AiChatPane({
           onSandboxModeChange={handleSandboxModeChange}
           onSend={handleSend}
           onCancel={handleCancelSend}
-        />
+        />}
       </main>
 
       {threadContextMenu && (
-        <div
-          className="ai-workdir-context-menu ai-thread-context-menu"
-          style={{ left: threadContextMenu.x, top: threadContextMenu.y }}
-          role="menu"
-          onClick={(event) => event.stopPropagation()}
-        >
-          <button type="button" role="menuitem" onClick={() => openThreadRename(threadContextMenu.thread)}>
-            スレッドの名前を変更する
-          </button>
-          <button
-            type="button"
-            role="menuitem"
-            className="danger"
-            onClick={() => {
-              const threadId = threadContextMenu.thread.id;
-              closeThreadContextMenu();
-              handleArchiveThread(threadId);
-            }}
-          >
-            スレッドをアーカイブにする
-          </button>
-        </div>
+        <AiThreadMenu {...threadContextMenu}
+          archiveDisabledReason={getArchiveDisabledReason(threadContextMenu.thread.id)}
+          onOpenFolder={() => handleOpenThreadTaskFolder(threadContextMenu.thread)}
+          onRename={() => openThreadRename(threadContextMenu.thread)}
+          onArchive={() => handleArchiveThread(threadContextMenu.thread.id)}
+          onRestore={() => handleRestoreThread(threadContextMenu.thread.id)}
+          onClose={closeThreadContextMenu} />
       )}
 
       {threadRenamePresence.presentValue && (

@@ -1546,9 +1546,13 @@ ipcMain.handle("aiChat:createThread", async (_e, input) => {
   }
 });
 
+const { assertThreadArchivable } = require("./aiThreadActions");
+const pendingAiSends = new Map();
+
 ipcMain.handle("aiChat:updateThread", async (_e, threadId, updates) => {
   await servicesReady;
   try {
+    if (updates?.thread_status === "archived") assertThreadArchivable(threadId, aiProviderRegistry, pendingAiSends);
     return { ok: true, thread: aiService.updateThread(threadId, updates || {}) };
   } catch (err) {
     logger.error("aiChat:updateThread failed", err);
@@ -1559,6 +1563,7 @@ ipcMain.handle("aiChat:updateThread", async (_e, threadId, updates) => {
 ipcMain.handle("aiChat:archiveThread", async (_e, threadId) => {
   await servicesReady;
   try {
+    assertThreadArchivable(threadId, aiProviderRegistry, pendingAiSends);
     return { ok: true, thread: aiService.archiveThread(threadId) };
   } catch (err) {
     logger.error("aiChat:archiveThread failed", err);
@@ -2154,7 +2159,16 @@ ipcMain.handle("aiChat:setActiveThread", (_e, threadId) => {
 
 ipcMain.handle("aiChat:sendMessage", async (_e, input) => {
   await servicesReady;
+  const threadId = input?.thread_id;
+  let claimedThread = false;
   try {
+    if (threadId && aiService.getThread(threadId)?.thread_status === "archived") {
+      throw new Error("アーカイブ済みのスレッドです。復元してから送信してください。");
+    }
+    if (threadId) {
+      pendingAiSends.set(threadId, (pendingAiSends.get(threadId) || 0) + 1);
+      claimedThread = true;
+    }
     const result = await aiProviderRegistry.resolveProvider().sendMessage({
       ...(input || {}),
       onEvent: (payload) => {
@@ -2190,6 +2204,12 @@ ipcMain.handle("aiChat:sendMessage", async (_e, input) => {
   } catch (err) {
     logger.error("aiChat:sendMessage failed", err);
     return { ok: false, error: err.message || String(err) };
+  } finally {
+    if (claimedThread) {
+      const count = pendingAiSends.get(threadId) - 1;
+      if (count > 0) pendingAiSends.set(threadId, count);
+      else pendingAiSends.delete(threadId);
+    }
   }
 });
 

@@ -591,6 +591,69 @@
 
 .ai-thread-context-menu {
   min-width: 228px;
+  max-width: calc(100vw - 16px);
+  max-height: calc(100vh - 16px);
+  overflow-y: auto;
+}
+
+.ai-thread-context-menu button:disabled {
+  color: #9299a5;
+  background: transparent;
+  cursor: default;
+}
+
+.ai-thread-context-menu button:focus-visible {
+  outline: 2px solid #68afff;
+  outline-offset: -2px;
+}
+
+.ai-thread-menu-reason {
+  display: block;
+  padding: 2px 10px 6px;
+  max-width: 260px;
+  color: #a8b0bd;
+  font-size: 11px;
+}
+
+.ai-thread-menu-separator {
+  margin: 5px 4px;
+  border-top: 1px solid #454b55;
+}
+
+.ai-thread-list-heading, .ai-archive-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-thread-list-heading {
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.ai-thread-filter, .ai-archive-notice button {
+  border: 1px solid #454b55;
+  border-radius: 4px;
+  background: #25272b;
+  color: #d8dde6;
+  padding: 4px 8px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.ai-archive-notice {
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  background: #243447;
+  color: #d8dde6;
+  font-size: 12px;
+}
+
+.ai-archive-notice span {
+  flex: 1;
+  min-width: 120px;
+  overflow-wrap: anywhere;
 }
 
 .ai-thread-rename-dialog {
