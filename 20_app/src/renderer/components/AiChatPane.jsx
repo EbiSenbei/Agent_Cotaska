@@ -170,6 +170,10 @@ function AiChatPane({
   const selectedThreadKey = selectedThreadId || draftThreadKeyRef.current;
   selectedKeyRef.current = selectedThreadKey;
   const isSending = queueRef.current.isBusy(selectedThreadKey) || Boolean(selectedActiveRun);
+  const selectedSendItem = queueRef.current.running.get(selectedThreadKey);
+  // Keep local preparation time; restored runs use the main process timestamp.
+  const waitingRequestKey = selectedSendItem?.id || selectedActiveRun?.request_id;
+  const waitingStartedAt = selectedSendItem?.started_at || selectedActiveRun?.started_at;
   const updateSelectedThread = (key, update) => {
     if (selectedKeyRef.current === key) update();
   };
@@ -507,7 +511,12 @@ function AiChatPane({
     }
     const rows = await aiChatApi.listActiveRuns();
     const mapped = Array.isArray(rows) ? rows.filter((run) => run?.thread_id && !run?.canceled) : [];
-    setActiveRuns(mapped);
+    setActiveRuns((current) => mapped.map((run) => ({
+      ...run,
+      started_at: Number.isFinite(Date.parse(run.started_at))
+        ? run.started_at
+        : current.find((entry) => entry.request_id === run.request_id)?.started_at || new Date(Date.now()).toISOString(),
+    })));
     return mapped;
   };
 
@@ -690,6 +699,7 @@ function AiChatPane({
               request_id: payload.request_id,
               thread_id: payload.thread_id,
               run_id: payload.run_id || null,
+              started_at: localRequestsRef.current.get(payload.thread_id)?.started_at || new Date(Date.now()).toISOString(),
               last_event_at: new Date().toISOString(),
               event_count: 1,
             },
@@ -857,13 +867,15 @@ function AiChatPane({
       setWaitingSeconds(0);
       return undefined;
     }
-    const startedAt = Date.now();
-    setWaitingSeconds(0);
-    const timer = window.setInterval(() => {
-      setWaitingSeconds(Math.floor((Date.now() - startedAt) / 1000));
-    }, 1000);
+    const parsedStartedAt = Date.parse(waitingStartedAt);
+    const startedAt = Number.isFinite(parsedStartedAt) ? parsedStartedAt : Date.now();
+    const updateWaitingSeconds = () => {
+      setWaitingSeconds(Math.max(0, Math.floor((Date.now() - startedAt) / 1000)));
+    };
+    updateWaitingSeconds();
+    const timer = window.setInterval(updateWaitingSeconds, 1000);
     return () => window.clearInterval(timer);
-  }, [isSending]);
+  }, [isSending, waitingRequestKey, waitingStartedAt]);
 
   useEffect(() => {
     if (!workdirContextMenu) return undefined;
@@ -1737,6 +1749,7 @@ function AiChatPane({
     if (selectedActiveRun || selectedThread?.status === "archived" || threadMutationRef.current.has(selectedThreadKey)) return;
     const item = queueRef.current.take(selectedThreadKey);
     if (!item) return;
+    item.started_at = new Date(Date.now()).toISOString();
     syncQueue();
     performSend(item).catch((error) => {
       item.failed = true;
@@ -1799,6 +1812,7 @@ function AiChatPane({
     const streamingAssistantMessageId = `stream-assistant-${Date.now()}`;
     const requestState = {
       id: requestId,
+      started_at: item.started_at,
       canceled: false,
       local: true,
       streamingAssistantMessageId,
@@ -1827,7 +1841,7 @@ function AiChatPane({
           request_id: requestId,
           thread_id: threadId,
           run_id: null,
-          started_at: new Date().toISOString(),
+          started_at: item.started_at,
           last_event_at: null,
           event_count: 0,
         },
