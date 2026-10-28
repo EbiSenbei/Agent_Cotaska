@@ -1,0 +1,37 @@
+{
+  "ok": true,
+  "mode": "before",
+  "initialRequests": 1,
+  "treeRows": 74883,
+  "samples": [
+    {
+      "name": "threads",
+      "pathReads": 449292,
+      "hiddenPathReads": 6,
+      "maxCommitMs": 29.600000143051147,
+      "totalCommitMs": 139.60000014305115
+    },
+    {
+      "name": "files",
+      "pathReads": 374410,
+      "hiddenPathReads": 5,
+      "maxCommitMs": 40.90000009536743,
+      "totalCommitMs": 159.40000009536743
+    },
+    {
+      "name": "search-results",
+      "pathReads": 10,
+      "hiddenPathReads": 0,
+      "maxCommitMs": 4.599999904632568,
+      "totalCommitMs": 17.499999284744263
+    }
+  ],
+  "checks": [
+    "before: conversation waits for folder I/O",
+    "before: all rows retained; draft rescans hidden rows"
+  ],
+  "runtime": {
+    "electron": "44.10.0",
+    "node": "24.22.1"
+  }
+}

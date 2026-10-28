@@ -1,0 +1,46 @@
+{
+  "ok": true,
+  "mode": "after",
+  "initialRequests": 0,
+  "treeRows": 74883,
+  "samples": [
+    {
+      "name": "threads",
+      "pathReads": 0,
+      "hiddenPathReads": 0,
+      "maxCommitMs": 5.6000001430511475,
+      "totalCommitMs": 17.899999856948853
+    },
+    {
+      "name": "loading",
+      "pathReads": 0,
+      "hiddenPathReads": 0,
+      "maxCommitMs": 17.399999618530273,
+      "totalCommitMs": 49.80000042915344
+    },
+    {
+      "name": "files",
+      "pathReads": 0,
+      "hiddenPathReads": 0,
+      "maxCommitMs": 2.700000047683716,
+      "totalCommitMs": 9.5
+    },
+    {
+      "name": "search-results",
+      "pathReads": 10,
+      "hiddenPathReads": 0,
+      "maxCommitMs": 2.9000000953674316,
+      "totalCommitMs": 8.59999942779541
+    }
+  ],
+  "checks": [
+    "conversation opens independently of folder I/O",
+    "all 74883 rows retained, search includes ancestors, draft does not recalculate visibility",
+    "refresh freshness, stale response ignored, expansion and collapse preserved",
+    "unmount discards inflight result; remount remains lazy"
+  ],
+  "runtime": {
+    "electron": "44.10.0",
+    "node": "24.22.1"
+  }
+}

@@ -88,11 +88,13 @@ function AiChatPane({
   const observedHistoryRunRef = useRef(null);
   const pendingHistorySyncRef = useRef(null);
   const mountedRef = useRef(false);
+  const workdirReadVersionRef = useRef(0);
   useEffect(() => {
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
       historyReadVersionRef.current += 1;
+      workdirReadVersionRef.current += 1;
     };
   }, []);
   const draftHistoryIndexRef = useRef(-1);
@@ -369,19 +371,6 @@ function AiChatPane({
 
   const getWorkdirEntryPath = (entry) => String(entry?.file_path || entry?.id || "");
 
-  const isWorkdirEntryVisible = (entry) => {
-    if (sideSearchQuery.trim()) return true;
-    const entryPath = getWorkdirEntryPath(entry);
-    if (!entryPath || Number(entry.level || 0) === 0) return true;
-    const parts = entryPath.split(/[\\/]/).filter(Boolean);
-    let currentPath = "";
-    for (let index = 0; index < parts.length - 1; index += 1) {
-      currentPath = currentPath ? `${currentPath}\\${parts[index]}` : parts[index];
-      if (!expandedWorkdirPaths.has(currentPath)) return false;
-    }
-    return true;
-  };
-
   const normalizeSearchValue = (value) => String(value || "").trim().toLowerCase();
   const sideSearchText = normalizeSearchValue(sideSearchQuery);
   const listedThreads = threads.filter((thread) => (thread.status === "archived") === showArchivedThreads);
@@ -394,6 +383,7 @@ function AiChatPane({
     ].some((value) => normalizeSearchValue(value).includes(sideSearchText)))
     : listedThreads;
   const filteredWorkdirRows = useMemo(() => {
+    if (sideTab !== "files") return [];
     if (!sideSearchText) return workdirTree.rows;
     const matchingPaths = new Set();
     workdirTree.rows.forEach((entry) => {
@@ -408,8 +398,19 @@ function AiChatPane({
       });
     });
     return workdirTree.rows.filter((entry) => matchingPaths.has(getWorkdirEntryPath(entry)));
-  }, [sideSearchText, workdirTree.rows]);
-  const visibleWorkdirRows = filteredWorkdirRows.filter(isWorkdirEntryVisible);
+  }, [sideTab, sideSearchText, workdirTree.rows]);
+  const visibleWorkdirRows = useMemo(() => filteredWorkdirRows.filter((entry) => {
+    if (sideSearchText) return true;
+    const entryPath = getWorkdirEntryPath(entry);
+    if (!entryPath || Number(entry.level || 0) === 0) return true;
+    const parts = entryPath.split(/[\\/]/).filter(Boolean);
+    let currentPath = "";
+    for (let index = 0; index < parts.length - 1; index += 1) {
+      currentPath = currentPath ? `${currentPath}\\${parts[index]}` : parts[index];
+      if (!expandedWorkdirPaths.has(currentPath)) return false;
+    }
+    return true;
+  }), [filteredWorkdirRows, sideSearchText, expandedWorkdirPaths]);
 
   const closeWorkdirContextMenu = () => setWorkdirContextMenu(null);
   const closeThreadContextMenu = (restoreFocus = false) => {
@@ -537,6 +538,8 @@ function AiChatPane({
   };
 
   const refreshWorkdirTree = async () => {
+    const version = ++workdirReadVersionRef.current;
+    const isCurrent = () => mountedRef.current && workdirReadVersionRef.current === version;
     if (!aiChatApi?.listWorkdirTree) {
       setWorkdirTree({ rows: [], root: "", truncated: false });
       return [];
@@ -544,6 +547,7 @@ function AiChatPane({
     setIsLoadingWorkdirTree(true);
     try {
       const result = await aiChatApi.listWorkdirTree();
+      if (!isCurrent()) return [];
       if (result?.ok === false) throw new Error(result.error || "作業フォルダを読み込めませんでした。");
       const rows = Array.isArray(result?.rows) ? result.rows : [];
       setWorkdirTree({
@@ -554,6 +558,7 @@ function AiChatPane({
       setExpandedWorkdirPaths(new Set());
       return rows;
     } catch (error) {
+      if (!isCurrent()) return [];
       setRuntimeState({
         ready: false,
         status: "error",
@@ -563,7 +568,7 @@ function AiChatPane({
       setExpandedWorkdirPaths(new Set());
       return [];
     } finally {
-      setIsLoadingWorkdirTree(false);
+      if (isCurrent()) setIsLoadingWorkdirTree(false);
     }
   };
 
@@ -656,12 +661,8 @@ function AiChatPane({
         });
         const mapped = await refreshThreads();
         await refreshActiveRuns();
-        if (isWorkdirConfigured) {
-          await refreshWorkdirTree();
-        } else {
-          setWorkdirTree({ rows: [], root: "", truncated: false });
-          setExpandedWorkdirPaths(new Set());
-        }
+        // The folder tree is unrelated to opening a conversation. Read it only
+        // when the folder tab is first opened, so chat input never waits for it.
         if (cancelled) return;
         setSelectedThreadId((current) => {
           if (current && mapped.some((thread) => thread.id === current)) return current;

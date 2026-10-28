@@ -7,6 +7,7 @@ const crypto = require("crypto");
 const { spawn } = require("child_process");
 const fs = require("fs");
 const { readImagePreview } = require("./aiImagePreview");
+const { listWorkdirTree } = require("./aiWorkdirTree");
 const earlyStartupLogger = require("./earlyStartupLogger");
 earlyStartupLogger.installProcessErrorHandlers();
 earlyStartupLogger.logInfo("Main process entry", {
@@ -1623,57 +1624,6 @@ ipcMain.handle("aiChat:listReferences", async (_e, threadId) => {
   }
 });
 
-const AI_TREE_EXCLUDED_NAMES = new Set([
-  ".git",
-  "node_modules",
-  "dist",
-  "release",
-  "temp",
-  ".vite",
-  ".cache",
-]);
-
-function listWorkdirTree(rootDir, options = {}) {
-  const root = path.resolve(rootDir);
-  const maxDepth = Number(options.maxDepth || Number.POSITIVE_INFINITY);
-  const rows = [];
-
-  function walk(dir, level) {
-    if (level > maxDepth) return;
-    let entries = [];
-    try {
-      entries = fs.readdirSync(dir, { withFileTypes: true });
-    } catch {
-      return;
-    }
-    entries
-      .filter((entry) => !AI_TREE_EXCLUDED_NAMES.has(entry.name))
-      .sort((a, b) => {
-        if (a.isDirectory() !== b.isDirectory()) return a.isDirectory() ? -1 : 1;
-        return a.name.localeCompare(b.name, "ja");
-      })
-      .forEach((entry) => {
-        const absolutePath = path.join(dir, entry.name);
-        const relativePath = path.relative(root, absolutePath);
-        rows.push({
-          id: relativePath || entry.name,
-          label: entry.name,
-          file_path: relativePath,
-          type: entry.isDirectory() ? "directory" : "file",
-          level,
-        });
-        if (entry.isDirectory()) walk(absolutePath, level + 1);
-      });
-  }
-
-  walk(root, 0);
-  return {
-    root,
-    rows,
-    truncated: false,
-  };
-}
-
 function getAiWorkdir() {
   const aiSettings = settingsService.getSettings().settings.aiChat || {};
   if (!String(aiSettings.workdir || "").trim()) {
@@ -1819,7 +1769,7 @@ ipcMain.handle("aiChat:listWorkdirTree", async () => {
       };
     }
     const workdir = getAiWorkdir();
-    return { ok: true, workdirConfigured: true, ...listWorkdirTree(workdir) };
+    return { ok: true, workdirConfigured: true, ...await listWorkdirTree(workdir) };
   } catch (err) {
     logger.error("aiChat:listWorkdirTree failed", err);
     return { ok: false, error: err.message || String(err), rows: [] };

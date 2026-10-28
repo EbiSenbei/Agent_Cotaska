@@ -1,0 +1,24 @@
+{
+  "root": "D:\\Development\\Git\\EbiSenbei_dev\\Agent_Cotaska",
+  "node": "24.22.1",
+  "samples": [
+    {
+      "name": "before",
+      "rows": 74921,
+      "jsonBytes": 15500790,
+      "sha256": "35f62ef3e23f63b82c4e730ea8d263593284a5afe947fb2db444ff374c8be52b",
+      "elapsedMs": 3240.3734,
+      "maxEventLoopGapMs": 3244.2062,
+      "ticksDuringScan": 0
+    },
+    {
+      "name": "after",
+      "rows": 74921,
+      "jsonBytes": 15500790,
+      "sha256": "35f62ef3e23f63b82c4e730ea8d263593284a5afe947fb2db444ff374c8be52b",
+      "elapsedMs": 5014.6786999999995,
+      "maxEventLoopGapMs": 18.89300000000003,
+      "ticksDuringScan": 987
+    }
+  ]
+}
