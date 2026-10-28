@@ -661,10 +661,10 @@ function MainPane({
   };
 
   const renderVirtualizedItems = (items) => {
-    if (items.length <= VIRTUALIZE_THRESHOLD || draggingTaskId) return items;
+    if (items.length <= VIRTUALIZE_THRESHOLD || draggingTaskId) return items.map(render => render());
 
     const viewportHeight = taskListViewportHeight || VIRTUAL_ROW_HEIGHT * 20;
-    const startIndex = Math.max(0, Math.floor(taskListScrollTop / VIRTUAL_ROW_HEIGHT) - VIRTUAL_OVERSCAN);
+    const startIndex = Math.min(Math.max(0, items.length - 1), Math.max(0, Math.floor(taskListScrollTop / VIRTUAL_ROW_HEIGHT) - VIRTUAL_OVERSCAN));
     const visibleCount = Math.ceil(viewportHeight / VIRTUAL_ROW_HEIGHT) + VIRTUAL_OVERSCAN * 2;
     const endIndex = Math.min(items.length, startIndex + visibleCount);
     const topHeight = startIndex * VIRTUAL_ROW_HEIGHT;
@@ -672,7 +672,7 @@ function MainPane({
 
     return [
       topHeight > 0 ? <div key="virtual-top-spacer" className="task-virtual-spacer" style={{ height: topHeight }} /> : null,
-      ...items.slice(startIndex, endIndex),
+      ...items.slice(startIndex, endIndex).map(render => render()),
       bottomHeight > 0 ? <div key="virtual-bottom-spacer" className="task-virtual-spacer" style={{ height: bottomHeight }} /> : null,
     ].filter(Boolean);
   };
@@ -684,12 +684,12 @@ function MainPane({
     const pushNode = (task, depth, showSep) => {
       const children = depth < MAX_TASK_TREE_DEPTH ? (byParent[task.id] || []) : [];
       const parentExpanded = expanded[task.id] || inlineInput?.parentId === task.id;
-      items.push(renderTaskRow(task, showSep, depth, children.length, sectionMeta));
+      items.push(() => renderTaskRow(task, showSep, depth, children.length, sectionMeta));
       if (parentExpanded) {
         children.forEach((child) => {
           pushNode(child, depth + 1, false);
         });
-        items.push(renderInlineInput(task, depth + 1));
+        items.push(() => renderInlineInput(task, depth + 1));
       }
     };
 
@@ -697,7 +697,7 @@ function MainPane({
       pushNode(parent, 1, idx < roots.length - 1);
     });
 
-    return options.virtualize ? renderVirtualizedItems(items) : items;
+    return options.virtualize ? renderVirtualizedItems(items) : items.map(render => render());
   };
 
   // フラットリスト（ゴミ箱・完了・リスト・受信トレイ・検索）

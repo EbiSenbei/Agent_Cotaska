@@ -1,0 +1,43 @@
+{
+  "generatedAt": "2026-10-28T09:42:22.011Z",
+  "autosave": {
+    "note": "Actual hook and persist source, VM state/timer/IPC harness; no mounted React or production files.",
+    "writes": [
+      {
+        "id": "T-TEST",
+        "title": "old title",
+        "content": "old content",
+        "status": "todo",
+        "progress_status": "未着",
+        "priority": "high",
+        "list": null,
+        "parent": null,
+        "tags": [],
+        "due_date": null,
+        "deadline_date": null
+      },
+      {
+        "id": "T-TEST",
+        "title": "new title",
+        "content": "new content",
+        "status": "todo",
+        "progress_status": "未着",
+        "priority": "normal",
+        "list": null,
+        "parent": null,
+        "tags": [],
+        "due_date": null,
+        "deadline_date": null
+      }
+    ]
+  },
+  "loadTasks": {
+    "note": "Actual loadTasks source, independent deferred settings IPC and minimal view-model/setter stubs.",
+    "afterNew": [
+      "newer"
+    ],
+    "afterOld": [
+      "older"
+    ]
+  }
+}

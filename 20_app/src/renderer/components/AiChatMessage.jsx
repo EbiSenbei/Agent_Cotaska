@@ -2,7 +2,7 @@ import React from "react";
 import AiMarkdownPreview from "./AiMarkdownPreview";
 import AiImageThumbnail from './AiImageThumbnail';
 
-export default function AiChatMessage({ message, onCopy, onOpenTask, onOpenLink, onOpenLinkContextMenu, onReferenceClick }) {
+function AiChatMessage({ message, onCopy, onOpenTask, onOpenLink, onOpenLinkContextMenu, onReferenceClick }) {
   return (
     <article className={`ai-message ai-message--${message.role}${message.streaming ? " ai-message--streaming" : ""}`}>
       <div className="ai-message-author">{message.author}</div>
@@ -40,3 +40,5 @@ export default function AiChatMessage({ message, onCopy, onOpenTask, onOpenLink,
     </article>
   );
 }
+
+export default React.memo(AiChatMessage);

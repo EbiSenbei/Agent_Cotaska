@@ -1,0 +1,64 @@
+{
+  "runtime": "v24.22.1",
+  "platform": "win32",
+  "sandbox": "D:\\Development\\Git\\EbiSenbei_dev\\Agent_Cotaska\\workspace\\T-0780\\synthetic-dLvcqG",
+  "generatedAt": "2026-10-28T09:40:32.946Z",
+  "measurements": [
+    {
+      "n": 100,
+      "descendantCount": 99,
+      "mainDescendantInstrumentedMs": 0.534000000000006,
+      "mainDescendantMedianMs": 0.36230000000000473,
+      "objectValuesCalls": 100,
+      "objectValuesEntries": 10000,
+      "rendererDescendantMedianMs": 0.05010000000000048,
+      "mapAndEnrichMedianMs": 0.42900000000000205,
+      "unchangedIndexMedianMs": 9.023500000000013,
+      "unchangedIndexWrites": 0,
+      "ipcJsonBytes": 127179
+    },
+    {
+      "n": 1000,
+      "descendantCount": 999,
+      "mainDescendantInstrumentedMs": 19.501300000000015,
+      "mainDescendantMedianMs": 18.512900000000002,
+      "objectValuesCalls": 1000,
+      "objectValuesEntries": 1000000,
+      "rendererDescendantMedianMs": 0.12379999999996016,
+      "mapAndEnrichMedianMs": 3.119700000000023,
+      "unchangedIndexMedianMs": 43.314800000000105,
+      "unchangedIndexWrites": 0,
+      "ipcJsonBytes": 1273780
+    },
+    {
+      "n": 5000,
+      "descendantCount": 4999,
+      "mainDescendantInstrumentedMs": 6050.372,
+      "mainDescendantMedianMs": 6061.5823,
+      "objectValuesCalls": 5000,
+      "objectValuesEntries": 25000000,
+      "rendererDescendantMedianMs": 1.9598000000005413,
+      "mapAndEnrichMedianMs": 21.63350000000355,
+      "unchangedIndexMedianMs": 209.12660000000324,
+      "unchangedIndexWrites": 0,
+      "ipcJsonBytes": 6377780
+    }
+  ],
+  "service": {
+    "applyUnchanged": {
+      "success": true,
+      "changed": true,
+      "taskId": "T-0500",
+      "taskCount": 1000
+    },
+    "applyUnchangedMs": 10.85229999999865,
+    "sameValueUpdateWrites": 1,
+    "reorderResult": {
+      "success": true,
+      "updated_count": 1000,
+      "updated_at": "2026-10-28T09:41:00.696Z"
+    },
+    "reorderWrites": 1000,
+    "reorderMs": 761.493599999998
+  }
+}

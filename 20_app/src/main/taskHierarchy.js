@@ -13,16 +13,26 @@ function getTaskDepth(cache, taskId, maxDepth = DEFAULT_MAX_DEPTH, seen = new Se
   return getTaskDepth(cache, task.parent, maxDepth, nextSeen) + 1;
 }
 
-function getTaskSubtreeDepth(cache, taskId, maxDepth = DEFAULT_MAX_DEPTH, seen = new Set()) {
+function groupChildren(cache, include) {
+  const byParent = new Map();
+  for (const task of Object.values(cache)) {
+    if (!include(task)) continue;
+    if (!byParent.has(task.parent)) byParent.set(task.parent, []);
+    byParent.get(task.parent).push(task);
+  }
+  return byParent;
+}
+
+function getTaskSubtreeDepth(cache, taskId, maxDepth = DEFAULT_MAX_DEPTH, seen = new Set(), byParent = groupChildren(cache, t => t.delete_flag === 0 && !t.is_invalid)) {
   if (!taskId || seen.has(taskId)) return maxDepth + 1;
   const task = cache[taskId];
   if (!task || task.delete_flag === 1 || task.is_invalid) return 1;
   const nextSeen = new Set(seen);
   nextSeen.add(taskId);
-  const children = Object.values(cache)
-    .filter((child) => child.parent === taskId && child.delete_flag === 0 && !child.is_invalid);
+  if (seen.size >= maxDepth) return maxDepth + 1;
+  const children = byParent.get(taskId) || [];
   if (children.length === 0) return 1;
-  return 1 + Math.max(...children.map((child) => getTaskSubtreeDepth(cache, child.id, maxDepth, nextSeen)));
+  return 1 + Math.max(...children.map((child) => getTaskSubtreeDepth(cache, child.id, maxDepth, nextSeen, byParent)));
 }
 
 function validateParentUpdate(cache, taskId, nextParentId, maxDepth = DEFAULT_MAX_DEPTH) {
@@ -50,12 +60,12 @@ function validateParentUpdate(cache, taskId, nextParentId, maxDepth = DEFAULT_MA
 
 function collectDescendantTasks(cache, parentId, maxDepth = DEFAULT_MAX_DEPTH) {
   const descendants = [];
+  const byParent = groupChildren(cache, t => t.delete_flag !== 1 && !t.is_invalid);
   const walk = (currentParentId, depth, seen = new Set()) => {
     if (depth >= maxDepth || seen.has(currentParentId)) return;
     const nextSeen = new Set(seen);
     nextSeen.add(currentParentId);
-    Object.values(cache).forEach((child) => {
-      if (child.parent !== currentParentId || child.delete_flag === 1 || child.is_invalid) return;
+    (byParent.get(currentParentId) || []).forEach((child) => {
       descendants.push(child);
       walk(child.id, depth + 1, nextSeen);
     });

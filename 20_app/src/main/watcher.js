@@ -37,13 +37,16 @@ function flushTaskChanges(session) {
     const mainWindow = session.window;
     if (mainWindow && !mainWindow.isDestroyed()) {
       const lastEvent = events[events.length - 1];
-      mainWindow.webContents.send('tasks:changed', {
+      const payload = {
+        projectId: taskService.getProjectId(),
         action: lastEvent.action,
         filePath: lastEvent.filePath,
         events,
         tasks: taskService.getAllTasks(),
         timestamp: new Date().toISOString()
-      });
+      };
+      mainWindow.webContents.send('tasks:changed', payload);
+      session.onTasksChanged?.(payload);
 
       console.log(`[Watcher] Notified renderer about ${events.length} task file change(s)`);
     }
@@ -59,13 +62,13 @@ function flushTaskChanges(session) {
 /**
  * Start the file watcher.
  */
-async function startWatcher(win) {
+async function startWatcher(win, onTasksChanged = null) {
   if (activeSession) {
     console.log('[Watcher] Already started');
     return activeSession.ready;
   }
 
-  const session = { window: win, watcher: null, starting: true, pendingEvents: [], flushTimer: null };
+  const session = { window: win, onTasksChanged, watcher: null, starting: true, pendingEvents: [], flushTimer: null };
   session.ready = new Promise(resolve => { session.resolveReady = resolve; });
   activeSession = session;
 

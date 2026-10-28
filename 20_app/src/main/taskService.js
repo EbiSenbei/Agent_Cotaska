@@ -24,6 +24,8 @@ let nextTaskId = 1;
 let taskFileRoots = [...DEFAULT_TASK_FILE_ROOTS];
 let unloadedTaskSummaries = {};
 let knownTaskFilePaths = {};
+let cacheIdsByPath = new Map();
+let derivedCacheDirty = false;
 
 function normalizeRelativePath(relPath) {
   return String(relPath || '')
@@ -307,25 +309,32 @@ function getIndexTasksForRebuild() {
   ];
 }
 
+function trackTaskPath(id, filePath) {
+  const key = toIndexAbsolutePath(filePath);
+  if (!cacheIdsByPath.has(key)) cacheIdsByPath.set(key, new Set());
+  cacheIdsByPath.get(key).add(id);
+}
+
 function removeTaskCacheEntriesByFilePath(filePath) {
   const targetPath = toIndexAbsolutePath(filePath);
   let removed = 0;
-
-  Object.entries(knownTaskFilePaths).forEach(([taskId, knownPath]) => {
-    if (toIndexAbsolutePath(knownPath) === targetPath) {
-      delete knownTaskFilePaths[taskId];
-    }
-  });
-
-  Object.entries(taskCache).forEach(([taskId, task]) => {
-    const taskFilePath = task._filePath || resolveTaskFilePath(null, task.id);
-    if (toIndexAbsolutePath(taskFilePath) === targetPath) {
+  for (const taskId of cacheIdsByPath.get(targetPath) || []) {
+    if (knownTaskFilePaths[taskId] && toIndexAbsolutePath(knownTaskFilePaths[taskId]) === targetPath) delete knownTaskFilePaths[taskId];
+    const task = taskCache[taskId];
+    if (task && toIndexAbsolutePath(task._filePath || resolveTaskFilePath(null, task.id)) === targetPath) {
       delete taskCache[taskId];
       removed += 1;
     }
-  });
-
+  }
+  cacheIdsByPath.delete(targetPath);
   return removed;
+}
+
+function refreshDerivedCache() {
+  if (!derivedCacheDirty) return;
+  refreshNextTaskIdFromCache();
+  taskFileRoots = deriveTaskFileRootsFromCache(getIndexTasksForRebuild());
+  derivedCacheDirty = false;
 }
 
 function loadTaskFileIntoCache(filePath) {
@@ -334,6 +343,7 @@ function loadTaskFileIntoCache(filePath) {
   const task = loadTaskFromFile(filePath);
   if (!task.id) return { changed: false };
   knownTaskFilePaths[task.id] = filePath;
+  trackTaskPath(task.id, filePath);
   delete unloadedTaskSummaries[task.id];
 
   const existing = taskCache[task.id];
@@ -346,6 +356,7 @@ function loadTaskFileIntoCache(filePath) {
         `Task ID is duplicated: ${task.id}`
       );
       taskCache[duplicate.id] = duplicate;
+      trackTaskPath(duplicate.id, filePath);
       return { changed: true, taskId: duplicate.id };
     }
   }
@@ -364,11 +375,14 @@ function loadAllTasksAndMigratePath() {
   taskCache = {};
   unloadedTaskSummaries = {};
   knownTaskFilePaths = {};
+  cacheIdsByPath = new Map();
+  derivedCacheDirty = false;
 
   taskFiles.forEach((filePath) => {
     const task = loadTaskFromFile(filePath);
     if (!task.id) return;
     knownTaskFilePaths[task.id] = filePath;
+  trackTaskPath(task.id, filePath);
 
     if (taskCache[task.id]) {
       const duplicate = createInvalidTask(
@@ -377,6 +391,7 @@ function loadAllTasksAndMigratePath() {
         `タスクIDが重複しています: ${task.id}`
       );
       taskCache[duplicate.id] = duplicate;
+      trackTaskPath(duplicate.id, filePath);
       return;
     }
 
@@ -392,61 +407,13 @@ function loadAllTasksAndMigratePath() {
 
   refreshNextTaskIdFromCache();
   taskFileRoots = deriveTaskFileRootsFromCache(taskCache);
-}
-
-function loadInitialTasksFromIndex(indexTasks) {
-  if (!Array.isArray(indexTasks) || indexTasks.length === 0) {
-    loadInitialTasksFromIndex(indexData.tasks);
-    return;
+  // Keep parent estimation at the authority boundary, including external edits
+  // and initial loads. Renderers must not write files while reading a snapshot.
+  for (const parentId of new Set(Object.values(taskCache).map(task => task.parent).filter(Boolean))) {
+    recomputeParentFromChildren(parentId, new Date().toISOString());
   }
-
-  const taskFiles = collectTaskFilesFromRoots(taskFileRoots);
-  taskCache = {};
-  unloadedTaskSummaries = {};
-  knownTaskFilePaths = {};
-
-  const fileById = new Map();
-  taskFiles.forEach((filePath) => {
-    const id = getTaskIdFromFilePath(filePath);
-    if (id && !fileById.has(id)) {
-      fileById.set(id, filePath);
-      knownTaskFilePaths[id] = filePath;
-    }
-  });
-
-  const { completedInitialLimit } = getTaskLoadingSettings();
-  const summariesById = new Map(indexTasks.map((task) => [task.id, task]));
-  const activeIds = indexTasks
-    .filter((task) => task.status !== 'done')
-    .map((task) => task.id);
-  const initialCompletedIds = sortCompletedSummaries(indexTasks.filter((task) => task.status === 'done'))
-    .slice(0, Math.max(0, completedInitialLimit))
-    .map((task) => task.id);
-  const selectedIds = new Set([...activeIds, ...initialCompletedIds]);
-  const loadedFilePaths = new Set();
-
-  selectedIds.forEach((taskId) => {
-    const filePath = fileById.get(taskId);
-    if (!filePath) return;
-    loadTaskFileIntoCache(filePath);
-    loadedFilePaths.add(toIndexAbsolutePath(filePath));
-  });
-
-  taskFiles.forEach((filePath) => {
-    if (loadedFilePaths.has(toIndexAbsolutePath(filePath))) return;
-    const taskId = getTaskIdFromFilePath(filePath);
-    if (taskId && summariesById.has(taskId)) return;
-    loadTaskFileIntoCache(filePath);
-  });
-
-  indexTasks.forEach((summary) => {
-    if (!summary?.id || taskCache[summary.id]) return;
-    unloadedTaskSummaries[summary.id] = { ...summary };
-  });
-
-  refreshNextTaskIdFromCache();
-  taskFileRoots = deriveTaskFileRootsFromCache(getIndexTasksForRebuild());
 }
+
 
 function applyFileChange(action, filePath) {
   try {
@@ -469,8 +436,8 @@ function applyFileChange(action, filePath) {
       result = loadTaskFileIntoCache(filePath);
     }
 
-    refreshNextTaskIdFromCache();
-    taskFileRoots = deriveTaskFileRootsFromCache(getIndexTasksForRebuild());
+    if (action !== 'unlink') recomputeParentFromChildren(taskCache[result.taskId]?.parent, new Date().toISOString());
+    derivedCacheDirty = true;
 
     return {
       success: true,
@@ -708,6 +675,7 @@ function getTasksByParent(parentId) {
  * 新規タスク作成
  */
 function addTask(taskData) {
+  refreshDerivedCache();
   if (taskData.parent && getTaskDepth(taskData.parent) >= MAX_TASK_TREE_DEPTH) {
     throw new Error('タスク階層は最大5階層までです。');
   }
@@ -1146,8 +1114,10 @@ function reorderTasks(payload = {}) {
     .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
   const activeIds = activeTasks.map((t) => t.id);
 
-  const dedupedOrderedIds = Array.from(new Set(orderedIdsInput.filter((id) => activeIds.includes(id))));
-  const missingIds = activeIds.filter((id) => !dedupedOrderedIds.includes(id));
+  const activeIdSet = new Set(activeIds);
+  const dedupedOrderedIds = Array.from(new Set(orderedIdsInput.filter((id) => activeIdSet.has(id))));
+  const orderedIdSet = new Set(dedupedOrderedIds);
+  const missingIds = activeIds.filter((id) => !orderedIdSet.has(id));
   const finalIds = [...dedupedOrderedIds, ...missingIds];
 
   const changedIds = new Set();
@@ -1250,10 +1220,12 @@ function getCache() {
 }
 
 function getTaskFileRoots() {
+  refreshDerivedCache();
   return [...taskFileRoots];
 }
 
 function getTaskSearchRoots() {
+  refreshDerivedCache();
   return taskFileRoots.map((root) => path.join(getTasksDir(), normalizeRootPath(root || '.')));
 }
 
@@ -1282,6 +1254,7 @@ function ensureTaskFolder(id) {
   fs.renameSync(source, target);
   task._filePath = target;
   knownTaskFilePaths[id] = target;
+  trackTaskPath(id, target);
   taskFileRoots = deriveTaskFileRootsFromCache(getIndexTasksForRebuild());
   return target;
 }
@@ -1293,6 +1266,7 @@ function writeTaskFile(task) {
   const filePath = task._filePath || resolveTaskFilePath(null, task.id);
   ensureParentDir(filePath);
   task._filePath = filePath;
+  trackTaskPath(task.id, filePath);
   delete task.task_file_path;
 
   // frontmatter 用オブジェクト（content は除く）
@@ -1311,6 +1285,7 @@ function writeTaskFile(task) {
 }
 
 module.exports = {
+  getProjectId: () => projectContext.getCurrent().projectId,
   ensureTaskFolder,
   openTaskService,
   getAllTasks,

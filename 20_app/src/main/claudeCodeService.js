@@ -561,13 +561,15 @@ async function sendMessage(input = {}) {
       throw new Error(resultErrorMessage || "Claude Agent SDK returned an error result.");
     }
 
-    aiService.updateRun(run.run_id, { run_status: "completed" });
-    const assistantMessage = aiService.addMessage({
-      thread_id: thread.thread_id,
-      role: "assistant",
-      content: finalResponse || "",
-      codex_run_id: run.run_id,
-      token_count: summarizeUsage(usage),
+    const assistantMessage = aiService.withTransaction(() => {
+      aiService.updateRun(run.run_id, { run_status: "completed" });
+      return aiService.addMessage({
+        thread_id: thread.thread_id,
+        role: "assistant",
+        content: finalResponse || "",
+        codex_run_id: run.run_id,
+        token_count: summarizeUsage(usage),
+      });
     });
 
     const completedAt = Date.now();

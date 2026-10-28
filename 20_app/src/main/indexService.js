@@ -10,6 +10,7 @@ const projectContext = require('./projectContext');
 
 const getTasksDir = () => projectContext.getCurrent().tasksDir;
 const getIndexPath = () => projectContext.getCurrent().indexFile;
+let lastIndex = null;
 
 function normalizeRelativePath(relPath) {
   return String(relPath || '')
@@ -90,9 +91,16 @@ function rebuildIndex(taskCache, taskFileRoots = ['.']) {
       last_updated: new Date().toISOString()
     };
 
+    const indexPath = getIndexPath();
+    const signature = JSON.stringify({ ...indexData, last_updated: null });
+    const currentYaml = fs.existsSync(indexPath) ? fs.readFileSync(indexPath, 'utf-8') : null;
+    // Read the actual bytes even on a cache hit: external edits and corruption
+    // must still take the normal validation/repair path.
+    if (lastIndex?.path === indexPath && lastIndex.signature === signature && lastIndex.yaml === currentYaml) {
+      return { success: true, taskCount: taskList.length, last_updated: lastIndex.updatedAt, skipped: true };
+    }
     const yaml = YAML.dump(indexData, { lineWidth: -1 });
-    if (fs.existsSync(getIndexPath())) {
-      const currentYaml = fs.readFileSync(getIndexPath(), 'utf-8');
+    if (currentYaml !== null) {
       try {
         const currentData = YAML.load(currentYaml) || {};
         const comparableCurrentYaml = YAML.dump(
@@ -100,6 +108,7 @@ function rebuildIndex(taskCache, taskFileRoots = ['.']) {
           { lineWidth: -1 }
         );
         if (comparableCurrentYaml === yaml) {
+          lastIndex = { path: indexPath, signature, yaml: currentYaml, updatedAt: currentData.last_updated || null };
           console.log(`[IndexService] Index unchanged: ${taskList.length} tasks`);
           return { success: true, taskCount: taskList.length, last_updated: currentData.last_updated || null, skipped: true };
         }
@@ -109,7 +118,8 @@ function rebuildIndex(taskCache, taskFileRoots = ['.']) {
     }
 
     // _index.yaml に書き込み
-    fs.writeFileSync(getIndexPath(), yaml, 'utf-8');
+    fs.writeFileSync(indexPath, yaml, 'utf-8');
+    lastIndex = { path: indexPath, signature, yaml, updatedAt: indexData.last_updated };
 
     console.log(`[IndexService] Rebuilt index: ${taskList.length} tasks`);
     return { success: true, taskCount: taskList.length, last_updated: indexData.last_updated };

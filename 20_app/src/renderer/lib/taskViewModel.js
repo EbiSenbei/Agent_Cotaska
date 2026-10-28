@@ -80,35 +80,12 @@ function mapFileTask(taskData) {
     validation_file_path: taskData.validation_file_path || null,
   };
 
-  task.searchText = buildSearchText(task);
   return task;
-}
-
-function calcParentProgress(parent, subtasks) {
-  const parentStatus = normalizeProgressStatusValue(parent.progressStatus, parent.status);
-  if (parentStatus !== "未着") return null;
-
-  const statuses = subtasks.map((t) => normalizeProgressStatusValue(t.progressStatus, t.status));
-  if (statuses.some((status) => status === "仕掛" || status === "完了")) return "仕掛";
-  return null;
 }
 
 // T-031: frontmatter形式でのペイロード作成
 function toFileTaskPayload(task, patch = {}) {
-  return {
-    id: task.id,
-    title: task.title,
-    content: task.content || "",
-    status: task.status,
-    progress_status: task.progressStatus || (task.status === "done" ? "完了" : "未着"),
-    priority: task.priority || "normal",
-    parent: task.parent ?? null,         // parent_idではなくparent
-    list: task.list ?? null,             // list_idではなくlist（文字列）
-    tags: task.tags || [],
-    due_date: task.due_date || null,
-    deadline_date: task.deadline_date || null,
-    ...patch,
-  };
+  return { id: task.id, ...patch };
 }
 
 function enrichTaskHierarchy(taskList) {
@@ -200,7 +177,6 @@ function collectDescendantTasks(taskList, parentId, maxDepth = MAX_TASK_TREE_DEP
 // ─────────────────────────────────────────────────────────────────
 
 // ── ビュー別セクション構築ユーティリティ ────────────────────────────────
-const PRIORITY_ORDER = { high: 0, medium: 1, normal: 2 };
 
 // BUG-20260319-01 修正: ローカルタイムゾーン基準で日付文字列を返す
 function localDateString(d = new Date()) {
@@ -211,12 +187,6 @@ function addDays(base, n) {
   const d = new Date(base + "T00:00:00");
   d.setDate(d.getDate() + n);
   return localDateString(d);  // toISOString() はUTC変換でタイムゾーンがずれるため使用しない
-}
-
-function sortByPriority(arr) {
-  return [...arr].sort((a, b) =>
-    (PRIORITY_ORDER[a.priority] ?? 2) - (PRIORITY_ORDER[b.priority] ?? 2)
-  );
 }
 
 function sortByTaskOrder(arr) {
@@ -251,39 +221,6 @@ function sortDisplayTasks(arr, sortState) {
     }
     return result || compareTaskId(a, b);
   });
-}
-
-function normalizeSearchInput(value) {
-  return String(value || "").trim().toLowerCase();
-}
-
-function buildSearchableValues(task) {
-  const tags = task.tags || [];
-  return [
-    task.id,
-    task.title,
-    task.content,
-    task.list,
-    task.priority,
-    task.progressStatus,
-    task.due_date,
-    dueDatePart(task.due_date),
-    formatDue(task.due_date),
-    ...tags,
-    ...tags.map((tag) => `#${tag}`),
-  ].map(normalizeSearchInput).filter(Boolean);
-}
-
-function buildSearchText(task) {
-  return buildSearchableValues(task).join("\n");
-}
-
-function taskMatchesSearch(task, keyword) {
-  const keywords = normalizeSearchInput(keyword).split(/\s+/).filter(Boolean);
-  if (keywords.length === 0) return false;
-
-  const searchable = task.searchText || buildSearchText(task);
-  return keywords.every((kw) => searchable.includes(kw));
 }
 
 const FIXED_VIEWS = new Set(["すべて", "今日", "明日", "次の7日間", "仕掛", "保留", "完了", "ゴミ箱", "受信トレイ", "リストなし"]);
@@ -337,16 +274,13 @@ export {
   isOnHoldTask,
   isActiveDateTask,
   mapFileTask,
-  calcParentProgress,
   toFileTaskPayload,
   enrichTaskHierarchy,
   collectDescendantTasks,
   localDateString,
   addDays,
-  sortByPriority,
   sortByTaskOrder,
   sortDisplayTasks,
-  taskMatchesSearch,
   FIXED_VIEWS,
   buildSections,
 };

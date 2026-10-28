@@ -14,6 +14,8 @@ let SQL = null;
 let initSqlJs = null;
 let db = null;
 let dbPath = null;
+let transactionDepth = 0;
+let savePending = false;
 
 function nowIso() {
   return new Date().toISOString();
@@ -51,8 +53,29 @@ function assertDbReady() {
 
 function saveDb() {
   assertDbReady();
+  if (transactionDepth) { savePending = true; return; }
   fs.mkdirSync(path.dirname(dbPath), { recursive: true });
   fs.writeFileSync(dbPath, Buffer.from(db.export()));
+}
+
+function withTransaction(callback) {
+  assertDbReady();
+  if (transactionDepth) return callback();
+  db.run('BEGIN');
+  transactionDepth = 1;
+  savePending = false;
+  let result;
+  try {
+    result = callback();
+    if (result?.then) throw new Error('AI保存トランザクションは同期処理に限定します。');
+    db.run('COMMIT');
+  } catch (error) {
+    db.run('ROLLBACK');
+    savePending = false;
+    throw error;
+  } finally { transactionDepth = 0; }
+  if (savePending) { savePending = false; saveDb(); }
+  return result;
 }
 
 function normalizeStatus(value, allowed, fallback) {
@@ -325,7 +348,9 @@ function markThreadUnread(threadId) {
 }
 
 function markThreadRead(threadId) {
-  if (!threadId || !getThread(threadId)) return null;
+  const current = threadId ? getThread(threadId) : null;
+  if (!current) return null;
+  if (!current.unread_status && current.last_read_at) return current;
   const timestamp = nowIso();
   run(
     "UPDATE ai_threads SET unread_status = 0, last_read_at = ? WHERE thread_id = ?",
@@ -544,6 +569,11 @@ function updateRun(runId, updates = {}) {
     ? current.run_status
     : normalizeStatus(updates.run_status, RUN_STATUSES, current.run_status);
   const isTerminal = ["completed", "failed", "canceled"].includes(status);
+  const codexId = updates.codex_thread_id === undefined ? current.codex_thread_id : nullableString(updates.codex_thread_id);
+  const errorCode = updates.error_code === undefined ? current.error_code : nullableString(updates.error_code);
+  const errorMessage = updates.error_message === undefined ? current.error_message : nullableString(updates.error_message);
+  if (status === current.run_status && codexId === current.codex_thread_id && errorCode === current.error_code
+    && errorMessage === current.error_message && (!isTerminal || current.finished_at)) return current;
   run(
     `UPDATE ai_runs
      SET codex_thread_id = ?, run_status = ?, finished_at = ?, error_code = ?, error_message = ?
@@ -596,6 +626,7 @@ function getDbInfo() {
 }
 
 module.exports = {
+  withTransaction,
   openAiService,
   closeAiService,
   getAiDbPath,

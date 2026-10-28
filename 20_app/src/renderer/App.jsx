@@ -1,3 +1,5 @@
+import { createLatestRequest } from "./lib/latestRequest";
+import { flushTaskDrafts } from "./lib/taskDraftSaver";
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import "./App.css";
 import "./styles/ai-chat.css";
@@ -15,7 +17,6 @@ import {
   MAX_TASK_TREE_DEPTH,
   addDays,
   buildSections,
-  calcParentProgress,
   collectDescendantTasks,
   dueDatePart,
   enrichTaskHierarchy,
@@ -256,7 +257,12 @@ function App() {
     if (!selectedTask) setDetailPaneExpanded(false);
   }, [selectedTask]);
 
+  const taskReadGate = useRef(createLatestRequest());
+  const taskSnapshot = useRef(null);
+  const taskSettings = useRef(null);
+  useEffect(() => () => taskReadGate.current.invalidate(), []);
   const loadTasks = useCallback(async (options = {}) => {
+    const isCurrent = taskReadGate.current.begin();
     const shouldShowLoading = Boolean(options.showLoading);
     const providedRows = Array.isArray(options.rows) ? options.rows : null;
     if (shouldShowLoading) setLoading(true);
@@ -270,18 +276,24 @@ function App() {
           detail: "初回表示用のタスクデータを受け取っています。",
         });
       }
-      const settingsResult = await window.cotaskaAPI?.settings?.get?.();
+      const settingsResult = providedRows && taskSettings.current && !shouldShowLoading
+        ? taskSettings.current : await window.cotaskaAPI?.settings?.get?.();
+      if (!isCurrent()) return;
+      taskSettings.current = settingsResult;
       if (!onboardingSettingAppliedRef.current) {
         setOnboardingOpen(!Boolean(settingsResult?.settings?.onboarding?.completed));
         onboardingSettingAppliedRef.current = true;
       }
       const initialCompletedLimit = Number(settingsResult?.settings?.taskLoading?.completedInitialLimit);
       if (Number.isFinite(initialCompletedLimit)) setCompletedLimit(initialCompletedLimit);
-      if (shouldShowLoading && !startupInitialViewAppliedRef.current) {
+      if (!startupInitialViewAppliedRef.current) {
         setActiveNav(normalizeStartupInitialView(settingsResult?.settings?.startup?.initialView));
         startupInitialViewAppliedRef.current = true;
       }
       let rows = providedRows ?? await window.cotaskaAPI?.tasks?.getAll() ?? [];
+      if (!isCurrent()) return;
+      const signature = JSON.stringify(rows);
+      if (!shouldShowLoading && taskSnapshot.current === signature) { loaded = true; return; }
       if (shouldShowLoading) {
         setStartupProgress({
           percent: 96,
@@ -289,40 +301,10 @@ function App() {
           detail: "タスクの階層と件数を計算しています。",
         });
       }
-      let mapped = enrichTaskHierarchy(rows.map(mapFileTask));
+      if (!isCurrent()) return;
+      const mapped = enrichTaskHierarchy(rows.map(mapFileTask));
 
-      // T-015-03: 親が未着の場合だけ、子タスク状態から進捗を自動開始する。
-      const byParent = {};
-      mapped.forEach((task) => {
-        const pid = task.parent;
-        if (pid === null || pid === undefined) return;
-        if (!byParent[pid]) byParent[pid] = [];
-        byParent[pid].push(task);
-      });
-
-      let parentStatusUpdated = false;
-      for (const parent of mapped) {
-        const children = byParent[parent.id] || [];
-        if (children.length === 0) continue;
-        const estimated = calcParentProgress(parent, children);
-        if (!estimated) continue;
-        const estimatedTaskStatus = estimated === "完了" ? "done" : "todo";
-        if (parent.progressStatus !== estimated || parent.status !== estimatedTaskStatus) {
-          await window.cotaskaAPI?.tasks?.update(
-            toFileTaskPayload(parent, {
-              progress_status: estimated,
-              status: estimatedTaskStatus,
-            })
-          );
-          parentStatusUpdated = true;
-        }
-      }
-
-      if (parentStatusUpdated) {
-        rows = await window.cotaskaAPI?.tasks?.getAll() ?? [];
-        mapped = enrichTaskHierarchy(rows.map(mapFileTask));
-      }
-
+      taskSnapshot.current = signature;
       setTasks(sortByTaskOrder(mapped));
 
       // 固定ビューのバッジ件数
@@ -348,24 +330,24 @@ function App() {
         });
       }
     } catch (err) {
+      if (!isCurrent()) return;
       console.error("[loadTasks]", err);
       setStartupError("タスクの読み込みに失敗しました。アプリを再起動してください。");
     } finally {
-      if (shouldShowLoading) setLoading(false);
-      if (loaded) setInitialLoading(false);
+      if (isCurrent()) {
+        setLoading(false);
+        if (loaded) setInitialLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
     const handleTasksChanged = (data) => {
+      if (data?.projectId && currentProjectId.current && data.projectId !== currentProjectId.current) return;
       console.log('[App] tasks:changed event received', data);
       loadTasks({ rows: data?.tasks });
     };
-    window.cotaskaAPI?.onTasksChanged?.(handleTasksChanged);
-    return () => {
-      // アンマウント時にリスナーを削除
-      window.cotaskaAPI?.removeTasksChangedListener?.();
-    };
+    return window.cotaskaAPI?.onTasksChanged?.(handleTasksChanged);
   }, [loadTasks]);
 
   const loadTags = useCallback(async () => {
@@ -373,22 +355,43 @@ function App() {
     setTags(Array.isArray(rows) ? rows : []);
   }, []);
 
+  const projectReadGate = useRef(createLatestRequest());
+  const currentProjectId = useRef(null);
+  const openProjectView = useCallback(async (opened) => {
+    if (currentProjectId.current === opened.projectId) return;
+    currentProjectId.current = opened.projectId;
+    const isCurrent = projectReadGate.current.begin();
+    taskReadGate.current.invalidate();
+    taskSnapshot.current = null;
+    taskSettings.current = null;
+    startupInitialViewAppliedRef.current = false;
+    onboardingSettingAppliedRef.current = false;
+    setSelectedTask(null); setCompletedTasks([]); setTrashedTasks([]); setSearchResults([]); setTasks([]);
+    setInitialLoading(true);
+    try {
+      const [settingsResult, nextLists, nextTags] = await Promise.all([
+        window.cotaskaAPI.settings.get(), window.cotaskaAPI.lists.getAll(), window.cotaskaAPI.tags.getAll(),
+      ]);
+      if (!isCurrent()) return;
+      const displayName = String(settingsResult?.settings?.displayName || "").trim();
+      setProject(displayName ? { ...opened, name: displayName } : opened);
+      setLists(nextLists || []); setTags(nextTags || []);
+      await loadTasks({ showLoading: true });
+    } catch (error) {
+      if (isCurrent()) { currentProjectId.current = null; setStartupError(error.message); setInitialLoading(false); }
+    }
+  }, [loadTasks]);
+  useEffect(() => window.cotaskaAPI?.projects?.onChanged?.(openProjectView), [openProjectView]);
   useEffect(() => {
-    // IPC 疎通確認
-    window.cotaskaAPI?.ping().then(res => console.log("[IPC] ping →", res));
+    let active = true;
     (async () => {
       const current = await window.cotaskaAPI?.projects?.getCurrent?.();
-      const settingsResult = current ? await window.cotaskaAPI?.settings?.get?.() : null;
-      const displayName = String(settingsResult?.settings?.displayName || "").trim();
-      setProject(current && displayName ? { ...current, name: displayName } : current);
-      if (!current) { setInitialLoading(false); return; }
-      await loadTasks({ showLoading: true });
-      const rows = await window.cotaskaAPI?.lists?.getAll() ?? [];
-      setLists(rows);
-      const tagRows = await window.cotaskaAPI?.tags?.getAll() ?? [];
-      setTags(Array.isArray(tagRows) ? tagRows : []);
+      if (!active || currentProjectId.current) return;
+      if (!current) { setProject(null); setInitialLoading(false); return; }
+      await openProjectView(current);
     })();
-  }, [loadTasks]);
+    return () => { active = false; projectReadGate.current.invalidate(); taskReadGate.current.invalidate(); };
+  }, [openProjectView]);
 
   useEffect(() => {
     let cancelled = false;
@@ -510,20 +513,6 @@ function App() {
         progress_status: newProgressStatus,
       })
     );
-
-    // CHG-009: 親タスク完了時はサブタスクも自動完了（カスケード）
-    if (newStatus === "done") {
-      const descendants = collectDescendantTasks(tasks, task.id)
-        .filter((child) => child.status !== "done");
-      for (const child of descendants) {
-        await window.cotaskaAPI?.tasks?.update(
-          toFileTaskPayload(child, {
-            status: "done",
-            progress_status: "完了",
-          })
-        );
-      }
-    }
 
     await loadTasks();
     await refreshSearchResults();
@@ -814,31 +803,38 @@ function App() {
   // T-005-06: ゴミ箱内タスク一覧（activeNav === "ゴミ箱" のとき使用）
   useEffect(() => {
     if (activeNav !== "ゴミ箱") return;
+    let active = true;
     (async () => {
       const rows = await window.cotaskaAPI?.tasks?.getTrashed() ?? [];
-      setTrashedTasks(enrichTaskHierarchy(rows.map(mapFileTask)));
+      if (active) setTrashedTasks(enrichTaskHierarchy(rows.map(mapFileTask)));
     })();
+    return () => { active = false; };
   }, [activeNav, tasks]); // tasks 変化時も再取得
 
   // T-007-03: 完了ビュー
   useEffect(() => {
     if (activeNav !== "完了" && activeNav !== "すべて") return;
+    let active = true;
     (async () => {
       const settingsResult = await window.cotaskaAPI?.settings?.get?.();
       const initialCompletedLimit = Number(settingsResult?.settings?.taskLoading?.completedInitialLimit);
-      if (Number.isFinite(initialCompletedLimit)) setCompletedLimit(initialCompletedLimit);
+      if (active && Number.isFinite(initialCompletedLimit)) setCompletedLimit(initialCompletedLimit);
     })();
-  }, [activeNav]);
+    return () => { active = false; };
+  }, [activeNav, project?.projectId]);
 
   useEffect(() => {
     if (activeNav !== "完了" && activeNav !== "すべて") return;
+    let active = true;
     (async () => {
       const result = await window.cotaskaAPI?.tasks?.getCompletedPage?.({ limit: completedLimit });
       const rows = Array.isArray(result) ? result : (result?.tasks || []);
+      if (!active) return;
       setCompletedTasks(enrichTaskHierarchy(rows.map(mapFileTask)));
       setCompletedHasMore(Boolean(result?.hasMore));
     })();
-  }, [activeNav, tasks, completedLimit]); // tasks 変化時も再取得
+    return () => { active = false; };
+  }, [activeNav, tasks, completedLimit, project?.projectId]); // tasks 変化時も再取得
 
   const handleLoadMoreCompleted = useCallback(async () => {
     const settingsResult = await window.cotaskaAPI?.settings?.get?.();
@@ -862,7 +858,7 @@ function App() {
       if (!cancelled) setSearchResults(enrichTaskHierarchy(rows.map(mapFileTask)));
     })();
     return () => { cancelled = true; };
-  }, [isSearchMode, searchKeyword]);
+  }, [isSearchMode, searchKeyword, project?.projectId, tasks]);
 
   // T-005-06: 復元
   const handleRestoreTask = useCallback(async (task) => {
@@ -1086,13 +1082,7 @@ function App() {
     if (progressSections.length === 0) progressSections = null;
   }
 
-  if (project === null) return <ProjectSelector onOpened={async (opened) => {
-    const settingsResult = await window.cotaskaAPI?.settings?.get?.();
-    const displayName = String(settingsResult?.settings?.displayName || "").trim();
-    setProject(displayName ? { ...opened, name: displayName } : opened);
-    setInitialLoading(true);
-    loadTasks({ showLoading: true });
-  }} />;
+  if (project === null) return <ProjectSelector onOpened={openProjectView} />;
 
   if (initialLoading || project === undefined) {
     const startupProgressRatio = Math.max(0, Math.min(100, Number(startupProgress.percent) || 0)) / 100;
@@ -1122,7 +1112,7 @@ function App() {
       <button className="project-switcher-button" type="button" onClick={() => setProjectMenuOpen((value) => !value)} title={project?.path}>{project?.name || "プロジェクト"} ▾</button>
       {projectMenuOpen && <div className="project-switcher-menu">
         <button type="button" onClick={async () => { const result = await window.cotaskaAPI.projects.createShortcut(); setProjectMenuOpen(false); if (!result?.ok && !result?.canceled) window.alert(result?.error); }}>ショートカットを作る</button>
-        <button type="button" onClick={async () => { await window.cotaskaAPI.projects.returnToSelector(); setProjectMenuOpen(false); setProject(null); setTasks([]); setLists([]); }}>プロジェクト選択へ戻る</button>
+        <button type="button" onClick={async () => { try { await flushTaskDrafts(); const result = await window.cotaskaAPI.projects.returnToSelector(); if (!result?.ok) throw new Error(result?.error || "切り替えられませんでした。"); taskReadGate.current.invalidate(); projectReadGate.current.invalidate(); currentProjectId.current = null; taskSnapshot.current = null; taskSettings.current = null; setSelectedTask(null); setProjectMenuOpen(false); setProject(null); setTasks([]); setLists([]); } catch (error) { window.alert(error.message); } }}>プロジェクト選択へ戻る</button>
       </div>}
       <Sidebar
         activeIcon={activeIcon}
@@ -1253,6 +1243,7 @@ function App() {
         <DetailPane
           key={selectedTask?.id ?? "none"}
           task={selectedTask}
+          projectId={project?.projectId}
           tasks={tasks}
           onClose={() => {
             setSelectedTask(null);

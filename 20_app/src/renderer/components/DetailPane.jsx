@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import DueDatePopover from "./DueDatePopover";
 import TaskAttachments from './TaskAttachments';
 import DocumentPreview, { documentAttachmentName } from './DocumentPreview';
-import { useDebounce } from "../hooks/useDebounce";
+import { createTaskDraftSaver } from "../lib/taskDraftSaver";
 import { findUrlAtIndex, formatCompletedAt, formatDatetime, markdown, renderMarkdownEditorHtml } from "../lib/markdownEditor";
 
 const PRIORITY_LABEL = { normal: "低", medium: "中", high: "高" };
@@ -65,6 +65,7 @@ function getTextareaIndexFromPoint(textarea, clientX, clientY) {
 
 function DetailPane({
   task,
+  projectId,
   tasks = [],
   onClose,
   onSelectTask,
@@ -90,6 +91,7 @@ function DetailPane({
   return (
     <DetailPaneBody
       task={task}
+      projectId={projectId}
       tasks={tasks}
       onClose={onClose}
       onSelectTask={onSelectTask}
@@ -109,6 +111,7 @@ function DetailPane({
 
 function DetailPaneBody({
   task,
+  projectId,
   tasks = [],
   onSelectTask,
   onSaved,
@@ -221,15 +224,15 @@ function DetailPaneBody({
   const parentTask = tasks.find((candidate) =>
     candidate.id === task.parent && !candidate.is_invalid
   );
-  const sortedTasks = [...tasks].sort((a, b) =>
+  const sortedTasks = useMemo(() => [...tasks].sort((a, b) =>
     (a.sort_order || 0) - (b.sort_order || 0) || String(a.id).localeCompare(String(b.id))
-  );
-  const relatedTasksByParent = sortedTasks.reduce((acc, candidate) => {
+  ), [tasks]);
+  const relatedTasksByParent = useMemo(() => sortedTasks.reduce((acc, candidate) => {
     if (!candidate.parent || candidate.is_invalid || candidate.hierarchyOverLimit || candidate.hierarchyCycle) return acc;
     if (!acc[candidate.parent]) acc[candidate.parent] = [];
     acc[candidate.parent].push(candidate);
     return acc;
-  }, {});
+  }, {}), [sortedTasks]);
 
   const collectRelatedSubtasks = (parentId, depth = 1, seen = new Set()) => {
     if (depth > 5 || seen.has(parentId)) return [];
@@ -528,28 +531,36 @@ function DetailPaneBody({
     });
   };
 
+  const savedCallback = useRef(onSaved);
+  savedCallback.current = onSaved;
+  const [saveError, setSaveError] = useState("");
+  const mounted = useRef(true);
+  const [draftSaver] = useState(() => createTaskDraftSaver({
+    key: `${projectId || ''}/${task.id}`,
+    write: (patch) => window.cotaskaAPI.tasks.update({ id: task.id, ...patch, _projectId: projectId }),
+    onSaved: () => { if (mounted.current) { setSaveError(""); savedCallback.current?.(); } },
+    onError: (error) => { if (mounted.current) setSaveError(error.message); else window.alert(`タスク ${task.id} を保存できませんでした: ${error.message}`); },
+  }));
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; draftSaver.dispose().catch(() => {}); };
+  }, [draftSaver]);
+  useEffect(() => {
+    setTitleText(draftSaver.value("title", task.title || ""));
+    setContentText(draftSaver.value("content", task.content || ""));
+    setPriority(draftSaver.value("priority", task.priority || "normal"));
+    const nextStatus = draftSaver.value("status", task.status);
+    setStatus(nextStatus); setCompleted(nextStatus === "done");
+    if (!draftSaver.isDirty("status")) setCompletedAt(task.completed_at || null);
+    setProgressStatus(draftSaver.value("progress_status", task.progressStatus || (task.status === "done" ? "完了" : "未着")));
+    setListName(draftSaver.value("list", task.list || ""));
+    setTaskTags(draftSaver.value("tags", task.tags || []));
+  }, [task, draftSaver]);
   const persist = async (patch) => {
     if (isInvalid) return;
-    await window.cotaskaAPI?.tasks?.update({
-      id: task.id,
-      title: titleText,
-      content: contentText,
-      status,
-      progress_status: progressStatus,
-      priority,
-      list: listName || null,
-      parent: task.parent ?? null,
-      tags: taskTags,
-      due_date: task.due_date || null,
-      deadline_date: task.deadline_date || null,
-      ...patch,
-    });
-    onSaved?.();
+    try { await draftSaver.save(patch); } catch { /* Retry remains available in the pane. */ }
   };
-
-  const debouncedSave = useDebounce(async (nextTitle, nextContent) => {
-    await persist({ title: nextTitle, content: nextContent });
-  }, 500);
+  const debouncedSave = (patch) => { if (!isInvalid) draftSaver.stage(patch); };
 
   const handlePriorityChange = async (e) => {
     if (isInvalid) return;
@@ -570,6 +581,7 @@ function DetailPaneBody({
     setStatus(nextStatus);
 
     if (onToggleComplete) {
+      try { await draftSaver.flush(); } catch { return; }
       await onToggleComplete(task);
       return;
     }
@@ -760,6 +772,7 @@ function DetailPaneBody({
           文字サイズ {fontSizeIndicator}px
         </div>
       )}
+      {saveError && <div role="alert">{saveError}<button type="button" onClick={() => draftSaver.flush().catch(() => {})}>保存を再試行</button></div>}
       {/* === detail-header: チェック + タイトル + 右上アクション === */}
       <div className="detail-header">
         <input type="checkbox" className="d-check" checked={completed} onChange={handleComplete} disabled={isInvalid} />
@@ -773,7 +786,7 @@ function DetailPaneBody({
             if (isInvalid) return;
             const nextTitle = e.target.value;
             setTitleText(nextTitle);
-            debouncedSave(nextTitle, contentText);
+            debouncedSave({ title: nextTitle });
           }}
         />
 
@@ -1082,7 +1095,7 @@ function DetailPaneBody({
                   const reference = `![Image](<${result.result.relativePath}>)`;
                   const nextContent = original.slice(0, start) + reference + original.slice(end);
                   setContentText(nextContent);
-                  debouncedSave(titleText, nextContent);
+                  debouncedSave({ content: nextContent });
                   requestAnimationFrame(() => { target.focus(); target.setSelectionRange(start + reference.length, start + reference.length); });
                 } catch (error) { setImageError(error.message); }
                 finally { pastePending.current = false; setPastingImage(false); }
@@ -1095,7 +1108,7 @@ function DetailPaneBody({
                 if (isInvalid) return;
                 const nextContent = e.target.value;
                 setContentText(nextContent);
-                debouncedSave(titleText, nextContent);
+                debouncedSave({ content: nextContent });
               }}
             />
           </div>

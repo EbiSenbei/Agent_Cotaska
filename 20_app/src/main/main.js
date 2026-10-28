@@ -1,3 +1,4 @@
+const projectOperations = require("./projectOperationGuard").createProjectOperationGuard();
 const { app, BrowserWindow, ipcMain, Menu, dialog, globalShortcut, shell, clipboard, nativeImage, net } = require("electron");
 const { readClipboardPng } = require('./clipboardImage');
 const path = require("path");
@@ -1277,15 +1278,24 @@ function startVite() {
 // ── IPC ハンドラ登録 ──────────────────────────────────────────
 ipcMain.handle("ping", () => "pong");
 
+async function flushProjectDrafts() {
+  await require("./taskDraftFlush").flushWindowDrafts(ipcMain, [mainWindow, ...detailWindows.values()]);
+}
+
 async function activateProject(rootDir, create = false, name = "") {
-  await watcher.stopWatcher();
-  reminderService.stop();
-  aiService.closeAiService();
-  const project = create ? projectService.createProject(rootDir, name) : projectService.openProject(rootDir);
-  servicesReady = initializeServicesAfterWindowReady();
-  await servicesReady;
-  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send("project:changed", project);
-  return { ok: true, project };
+  const release = projectOperations.beginTransition();
+  try {
+    await flushProjectDrafts();
+    detailWindows.forEach((win) => { if (!win.isDestroyed()) win.close(); });
+    await watcher.stopWatcher();
+    reminderService.stop();
+    aiService.closeAiService();
+    const project = create ? projectService.createProject(rootDir, name) : projectService.openProject(rootDir);
+    servicesReady = initializeServicesAfterWindowReady();
+    await servicesReady;
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send("project:changed", project);
+    return { ok: true, project };
+  } finally { release(); }
 }
 
 ipcMain.handle("projects:getCurrent", () => projectService.getCurrent());
@@ -1330,19 +1340,30 @@ ipcMain.handle("projects:migrateLegacy", async () => {
   const target = await dialog.showOpenDialog({ title: "新しいCotaskaプロジェクトの保存先を選択", properties: ["openDirectory", "createDirectory"] });
   if (target.canceled || !target.filePaths[0]) return { ok: false, canceled: true };
   try {
-    await watcher.stopWatcher(); reminderService.stop(); aiService.closeAiService();
-    const project = projectService.migrateLegacy(source.filePaths[0], target.filePaths[0]);
-    servicesReady = initializeServicesAfterWindowReady(); await servicesReady;
-    return { ok: true, project };
+    const release = projectOperations.beginTransition();
+    try {
+      await flushProjectDrafts();
+      detailWindows.forEach((win) => { if (!win.isDestroyed()) win.close(); });
+      await watcher.stopWatcher(); reminderService.stop(); aiService.closeAiService();
+      const project = projectService.migrateLegacy(source.filePaths[0], target.filePaths[0]);
+      servicesReady = initializeServicesAfterWindowReady(); await servicesReady;
+      return { ok: true, project };
+    } finally { release(); }
   } catch (err) { return { ok: false, error: err.message }; }
 });
 ipcMain.handle("projects:returnToSelector", async () => {
-  await watcher.stopWatcher();
-  reminderService.stop();
-  aiService.closeAiService();
-  projectContext.clear();
-  detailWindows.forEach((win) => { if (!win.isDestroyed()) win.close(); });
-  return { ok: true };
+  let release;
+  try {
+    release = projectOperations.beginTransition();
+    await flushProjectDrafts();
+    detailWindows.forEach((win) => { if (!win.isDestroyed()) win.close(); });
+    await watcher.stopWatcher();
+    reminderService.stop();
+    aiService.closeAiService();
+    projectContext.clear();
+    return { ok: true };
+  } catch (err) { return { ok: false, error: err.message }; }
+  finally { release?.(); }
 });
 ipcMain.handle("projects:createShortcut", async () => {
   const project = projectContext.getCurrent();
@@ -2159,10 +2180,12 @@ ipcMain.handle("aiChat:setActiveThread", (_e, threadId) => {
 });
 
 ipcMain.handle("aiChat:sendMessage", async (_e, input) => {
-  await servicesReady;
   const threadId = input?.thread_id;
   let claimedThread = false;
+  let releaseProject;
   try {
+    releaseProject = projectOperations.beginRun();
+    await servicesReady;
     if (threadId && aiService.getThread(threadId)?.thread_status === "archived") {
       throw new Error("アーカイブ済みのスレッドです。復元してから送信してください。");
     }
@@ -2206,6 +2229,7 @@ ipcMain.handle("aiChat:sendMessage", async (_e, input) => {
     logger.error("aiChat:sendMessage failed", err);
     return { ok: false, error: err.message || String(err) };
   } finally {
+    releaseProject?.();
     if (claimedThread) {
       const count = pendingAiSends.get(threadId) - 1;
       if (count > 0) pendingAiSends.set(threadId, count);
@@ -2304,7 +2328,9 @@ ipcMain.handle("tasks:update", async (_e, updates) => {
   await servicesReady;
   logger.debug("IPC: tasks:update", { id: updates.id });
   try {
-    const result = taskService.updateTask(updates.id, updates);
+    const { _projectId, ...patch } = updates;
+    if (_projectId && _projectId !== projectContext.getCurrent().projectId) throw new Error("プロジェクトが変更されたため保存を中止しました。");
+    const result = taskService.updateTask(patch.id, patch);
     logger.debug("Task update success", { id: updates.id });
     return result;
   } catch (err) {
@@ -3150,7 +3176,9 @@ async function initializeServicesAfterWindowReady() {
   });
 
   if (mainWindow && !mainWindow.isDestroyed()) {
-    const result = await measure("watcher", () => watcher.startWatcher(mainWindow));
+    const result = await measure("watcher", () => watcher.startWatcher(mainWindow, (payload) => {
+      detailWindows.forEach((win) => { if (!win.isDestroyed()) win.webContents.send("tasks:changed", payload); });
+    }));
     if (result.cancelled) return;
     if (!result.success) throw new Error(result.error || "ファイル監視の初期化に失敗しました。");
   }

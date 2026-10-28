@@ -1,0 +1,27 @@
+{
+  "validatedAt": "2026-10-28T09:50:42.674Z",
+  "validatedTaskIds": [
+    "T-0780",
+    "T-0781",
+    "T-0782",
+    "T-0783",
+    "T-0784",
+    "T-0785",
+    "T-0786",
+    "T-0787",
+    "T-0788",
+    "T-0789",
+    "T-0790",
+    "T-0832",
+    "T-0833",
+    "T-0834",
+    "T-0835",
+    "T-0836",
+    "T-0837",
+    "T-0838"
+  ],
+  "taskFilesCheckedForDuplicateIds": 807,
+  "sourceFilesUnchanged": 272,
+  "indexSynced": true,
+  "linksValid": true
+}

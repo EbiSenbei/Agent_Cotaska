@@ -1,0 +1,51 @@
+{
+  "runtime": "v24.22.1",
+  "root": "D:\\Development\\Git\\EbiSenbei_dev\\Agent_Cotaska\\workspace\\T-0780\\ai-storage-cSc68v",
+  "measurements": [
+    {
+      "seedPayloadMiB": 1,
+      "dbBytes": 1114112,
+      "individual": {
+        "writes": 2,
+        "bytes": 2228224,
+        "ms": 5.403700000000001
+      },
+      "transaction": {
+        "writes": 1,
+        "bytes": 1114112,
+        "ms": 3.681299999999993
+      },
+      "afterNoOpWrites": 1
+    },
+    {
+      "seedPayloadMiB": 10,
+      "dbBytes": 10567680,
+      "individual": {
+        "writes": 2,
+        "bytes": 21135360,
+        "ms": 20.980099999999993
+      },
+      "transaction": {
+        "writes": 1,
+        "bytes": 10567680,
+        "ms": 17.889099999999985
+      },
+      "afterNoOpWrites": 1
+    },
+    {
+      "seedPayloadMiB": 50,
+      "dbBytes": 52563968,
+      "individual": {
+        "writes": 2,
+        "bytes": 105127936,
+        "ms": 649.3667
+      },
+      "transaction": {
+        "writes": 1,
+        "bytes": 52563968,
+        "ms": 364.50160000000005
+      },
+      "afterNoOpWrites": 1
+    }
+  ]
+}

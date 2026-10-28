@@ -151,6 +151,14 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
     },
   },
   tasks: {
+    onFlushDrafts: (callback) => {
+      const listener = async (_event, token) => {
+        try { await callback(); ipcRenderer.send('tasks:draftsFlushed', token, null); }
+        catch (error) { ipcRenderer.send('tasks:draftsFlushed', token, error?.message || '保存できませんでした。'); }
+      };
+      ipcRenderer.on('tasks:flushDrafts', listener);
+      return () => ipcRenderer.removeListener('tasks:flushDrafts', listener);
+    },
     getAll:           ()                                => ipcRenderer.invoke("tasks:getAll"),
     search:           (keyword)                         => ipcRenderer.invoke("tasks:search", keyword),
     add:              (task)                            => ipcRenderer.invoke("tasks:add",               task),
@@ -212,9 +220,9 @@ contextBridge.exposeInMainWorld("cotaskaAPI", {
 
   // イベントリスナー（ファイルウォッチャーから通知）
   onTasksChanged: (callback) => {
-    ipcRenderer.on("tasks:changed", (_event, data) => {
-      callback(data);
-    });
+    const listener = (_event, data) => callback(data);
+    ipcRenderer.on("tasks:changed", listener);
+    return () => ipcRenderer.removeListener("tasks:changed", listener);
   },
 
   onDetailContentFontAdjust: (callback) => {

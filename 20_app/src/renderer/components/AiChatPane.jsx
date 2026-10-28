@@ -169,6 +169,11 @@ function AiChatPane({
   }, [aiProvider, bedrockAwsProfile, isBedrockModel, selectedModel]);
 
   const aiChatApi = useMemo(() => getAiChatApi(), []);
+  const messageActionsRef = useRef({});
+  const messageActions = useMemo(() => Object.fromEntries(
+    ['onReferenceClick', 'onCopy', 'onOpenTask', 'onOpenLink', 'onOpenLinkContextMenu']
+      .map(name => [name, (...args) => messageActionsRef.current[name]?.(...args)])
+  ), []);
   const selectedThread = threads.find((thread) => thread.id === selectedThreadId) || null;
   const activeRunByThreadId = useMemo(() => {
     const map = new Map();
@@ -2011,6 +2016,12 @@ function AiChatPane({
     }
   };
 
+  messageActionsRef.current = {
+    onReferenceClick: handleReferenceClick, onCopy: handleCopyMessage,
+    onOpenTask: openTaskContext, onOpenLink: handleOpenMarkdownLink,
+    onOpenLinkContextMenu: openLinkContextMenu,
+  };
+
   return (
     <div
       className={`ai-chat-screen${contextPanel ? " ai-chat-screen--with-context" : ""}${isResizingContextPanel ? " ai-chat-screen--resizing-context" : ""}`}
@@ -2253,13 +2264,9 @@ function AiChatPane({
             </div>
           ) : messages.map((message) => (
             <AiChatMessage
-              onReferenceClick={handleReferenceClick}
+              {...messageActions}
               key={message.id}
               message={message}
-              onCopy={handleCopyMessage}
-              onOpenTask={openTaskContext}
-              onOpenLink={handleOpenMarkdownLink}
-              onOpenLinkContextMenu={openLinkContextMenu}
             />
           ))}
           {isSending && (

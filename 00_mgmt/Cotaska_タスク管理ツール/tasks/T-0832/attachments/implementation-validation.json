@@ -1,0 +1,27 @@
+{
+  "validatedAt": "2026-10-28T10:18:55.306Z",
+  "taskCount": 809,
+  "taskIndexSynced": true,
+  "linksValid": true,
+  "sourceFilesUnchanged": 254,
+  "expectedSourceChanges": [
+    "main/aiService.js",
+    "main/claudeCodeService.js",
+    "main/codexSdkService.js",
+    "main/indexService.js",
+    "main/main.js",
+    "main/preload.js",
+    "main/taskHierarchy.js",
+    "main/taskService.js",
+    "main/watcher.js",
+    "renderer/App.jsx",
+    "renderer/DetailWindowApp.jsx",
+    "renderer/index.jsx",
+    "renderer/components/AiChatMessage.jsx",
+    "renderer/components/AiChatPane.jsx",
+    "renderer/components/DetailPane.jsx",
+    "renderer/components/MainPane.jsx",
+    "renderer/hooks/useDebounce.js",
+    "renderer/lib/taskViewModel.js"
+  ]
+}
