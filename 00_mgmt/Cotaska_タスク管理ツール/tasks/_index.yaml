@@ -8931,6 +8931,15 @@ tasks:
       - Node.js
     due_date: '2026-10-24'
     updated_at: '2026-10-24T13:50:52.017Z'
+  - id: T-0824
+    title: Cotaskaの起動に時間がかかるのが気になる
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 793
+    tags: []
+    due_date: null
+    updated_at: '2026-10-28T08:08:34.227Z'
   - id: T-0798
     title: AIチャットの実行時画像データをGit管理外にする
     list: null
@@ -9141,6 +9150,36 @@ tasks:
       - CHG-156
     due_date: null
     updated_at: '2026-10-28T06:50:10.052Z'
+  - id: T-0829
+    title: BUG-20261028-01 起動時の監視照合と初期化計時の設計を更新
+    list: null
+    status: done
+    priority: normal
+    sort_order: 824
+    tags:
+      - BUG-20261028-01
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T08:05:04.836Z'
+  - id: T-0830
+    title: BUG-20261028-01 監視開始時の全件再処理を削減し検証
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 825
+    tags:
+      - BUG-20261028-01
+    due_date: null
+    updated_at: '2026-10-28T08:05:04.836Z'
+  - id: T-0831
+    title: BUG-20261028-01 起動速度と外部編集同期を利用者確認
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 826
+    tags:
+      - BUG-20261028-01
+    due_date: null
+    updated_at: '2026-10-28T08:05:04.836Z'
 task_file_roots:
   - .
   - T-0001
@@ -9929,9 +9968,13 @@ task_file_roots:
   - T-0815
   - T-0816
   - T-0817
+  - T-0824
   - T-0825
   - T-0826
   - T-0827
   - T-0828
-next_task_id: 829
-last_updated: '2026-10-28T06:50:10.591Z'
+  - T-0829
+  - T-0830
+  - T-0831
+next_task_id: 832
+last_updated: '2026-10-28T08:08:34.739Z'

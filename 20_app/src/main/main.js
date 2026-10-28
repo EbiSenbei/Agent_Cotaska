@@ -3112,29 +3112,32 @@ async function initializeServicesAfterWindowReady() {
   await new Promise((resolve) => setImmediate(resolve));
   logger.info("Initializing task/list services...");
   const svcStartTime = Date.now();
+  const measure = async (stage, initialize) => {
+    const start = performance.now();
+    let success = false;
+    try {
+      const result = await initialize();
+      success = result?.success !== false && !result?.cancelled;
+      return result;
+    } finally {
+      appLogger.logInfo("Startup stage finished", { stage, success, durationMs: Math.round(performance.now() - start) });
+    }
+  };
 
   publishStartupProgress({
     percent: 45,
     label: "タスクデータを準備しています...",
     detail: "タスクファイルを読み込んでいます。",
   });
-  await taskService.openTaskService();
+  await measure("tasks", () => taskService.openTaskService());
   publishStartupProgress({
     percent: 62,
     label: "リストを準備しています...",
     detail: "リストとタグの設定を読み込んでいます。",
   });
-  await listService.openListService();
-  await aiService.openAiService();
-  try { clipboardImageStore.cleanup(); } catch (error) { logger.warn("画像整理を完了できませんでした", error); }
-
-  const svcDuration = Date.now() - svcStartTime;
-  logger.info("Services initialized");
-  appLogger.logServiceInitialization({
-    taskCount: Object.keys(taskService.getCache()).length,
-    listCount: listService.getAllLists().length,
-    duration: svcDuration,
-  });
+  await measure("lists", () => listService.openListService());
+  await measure("ai", () => aiService.openAiService());
+  try { await measure("images", () => clipboardImageStore.cleanup()); } catch (error) { logger.warn("画像整理を完了できませんでした", error); }
 
   reminderService.start(
     () => taskService.getAllTasks(),
@@ -3147,10 +3150,16 @@ async function initializeServicesAfterWindowReady() {
   });
 
   if (mainWindow && !mainWindow.isDestroyed()) {
-    watcher.startWatcher(mainWindow).catch(err => {
-      logger.error("Failed to start watcher:", err);
-    });
+    const result = await measure("watcher", () => watcher.startWatcher(mainWindow));
+    if (result.cancelled) return;
+    if (!result.success) throw new Error(result.error || "ファイル監視の初期化に失敗しました。");
   }
+  logger.info("Services initialized");
+  appLogger.logServiceInitialization({
+    taskCount: Object.keys(taskService.getCache()).length,
+    listCount: listService.getAllLists().length,
+    duration: Date.now() - svcStartTime,
+  });
   publishStartupProgress({
     percent: 80,
     label: "アプリの準備が整いました...",
