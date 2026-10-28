@@ -9297,7 +9297,7 @@ tasks:
       - 依存関係
       - v0.5.2
     due_date: '2026-10-28'
-    updated_at: '2026-10-28T12:08:29.643Z'
+    updated_at: '2026-10-28T12:40:18.130Z'
   - id: T-0842
     title: 依存更新と0.5.2版数変更の設計・配布条件を確認する
     list: null
@@ -9309,7 +9309,7 @@ tasks:
       - 依存関係
       - v0.5.2
     due_date: '2026-10-28'
-    updated_at: '2026-10-28T11:03:12.156Z'
+    updated_at: '2026-10-28T12:40:18.130Z'
   - id: T-0843
     title: 依存更新版0.5.2の監査・保存・SDK・ビルドを検証する
     list: null
@@ -9321,7 +9321,7 @@ tasks:
       - 依存関係
       - v0.5.2
     due_date: '2026-10-28'
-    updated_at: '2026-10-28T12:01:27.616Z'
+    updated_at: '2026-10-28T12:40:18.130Z'
   - id: T-0844
     title: 依存更新版0.5.2の利用者動作確認を行う
     list: null
@@ -9333,7 +9333,7 @@ tasks:
       - 依存関係
       - v0.5.2
     due_date: null
-    updated_at: '2026-10-28T11:03:12.156Z'
+    updated_at: '2026-10-28T12:40:18.130Z'
 task_file_roots:
   - .
   - T-0001
@@ -10144,4 +10144,4 @@ task_file_roots:
   - T-0843
   - T-0844
 next_task_id: 845
-last_updated: '2026-10-28T12:08:30.125Z'
+last_updated: '2026-10-28T12:40:18.661Z'
