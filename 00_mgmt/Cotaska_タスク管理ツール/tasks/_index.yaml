@@ -9219,15 +9219,15 @@ tasks:
   - id: T-0835
     title: 一覧と詳細・AI履歴の描画処理を計測し削減する
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 830
     tags:
       - 開発管理
       - ソース調査
       - 保守性改善
-    due_date: null
-    updated_at: '2026-10-28T10:18:01.341Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T13:22:03.410Z'
   - id: T-0836
     title: インデックス比較とAI履歴保存の負荷を計測し削減する
     list: null
@@ -10144,4 +10144,4 @@ task_file_roots:
   - T-0843
   - T-0844
 next_task_id: 845
-last_updated: '2026-10-28T12:40:18.661Z'
+last_updated: '2026-10-28T13:22:03.410Z'

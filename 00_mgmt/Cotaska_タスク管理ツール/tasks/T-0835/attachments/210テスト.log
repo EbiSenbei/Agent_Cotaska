@@ -1,0 +1,204 @@
+
+ RUN  v5.0.5 D:/Development/Git/EbiSenbei_dev/Agent_Cotaska/Cotaska/20_app
+
+····stdout | tests/main/dependencyWatcher.test.js > external YAML edits reach the cache, index and renderer after dependency updates
+[IndexService] Rebuilt index: 0 tasks
+[TaskService] Loaded 0 tasks from disk
+
+stdout | tests/main/taskFileBundle.test.js > mixed files and a directory are rejected before copying any file
+[IndexService] Rebuilt index: 0 tasks
+[TaskService] Loaded 0 tasks from disk
+
+·stdout | tests/main/dependencyWatcher.test.js > external YAML edits reach the cache, index and renderer after dependency updates
+[Watcher] Starting monitoring of 2 root(s)
+
+·····stdout | tests/main/taskFileBundle.test.js > verified copy preserves source and existing destination on collision
+[IndexService] Rebuilt index: 0 tasks
+[TaskService] Loaded 0 tasks from disk
+
+stdout | tests/main/dependencyWatcher.test.js > external YAML edits reach the cache, index and renderer after dependency updates
+[TaskService] Rebuilt cache: 1 tasks
+[IndexService] Rebuilt index: 1 tasks
+[Watcher] Notified renderer about 1 task file change(s)
+[Watcher] Flushed task changes - Cache now has 1 tasks
+[Watcher] Initial reconciliation completed in 46ms
+
+··stdout | tests/main/startupWatcher.test.js > 初期addを個別適用せず起動途中の編集・追加・削除を正本から一括反映する
+[IndexService] Rebuilt index: 2 tasks
+[TaskService] Loaded 2 tasks from disk
+
+·····stdout | tests/main/taskFileBundle.test.js > new tasks, attachment Markdown exclusion, safe names, removal and restore
+[IndexService] Rebuilt index: 0 tasks
+[TaskService] Loaded 0 tasks from disk
+
+····stdout | tests/main/startupWatcher.test.js > 初期addを個別適用せず起動途中の編集・追加・削除を正本から一括反映する
+[TaskService] Rebuilt cache: 3 tasks
+[IndexService] Rebuilt index: 2 tasks
+
+····stdout | tests/main/startupWatcher.test.js > 起動照合で破損・ID変更・重複を検出しready後の通常編集も反映する
+[IndexService] Rebuilt index: 1 tasks
+[TaskService] Loaded 1 tasks from disk
+
+stdout | tests/main/taskFileBundle.test.js > new tasks, attachment Markdown exclusion, safe names, removal and restore
+[TaskService] Rebuilt cache: 1 tasks
+
+node.exe : stderr | tests/main/startupWatcher.test.js > 起動照合で破損・ID変更・重複を検出しready後の通常編集も反映する
+発生場所 行:2 文字:61
++ ... +$env:PATH; & ../../v24.22.1/node.exe node_modules/vitest/vitest.mjs  ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (stderr | tests/...eady後の通常編集も反映する:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+[TaskService] Failed to load task file: C:\Users\EBI-GA~1\AppData\Local\Temp\cotaska-startup-watch-DLYqRc\tasks\broken.
+md unexpected end of the stream within a flow collection at line 3, column 1:
+
+    ^
+
+····stdout | tests/main/taskFileBundle.test.js > legacy task stays readable and moves only when adding an attachment
+[IndexService] Rebuilt index: 0 tasks
+[TaskService] Loaded 0 tasks from disk
+
+stdout | tests/main/taskPerformance.test.js > 変更なしindexでYAML処理を省き、外部の破損と削除は修復する
+[IndexService] Rebuilt index: 1 tasks
+[IndexService] Rebuilt index: 1 tasks
+[IndexService] Rebuilt index: 1 tasks
+[IndexService] Rebuilt index: 1 tasks
+
+·stdout | tests/main/startupWatcher.test.js > 起動照合で破損・ID変更・重複を検出しready後の通常編集も反映する
+[TaskService] Rebuilt cache: 3 tasks
+[IndexService] Rebuilt index: 3 tasks
+
+····stdout | tests/main/taskFileBundle.test.js > legacy task stays readable and moves only when adding an attachment
+[TaskService] Rebuilt cache: 1 tasks
+
+·stdout | tests/main/taskFileBundle.test.js > duplicate includes body and removed files; archive ZIP is byte exact
+[IndexService] Rebuilt index: 0 tasks
+[TaskService] Loaded 0 tasks from disk
+
+stdout | tests/main/taskPerformance.test.js > ファイルのID変更・重複・unlinkと採番がパス索引後も整合する
+[IndexService] Rebuilt index: 1 tasks
+[TaskService] Loaded 1 tasks from disk
+
+stdout | tests/main/taskPerformance.test.js > 外部編集の親進捗推定をMainで行い、通常の読取りでは書き込まない
+[IndexService] Rebuilt index: 2 tasks
+[TaskService] Loaded 2 tasks from disk
+
+stderr | tests/main/taskPerformance.test.js > 並び替えの重複・未知ID・省略IDを既存順序で処理し、破損と削除の正本を保持する
+[TaskService] Failed to load task file: C:\Users\EBI-GA~1\AppData\Local\Temp\cotaska-task-perf-6aX8z5\tasks\broken.md u
+nexpected end of the stream within a flow collection at line 3, column 1:
+
+    ^
+
+··stdout | tests/main/taskPerformance.test.js > 並び替えの重複・未知ID・省略IDを既存順序で処理し、破損と削除の正本を保持する
+[IndexService] Rebuilt index: 4 tasks
+[TaskService] Loaded 5 tasks from disk
+
+stdout | tests/main/taskPerformance.test.js > 並び替えの重複・未知ID・省略IDを既存順序で処理し、破損と削除の正本を保持する
+[TaskService] Rebuilt cache: 5 tasks
+
+stdout | tests/main/taskPerformance.test.js > 一括外部更新後のroots・採番を確定し、破損からの復旧と再読込で正本に一致する
+[IndexService] Rebuilt index: 1 tasks
+[TaskService] Loaded 1 tasks from disk
+
+stdout | tests/main/taskPerformance.test.js > 一括外部更新後のroots・採番を確定し、破損からの復旧と再読込で正本に一致する
+[TaskService] Rebuilt cache: 3 tasks
+
+·······stdout | tests/main/taskFileBundle.test.js > archive collision or ZIP collision preserves source task and attachments
+[IndexService] Rebuilt index: 0 tasks
+[TaskService] Loaded 0 tasks from disk
+
+stdout | tests/main/startupWatcher.test.js > 起動照合で破損・ID変更・重複を検出しready後の通常編集も反映する
+[IndexService] Rebuilt index: 3 tasks
+
+·stdout | tests/main/startupWatcher.test.js > 準備中の停止で待機を解除し旧監視のready・変更を新プロジェクトへ適用しない
+[IndexService] Rebuilt index: 0 tasks
+[TaskService] Loaded 0 tasks from disk
+
+··············stdout | tests/main/taskFileBundle.test.js > attachment folder junction is rejected for read, write and archive
+[IndexService] Rebuilt index: 0 tasks
+[TaskService] Loaded 0 tasks from disk
+
+stdout | tests/main/startupWatcher.test.js > 準備中の停止で待機を解除し旧監視のready・変更を新プロジェクトへ適用しない
+[IndexService] Rebuilt index: 1 tasks
+[TaskService] Loaded 1 tasks from disk
+
+stdout | tests/main/startupWatcher.test.js > 準備中の停止で待機を解除し旧監視のready・変更を新プロジェクトへ適用しない
+[TaskService] Rebuilt cache: 1 tasks
+
+stdout | tests/main/startupWatcher.test.js > cacheの初期化失敗を成功にせず監視を解放する
+[IndexService] Rebuilt index: 0 tasks
+[TaskService] Loaded 0 tasks from disk
+
+··········stdout | tests/main/startupWatcher.test.js > indexの初期化失敗を成功にせず監視を解放する
+[IndexService] Rebuilt index: 0 tasks
+[TaskService] Loaded 0 tasks from disk
+
+··················stdout | tests/main/startupWatcher.test.js > indexの初期化失敗を成功にせず監視を解放する
+[TaskService] Rebuilt cache: 0 tasks
+
+stdout | tests/main/taskFileBundle.test.js > backup restores new attachment folders, removed files and archive ZIP
+[IndexService] Rebuilt index: 0 tasks
+[TaskService] Loaded 0 tasks from disk
+
+stdout | tests/main/startupWatcher.test.js > watcherの初期化失敗を成功にせず監視を解放する
+[IndexService] Rebuilt index: 0 tasks
+[TaskService] Loaded 0 tasks from disk
+
+····stdout | tests/main/startupWatcher.test.js > 準備完了後の停止で保留通知を確定し古いタイマーやイベントを次の監視へ残さない
+[IndexService] Rebuilt index: 1 tasks
+[TaskService] Loaded 1 tasks from disk
+
+stdout | tests/main/taskDates.test.js > 非引用YAML期限を文字列に正規化し、元ファイルを維持する
+[IndexService] Rebuilt index: 1 tasks
+[TaskService] Loaded 1 tasks from disk
+
+·stdout | tests/main/startupWatcher.test.js > 準備完了後の停止で保留通知を確定し古いタイマーやイベントを次の監視へ残さない
+[TaskService] Rebuilt cache: 1 tasks
+
+stdout | tests/main/startupWatcher.test.js > 準備完了後の停止で保留通知を確定し古いタイマーやイベントを次の監視へ残さない
+[IndexService] Rebuilt index: 1 tasks
+
+stdout | tests/main/startupWatcher.test.js > 準備完了後の停止で保留通知を確定し古いタイマーやイベントを次の監視へ残さない
+[IndexService] Rebuilt index: 1 tasks
+[TaskService] Loaded 1 tasks from disk
+
+stdout | tests/main/startupWatcher.test.js > 準備完了後の停止で保留通知を確定し古いタイマーやイベントを次の監視へ残さない
+[TaskService] Rebuilt cache: 1 tasks
+
+·······················stdout | tests/main/taskFileBundle.test.js > backup restores new attachment folders, removed files and archive ZIP
+[TaskService] Rebuilt cache: 1 tasks
+[IndexService] Rebuilt index: 1 tasks
+
+·········stdout | tests/main/dependencyWatcher.test.js > external YAML edits reach the cache, index and renderer after dependency updates
+[IndexService] Rebuilt index: 1 tasks
+[Watcher] Notified renderer about 1 task file change(s)
+[Watcher] Flushed task changes - Cache now has 1 tasks
+
+stdout | tests/main/taskFileBundle.test.js > legacy ZIP and empty tasks directory remain restorable
+[IndexService] Rebuilt index: 0 tasks
+[TaskService] Loaded 0 tasks from disk
+
+stdout | tests/main/dependencyWatcher.test.js > external YAML edits reach the cache, index and renderer after dependency updates
+[Watcher] Stopped
+
+···stdout | tests/main/taskFileBundle.test.js > legacy ZIP and empty tasks directory remain restorable
+[TaskService] Rebuilt cache: 1 tasks
+[IndexService] Rebuilt index: 1 tasks
+
+·············stdout | tests/main/taskFileBundle.test.js > legacy ZIP and empty tasks directory remain restorable
+[TaskService] Rebuilt cache: 0 tasks
+[IndexService] Rebuilt index: 0 tasks
+
+·stdout | tests/main/taskFileBundle.test.js > image saving and reading preserve bundles and reject unsafe references
+[IndexService] Rebuilt index: 0 tasks
+[TaskService] Loaded 0 tasks from disk
+
+·····································································
+
+ Test Files  46 passed (46)
+      Tests  210 passed (210)
+   Start at  22:21:15
+   Duration  2.99s (tests 69%, import 20%, worker 7%, transform 4%)
+
+    Isolate  46 workers spawned · ~350ms startup each (spawn + environment, per file)
+             at least ~1.11s faster with isolate: false — reuses workers across files instead of one per file

@@ -1,0 +1,2 @@
+
+{"ok":true,"requests":3,"checks":"preparation, idle/active thread switches, poll stability, FIFO, cancel/failure cleanup, invalid/future timestamps, main timestamp restoration, remount","mode":"current","runtime":{"electron":"44.10.0","chrome":"152.0.7977.169","node":"24.22.1"}}

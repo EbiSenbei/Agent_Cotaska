@@ -9,7 +9,11 @@ import { spawn } from "node:child_process";
 
 const require = createRequire(import.meta.url);
 const appDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const fixtureName = process.argv.includes("--task-data") ? "task-data.fixture.jsx"
+const renderPerformance = process.argv.includes("--render-performance");
+const baseline = process.argv.includes("--render-baseline");
+if (baseline && !renderPerformance) throw new Error('--render-baseline requires --render-performance');
+const fixtureName = renderPerformance ? "render-performance.fixture.jsx"
+  : process.argv.includes("--task-data") ? "task-data.fixture.jsx"
   : process.argv.includes("--preview") ? "dependency-preview.fixture.jsx"
   : process.argv.includes("--history") ? "ai-chat-history.fixture.jsx"
   : process.argv.includes("--waiting") ? "ai-chat-waiting.fixture.jsx"
@@ -19,19 +23,46 @@ const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "cotaska-parallel-test-"))
 const runner = path.join(tempDir, "runner.cjs");
 const harnessMiddleware = (_req, res) => {
   res.setHeader("Content-Type", "text/html");
-  res.end(`<html><body><div id="root"></div><script type="module" src="/@vite/client"></script><script type="module">import RefreshRuntime from '/@react-refresh'; RefreshRuntime.injectIntoGlobalHook(window); window.$RefreshReg$=()=>{}; window.$RefreshSig$=()=>type=>type; window.__vite_plugin_react_preamble_installed__=true;</script><script type="module" src="/@fs/${fixture}"></script></body></html>`);
+  res.end(`<html><body><div id="root"></div><script>window.renderBaseline=${baseline};</script><script type="module" src="/@vite/client"></script><script type="module">import RefreshRuntime from '/@react-refresh'; RefreshRuntime.injectIntoGlobalHook(window); window.$RefreshReg$=()=>{}; window.$RefreshSig$=()=>type=>type; window.__vite_plugin_react_preamble_installed__=true;</script><script type="module" src="/@fs/${fixture}"></script></body></html>`);
+};
+// Controlled baseline: undo only T-0835's rendering optimizations in memory.
+// Keep the current save/IPC fixes, dependencies and Markdown memo in both runs.
+const baselinePlugin = {
+  name: 'render-baseline', enforce: 'pre',
+  load(id) {
+    if (!baseline) return null;
+    const file = id.split('?')[0].replaceAll('\\', '/');
+    if (!file.startsWith(appDir.replaceAll('\\', '/') + '/src/renderer/components/')) return null;
+    if (file.endsWith('/MainPane.jsx')) {
+      return fs.readFileSync(file, 'utf8')
+        .replace('return items.map(render => render());', 'return items;')
+        .replace('...items.slice(startIndex, endIndex).map(render => render()),', '...items.slice(startIndex, endIndex),')
+        .replace('items.push(() => renderTaskRow(task, showSep, depth, children.length, sectionMeta));', 'items.push(renderTaskRow(task, showSep, depth, children.length, sectionMeta));')
+        .replace('items.push(() => renderInlineInput(task, depth + 1));', 'items.push(renderInlineInput(task, depth + 1));')
+        .replace('renderVirtualizedItems(items) : items.map(render => render())', 'renderVirtualizedItems(items) : items');
+    }
+    if (file.endsWith('/DetailPane.jsx')) {
+      return fs.readFileSync(file, 'utf8')
+        .replace('const sortedTasks = useMemo(() => [...tasks].sort', 'const sortedTasks = [...tasks].sort')
+        .replace('), [tasks]);', ');')
+        .replace('const relatedTasksByParent = useMemo(() => sortedTasks.reduce', 'const relatedTasksByParent = sortedTasks.reduce')
+        .replace('}, {}), [sortedTasks]);', '}, {});');
+    }
+    if (file.endsWith('/AiChatMessage.jsx')) return fs.readFileSync(file, 'utf8').replace('React.memo(AiChatMessage)', 'AiChatMessage');
+  },
 };
 const server = await createServer({ configFile: path.join(appDir, "vite.config.mjs"),
-  plugins: [{ name: "parallel-harness", configureServer(viteServer) { viteServer.middlewares.use("/__parallel_test", harnessMiddleware); } }],
+  plugins: [baselinePlugin, { name: "parallel-harness", configureServer(viteServer) { viteServer.middlewares.use("/__parallel_test", harnessMiddleware); } }],
   server: { host: "127.0.0.1", port: 0, fs: { allow: [appDir] } } });
 fs.writeFileSync(runner, `
 const {app,BrowserWindow}=require('electron');
+${renderPerformance ? "app.commandLine.appendSwitch('js-flags','--expose-gc'); app.commandLine.appendSwitch('enable-precise-memory-info');" : ''}
 const profile=require('node:path').join(__dirname,'profile');
 require('node:fs').mkdirSync(profile,{recursive:true});
 app.setPath('userData',profile);
 app.whenReady().then(async()=>{
-  setTimeout(()=>{console.error('Integration test watchdog timed out');app.exit(1);},60000).unref();
-  const win=new BrowserWindow({show:false,webPreferences:{contextIsolation:true,nodeIntegration:false,backgroundThrottling:false,offscreen:Boolean(process.env.COTASKA_TEST_ARTIFACT_DIR)}});
+  setTimeout(()=>{console.error('Integration test watchdog timed out');app.exit(1);},${renderPerformance ? 180000 : 60000}).unref();
+  const win=new BrowserWindow({show:false,webPreferences:{contextIsolation:true,nodeIntegration:false,backgroundThrottling:false,offscreen:${renderPerformance} || Boolean(process.env.COTASKA_TEST_ARTIFACT_DIR)}});
   win.webContents.on('console-message',(event)=>{if(event.level==='error')console.error(event.message);});
   try {
     await win.loadURL(process.argv[2]);
@@ -44,6 +75,9 @@ app.whenReady().then(async()=>{
       }
       const result=await win.webContents.executeJavaScript('window.parallelResult || null');
       if(result) {
+        result.mode=${JSON.stringify(baseline ? 'controlled-baseline' : 'current')};
+        result.runtime={electron:process.versions.electron,chrome:process.versions.chrome,node:process.versions.node};
+        if(process.env.COTASKA_TEST_RESULT_FILE) require('node:fs').writeFileSync(process.env.COTASKA_TEST_RESULT_FILE,JSON.stringify(result,null,2));
         if(result.ok && process.env.COTASKA_TEST_ARTIFACT_DIR) {
           const fs=require('node:fs'),path=require('node:path');
           const dir=process.env.COTASKA_TEST_ARTIFACT_DIR;

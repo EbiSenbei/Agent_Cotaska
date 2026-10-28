@@ -1,0 +1,48 @@
+{
+  "ok": true,
+  "checks": [
+    "patch save",
+    "external update",
+    "dirty draft",
+    "unmount flush",
+    "virtual JSX",
+    "scroll",
+    "memo history",
+    "App bootstrap",
+    "reverse IPC",
+    "project view reset"
+  ],
+  "writes": 2,
+  "renderTimings": [
+    {
+      "count": 1000,
+      "mountedRows": 34,
+      "titleReads": 142,
+      "elapsedWithWaitMs": 176
+    },
+    {
+      "count": 5000,
+      "mountedRows": 34,
+      "titleReads": 108,
+      "elapsedWithWaitMs": 171
+    }
+  ],
+  "historyChecks": [
+    {
+      "count": 500,
+      "initialReads": 500,
+      "extraBodyReadsAfterParentUpdate": 0
+    },
+    {
+      "count": 2000,
+      "initialReads": 2000,
+      "extraBodyReadsAfterParentUpdate": 0
+    }
+  ],
+  "mode": "current",
+  "runtime": {
+    "electron": "44.10.0",
+    "chrome": "152.0.7977.169",
+    "node": "24.22.1"
+  }
+}
