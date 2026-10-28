@@ -9412,6 +9412,18 @@ tasks:
       - AIチャット
     due_date: null
     updated_at: '2026-10-28T13:45:11.389Z'
+  - id: T-0853
+    title: v0.5.2のリリースノート更新と再ビルド・GitHub公開
+    list: 開発管理
+    status: done
+    priority: high
+    sort_order: 853
+    tags:
+      - リリース
+      - v0.5.2
+      - CHG-157
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T13:58:50.663Z'
 task_file_roots:
   - .
   - T-0001
@@ -10228,5 +10240,6 @@ task_file_roots:
   - T-0850
   - T-0851
   - T-0852
-next_task_id: 853
-last_updated: '2026-10-28T13:45:40.334Z'
+  - T-0853
+next_task_id: 854
+last_updated: '2026-10-28T13:58:59.050Z'

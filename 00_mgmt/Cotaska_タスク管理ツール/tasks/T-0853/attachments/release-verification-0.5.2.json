@@ -1,0 +1,72 @@
+{
+  "version": "0.5.2",
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "0.3.312",
+    "@openai/codex-sdk": "0.165.0",
+    "adm-zip": "0.6.1",
+    "chokidar": "5.0.0",
+    "electron-updater": "6.8.12",
+    "gray-matter": "4.0.3",
+    "js-yaml": "5.5.0",
+    "markdown-it": "15.0.3",
+    "pdfjs-dist": "6.4.299",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "sql.js": "1.15.2"
+  },
+  "verifiedSourceFiles": 241,
+  "runtime": {
+    "node": "24.22.1",
+    "acorn": "8.18.0",
+    "ada": "4.0.0",
+    "amaro": "1.1.11",
+    "ares": "1.34.9",
+    "brotli": "1.2.0",
+    "cldr": "48.0",
+    "icu": "78.2",
+    "llhttp": "9.4.3",
+    "merve": "1.2.2",
+    "modules": "149",
+    "napi": "10",
+    "nbytes": "0.1.4",
+    "ncrypto": "0.0.1",
+    "nghttp2": "1.70.0",
+    "nghttp3": "",
+    "ngtcp2": "",
+    "openssl": "0.0.0",
+    "simdjson": "4.6.11",
+    "simdutf": "7.7.0",
+    "sqlite": "3.53.4",
+    "tz": "2026e",
+    "undici": "7.30.1",
+    "unicode": "17.0",
+    "uv": "1.52.1",
+    "uvwasi": "0.0.23",
+    "v8": "15.2.124.45-electron.0",
+    "zlib": "1.3.2.1-motley",
+    "zstd": "1.6.0",
+    "electron": "44.10.0",
+    "chrome": "152.0.7977.169"
+  },
+  "cli": {
+    "codex": "codex-cli 0.165.0",
+    "claude": "2.1.312 (Claude Code)"
+  },
+  "artifacts": [
+    {
+      "name": "Cotaska-0.5.2-win-x64.exe",
+      "bytes": 372721152,
+      "sha256": "007e99894901978e579cf3f46f0515fb2a3e1f1b8f3e9f362985ccd0ccf0eb8a"
+    },
+    {
+      "name": "Cotaska-0.5.2-win-x64.exe.blockmap",
+      "bytes": 389230,
+      "sha256": "5f645aff5a43ee0ddbb390bfb37c0252f8351cedf6dc2b290935c11dda0661d4"
+    },
+    {
+      "name": "latest.yml",
+      "bytes": 347,
+      "sha256": "21cc582f434c5e9d3237abf468bebd9518dec05fb9468baad7fc631273db95dc"
+    }
+  ]
+}
