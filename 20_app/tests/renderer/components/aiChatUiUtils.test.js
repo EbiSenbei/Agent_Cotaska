@@ -3,9 +3,13 @@ import { clampContextPanelWidth, getExplorerTarget, normalizeOption } from "../.
 
 describe("AI chat UI utilities", () => {
   it("clamps the context-panel width to its supported range", () => {
-    expect(clampContextPanelWidth(100)).toBe(320);
+    expect(clampContextPanelWidth(100)).toBe(480);
     expect(clampContextPanelWidth(900)).toBe(720);
-    expect(clampContextPanelWidth(410.6)).toBe(411);
+    expect(clampContextPanelWidth(520.6)).toBe(521);
+    expect(clampContextPanelWidth(320)).toBe(480);
+    expect(clampContextPanelWidth(null)).toBe(520);
+    expect(clampContextPanelWidth("")).toBe(520);
+    expect(clampContextPanelWidth("invalid")).toBe(520);
   });
 
   it("uses the fallback for unsupported options", () => {

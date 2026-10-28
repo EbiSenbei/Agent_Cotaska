@@ -1,13 +1,14 @@
 export const CONTEXT_PANEL_WIDTH_KEY = "cotaska.aiChat.contextPanelWidth";
-export const CONTEXT_PANEL_MIN_WIDTH = 320;
+export const CONTEXT_PANEL_MIN_WIDTH = 480;
 export const CONTEXT_PANEL_MAX_WIDTH = 720;
-export const CONTEXT_PANEL_DEFAULT_WIDTH = 410;
+export const CONTEXT_PANEL_DEFAULT_WIDTH = 520;
 
 export function normalizeOption(value, allowedValues, fallback) {
   return allowedValues.has(value) ? value : fallback;
 }
 
 export function clampContextPanelWidth(value) {
+  if (value == null || String(value).trim() === "") return CONTEXT_PANEL_DEFAULT_WIDTH;
   const numeric = Number(value);
   if (!Number.isFinite(numeric)) return CONTEXT_PANEL_DEFAULT_WIDTH;
   return Math.min(CONTEXT_PANEL_MAX_WIDTH, Math.max(CONTEXT_PANEL_MIN_WIDTH, Math.round(numeric)));

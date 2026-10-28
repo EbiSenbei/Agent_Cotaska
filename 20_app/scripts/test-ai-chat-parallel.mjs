@@ -12,7 +12,8 @@ const appDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const renderPerformance = process.argv.includes("--render-performance");
 const baseline = process.argv.includes("--render-baseline");
 if (baseline && !renderPerformance) throw new Error('--render-baseline requires --render-performance');
-const fixtureName = renderPerformance ? "render-performance.fixture.jsx"
+const fixtureName = process.argv.includes("--context-panel") ? "ai-context-panel.fixture.jsx"
+  : renderPerformance ? "render-performance.fixture.jsx"
   : process.argv.includes("--task-data") ? "task-data.fixture.jsx"
   : process.argv.includes("--preview") ? "dependency-preview.fixture.jsx"
   : process.argv.includes("--history") ? "ai-chat-history.fixture.jsx"
@@ -67,6 +68,11 @@ app.whenReady().then(async()=>{
   try {
     await win.loadURL(process.argv[2]);
     for(let i=0;i<600;i++) {
+      const viewport=await win.webContents.executeJavaScript('window.testViewport || null');
+      if(viewport && !viewport.done) {
+        win.setContentSize(viewport.width,800);
+        await win.webContents.executeJavaScript('window.testViewport.done=true');
+      }
       const nativeInput=await win.webContents.executeJavaScript('window.testNativeInput || null');
       if(nativeInput && !nativeInput.done) {
         win.webContents.focus();

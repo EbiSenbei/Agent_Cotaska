@@ -9150,6 +9150,15 @@ tasks:
       - CHG-156
     due_date: null
     updated_at: '2026-10-28T06:50:10.052Z'
+  - id: T-0848
+    title: 仕様変更：AIチャット画面のサブ画面の幅
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 817
+    tags: []
+    due_date: null
+    updated_at: '2026-10-28T13:45:11.672Z'
   - id: T-0829
     title: BUG-20261028-01 起動時の監視照合と初期化計時の設計を更新
     list: null
@@ -9370,6 +9379,39 @@ tasks:
       - AIチャット
     due_date: '2026-10-28'
     updated_at: '2026-10-28T22:24:00+09:00'
+  - id: T-0850
+    title: CHG-157-01 AI右プレビュー幅の設計を更新する
+    list: 開発管理
+    status: done
+    priority: normal
+    sort_order: 850
+    tags:
+      - CHG-157
+      - AIチャット
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T13:45:39.831Z'
+  - id: T-0851
+    title: CHG-157-02 AI右プレビューの幅と閉じる操作を修正する
+    list: 開発管理
+    status: done
+    priority: normal
+    sort_order: 851
+    tags:
+      - CHG-157
+      - AIチャット
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T13:45:39.831Z'
+  - id: T-0852
+    title: CHG-157-03 AIタスク詳細の幅を利用者確認する
+    list: 開発管理
+    status: todo
+    priority: normal
+    sort_order: 852
+    tags:
+      - CHG-157
+      - AIチャット
+    due_date: null
+    updated_at: '2026-10-28T13:45:11.389Z'
 task_file_roots:
   - .
   - T-0001
@@ -10182,5 +10224,9 @@ task_file_roots:
   - T-0846
   - T-0847
   - T-0849
-next_task_id: 850
-last_updated: '2026-10-28T13:24:52.614Z'
+  - T-0848
+  - T-0850
+  - T-0851
+  - T-0852
+next_task_id: 853
+last_updated: '2026-10-28T13:45:40.334Z'
