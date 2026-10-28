@@ -7,6 +7,15 @@ Cotaska は、個人または小規模チーム向けのローカル完結型タ
 製品紹介ページ:
 https://ebisenbei.github.io/cotaska-site/
 
+利用を始める方へ：
+
+- [Windows x64向け最新版インストーラー](https://ebisenbei.github.io/cotaska-site/download.html)
+- [インストールから最初のタスク登録まで](https://ebisenbei.github.io/cotaska-site/usage.html#first-task)
+- [更新履歴](https://github.com/EbiSenbei/cotaska-site/releases)
+- [問い合わせ・不具合・要望](https://ebisenbei.github.io/cotaska-site/index.html#support)
+
+Cotaska本体は無料です。AIチャットの連携先サービスの契約・利用枠・料金は別途適用されます。通常の導入にはインストーラーを使用します。以下のセットアップ手順はソースから開発する方向けです。
+
 ## 特徴
 
 - ローカル PC 上で動作するデスクトップアプリ

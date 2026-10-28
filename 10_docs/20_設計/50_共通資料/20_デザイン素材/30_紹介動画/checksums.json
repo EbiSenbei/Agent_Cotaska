@@ -1,0 +1,647 @@
+{
+  "algorithm": "SHA-256",
+  "created_at": "2026-10-25T11:58:28.365Z",
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 49,
+      "sha256": "dd63eadd3f30ffeda8e906dca20e7730eaa20e8e5e1c85ace210bc586db51e13"
+    },
+    {
+      "path": "10_完成版/v3/Cotaska_紹介動画_v3_NemoB_サムネイル.jpg",
+      "bytes": 133070,
+      "sha256": "aa2aad6ae7906e842fd69872102c0d26d88601768442b181b7527317ddc7c51f"
+    },
+    {
+      "path": "10_完成版/v3/Cotaska_紹介動画_v3_NemoB_字幕.srt",
+      "bytes": 1104,
+      "sha256": "bdc340c28506029092b8e2e73864694b24bf9a3ce433da554dd34ce541278427"
+    },
+    {
+      "path": "10_完成版/v3/Cotaska_紹介動画_モーショングラフィックス_v3_NemoB_60秒.mp4",
+      "bytes": 5035406,
+      "sha256": "e267ab9e5da857013603e0fff469258ff6b16d379578cbd40395d968197e1e5d"
+    },
+    {
+      "path": "20_台本/制作履歴/Cotaska_Nemo_ナレーション試作結果.md",
+      "bytes": 4048,
+      "sha256": "f5b7483148a59f92da0ab6a5dc76f28c194645a7bcfbb2b0644e33ba18c25ab1"
+    },
+    {
+      "path": "20_台本/制作履歴/Cotaska_紹介動画_v2_NemoB_制作結果.md",
+      "bytes": 3416,
+      "sha256": "8f6a0e32d8404ea644e6d1be98f59711d0e4d611634822611e3fc8cabcc2703f"
+    },
+    {
+      "path": "20_台本/制作履歴/Cotaska_紹介動画_v2_収録結果.md",
+      "bytes": 3181,
+      "sha256": "6358cd87ed8883d2163a087e9ba68fce43cb921fcd31ee74066792816cee69f7"
+    },
+    {
+      "path": "20_台本/制作履歴/Cotaska_紹介動画_v3_NemoB_修正内容.md",
+      "bytes": 3248,
+      "sha256": "37704a85eff22d4d4f5d58d88a8247d6ff47cba855736d3e135f9b65805ac219"
+    },
+    {
+      "path": "20_台本/制作履歴/Cotaska_紹介動画_モーショングラフィックス_v1_制作結果.md",
+      "bytes": 5258,
+      "sha256": "c8891d34f4bb314425ae85f8c5b28c336a23f7fec1580e1adb923bed222259c1"
+    },
+    {
+      "path": "20_台本/制作履歴/Cotaska_紹介動画_モーショングラフィックス台本_v1.md",
+      "bytes": 10788,
+      "sha256": "8400a2ba521ae91831ded77cb37178f69f50dabcfbd2bf2845f4ebca853184dd"
+    },
+    {
+      "path": "20_台本/制作履歴/Cotaska_紹介動画_台本_v2.md",
+      "bytes": 3730,
+      "sha256": "26f951c18310ea4e219a22a44524079428f3e9b0f8b6de55471cc5cf06d0605e"
+    },
+    {
+      "path": "20_台本/制作履歴/NemoB_制作時検証.json",
+      "bytes": 998,
+      "sha256": "43e33e0d37ff7def7a9cee4bc18614028a48a129b04f077acb3881900cf3941e"
+    },
+    {
+      "path": "20_台本/制作履歴/v3_制作時マニフェスト.json",
+      "bytes": 1035,
+      "sha256": "7670753856ecfc44c7cc925ed301df491348faaa8dbd2fa9693b779be8fabe67"
+    },
+    {
+      "path": "20_台本/制作履歴/v3_制作時検証.json",
+      "bytes": 581,
+      "sha256": "80103c61cb024243bdc67eca8543fa94f3470145c877af6ef98b69dccabadab0"
+    },
+    {
+      "path": "20_台本/制作履歴/ロゴ_背景透過_白縁_編集記録.md",
+      "bytes": 6704,
+      "sha256": "d85afabb398f87279ff7f09b39ff81f586a70436205ae641a7399cc1c123c504"
+    },
+    {
+      "path": "20_台本/制作履歴/操作動画_収録結果.md",
+      "bytes": 2113,
+      "sha256": "175d37037c95c1dbe1c70a9fa98308d52f8936da2fa094e0768452931357d5a4"
+    },
+    {
+      "path": "20_台本/制作履歴/操作動画_撮影台本.md",
+      "bytes": 3015,
+      "sha256": "58f0beb0fa6d35e8946a15c7c58de7d7d16838ccb22901e2d28297040792e59e"
+    },
+    {
+      "path": "20_台本/格納・再出力検証.json",
+      "bytes": 899,
+      "sha256": "a94375625d6fd14b21a089e6b7d2dcabd0b835e373d9e29857e2637a4d54208d"
+    },
+    {
+      "path": "20_台本/現行構成_v3.md",
+      "bytes": 2418,
+      "sha256": "c76b9105756feb5241dd282ff504159a97a3566e39839a5df23cecc7834ba67e"
+    },
+    {
+      "path": "20_台本/移管元一覧.json",
+      "bytes": 31244,
+      "sha256": "756bd029a2c7d56dd5331e58e7361b5ea2adb7720cad966ac6c049aa33ea4300"
+    },
+    {
+      "path": "30_編集コード/config.py",
+      "bytes": 984,
+      "sha256": "43bcbd425e41859a51a65acec70117a6b1cac800dbc9b716f43532006c3779f5"
+    },
+    {
+      "path": "30_編集コード/make_bgm.py",
+      "bytes": 1978,
+      "sha256": "708a5bf7855620e6b6384e28b80547429a43510833a492e4dedfcb1e71d3dc50"
+    },
+    {
+      "path": "30_編集コード/mix_audio.py",
+      "bytes": 3084,
+      "sha256": "d0424cf325a55755db074ead039c77b3b7da2ff802e0281d1bf92da19bf25203"
+    },
+    {
+      "path": "30_編集コード/prepare_clips.py",
+      "bytes": 2637,
+      "sha256": "708f4fd774f9735171d4eb22167b86510d9d0c2f567f6fc6ac35218a65a25ae4"
+    },
+    {
+      "path": "30_編集コード/render.py",
+      "bytes": 6323,
+      "sha256": "931ac45217be75862454c6356f24a07f8cfb6bfd5a472b2cb4ece6a9ab11bc91"
+    },
+    {
+      "path": "30_編集コード/render_film.py",
+      "bytes": 19514,
+      "sha256": "1501071b6698ca7da2d868b3392bcca6524852ed77f01d753e3d4d3bd8759307"
+    },
+    {
+      "path": "30_編集コード/requirements.txt",
+      "bytes": 30,
+      "sha256": "1136e748e5f23e58834dc90c2fd5e556b34aa5ffbc5930c12add40dc9a669814"
+    },
+    {
+      "path": "30_編集コード/synthesize_nemo.py",
+      "bytes": 2657,
+      "sha256": "8f7e94c25f3bc17e6d33afc193fc4b50e2f872ccadc86faa9dab40cc46f211e9"
+    },
+    {
+      "path": "30_編集コード/verify.py",
+      "bytes": 2977,
+      "sha256": "ecc87197919b0bc84bebcdb5ee83a6bee9c8d061535b9edf52642f6d6afdefbc"
+    },
+    {
+      "path": "40_素材/audio/approved-master.m4a",
+      "bytes": 1454292,
+      "sha256": "09a969398adaa13f48eddf43baa1b988c0df84912b3e3b090c9ed3dfdaef0483"
+    },
+    {
+      "path": "40_素材/audio/manifest.json",
+      "bytes": 4506,
+      "sha256": "597984d8c536bc9a8c74cc131f54d0bd66c594c3086d3059c588d323579d69dc"
+    },
+    {
+      "path": "40_素材/audio/mix.wav",
+      "bytes": 11520044,
+      "sha256": "ea3c84ea762ec3bab7d964016f82312d2d18cc24e54d4dcea6118ac800ae97ee"
+    },
+    {
+      "path": "40_素材/audio/music-and-effects.wav",
+      "bytes": 11520044,
+      "sha256": "e07d14387819efb1c93dcf26619217c3683baad00e55328e28ffe4cd38aaaf58"
+    },
+    {
+      "path": "40_素材/audio/narration.wav",
+      "bytes": 5760044,
+      "sha256": "7d7de6d4704cc2ce93458f31c699f29f94163988d1e858de603f06290c3a0738"
+    },
+    {
+      "path": "40_素材/audio/normalized-01.wav",
+      "bytes": 463950,
+      "sha256": "aa91b22c5f51f002c46ccf57c3d37f7a6bccd7327bae1160e414cfef46a4b311"
+    },
+    {
+      "path": "40_素材/audio/normalized-02.wav",
+      "bytes": 452686,
+      "sha256": "1839bb6cd40d19bd41d650bd3763ac0ce260b2334f232c94778e898176a47de3"
+    },
+    {
+      "path": "40_素材/audio/normalized-03.wav",
+      "bytes": 493646,
+      "sha256": "0095178aaf0f691d9d6bb889c3cd4c1d0829e279540b77ba02bf89d6ab3cc8ad"
+    },
+    {
+      "path": "40_素材/audio/normalized-04.wav",
+      "bytes": 818254,
+      "sha256": "5614c35d9e6c717cd0dfd7f704efe4e38704f2c04a4aca7d4278afda79409188"
+    },
+    {
+      "path": "40_素材/audio/normalized-05.wav",
+      "bytes": 699470,
+      "sha256": "f74e6a4ca35994a62f7386e9a229d4472b1e45d1e8652146f29eb21b416dcb4f"
+    },
+    {
+      "path": "40_素材/audio/normalized-06.wav",
+      "bytes": 755790,
+      "sha256": "a98478bfef10fbc169ab95810a05b2c1b04f21cc0fc77d527049973370a19994"
+    },
+    {
+      "path": "40_素材/audio/normalized-07.wav",
+      "bytes": 323662,
+      "sha256": "58e2446a3c67be085d8089dd0f936becb741608a4b8133dc3430cc00325a7e6d"
+    },
+    {
+      "path": "40_素材/audio/normalized-08.wav",
+      "bytes": 463950,
+      "sha256": "aa91b22c5f51f002c46ccf57c3d37f7a6bccd7327bae1160e414cfef46a4b311"
+    },
+    {
+      "path": "40_素材/audio/original-bgm.wav",
+      "bytes": 11520044,
+      "sha256": "6fd6d1b8d352198068b7df6e7e2fc69317a79d1ffad4dcc36c9e1ea853986a51"
+    },
+    {
+      "path": "40_素材/audio/subtitles.srt",
+      "bytes": 1104,
+      "sha256": "bdc340c28506029092b8e2e73864694b24bf9a3ce433da554dd34ce541278427"
+    },
+    {
+      "path": "40_素材/audio/voice-01-query.json",
+      "bytes": 8647,
+      "sha256": "b3aebb11568a47f319e8e6a34bcb821edeb4dcc68a116120a8313fa0ac332a56"
+    },
+    {
+      "path": "40_素材/audio/voice-01.wav",
+      "bytes": 463916,
+      "sha256": "076d1bb13b184bc421eee17fd588f6bcf9cca749705360db73964a56deda799a"
+    },
+    {
+      "path": "40_素材/audio/voice-02-query.json",
+      "bytes": 9385,
+      "sha256": "eff913c351b451fd627ba9926cbf4e4a0a51d1300f5854300b76f72053835752"
+    },
+    {
+      "path": "40_素材/audio/voice-02.wav",
+      "bytes": 452652,
+      "sha256": "1ab09f61f0439fa5fe973fab0d11a6dd026ee9e74d3be313cc0d2957a3e4857b"
+    },
+    {
+      "path": "40_素材/audio/voice-03-query.json",
+      "bytes": 10512,
+      "sha256": "689be4366ce9c59139a854ef498f039f593bb713d38cf21debbc1b126540d678"
+    },
+    {
+      "path": "40_素材/audio/voice-03.wav",
+      "bytes": 493612,
+      "sha256": "f44ae1cc308a358645d042f6b11b0316eb55ad3dced78c5445d8eb284324c9b9"
+    },
+    {
+      "path": "40_素材/audio/voice-04-query.json",
+      "bytes": 16537,
+      "sha256": "73c53a799c341371b269f1ba9a9c4db37215a24ce9db08dd735646fa965592a9"
+    },
+    {
+      "path": "40_素材/audio/voice-04.wav",
+      "bytes": 818220,
+      "sha256": "c3a020e2c226060ef9809f2458ea2c7b1f35d7d8a8eff493d347e467c531b444"
+    },
+    {
+      "path": "40_素材/audio/voice-05-query.json",
+      "bytes": 13867,
+      "sha256": "31ebb67bbcb060d9146ed08ec572ec9b569dfd9c23d3184ec161c97a6e264ea8"
+    },
+    {
+      "path": "40_素材/audio/voice-05.wav",
+      "bytes": 699436,
+      "sha256": "0305dfb81517eed6f5d24b83f8e9a727b2b866d154f896e8ffa70db6527da1cc"
+    },
+    {
+      "path": "40_素材/audio/voice-06-query.json",
+      "bytes": 13801,
+      "sha256": "268e38248dbc29cb0be91166b554b895342ba027d02f28075cbed768c6d5e31e"
+    },
+    {
+      "path": "40_素材/audio/voice-06.wav",
+      "bytes": 755756,
+      "sha256": "c2d80f4f5a71135fc0e97dbe5ebc7cab069c4de2bd647c5aa4ba5a6470bb774a"
+    },
+    {
+      "path": "40_素材/audio/voice-07-query.json",
+      "bytes": 6531,
+      "sha256": "6a4431a4aae1a4f706c87db01f587571165ee7eae2ee2316f7b178200d4b0f98"
+    },
+    {
+      "path": "40_素材/audio/voice-07.wav",
+      "bytes": 323628,
+      "sha256": "2aed391d7e08c96312bba52476117d97d871a0281e7c287b3993c6fee022c6e2"
+    },
+    {
+      "path": "40_素材/audio/voice-08-query.json",
+      "bytes": 8647,
+      "sha256": "b3aebb11568a47f319e8e6a34bcb821edeb4dcc68a116120a8313fa0ac332a56"
+    },
+    {
+      "path": "40_素材/audio/voice-08.wav",
+      "bytes": 463916,
+      "sha256": "076d1bb13b184bc421eee17fd588f6bcf9cca749705360db73964a56deda799a"
+    },
+    {
+      "path": "40_素材/clips/chat_intro.mp4",
+      "bytes": 71187,
+      "sha256": "d6bf9fad931c768577194d5f1ca4f800633245fc0a4a12fa677e440fa6155edf"
+    },
+    {
+      "path": "40_素材/clips/chat_intro.png",
+      "bytes": 216002,
+      "sha256": "a7c5bd0358b8b3af6167db126f8a1606e0f6145ff4ed4b86494a627f7dbee6c4"
+    },
+    {
+      "path": "40_素材/clips/detail.mp4",
+      "bytes": 62421,
+      "sha256": "e5fa13e6a9869835eddb40c9bc312cdb118f36363a3d011c68db1c1a71cecac5"
+    },
+    {
+      "path": "40_素材/clips/detail.png",
+      "bytes": 202231,
+      "sha256": "04911cd9b1a28bbc2e9312fd44377c80235bacd167faf7ebea0098b3920e2dfa"
+    },
+    {
+      "path": "40_素材/clips/file.mp4",
+      "bytes": 91945,
+      "sha256": "e41b8682e89d125469f52b28b68e2ec6891d1a5089c7350cbd44916b00098185"
+    },
+    {
+      "path": "40_素材/clips/file.png",
+      "bytes": 301039,
+      "sha256": "348185290bccc2369a8b0386c5ac8c430f70f2df2305a5b93ff926f9b86b8b46"
+    },
+    {
+      "path": "40_素材/clips/hierarchy.mp4",
+      "bytes": 62979,
+      "sha256": "f6eaa6383ceefe532d9267412438bd02e586bf70d203ecf913a89c925d8a0e3a"
+    },
+    {
+      "path": "40_素材/clips/hierarchy.png",
+      "bytes": 247857,
+      "sha256": "3769d731966b84d57b40b41316585914b3270f172b01c8151b07bd5820317541"
+    },
+    {
+      "path": "40_素材/clips/open_ai.mp4",
+      "bytes": 148935,
+      "sha256": "331ee946c1314953fa1ddae640809e2a4fe2e1a64f2c5a68b40b432ca94c86dd"
+    },
+    {
+      "path": "40_素材/clips/open_ai.png",
+      "bytes": 266924,
+      "sha256": "020580314aeba521bf0f9bf1293d67876ca16c1a6893ab1ea50d0ecc36e04c8a"
+    },
+    {
+      "path": "40_素材/clips/overview.mp4",
+      "bytes": 65306,
+      "sha256": "145b838fd32cd2adbc0cdfd9048a094d6e116e1e2a9a68d6b8b34fbebc96e86f"
+    },
+    {
+      "path": "40_素材/clips/overview.png",
+      "bytes": 176160,
+      "sha256": "643fa38d2434fe54795e8f413bcdb42ac31b7edac6e00673656c44cd98493cac"
+    },
+    {
+      "path": "40_素材/clips/prompt.mp4",
+      "bytes": 62296,
+      "sha256": "28828bd65bf8129925e580731d22f5d5106d52a7180098c6aee83105cccbad9b"
+    },
+    {
+      "path": "40_素材/clips/prompt.png",
+      "bytes": 175866,
+      "sha256": "3f5c7ebae64dddf4e445cdf195c207b19df7ef412bf4c14f1e6fdc532897b2cb"
+    },
+    {
+      "path": "40_素材/clips/register_one.mp4",
+      "bytes": 54292,
+      "sha256": "cd78d7e5b7b784b873eff9a03ceecbf18b1c84204f53c60f1a7879ac46f84dad"
+    },
+    {
+      "path": "40_素材/clips/register_one.png",
+      "bytes": 140895,
+      "sha256": "aad2eba7f663208add0860899b2f41c3a831c3905b5f50753a3ea462184f0175"
+    },
+    {
+      "path": "40_素材/clips/register_two.mp4",
+      "bytes": 53674,
+      "sha256": "6d7bdec8349e586b06a973e9e1313e9a2eda593383f5564f9cc7825f7b985ae7"
+    },
+    {
+      "path": "40_素材/clips/register_two.png",
+      "bytes": 152095,
+      "sha256": "7e5587f134201585aabb86a7884181eb22cec65e819b92c09197397f84065099"
+    },
+    {
+      "path": "40_素材/clips/remaining.mp4",
+      "bytes": 22063,
+      "sha256": "eaaad0653e70297ac14473e71eb2064281bf76d8a30a5e9bb05f058ab19f667f"
+    },
+    {
+      "path": "40_素材/clips/remaining.png",
+      "bytes": 85732,
+      "sha256": "cc01ed197921cf85eb10a9a91e1f7a78dd6c992adebdcefe5eb98bff79adf972"
+    },
+    {
+      "path": "40_素材/clips/reply.mp4",
+      "bytes": 72843,
+      "sha256": "0d4f4be72cea7e0bcf7cc5378339cce416fb6c22bd3760719e09fd9533d2bd07"
+    },
+    {
+      "path": "40_素材/clips/reply.png",
+      "bytes": 223869,
+      "sha256": "989cd820624cf92ab7dc1d34796c3067883939aced4c37f81c2782fa1a160053"
+    },
+    {
+      "path": "40_素材/clips/result.mp4",
+      "bytes": 77635,
+      "sha256": "2768128547fc64f767069df9b56ac37ef1b7c6edbd1bace23b30ea8d2d6347cc"
+    },
+    {
+      "path": "40_素材/clips/result.png",
+      "bytes": 341310,
+      "sha256": "514957ee4ff5272450379ead47681bf9b70fcf9b9c3733559d2659bce8693b2c"
+    },
+    {
+      "path": "40_素材/clips/sections.mp4",
+      "bytes": 33862,
+      "sha256": "542986a3ff7345f1f8c4cedb6852db7a8812a6d05ebb2a6eab320c9120a73901"
+    },
+    {
+      "path": "40_素材/clips/sections.png",
+      "bytes": 108175,
+      "sha256": "d81884d6df4da5174038507e7650158a618a07da8d4dbe02abb711a33da5c25f"
+    },
+    {
+      "path": "40_素材/clips/send.mp4",
+      "bytes": 98058,
+      "sha256": "8498cd3e80d7ef8d5a231891b9cbd4c9ca58f85604beb5c64caa54f71c4852a5"
+    },
+    {
+      "path": "40_素材/clips/send.png",
+      "bytes": 190826,
+      "sha256": "23a2ffce938bd6571174e160539cbd64c280615681c09ce728523ec85ef350d7"
+    },
+    {
+      "path": "40_素材/logo/Cotaskaロゴ_案01.png",
+      "bytes": 881826,
+      "sha256": "6adc394889d2817871e0da4efa525771474cd19ca764f1280d696592dd123722"
+    },
+    {
+      "path": "40_素材/logo/Cotaskaロゴ_案01_背景透過_白縁20px_輪郭調整.png",
+      "bytes": 350233,
+      "sha256": "c5bd1ff76b5c49cbaea1a236307c24093bbf1572a22f5a0926769c29d78a869b"
+    },
+    {
+      "path": "40_素材/logo/header-logo.png",
+      "bytes": 111867,
+      "sha256": "ba5858b7b81b28e53d6e42efd62920a4ae97a2694e6aea294ef9b047eb15cdce"
+    },
+    {
+      "path": "40_素材/recordings/intro-events.json",
+      "bytes": 1386,
+      "sha256": "b1267c0c1347e0938e51bfa7182b2c4dffca2a8c41ed1278902e90c2c454ef50"
+    },
+    {
+      "path": "40_素材/recordings/intro-take-01.json",
+      "bytes": 1029,
+      "sha256": "b042209cc4707baf439baaa66faaa9babb523f2bee758edacde4c175f933c5d9"
+    },
+    {
+      "path": "40_素材/recordings/intro-take-01.mp4",
+      "bytes": 13796733,
+      "sha256": "de9907d6e4eab8b727f522cc0f366e3084e5507b1312ceb2fd60000dedf73759"
+    },
+    {
+      "path": "40_素材/reference/official-index.html",
+      "bytes": 11261,
+      "sha256": "54ea05ecc5e3a42e68fa362440fbe6d27e2b90d2a61ad1bd5f6e6e844b656aab"
+    },
+    {
+      "path": "40_素材/reference/official-styles.css",
+      "bytes": 24717,
+      "sha256": "ea153b6df4b1e125b10888771653e3f03e6c197d4be233e068813cc654844553"
+    },
+    {
+      "path": "40_素材/source-manifest.json",
+      "bytes": 2966,
+      "sha256": "cde7fd3f58cbf5dd4d1b73e92ea3d9d330bd65ff089be4d3a37b3a113876301f"
+    },
+    {
+      "path": "40_素材/task-snapshot/T-0007.md",
+      "bytes": 786,
+      "sha256": "29f4322563345878939b6f8db3280324ce03af9e7850d8d30e30df0c0e50a713"
+    },
+    {
+      "path": "90_旧版/README.md",
+      "bytes": 568,
+      "sha256": "ff49464c51a8b331fdee0a1c09bdf1517067a66553b602998388ac6e1d0e0b54"
+    },
+    {
+      "path": "90_旧版/制作時コード/logo-edit/finish_logo.py",
+      "bytes": 2901,
+      "sha256": "0c513b09845e1ba23d91f11a67d94a9e4fadeceff4fd60ff26540264852f0b0c"
+    },
+    {
+      "path": "90_旧版/制作時コード/logo-edit/smooth_outline.py",
+      "bytes": 3460,
+      "sha256": "65f6fd49a04e72eae0b7c93262b9c3f39d6bba974ca2f9fd857fa665cb46f215"
+    },
+    {
+      "path": "90_旧版/制作時コード/motion/prepare_media.py",
+      "bytes": 6336,
+      "sha256": "27c8f5e5e326adc129d56d4bad5d17df930fe9d0a0291522118950e46f633d4e"
+    },
+    {
+      "path": "90_旧版/制作時コード/motion/render_film.py",
+      "bytes": 21685,
+      "sha256": "b241109b9bcd04b04c2b604a3666935537f65af4a5e0f54c3c1d90b666e0a13b"
+    },
+    {
+      "path": "90_旧版/制作時コード/motion/revise_branding_v3.py",
+      "bytes": 6397,
+      "sha256": "be23d30667aae17d105ef68006dab820dfdbca1404f872a8197a2d1feb66385a"
+    },
+    {
+      "path": "90_旧版/制作時コード/motion/verify_branding_v3.py",
+      "bytes": 2675,
+      "sha256": "e8c31e8734087f9742ed3ba7f79338fbef84136dd23ecffc9f419078615afa66"
+    },
+    {
+      "path": "90_旧版/制作時コード/motion/voice.ps1",
+      "bytes": 1794,
+      "sha256": "741be6e9f5ce0cb99be3bdb683c9135bcc2f65e2969bf28caf00133ea114c6c2"
+    },
+    {
+      "path": "90_旧版/制作時コード/nemo/make_full_b.py",
+      "bytes": 9238,
+      "sha256": "59ee7ec245944426ce50270802350007fbdb9f4b0a2ede2467d658aca4386c76"
+    },
+    {
+      "path": "90_旧版/完成物・音声比較/Cotaska_Nemo_A_女声1_13秒.mp4",
+      "bytes": 1124901,
+      "sha256": "972f77afd43d181c90cb496f0e7c6433d6ec33b245ed9a7f2e2554d42ac0f22d"
+    },
+    {
+      "path": "90_旧版/完成物・音声比較/Cotaska_Nemo_A_女声1_音声.wav",
+      "bytes": 1248044,
+      "sha256": "b4dff6c51ff2658c8cf38988202f43869059efa83864f389b4e523e69114b7ad"
+    },
+    {
+      "path": "90_旧版/完成物・音声比較/Cotaska_Nemo_B_女声6_13秒.mp4",
+      "bytes": 1125233,
+      "sha256": "0a4b40a7ba2fa17eb032e602a5b1d71537e9f590e5b83974dd9b268960d512ef"
+    },
+    {
+      "path": "90_旧版/完成物・音声比較/Cotaska_Nemo_B_女声6_音声.wav",
+      "bytes": 1248044,
+      "sha256": "e930ed8a45c8a0731c562930f7c71e868db99f15a9b63d31ae061f7148c3947b"
+    },
+    {
+      "path": "90_旧版/完成物・音声比較/Cotaska_Nemo_C_男声1_13秒.mp4",
+      "bytes": 1126600,
+      "sha256": "a8ad54eaeee3894361d190ba76c77e38966df587f61a9544fc52f127dba8f518"
+    },
+    {
+      "path": "90_旧版/完成物・音声比較/Cotaska_Nemo_C_男声1_音声.wav",
+      "bytes": 1248044,
+      "sha256": "25b7c94951a3353b3e503cfe2c931701a43d0380c173b5d89e5069de34ba4464"
+    },
+    {
+      "path": "90_旧版/完成物・音声比較/Cotaska_Nemo_D_男声3_13秒.mp4",
+      "bytes": 1124982,
+      "sha256": "8244e8df0abdc4e3e4605941301b2f1e15b8835289d512d2c4d04cc88decb131"
+    },
+    {
+      "path": "90_旧版/完成物・音声比較/Cotaska_Nemo_D_男声3_音声.wav",
+      "bytes": 1248044,
+      "sha256": "c8c3240acc7ffcbf569250cecc6dcdd05d0aa59ab74d69ea8a82b5048e474116"
+    },
+    {
+      "path": "90_旧版/完成物・音声比較/Cotaska_Nemo_声の比較_52秒.mp4",
+      "bytes": 4497876,
+      "sha256": "2ade7224bbbb2c5854dcc506f75af3b5d63f4a1c318649baf351c00d25838bd3"
+    },
+    {
+      "path": "90_旧版/完成物・音声比較/Cotaska_操作デモ_55秒.mp4",
+      "bytes": 1126219,
+      "sha256": "b1cc9ed7dee0c4b865b663babe720eaa139dd2840170f3f0538572bbef47c83b"
+    },
+    {
+      "path": "90_旧版/完成物・音声比較/Cotaska_操作デモ_サムネイル.jpg",
+      "bytes": 142777,
+      "sha256": "64f6ea3477819e166919d50addba6b419c672edcb614c8be4c2dfba39d9fc5bc"
+    },
+    {
+      "path": "90_旧版/完成物・音声比較/Cotaska_紹介動画_v2_58秒.mp4",
+      "bytes": 1556273,
+      "sha256": "d547828cc5ec4c5997037b67458b5bbabc6e79579bdd983c2f995713e8195d99"
+    },
+    {
+      "path": "90_旧版/完成物・音声比較/Cotaska_紹介動画_v2_NemoB_サムネイル.jpg",
+      "bytes": 94141,
+      "sha256": "741d862c59218cbfe16f9b05c8cd1e788dc8a08cc8e07a8f861b14c378851eda"
+    },
+    {
+      "path": "90_旧版/完成物・音声比較/Cotaska_紹介動画_v2_NemoB_ナレーション.wav",
+      "bytes": 5760044,
+      "sha256": "7d7de6d4704cc2ce93458f31c699f29f94163988d1e858de603f06290c3a0738"
+    },
+    {
+      "path": "90_旧版/完成物・音声比較/Cotaska_紹介動画_v2_NemoB_字幕.srt",
+      "bytes": 1104,
+      "sha256": "bdc340c28506029092b8e2e73864694b24bf9a3ce433da554dd34ce541278427"
+    },
+    {
+      "path": "90_旧版/完成物・音声比較/Cotaska_紹介動画_v2_サムネイル.jpg",
+      "bytes": 156859,
+      "sha256": "0db47c4d321ae4394a8c887b664525206200e7442fc6f8b3f4fceebc9140aacb"
+    },
+    {
+      "path": "90_旧版/完成物・音声比較/Cotaska_紹介動画_モーショングラフィックス_v1_60秒.mp4",
+      "bytes": 4800960,
+      "sha256": "df104f12af2c364d791dbb5e2f772f199c6c43e4d87769e0cefd59883bb20af9"
+    },
+    {
+      "path": "90_旧版/完成物・音声比較/Cotaska_紹介動画_モーショングラフィックス_v1_サムネイル.jpg",
+      "bytes": 91369,
+      "sha256": "132af32a063421d2275028c57a92a947b5a2cd1e6163097a5e3df3a25d5f5eab"
+    },
+    {
+      "path": "90_旧版/完成物・音声比較/Cotaska_紹介動画_モーショングラフィックス_v1_字幕.srt",
+      "bytes": 1411,
+      "sha256": "b96130db6ae66c7bbf4deca8093b073dec1a581bb94c212bd22ed66a77196da0"
+    },
+    {
+      "path": "90_旧版/完成物・音声比較/Cotaska_紹介動画_モーショングラフィックス_v2_NemoB_60秒.mp4",
+      "bytes": 4794950,
+      "sha256": "3e30a0fe8a51b9a7cfc7bcf1bac506b6c587218f7bb93351d8ec63ad334eb1db"
+    },
+    {
+      "path": "README.md",
+      "bytes": 8431,
+      "sha256": "094496f527bb4711be44d91961b1fdfea30d1c59ab88802f18fb1744baef2809"
+    }
+  ],
+  "updated_at": "2026-10-25T13:00:04.435Z"
+}

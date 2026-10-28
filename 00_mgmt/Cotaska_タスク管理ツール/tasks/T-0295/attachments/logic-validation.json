@@ -1,0 +1,16 @@
+{
+  "download_scenarios_passed": [
+    "current",
+    "legacy-name",
+    "api-error",
+    "offline",
+    "missing-exe",
+    "wrong-version",
+    "untrusted-url",
+    "prerelease"
+  ],
+  "isolated_project_created": true,
+  "first_task": "T-0001",
+  "markdown_persisted_and_reloaded": true,
+  "limitation": "アプリのサービス層の隔離検証。インストール済みバイナリやGUI操作の通し確認ではない。"
+}

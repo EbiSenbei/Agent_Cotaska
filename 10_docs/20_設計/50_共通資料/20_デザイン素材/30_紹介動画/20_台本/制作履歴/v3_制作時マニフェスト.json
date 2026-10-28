@@ -1,0 +1,25 @@
+{
+  "output": "D:\\Development\\Git\\EbiSenbei_dev\\Agent_Cotaska\\Cotaska\\00_mgmt\\Cotaska_タスク管理ツール\\tasks\\T-0294\\attachments\\Cotaska_紹介動画_モーショングラフィックス_v3_NemoB_60秒.mp4",
+  "audio_source": "D:\\Development\\Git\\EbiSenbei_dev\\Agent_Cotaska\\Cotaska\\00_mgmt\\Cotaska_タスク管理ツール\\tasks\\T-0294\\attachments\\Cotaska_紹介動画_モーショングラフィックス_v2_NemoB_60秒.mp4",
+  "logo_source": "D:\\Development\\Git\\EbiSenbei_dev\\Agent_Cotaska\\Cotaska\\10_docs\\20_設計\\50_共通資料\\20_デザイン素材\\10_ロゴ案\\Cotaskaロゴ_案01_背景透過_白縁20px_輪郭調整.png",
+  "logo_sha256": "c5bd1ff76b5c49cbaea1a236307c24093bbf1572a22f5a0926769c29d78a869b",
+  "logo_crop": [
+    77,
+    196,
+    1755,
+    685
+  ],
+  "intro_logo_size": [
+    720,
+    210
+  ],
+  "closing_logo_size": [
+    1100,
+    321
+  ],
+  "header_font_before": 23,
+  "header_font_after": 40,
+  "duration": 60,
+  "fps": 30,
+  "frames": 1800
+}

@@ -1,0 +1,164 @@
+{
+  "generatedAt": "2026-10-28T12:41:23.027Z",
+  "node": "v24.22.1",
+  "platform": "win32",
+  "note": "exploration: 2 levels; service: roots only; values counts exclude Object.keys and filesystem calls; service timings are single instrumented runs",
+  "measurements": [
+    {
+      "n": 100,
+      "descendantCount": 99,
+      "exploration": {
+        "ms": 0.24519999999999698,
+        "valuesCalls": 1,
+        "valuesEntries": 100,
+        "writes": 0,
+        "medianMs": 0.052500000000009095
+      },
+      "changes": {
+        "ms": 2.0271999999999935,
+        "valuesCalls": 0,
+        "valuesEntries": 0,
+        "writes": 0
+      },
+      "batchFlush": {
+        "ms": 0.7101999999999862,
+        "valuesCalls": 5,
+        "valuesEntries": 300,
+        "writes": 0
+      },
+      "cleanFlush": {
+        "ms": 0.019200000000012096,
+        "valuesCalls": 0,
+        "valuesEntries": 0,
+        "writes": 0
+      },
+      "reorder": {
+        "result": {
+          "success": true,
+          "updated_count": 100,
+          "updated_at": "2026-10-28T12:40:59.761Z"
+        },
+        "ms": 106.92880000000002,
+        "valuesCalls": 2,
+        "valuesEntries": 200,
+        "writes": 100
+      },
+      "unchangedReorder": {
+        "result": {
+          "success": true,
+          "updated_count": 0,
+          "updated_at": "2026-10-28T12:40:59.868Z"
+        },
+        "ms": 1.4139999999999873,
+        "valuesCalls": 2,
+        "valuesEntries": 200,
+        "writes": 0
+      },
+      "diskOrderMatches": true
+    },
+    {
+      "n": 1000,
+      "descendantCount": 999,
+      "exploration": {
+        "ms": 0.7053999999999974,
+        "valuesCalls": 1,
+        "valuesEntries": 1000,
+        "writes": 0,
+        "medianMs": 0.15300000000002
+      },
+      "changes": {
+        "ms": 2.5504000000000815,
+        "valuesCalls": 0,
+        "valuesEntries": 0,
+        "writes": 0
+      },
+      "batchFlush": {
+        "ms": 5.299099999999953,
+        "valuesCalls": 5,
+        "valuesEntries": 3000,
+        "writes": 0
+      },
+      "cleanFlush": {
+        "ms": 0.004000000000132786,
+        "valuesCalls": 0,
+        "valuesEntries": 0,
+        "writes": 0
+      },
+      "reorder": {
+        "result": {
+          "success": true,
+          "updated_count": 1000,
+          "updated_at": "2026-10-28T12:41:01.421Z"
+        },
+        "ms": 1180.5982999999999,
+        "valuesCalls": 2,
+        "valuesEntries": 2000,
+        "writes": 1000
+      },
+      "unchangedReorder": {
+        "result": {
+          "success": true,
+          "updated_count": 0,
+          "updated_at": "2026-10-28T12:41:02.601Z"
+        },
+        "ms": 7.220900000000256,
+        "valuesCalls": 2,
+        "valuesEntries": 2000,
+        "writes": 0
+      },
+      "diskOrderMatches": true
+    },
+    {
+      "n": 5000,
+      "descendantCount": 4999,
+      "exploration": {
+        "ms": 3.3608000000003813,
+        "valuesCalls": 1,
+        "valuesEntries": 5000,
+        "writes": 0,
+        "medianMs": 2.47400000000016
+      },
+      "changes": {
+        "ms": 8.992799999999988,
+        "valuesCalls": 0,
+        "valuesEntries": 0,
+        "writes": 0
+      },
+      "batchFlush": {
+        "ms": 28.13880000000063,
+        "valuesCalls": 5,
+        "valuesEntries": 15000,
+        "writes": 0
+      },
+      "cleanFlush": {
+        "ms": 0.0033000000003085006,
+        "valuesCalls": 0,
+        "valuesEntries": 0,
+        "writes": 0
+      },
+      "reorder": {
+        "result": {
+          "success": true,
+          "updated_count": 5000,
+          "updated_at": "2026-10-28T12:41:10.266Z"
+        },
+        "ms": 10531.063699999999,
+        "valuesCalls": 2,
+        "valuesEntries": 10000,
+        "writes": 5000
+      },
+      "unchangedReorder": {
+        "result": {
+          "success": true,
+          "updated_count": 0,
+          "updated_at": "2026-10-28T12:41:20.797Z"
+        },
+        "ms": 39.20060000000012,
+        "valuesCalls": 2,
+        "valuesEntries": 10000,
+        "writes": 0
+      },
+      "diskOrderMatches": true
+    }
+  ]
+}

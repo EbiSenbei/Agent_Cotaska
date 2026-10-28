@@ -64,3 +64,53 @@ test('外部編集の親進捗推定をMainで行い、通常の読取りでは�
   const writeSpy = vi.spyOn(fs, 'writeFileSync'); tasks.getAllTasks();
   expect(writeSpy).not.toHaveBeenCalled();
 });
+
+test('並び替えの重複・未知ID・省略IDを既存順序で処理し、破損と削除の正本を保持する', async () => {
+  const files = [1, 2, 3].map(i => write(`T-000${i}`, null, { sort_order: i }));
+  const deleted = write('T-0004', null, { delete_flag: 1, sort_order: 4 });
+  const broken = path.join(root, 'tasks', 'broken.md');
+  fs.writeFileSync(broken, '---\nid: [broken\n---\n');
+  await tasks.openTaskService();
+  const preserved = [deleted, broken].map(f => fs.readFileSync(f, 'utf8'));
+  const spy = vi.spyOn(fs, 'writeFileSync');
+  const payload = { ordered_ids: ['unknown', 'T-0003', 'T-0003'] };
+  expect(tasks.reorderTasks(payload).updated_count).toBe(3);
+  expect(spy).toHaveBeenCalledTimes(3);
+  expect([deleted, broken].map(f => fs.readFileSync(f, 'utf8'))).toEqual(preserved);
+  for (const [i, id] of ['T-0003', 'T-0001', 'T-0002'].entries()) {
+    const file = files[Number(id.slice(-1)) - 1];
+    const disk = YAML.load(fs.readFileSync(file, 'utf8').split('---')[1]);
+    expect(disk.sort_order).toBe(i + 1);
+    expect(tasks.getTaskById(id).sort_order).toBe(disk.sort_order);
+  }
+  spy.mockClear();
+  expect(tasks.reorderTasks(payload).updated_count).toBe(0);
+  expect(spy).not.toHaveBeenCalled();
+  tasks.rebuildCache();
+  expect(tasks.getAllTasks().filter(t => !t.is_invalid).sort((a, b) => a.sort_order - b.sort_order).map(t => t.id))
+    .toEqual(['T-0003', 'T-0001', 'T-0002']);
+});
+
+test('一括外部更新後のroots・採番を確定し、破損からの復旧と再読込で正本に一致する', async () => {
+  write('T-0001'); await tasks.openTaskService();
+  const folder = path.join(root, 'tasks', 'nested');
+  fs.mkdirSync(folder);
+  const file = path.join(folder, 'T-0900.md');
+  fs.writeFileSync(file, '---\nid: T-0900\ntitle: external\ndelete_flag: 0\n---\n');
+  expect(tasks.applyFileChange('add', file).success).toBe(true);
+  fs.writeFileSync(file, '---\nid: [broken\n---\n');
+  tasks.applyFileChange('change', file);
+  expect(tasks.getTaskById('T-0900')).toBeNull();
+  expect(tasks.getAllTasks().filter(t => t.is_invalid)).toHaveLength(1);
+  fs.writeFileSync(file, '---\nid: T-0999\ntitle: recovered\ndelete_flag: 0\n---\n');
+  tasks.applyFileChange('change', file);
+  expect(tasks.getAllTasks().some(t => t.is_invalid)).toBe(false);
+  expect(tasks.getTaskFileRoots()).toContain('nested');
+  expect(tasks.addTask({ title: 'next after batch' }).id).toBe('T-1000');
+  const before = tasks.getAllTasks().map(t => [t.id, t.title]);
+  tasks.rebuildCache();
+  expect(tasks.getAllTasks().map(t => [t.id, t.title]).sort()).toEqual(before.sort());
+  fs.unlinkSync(file); tasks.applyFileChange('unlink', file);
+  expect(tasks.getTaskById('T-0999')).toBeNull();
+  expect(tasks.getTaskFileRoots()).not.toContain('nested');
+});

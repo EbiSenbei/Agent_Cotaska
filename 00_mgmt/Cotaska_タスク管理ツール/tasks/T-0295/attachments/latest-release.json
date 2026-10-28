@@ -1,0 +1,40 @@
+{
+  "checked_at": "2026-10-25T13:41:21.147Z",
+  "tag": "v0.5.1",
+  "url": "https://github.com/EbiSenbei/cotaska-site/releases/tag/v0.5.1",
+  "published_at": "2026-10-24T14:39:06Z",
+  "assets": [
+    {
+      "name": "Cotaska-0.5.1-win-x64.exe",
+      "size": 371791788,
+      "digest": "sha256:4a8bb42155a09824193cc3f9532be256ff49a355ed05ceba9dc5c10d700348ed",
+      "url": "https://github.com/EbiSenbei/cotaska-site/releases/download/v0.5.1/Cotaska-0.5.1-win-x64.exe"
+    },
+    {
+      "name": "Cotaska-0.5.1-win-x64.exe.blockmap",
+      "size": 390290,
+      "digest": "sha256:73e905eb09c1d14e25705292e9cbba84ae41a4770eec58c8013cfed55bd5f6dc",
+      "url": "https://github.com/EbiSenbei/cotaska-site/releases/download/v0.5.1/Cotaska-0.5.1-win-x64.exe.blockmap"
+    },
+    {
+      "name": "Cotaska-Portable.zip",
+      "size": 499739795,
+      "digest": "sha256:3644ea912553c4d41ef1efae105ba44e81da58078ab95a286899072f180ef791",
+      "url": "https://github.com/EbiSenbei/cotaska-site/releases/download/v0.5.1/Cotaska-Portable.zip"
+    },
+    {
+      "name": "Cotaska-Portable.zip.sha256",
+      "size": 88,
+      "digest": "sha256:eae079d4ea57504d9327a160a823fc9cfd644f220e93399316e574cea8dd6266",
+      "url": "https://github.com/EbiSenbei/cotaska-site/releases/download/v0.5.1/Cotaska-Portable.zip.sha256"
+    },
+    {
+      "name": "latest.yml",
+      "size": 347,
+      "digest": "sha256:fe30413b513e41c4afb8d5998c76d6e948b655ee662eb8eec90089e8a8d48d3e",
+      "url": "https://github.com/EbiSenbei/cotaska-site/releases/download/v0.5.1/latest.yml"
+    }
+  ],
+  "has_issues": true,
+  "has_discussions": false
+}

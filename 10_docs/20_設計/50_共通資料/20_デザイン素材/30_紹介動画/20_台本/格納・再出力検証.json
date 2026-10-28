@@ -1,0 +1,21 @@
+{
+  "result": "pass",
+  "copied_files_verified": 112,
+  "frames": 1800,
+  "decoded_video_frames_identical": true,
+  "aac_bitstream_identical": true,
+  "decoded_audio_samples_identical": true,
+  "aac_sha256": "99ac8d60ec5c4a7e6efb6c69817bcd266a304ec06af199ae65622310885b5578",
+  "approved_mp4_sha256": "e267ab9e5da857013603e0fff469258ff6b16d379578cbd40395d968197e1e5d",
+  "rebuilt_mp4_sha256": "e267ab9e5da857013603e0fff469258ff6b16d379578cbd40395d968197e1e5d",
+  "note": "正式フォルダの素材から全編再出力し、採用済みv3と照合。コンテナのメタデータ差は許容。",
+  "mp4_bytes_identical": true,
+  "audio_and_bgm_recreated_identically": {
+    "narration.wav": true,
+    "music-and-effects.wav": true,
+    "mix.wav": true,
+    "original-bgm.wav": true
+  },
+  "python_sources_compile": true,
+  "validated_at": "2026-10-25T11:58:28.364439+00:00"
+}

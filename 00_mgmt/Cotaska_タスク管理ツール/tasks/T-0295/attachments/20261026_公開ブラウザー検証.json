@@ -1,0 +1,16 @@
+{
+  "site": "https://ebisenbei.github.io/cotaska-site/",
+  "video": {
+    "currentTime": 11.210156,
+    "duration": 60,
+    "error": null,
+    "paused": false,
+    "readyState": 4
+  },
+  "download": {
+    "text": "Cotaska-0.5.1-win-x64.exe / 355 MB。取得後はインストールし、専用の空フォルダに新しいプロジェクトを作成してください。",
+    "href": "https://github.com/EbiSenbei/cotaska-site/releases/download/v0.5.1/Cotaska-0.5.1-win-x64.exe"
+  },
+  "firstTaskGuideUrl": "https://ebisenbei.github.io/cotaska-site/usage.html#first-task",
+  "firstTaskGuideHeading": "インストールから、最初の1件まで。"
+}

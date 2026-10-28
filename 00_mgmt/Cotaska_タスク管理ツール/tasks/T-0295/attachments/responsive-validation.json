@@ -1,0 +1,151 @@
+[
+  {
+    "page": "download.html",
+    "cssViewport": 390,
+    "viewport": 375,
+    "content": 375,
+    "overflowing": []
+  },
+  {
+    "page": "usage.html",
+    "cssViewport": 390,
+    "viewport": 375,
+    "content": 375,
+    "overflowing": []
+  },
+  {
+    "page": "examples.html",
+    "cssViewport": 390,
+    "viewport": 375,
+    "content": 375,
+    "overflowing": []
+  },
+  {
+    "page": "download.html",
+    "cssViewport": 320,
+    "viewport": 305,
+    "content": 305,
+    "overflowing": [],
+    "contentOverflows": [
+      {
+        "tag": "PRE",
+        "className": "",
+        "width": 225,
+        "content": 526,
+        "text": "Get-FileHash -LiteralPath 'C:\\保存先\\インストーラー名.exe' -A"
+      }
+    ]
+  },
+  {
+    "page": "usage.html",
+    "cssViewport": 320,
+    "viewport": 305,
+    "content": 305,
+    "overflowing": [],
+    "contentOverflows": []
+  },
+  {
+    "page": "examples.html",
+    "cssViewport": 320,
+    "viewport": 305,
+    "content": 305,
+    "overflowing": [],
+    "contentOverflows": []
+  },
+  {
+    "page": "index.html",
+    "cssViewport": 390,
+    "viewport": 375,
+    "content": 375,
+    "overflowing": [],
+    "contentOverflows": [
+      {
+        "tag": "DIV",
+        "className": "hero-shot-viewport",
+        "width": 345,
+        "content": 700,
+        "text": ""
+      },
+      {
+        "tag": "DIV",
+        "className": "real-shot crop-task",
+        "width": 345,
+        "content": 720,
+        "text": ""
+      },
+      {
+        "tag": "DIV",
+        "className": "real-shot crop-result",
+        "width": 345,
+        "content": 720,
+        "text": ""
+      }
+    ],
+    "imageRatios": [
+      {
+        "src": "assets/intro/overview.png",
+        "width": 347,
+        "height": 196.0625,
+        "aspectRatioPreserved": true
+      },
+      {
+        "src": "assets/intro/tasks.png",
+        "width": 347,
+        "height": 217.625,
+        "aspectRatioPreserved": true
+      }
+    ],
+    "aiLayout": {
+      "columns": "347px",
+      "headingAboveCopy": true
+    }
+  },
+  {
+    "page": "index.html",
+    "cssViewport": 320,
+    "viewport": 305,
+    "content": 305,
+    "overflowing": [],
+    "contentOverflows": [
+      {
+        "tag": "DIV",
+        "className": "hero-shot-viewport",
+        "width": 275,
+        "content": 700,
+        "text": ""
+      },
+      {
+        "tag": "DIV",
+        "className": "real-shot crop-task",
+        "width": 275,
+        "content": 720,
+        "text": ""
+      },
+      {
+        "tag": "DIV",
+        "className": "real-shot crop-result",
+        "width": 275,
+        "content": 720,
+        "text": ""
+      }
+    ],
+    "imageRatios": [
+      {
+        "src": "assets/intro/overview.png",
+        "width": 277,
+        "height": 156.6875,
+        "aspectRatioPreserved": true
+      },
+      {
+        "src": "assets/intro/tasks.png",
+        "width": 277,
+        "height": 173.71875,
+        "aspectRatioPreserved": true
+      }
+    ],
+    "aiLayout": {
+      "columns": "277px",
+      "headingAboveCopy": true
+    }
+  }
+]

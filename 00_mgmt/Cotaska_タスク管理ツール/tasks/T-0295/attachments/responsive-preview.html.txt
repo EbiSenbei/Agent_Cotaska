@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>T-0295 レスポンシブ検証</title>
+<style>body{margin:0;padding:12px;font:14px system-ui;background:#eee}nav{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px}iframe{display:block;border:1px solid #aaa;background:white;margin:0 auto;height:844px}p{margin:8px}#layout-result{max-height:110px;overflow:auto;font-size:12px}</style>
+<nav><a href="?page=index.html&width=390">トップ390px</a><a href="?page=download.html&width=390">ダウンロード390px</a><a href="?page=usage.html&width=390">使い方390px</a><a href="?page=examples.html&width=390">利用例390px</a><a href="?page=index.html&width=320">トップ320px</a></nav>
+<nav><a href="?page=download.html&width=320">ダウンロード320px</a><a href="?page=usage.html&width=320">使い方320px</a><a href="?page=examples.html&width=320">利用例320px</a></nav>
+<p id="viewport-status"></p><button id="measure" type="button">現在のレイアウトを測定</button><pre id="layout-result"></pre><iframe title="スマホ幅での実表示"></iframe>
+<script>
+const q=new URLSearchParams(location.search), page=q.get('page')||'index.html';
+const width=[320,390].includes(Number(q.get('width')))?Number(q.get('width')):390;
+const f=document.querySelector('iframe');f.style.width=width+'px';f.src=['index.html','download.html','usage.html','examples.html'].includes(page)?page:'index.html';
+document.querySelector('#viewport-status').textContent=`${f.src.split('/').pop()} / CSS viewport ${width}px（iframe表示。スマホ実機ではありません）`;
+function measure(){
+  const d=f.contentDocument, viewport=d.documentElement.clientWidth;
+  const overflowing=Array.from(d.querySelectorAll('h1,h2,h3,.nowrap,.heading-line,.actions,.button,video,.release-card')).filter(e=>{
+    const r=e.getBoundingClientRect();return r.width>0&&(r.right>viewport+1||r.left< -1);
+  }).map(e=>({tag:e.tagName,text:e.textContent.slice(0,60)}));
+  const contentOverflows=Array.from(d.querySelectorAll('body *')).filter(e=>e.getBoundingClientRect().width>0&&e.scrollWidth>e.clientWidth+1).map(e=>({tag:e.tagName,className:e.className,width:e.clientWidth,content:e.scrollWidth,text:e.textContent.slice(0,50)}));
+  const imageRatios=Array.from(d.querySelectorAll('.intro-overview img,.screen-card img')).map(e=>{const r=e.getBoundingClientRect(),ratio=Number(e.getAttribute('width'))/Number(e.getAttribute('height'));return{src:e.getAttribute('src'),width:r.width,height:r.height,aspectRatioPreserved:Math.abs(r.width/r.height/ratio-1)<.02};});
+  const split=d.querySelector('.split-heading'),heading=split?.children[0]?.getBoundingClientRect(),copy=split?.children[1]?.getBoundingClientRect();
+  const aiLayout=split?{columns:f.contentWindow.getComputedStyle(split).gridTemplateColumns,headingAboveCopy:heading.bottom<=copy.top+1}:null;
+  document.querySelector('#layout-result').textContent=JSON.stringify({page:d.location.pathname.split('/').pop(),cssViewport:f.contentWindow.innerWidth,viewport,content:d.documentElement.scrollWidth,overflowing,contentOverflows,imageRatios,aiLayout},null,2);
+}
+f.addEventListener('load',measure);
+document.querySelector('#measure').addEventListener('click',measure);
+</script></html>

@@ -1,0 +1,112 @@
+{
+  "voice": "VOICEVOX Nemo 女声6",
+  "speaker": 10006,
+  "engine": "0.26.0",
+  "duration": 60,
+  "scenes": [
+    {
+      "scene": 1,
+      "start": 0.3,
+      "duration": 4.832,
+      "original_duration": 4.832,
+      "speedScale": 1.0,
+      "intonationScale": 1.0,
+      "pitchScale": 0.0,
+      "reused_selected_sample": true,
+      "text": "タスク管理と、エーアイチャットを、ひとつの作業画面に。コタスカ。",
+      "subtitle": "タスク管理とAIチャットを、\nひとつの作業画面に。Cotaska。",
+      "normalized_duration": 4.832
+    },
+    {
+      "scene": 2,
+      "start": 7.3,
+      "duration": 4.714666666666667,
+      "original_duration": 4.714666666666667,
+      "speedScale": 1.0,
+      "intonationScale": 1.0,
+      "pitchScale": 0.0,
+      "reused_selected_sample": true,
+      "text": "エーアイに頼むたび、仕事の背景を説明し直していませんか？",
+      "subtitle": "AIに頼むたび、仕事の背景を\n説明し直していませんか。",
+      "normalized_duration": 4.714666666666667
+    },
+    {
+      "scene": 3,
+      "start": 13.3,
+      "duration": 5.141333333333334,
+      "original_duration": 5.141333333333334,
+      "speedScale": 1.0,
+      "intonationScale": 1.0,
+      "pitchScale": 0.0,
+      "reused_selected_sample": false,
+      "text": "やりたいことと、完了条件をタスクに。そのままエーアイへ相談できます。",
+      "subtitle": "やりたいことと、完了条件をタスクに。\nそのままAIへ相談できます。",
+      "normalized_duration": 5.141333333333334
+    },
+    {
+      "scene": 4,
+      "start": 20.3,
+      "duration": 8.522666666666666,
+      "original_duration": 8.522666666666666,
+      "speedScale": 1.0,
+      "intonationScale": 1.0,
+      "pitchScale": 0.0,
+      "reused_selected_sample": false,
+      "text": "例えば、サイトの紹介文づくり。子タスクから依頼すれば、タスクの内容を参照して、エーアイが作業を進めます。",
+      "subtitle": "例えば、サイトの紹介文づくり。子タスクから依頼すれば、\nタスクの内容を参照して、AIが作業を進めます。",
+      "normalized_duration": 8.522666666666666
+    },
+    {
+      "scene": 5,
+      "start": 30.3,
+      "duration": 7.285333333333333,
+      "original_duration": 7.285333333333333,
+      "speedScale": 1.0,
+      "intonationScale": 1.0,
+      "pitchScale": 0.0,
+      "reused_selected_sample": false,
+      "text": "返答も、作成したファイルも確認。対応結果をタスクに残し、次の仕事へつなげられます。",
+      "subtitle": "返答も、作成したファイルも確認。対応結果をタスクに残し、\n次の仕事へつなげられます。",
+      "normalized_duration": 7.285333333333333
+    },
+    {
+      "scene": 6,
+      "start": 39.3,
+      "duration": 7.872,
+      "original_duration": 7.872,
+      "speedScale": 1.0,
+      "intonationScale": 1.0,
+      "pitchScale": 0.0,
+      "reused_selected_sample": false,
+      "text": "日々の仕事は、遅延、今日、完了で見やすく。複数のタスクや子タスクで、作業を整理できます。",
+      "subtitle": "日々の仕事は、遅延・今日・完了で見やすく。\n複数のタスクや子タスクで、作業を整理できます。",
+      "normalized_duration": 7.872
+    },
+    {
+      "scene": 7,
+      "start": 49.3,
+      "duration": 3.3706666666666667,
+      "original_duration": 3.3706666666666667,
+      "speedScale": 1.0,
+      "intonationScale": 1.0,
+      "pitchScale": 0.0,
+      "reused_selected_sample": false,
+      "text": "タスクは、手元のマークダウンファイルに残ります。",
+      "subtitle": "タスクは、手元のMarkdownファイルに残ります。",
+      "normalized_duration": 3.3706666666666667
+    },
+    {
+      "scene": 8,
+      "start": 54.15,
+      "duration": 4.832,
+      "original_duration": 4.832,
+      "speedScale": 1.0,
+      "intonationScale": 1.0,
+      "pitchScale": 0.0,
+      "reused_selected_sample": true,
+      "text": "タスク管理と、エーアイチャットを、ひとつの作業画面に。コタスカ。",
+      "subtitle": "タスク管理とAIチャットを、\nひとつの作業画面に。Cotaska。",
+      "normalized_duration": 4.832
+    }
+  ]
+}

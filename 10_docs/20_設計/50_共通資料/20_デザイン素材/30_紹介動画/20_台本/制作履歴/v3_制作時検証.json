@@ -1,0 +1,33 @@
+{
+  "duration": 60,
+  "frames": 1800,
+  "size_bytes": 5035406,
+  "sha256": "e267ab9e5da857013603e0fff469258ff6b16d379578cbd40395d968197e1e5d",
+  "decode_exit_code": 0,
+  "aac_bitstream_identical_to_v2": true,
+  "aac_sha256": "99ac8d60ec5c4a7e6efb6c69817bcd266a304ec06af199ae65622310885b5578",
+  "srt_identical_to_v2": true,
+  "inspected_frames": [
+    0.8,
+    1.6,
+    4,
+    6.5,
+    7.2,
+    10,
+    15,
+    18.8,
+    24.5,
+    28.5,
+    31.7,
+    34.7,
+    37.7,
+    40.8,
+    43.7,
+    47.4,
+    51.7,
+    54.4,
+    55,
+    57.8,
+    59.8
+  ]
+}

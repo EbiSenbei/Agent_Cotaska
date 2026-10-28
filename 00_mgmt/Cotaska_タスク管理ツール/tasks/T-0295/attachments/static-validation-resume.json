@@ -1,0 +1,10 @@
+{
+  "local_references_checked": 103,
+  "html_pages": 5,
+  "missing_local_references": 0,
+  "existing_changes_preserved": true,
+  "local_installer_matches_published_sha256": true,
+  "installer": "Cotaska-0.5.1-win-x64.exe",
+  "video_matches_approved": true,
+  "vtt_cues": 8
+}

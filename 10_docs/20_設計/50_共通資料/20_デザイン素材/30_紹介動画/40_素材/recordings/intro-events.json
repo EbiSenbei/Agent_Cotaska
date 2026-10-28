@@ -1,0 +1,90 @@
+[
+  {
+    "event": "overview_start",
+    "t": 1792918405656
+  },
+  {
+    "event": "add_task_one",
+    "t": 1792918413521
+  },
+  {
+    "event": "register_task_one",
+    "t": 1792918421861
+  },
+  {
+    "event": "add_parent",
+    "t": 1792918428651
+  },
+  {
+    "event": "register_parent",
+    "t": 1792918434756
+  },
+  {
+    "event": "parent_detail",
+    "t": 1792918447725
+  },
+  {
+    "event": "child_menu_one",
+    "t": 1792918455315
+  },
+  {
+    "event": "child_input_one",
+    "t": 1792918472443
+  },
+  {
+    "event": "child_register_one",
+    "t": 1792918478845
+  },
+  {
+    "event": "child_input_two",
+    "t": 1792918500436
+  },
+  {
+    "event": "child_register_two",
+    "t": 1792918511885
+  },
+  {
+    "event": "select_ai_child",
+    "t": 1792918527079
+  },
+  {
+    "event": "child_detail",
+    "t": 1792918536353
+  },
+  {
+    "event": "ai_open",
+    "t": 1792918544651
+  },
+  {
+    "event": "ai_prompt",
+    "t": 1792918554110
+  },
+  {
+    "event": "ai_send",
+    "t": 1792918559961
+  },
+  {
+    "event": "ai_result",
+    "t": 1792918640003
+  },
+  {
+    "event": "result_file_open",
+    "t": 1792918649884
+  },
+  {
+    "event": "return_to_task",
+    "t": 1792918666761
+  },
+  {
+    "event": "child_result_preview",
+    "t": 1792918703635
+  },
+  {
+    "event": "parent_result_visible",
+    "t": 1792918872832
+  },
+  {
+    "event": "hierarchy_final",
+    "t": 1792918885078
+  }
+]

@@ -7,7 +7,7 @@ tasks:
     sort_order: 1
     tags: []
     due_date: null
-    updated_at: '2026-10-10T07:54:55.500Z'
+    updated_at: '2026-10-26T14:42:07.618Z'
   - id: T-0292
     title: Cotaska認知向上：価値提案と想定ユーザーを整理する
     list: 販売戦略
@@ -35,7 +35,7 @@ tasks:
   - id: T-0294
     title: Cotaska認知向上：スクリーンショットと短い操作動画を用意する
     list: 販売戦略
-    status: todo
+    status: done
     priority: normal
     sort_order: 4
     tags:
@@ -43,11 +43,11 @@ tasks:
       - 知名度向上
       - 素材
     due_date: null
-    updated_at: '2026-10-24T23:19:46.856+09:00'
+    updated_at: '2026-10-25T13:00:04.435Z'
   - id: T-0295
     title: Cotaska認知向上：公開・ダウンロード導線を整える
     list: 販売戦略
-    status: todo
+    status: doing
     priority: normal
     sort_order: 5
     tags:
@@ -55,7 +55,7 @@ tasks:
       - 知名度向上
       - 配布
     due_date: null
-    updated_at: '2026-09-23T12:35:30.143Z'
+    updated_at: '2026-10-26T14:42:07.618Z'
   - id: T-0296
     title: Cotaska認知向上：noteとSNSの発信計画を作る
     list: 販売戦略
@@ -103,7 +103,7 @@ tasks:
       - 知名度向上
       - 初回公開
     due_date: null
-    updated_at: '2026-09-23T12:35:30.143Z'
+    updated_at: '2026-10-26T14:57:29.240Z'
   - id: T-0559
     title: Cotaskaサイト見直し
     list: null
@@ -7796,7 +7796,7 @@ tasks:
   - id: T-0694
     title: インストーラ起動時のSmartScreen警告を調査し、署名・配布方法を改善する
     list: 不具合修正
-    status: doing
+    status: todo
     priority: high
     sort_order: 663
     tags:
@@ -7805,7 +7805,7 @@ tasks:
       - インストーラ
       - コード署名
     due_date: null
-    updated_at: '2026-10-10T05:46:00.744Z'
+    updated_at: '2026-10-28T12:35:22.301Z'
   - id: T-0695
     title: 配布設定と旧版インストーラの署名状態を調査する
     list: 不具合修正
@@ -7845,7 +7845,7 @@ tasks:
   - id: T-0698
     title: 無償でできる配布改善と警告時の案内を実装する
     list: 不具合修正
-    status: doing
+    status: todo
     priority: high
     sort_order: 667
     tags:
@@ -7853,11 +7853,11 @@ tasks:
       - 実装
       - リリース
     due_date: null
-    updated_at: '2026-10-10T14:33:16.801Z'
+    updated_at: '2026-10-28T12:35:22.301Z'
   - id: T-0699
     title: 実配布ファイルで警告・インストール・更新を確認する
     list: 不具合修正
-    status: doing
+    status: todo
     priority: high
     sort_order: 668
     tags:
@@ -7865,7 +7865,7 @@ tasks:
       - ユーザー確認
       - 検証
     due_date: null
-    updated_at: '2026-10-10T14:33:16.801Z'
+    updated_at: '2026-10-28T12:35:22.301Z'
   - id: T-0700
     title: AI初回導入：Codexログイン導線と利用条件の案内を整える
     list: 仕様変更
@@ -8756,12 +8756,12 @@ tasks:
   - id: T-0813
     title: 仕様変更：AIチャットについて「思考」ではなくモデル名を明記してほしい
     list: null
-    status: doing
+    status: done
     priority: normal
     sort_order: 782
     tags: []
-    due_date: null
-    updated_at: '2026-10-24T14:27:04.079Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T06:41:04.286Z'
   - id: T-0787
     title: ソース調査07：起動・プロジェクト切り替え時の処理を調査する
     list: null
@@ -8821,13 +8821,13 @@ tasks:
   - id: T-0816
     title: CHG-155-03 ユーザー確認：モデル名と思考量を確認する
     list: 開発管理
-    status: todo
+    status: done
     priority: normal
     sort_order: 785
     tags:
       - CHG-155
-    due_date: null
-    updated_at: '2026-10-24T14:24:17.649Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T06:41:04.315Z'
   - id: T-0790
     title: ソース調査10：不要コード・依存関係と検証範囲を調査する
     list: null
@@ -8934,12 +8934,12 @@ tasks:
   - id: T-0824
     title: Cotaskaの起動に時間がかかるのが気になる
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 793
     tags: []
-    due_date: null
-    updated_at: '2026-10-28T08:08:34.227Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T12:07:52.751Z'
   - id: T-0798
     title: AIチャットの実行時画像データをGit管理外にする
     list: null
@@ -8951,6 +8951,15 @@ tasks:
       - Git
     due_date: '2026-10-24'
     updated_at: '2026-10-24T12:41:30.000Z'
+  - id: T-0825
+    title: 仕様変更：期限でアラームあり/なしを設定に追加
+    list: null
+    status: done
+    priority: normal
+    sort_order: 794
+    tags: []
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T12:07:49.765Z'
   - id: T-0800
     title: 自動テストを20_app/tests配下へ集約する
     list: null
@@ -8964,16 +8973,36 @@ tasks:
       - フォルダ構成
     due_date: '2026-10-24'
     updated_at: '2026-10-24T13:51:12.311Z'
+  - id: T-0826
+    title: CHG-156 設計書へ事前通知の切替と期限通知を反映
+    list: null
+    status: done
+    priority: normal
+    sort_order: 795
+    tags:
+      - CHG-156
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T06:50:10.052Z'
   - id: T-0801
     title: 不具合：AIチャットの完了応答が画面から消える
     list: 開発管理
-    status: todo
+    status: done
     priority: normal
     sort_order: 796
     tags:
       - BUG-20261024-02
-    due_date: null
-    updated_at: '2026-10-24T13:56:01.688Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T06:40:57.850Z'
+  - id: T-0827
+    title: CHG-156-01 通知設定と日付・期限通知を実装・検証
+    list: null
+    status: done
+    priority: normal
+    sort_order: 796
+    tags:
+      - CHG-156
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T06:50:10.052Z'
   - id: T-0802
     title: BUG-20261024-01 待機時間の計測・復元ルールを設計へ反映
     list: 開発管理
@@ -8984,6 +9013,16 @@ tasks:
       - BUG-20261024-01
     due_date: '2026-10-24'
     updated_at: '2026-10-24T13:05:35.007Z'
+  - id: T-0828
+    title: CHG-156 利用者による通知設定と動作の確認
+    list: null
+    status: done
+    priority: normal
+    sort_order: 797
+    tags:
+      - CHG-156
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T12:07:49.765Z'
   - id: T-0803
     title: BUG-20261024-01 AIチャット待機時間のユーザー確認
     list: 開発管理
@@ -9021,15 +9060,15 @@ tasks:
   - id: T-0806
     title: Node.js 22.23.4の大規模fs.cpSync異常終了を調査する
     list: 開発管理
-    status: todo
+    status: done
     priority: normal
     sort_order: 806
     tags:
       - T-0791
       - Node.js
       - BUG-20261024-03
-    due_date: null
-    updated_at: '2026-10-24T14:29:07.579Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T06:40:50.988Z'
   - id: T-0807
     title: BUG-20261024-02 完了履歴の再取得・競合防止を設計へ反映
     list: 開発管理
@@ -9043,13 +9082,13 @@ tasks:
   - id: T-0808
     title: BUG-20261024-02 AIチャット完了応答のユーザー確認
     list: 開発管理
-    status: todo
+    status: done
     priority: normal
     sort_order: 808
     tags:
       - BUG-20261024-02
-    due_date: null
-    updated_at: '2026-10-24T13:54:00.000Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T06:40:57.867Z'
   - id: T-0809
     title: Node24.22.1への移行方針と環境文書を更新する
     list: 開発管理
@@ -9065,19 +9104,19 @@ tasks:
   - id: T-0810
     title: Node24.22.1へ開発・CI環境を統一しインストーラーを再作成する
     list: 開発管理
-    status: todo
+    status: done
     priority: normal
     sort_order: 810
     tags:
       - BUG-20261024-03
       - Node.js
       - リリース
-    due_date: null
-    updated_at: '2026-10-24T14:39:46.281Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T06:40:51.006Z'
   - id: T-0811
     title: Node24.22.1移行版の起動・主要機能をユーザー確認する
     list: 開発管理
-    status: todo
+    status: done
     priority: normal
     sort_order: 811
     tags:
@@ -9085,20 +9124,29 @@ tasks:
       - BUG-20261024-04
       - Node.js
       - リリース
-    due_date: null
-    updated_at: '2026-10-24T14:29:07.579Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T06:40:51.022Z'
   - id: T-0812
     title: BUG-20261024-04 Node24のアーカイブ作業先衝突を修正する
     list: 開発管理
-    status: todo
+    status: done
     priority: normal
     sort_order: 812
     tags:
       - BUG-20261024-04
       - Node.js
       - アーカイブ
-    due_date: null
-    updated_at: '2026-10-24T14:29:07.579Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T06:40:51.013Z'
+  - id: T-0845
+    title: テスト
+    list: null
+    status: done
+    priority: medium
+    sort_order: 814
+    tags: []
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T13:57:16.657Z'
   - id: T-0817
     title: Node24移行をGitHubへ保存しv0.5.1を公開する
     list: 開発管理
@@ -9111,54 +9159,87 @@ tasks:
       - T-0810
     due_date: '2026-10-24'
     updated_at: '2026-10-24T14:39:46.281Z'
-  - id: T-0825
-    title: 仕様変更：期限でアラームあり/なしを設定に追加
-    list: null
-    status: doing
-    priority: normal
-    sort_order: 794
-    tags: []
-    due_date: null
-    updated_at: '2026-10-28T06:50:10.052Z'
-  - id: T-0826
-    title: CHG-156 設計書へ事前通知の切替と期限通知を反映
-    list: null
-    status: done
-    priority: normal
-    sort_order: 795
-    tags:
-      - CHG-156
-    due_date: '2026-10-28'
-    updated_at: '2026-10-28T06:50:10.052Z'
-  - id: T-0827
-    title: CHG-156-01 通知設定と日付・期限通知を実装・検証
-    list: null
-    status: done
-    priority: normal
-    sort_order: 796
-    tags:
-      - CHG-156
-    due_date: '2026-10-28'
-    updated_at: '2026-10-28T06:50:10.052Z'
-  - id: T-0828
-    title: CHG-156 利用者による通知設定と動作の確認
-    list: null
-    status: todo
-    priority: normal
-    sort_order: 797
-    tags:
-      - CHG-156
-    due_date: null
-    updated_at: '2026-10-28T06:50:10.052Z'
   - id: T-0848
     title: 仕様変更：AIチャット画面のサブ画面の幅
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 817
     tags: []
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T14:06:33.963Z'
+  - id: T-0818
+    title: Cotaska紹介のnote記事原稿と掲載素材を仕上げる
+    list: 販売戦略
+    status: todo
+    priority: normal
+    sort_order: 818
+    tags:
+      - Cotaska
+      - 知名度向上
+      - 初回公開
     due_date: null
-    updated_at: '2026-10-28T13:45:11.672Z'
+    updated_at: '2026-10-26T14:42:07.618Z'
+  - id: T-0819
+    title: noteの運用アカウントを準備してCotaska紹介記事を公開する
+    list: 販売戦略
+    status: todo
+    priority: normal
+    sort_order: 819
+    tags:
+      - Cotaska
+      - 知名度向上
+      - 初回公開
+    due_date: null
+    updated_at: '2026-10-26T14:42:07.618Z'
+  - id: T-0820
+    title: Cotaskaを発信するSNSと運用プロフィールを決める
+    list: 販売戦略
+    status: todo
+    priority: normal
+    sort_order: 820
+    tags:
+      - Cotaska
+      - 知名度向上
+      - 初回公開
+    due_date: null
+    updated_at: '2026-10-26T14:57:29.939Z'
+  - id: T-0821
+    title: SNSでCotaskaの紹介動画と初回5投稿を公開する
+    list: 販売戦略
+    status: todo
+    priority: normal
+    sort_order: 821
+    tags:
+      - Cotaska
+      - 知名度向上
+      - 初回公開
+    due_date: null
+    updated_at: '2026-10-26T14:42:07.618Z'
+  - id: T-0822
+    title: note・SNS公開後48時間以内の導線と反応を確認する
+    list: 販売戦略
+    status: todo
+    priority: normal
+    sort_order: 822
+    tags:
+      - Cotaska
+      - 知名度向上
+      - 初回公開
+    due_date: null
+    updated_at: '2026-10-26T14:42:07.618Z'
+  - id: T-0823
+    title: note・SNSの反応を見てBooth掲載の必要性を判断する
+    list: 販売戦略
+    status: todo
+    priority: normal
+    sort_order: 823
+    tags:
+      - Cotaska
+      - 知名度向上
+      - Booth
+    due_date: null
+    updated_at: '2026-10-26T14:42:07.618Z'
   - id: T-0829
     title: BUG-20261028-01 起動時の監視照合と初期化計時の設計を更新
     list: null
@@ -9172,59 +9253,59 @@ tasks:
   - id: T-0830
     title: BUG-20261028-01 監視開始時の全件再処理を削減し検証
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 825
     tags:
       - BUG-20261028-01
-    due_date: null
-    updated_at: '2026-10-28T08:05:04.836Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T12:07:52.751Z'
   - id: T-0831
     title: BUG-20261028-01 起動速度と外部編集同期を利用者確認
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 826
     tags:
       - BUG-20261028-01
-    due_date: null
-    updated_at: '2026-10-28T08:05:04.836Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T12:07:52.751Z'
   - id: T-0832
     title: BUG-20261028-02 詳細編集の遅延保存と外部更新による上書きを防止する
     list: null
-    status: todo
+    status: done
     priority: high
     sort_order: 827
     tags:
       - 開発管理
       - ソース調査
       - 保守性改善
-    due_date: null
-    updated_at: '2026-10-28T10:18:01.341Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T13:17:02.412Z'
   - id: T-0833
     title: BUG-20261028-02 タスク再取得の順序と更新通知の重複を整理する
     list: null
-    status: todo
+    status: done
     priority: high
     sort_order: 828
     tags:
       - 開発管理
       - ソース調査
       - 保守性改善
-    due_date: null
-    updated_at: '2026-10-28T10:18:01.341Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T13:17:02.412Z'
   - id: T-0834
     title: 子孫探索と差分更新・並び替えの反復走査を削減する
     list: null
-    status: todo
+    status: done
     priority: high
     sort_order: 829
     tags:
       - 開発管理
       - ソース調査
       - 保守性改善
-    due_date: null
-    updated_at: '2026-10-28T10:18:01.341Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T13:17:02.412Z'
   - id: T-0835
     title: 一覧と詳細・AI履歴の描画処理を計測し削減する
     list: null
@@ -9240,39 +9321,39 @@ tasks:
   - id: T-0836
     title: インデックス比較とAI履歴保存の負荷を計測し削減する
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 831
     tags:
       - 開発管理
       - ソース調査
       - 保守性改善
-    due_date: null
-    updated_at: '2026-10-28T10:18:01.341Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T13:17:02.412Z'
   - id: T-0837
     title: BUG-20261028-03 プロジェクト切替中のAI実行と保存先の寿命を検証する
     list: null
-    status: todo
+    status: done
     priority: high
     sort_order: 832
     tags:
       - 開発管理
       - ソース調査
       - 保守性改善
-    due_date: null
-    updated_at: '2026-10-28T10:18:01.341Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T13:17:02.412Z'
   - id: T-0838
     title: 未接続の段階読込みと未使用候補の扱いを整理する
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 833
     tags:
       - 開発管理
       - ソース調査
       - 保守性改善
-    due_date: null
-    updated_at: '2026-10-28T10:18:01.341Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T13:17:02.412Z'
   - id: T-0839
     title: ソース改善7件の保存・同期・性能設計を反映する
     list: null
@@ -9287,14 +9368,14 @@ tasks:
   - id: T-0840
     title: ソース改善7件の利用者動作確認を行う
     list: null
-    status: todo
+    status: done
     priority: normal
     sort_order: 835
     tags:
       - 開発管理
       - 保守性改善
-    due_date: null
-    updated_at: '2026-10-28T10:18:01.341Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T13:17:02.412Z'
   - id: T-0841
     title: Cotaskaの依存部品を更新し製品版数を0.5.2にする
     list: null
@@ -9334,39 +9415,39 @@ tasks:
   - id: T-0844
     title: 依存更新版0.5.2の利用者動作確認を行う
     list: null
-    status: todo
+    status: done
     priority: high
     sort_order: 839
     tags:
       - 開発管理
       - 依存関係
       - v0.5.2
-    due_date: null
-    updated_at: '2026-10-28T12:40:18.130Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T13:22:42.460Z'
   - id: T-0846
     title: BUG-20261028-04 AIチャット移動後の入力停止を調査・修正する
     list: 開発管理
-    status: todo
+    status: done
     priority: high
     sort_order: 846
     tags:
       - BUG-20261028-04
       - 不具合修正
       - AIチャット
-    due_date: null
-    updated_at: '2026-10-28T22:24:00+09:00'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T14:06:23.829Z'
   - id: T-0847
     title: BUG-20261028-04 AIチャット切替直後の入力のユーザー確認
     list: 開発管理
-    status: todo
+    status: done
     priority: high
     sort_order: 847
     tags:
       - BUG-20261028-04
       - ユーザー確認
       - AIチャット
-    due_date: null
-    updated_at: '2026-10-28T22:24:00+09:00'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T14:06:23.829Z'
   - id: T-0849
     title: BUG-20261028-04 AI作業フォルダの読込・描画設計を反映する
     list: 開発管理
@@ -9404,14 +9485,14 @@ tasks:
   - id: T-0852
     title: CHG-157-03 AIタスク詳細の幅を利用者確認する
     list: 開発管理
-    status: todo
+    status: done
     priority: normal
     sort_order: 852
     tags:
       - CHG-157
       - AIチャット
-    due_date: null
-    updated_at: '2026-10-28T13:45:11.389Z'
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T14:06:33.963Z'
   - id: T-0853
     title: v0.5.2のリリースノート更新と再ビルド・GitHub公開
     list: 開発管理
@@ -10212,6 +10293,12 @@ task_file_roots:
   - T-0815
   - T-0816
   - T-0817
+  - T-0818
+  - T-0819
+  - T-0820
+  - T-0821
+  - T-0822
+  - T-0823
   - T-0824
   - T-0825
   - T-0826
@@ -10233,13 +10320,14 @@ task_file_roots:
   - T-0842
   - T-0843
   - T-0844
+  - T-0845
   - T-0846
   - T-0847
-  - T-0849
   - T-0848
+  - T-0849
   - T-0850
   - T-0851
   - T-0852
   - T-0853
 next_task_id: 854
-last_updated: '2026-10-28T13:58:59.050Z'
+last_updated: '2026-10-28T14:06:34.475Z'

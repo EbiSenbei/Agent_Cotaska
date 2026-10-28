@@ -1,0 +1,212 @@
+[
+  {
+    "name": "overview",
+    "source_start": 10.322362756729126,
+    "duration": 7,
+    "crop": [
+      294,
+      31,
+      970,
+      700
+    ],
+    "size": [
+      1080,
+      780
+    ]
+  },
+  {
+    "name": "chat_intro",
+    "source_start": 244.56936287879944,
+    "duration": 4,
+    "crop": [
+      330,
+      31,
+      934,
+      700
+    ],
+    "size": [
+      1080,
+      780
+    ]
+  },
+  {
+    "name": "detail",
+    "source_start": 141.21936278343202,
+    "duration": 4,
+    "crop": [
+      755,
+      31,
+      509,
+      600
+    ],
+    "size": [
+      720,
+      840
+    ]
+  },
+  {
+    "name": "open_ai",
+    "source_start": 148.1173628807068,
+    "duration": 4,
+    "crop": [
+      294,
+      31,
+      970,
+      720
+    ],
+    "size": [
+      1080,
+      780
+    ]
+  },
+  {
+    "name": "prompt",
+    "source_start": 158.77636275291442,
+    "duration": 4,
+    "crop": [
+      330,
+      31,
+      934,
+      730
+    ],
+    "size": [
+      1080,
+      780
+    ]
+  },
+  {
+    "name": "send",
+    "source_start": 163.62736282348632,
+    "duration": 1.3,
+    "crop": [
+      330,
+      31,
+      934,
+      730
+    ],
+    "size": [
+      1080,
+      780
+    ]
+  },
+  {
+    "name": "reply",
+    "source_start": 244.56936287879944,
+    "duration": 5,
+    "crop": [
+      340,
+      31,
+      910,
+      600
+    ],
+    "size": [
+      1080,
+      712
+    ]
+  },
+  {
+    "name": "file",
+    "source_start": 254.9503629207611,
+    "duration": 4,
+    "crop": [
+      350,
+      31,
+      914,
+      550
+    ],
+    "size": [
+      1200,
+      720
+    ]
+  },
+  {
+    "name": "result",
+    "source_start": 309.70136284828186,
+    "duration": 4,
+    "crop": [
+      755,
+      270,
+      509,
+      380
+    ],
+    "size": [
+      1080,
+      806
+    ]
+  },
+  {
+    "name": "remaining",
+    "source_start": 490.14436292648315,
+    "duration": 4,
+    "crop": [
+      755,
+      580,
+      509,
+      145
+    ],
+    "size": [
+      1080,
+      308
+    ]
+  },
+  {
+    "name": "sections",
+    "source_start": 10.322362756729126,
+    "duration": 4,
+    "crop": [
+      294,
+      140,
+      460,
+      420
+    ],
+    "size": [
+      720,
+      658
+    ]
+  },
+  {
+    "name": "register_one",
+    "source_start": 25.42736291885376,
+    "duration": 1.5,
+    "crop": [
+      294,
+      31,
+      460,
+      520
+    ],
+    "size": [
+      640,
+      724
+    ]
+  },
+  {
+    "name": "register_two",
+    "source_start": 38.32236289978027,
+    "duration": 1.5,
+    "crop": [
+      294,
+      31,
+      460,
+      520
+    ],
+    "size": [
+      640,
+      724
+    ]
+  },
+  {
+    "name": "hierarchy",
+    "source_start": 117.95136284828186,
+    "duration": 4,
+    "crop": [
+      294,
+      230,
+      460,
+      360
+    ],
+    "size": [
+      900,
+      704
+    ]
+  }
+]

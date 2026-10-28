@@ -1,0 +1,9 @@
+{
+  "source": "https://github.com/EbiSenbei/cotaska-site/releases/download/v0.5.1/Cotaska-0.5.1-win-x64.exe",
+  "downloaded_path": "C:\\Users\\EBI-GALLERIA\\Downloads\\Cotaska-0.5.1-win-x64.exe",
+  "bytes": 371791788,
+  "sha256": "4a8bb42155a09824193cc3f9532be256ff49a355ed05ceba9dc5c10d700348ed",
+  "matches_published_sha256": true,
+  "method": "ローカルサイトの最新版ボタンをブラウザーで操作して取得完了を確認",
+  "executed": false
+}

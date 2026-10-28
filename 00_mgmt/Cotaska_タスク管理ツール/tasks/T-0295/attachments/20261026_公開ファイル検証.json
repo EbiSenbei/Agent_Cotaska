@@ -1,0 +1,134 @@
+{
+  "verified_at": "2026-10-26T13:56:09.459803+00:00",
+  "commit": "c1433fd174e8b0fa321ee58cc8ee12f1b59a4850",
+  "site": "https://ebisenbei.github.io/cotaska-site/",
+  "changed_files_verified": 14,
+  "files": [
+    {
+      "path": "README.md",
+      "url": "https://ebisenbei.github.io/cotaska-site/README.md",
+      "status": 200,
+      "content_type": "text/markdown; charset=utf-8",
+      "bytes": 2628,
+      "sha256": "89aa79cb5279e9a98078d17aeb250625eab4a894ddb5b35957a05e808b27a7dd",
+      "matches_commit": true
+    },
+    {
+      "path": "assets/intro/ai-chat.png",
+      "url": "https://ebisenbei.github.io/cotaska-site/assets/intro/ai-chat.png",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes": 216002,
+      "sha256": "a7c5bd0358b8b3af6167db126f8a1606e0f6145ff4ed4b86494a627f7dbee6c4",
+      "matches_commit": true
+    },
+    {
+      "path": "assets/intro/cotaska-v3.mp4",
+      "url": "https://ebisenbei.github.io/cotaska-site/assets/intro/cotaska-v3.mp4",
+      "status": 200,
+      "content_type": "video/mp4",
+      "bytes": 5035406,
+      "sha256": "e267ab9e5da857013603e0fff469258ff6b16d379578cbd40395d968197e1e5d",
+      "matches_commit": true
+    },
+    {
+      "path": "assets/intro/cotaska-v3.srt",
+      "url": "https://ebisenbei.github.io/cotaska-site/assets/intro/cotaska-v3.srt",
+      "status": 200,
+      "content_type": "application/x-subrip",
+      "bytes": 1066,
+      "sha256": "ec8c106a4c89b7aab9fa81b67e33555310a6f6957859693156b2ede3961890a1",
+      "matches_commit": true
+    },
+    {
+      "path": "assets/intro/cotaska-v3.vtt",
+      "url": "https://ebisenbei.github.io/cotaska-site/assets/intro/cotaska-v3.vtt",
+      "status": 200,
+      "content_type": "text/vtt; charset=utf-8",
+      "bytes": 1071,
+      "sha256": "cdcd578f558df67a87acf23a48857da2f187034110d274ce103bf71f5c7d5924",
+      "matches_commit": true
+    },
+    {
+      "path": "assets/intro/overview.png",
+      "url": "https://ebisenbei.github.io/cotaska-site/assets/intro/overview.png",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes": 526374,
+      "sha256": "039862e5e04e0246fc874b3d453f00c13a78bb2549812e9cddd920b36958437e",
+      "matches_commit": true
+    },
+    {
+      "path": "assets/intro/poster.jpg",
+      "url": "https://ebisenbei.github.io/cotaska-site/assets/intro/poster.jpg",
+      "status": 200,
+      "content_type": "image/jpeg",
+      "bytes": 133070,
+      "sha256": "aa2aad6ae7906e842fd69872102c0d26d88601768442b181b7527317ddc7c51f",
+      "matches_commit": true
+    },
+    {
+      "path": "assets/intro/tasks.png",
+      "url": "https://ebisenbei.github.io/cotaska-site/assets/intro/tasks.png",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes": 222456,
+      "sha256": "1e508f8e2f0594e3e4ccf19cfbccc7c29741af8ee69682a91e02224aa0f03675",
+      "matches_commit": true
+    },
+    {
+      "path": "download.html",
+      "url": "https://ebisenbei.github.io/cotaska-site/download.html",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 9615,
+      "sha256": "590286c2a0805cdd4c8975ae8ef2cc0001aee05aa04d93a9d44ac942e9bd53ba",
+      "matches_commit": true
+    },
+    {
+      "path": "examples.html",
+      "url": "https://ebisenbei.github.io/cotaska-site/examples.html",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 9683,
+      "sha256": "b946d813b50a563888c04b5fc6441d3b2111d449a161c87ec5c253e426a8a1a5",
+      "matches_commit": true
+    },
+    {
+      "path": "index.html",
+      "url": "https://ebisenbei.github.io/cotaska-site/index.html",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 14467,
+      "sha256": "1ce202c970030f5b89b3e6bce8053c7e80aafd96536523638b80f9616282c187",
+      "matches_commit": true
+    },
+    {
+      "path": "script.js",
+      "url": "https://ebisenbei.github.io/cotaska-site/script.js",
+      "status": 200,
+      "content_type": "application/javascript; charset=utf-8",
+      "bytes": 3265,
+      "sha256": "b168ca28b481b7be30fef0c3d629690136d3fe0e5a437aab1acf1052a4740e82",
+      "matches_commit": true
+    },
+    {
+      "path": "styles.css",
+      "url": "https://ebisenbei.github.io/cotaska-site/styles.css",
+      "status": 200,
+      "content_type": "text/css; charset=utf-8",
+      "bytes": 26394,
+      "sha256": "a4e2eb998ada070c9e44b5b037a8b1869033b43c4463b28ad66b1eede127dbd3",
+      "matches_commit": true
+    },
+    {
+      "path": "usage.html",
+      "url": "https://ebisenbei.github.io/cotaska-site/usage.html",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 11025,
+      "sha256": "8f8ebe76e45a90fe282c66aee3328c85f7c0f31a23efeae052c180d8e00b1276",
+      "matches_commit": true
+    }
+  ]
+}
