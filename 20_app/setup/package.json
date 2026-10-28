@@ -10,6 +10,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "sql.js": "^1.15.1"
+    "sql.js": "^1.15.2"
   }
 }

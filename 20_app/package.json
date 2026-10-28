@@ -1,6 +1,6 @@
 {
   "name": "cotaska",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Cotaska - ローカルタスク管理システム",
   "main": "src/main/main.js",
   "scripts": {
@@ -30,8 +30,8 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.1.2",
-    "electron": "^44.9.3",
-    "electron-builder": "^26.18.0",
+    "electron": "^44.10.0",
+    "electron-builder": "^26.18.1",
     "rcedit": "^5.0.2",
     "vite": "^8.3.5",
     "vitest": "^5.0.5"
@@ -104,17 +104,17 @@
     }
   },
   "dependencies": {
-    "@anthropic-ai/claude-agent-sdk": "0.3.310",
-    "@openai/codex-sdk": "0.164.0",
+    "@anthropic-ai/claude-agent-sdk": "0.3.312",
+    "@openai/codex-sdk": "0.165.0",
     "adm-zip": "^0.6.1",
     "chokidar": "^5.0.0",
-    "electron-updater": "^6.8.11",
+    "electron-updater": "^6.8.12",
     "gray-matter": "^4.0.3",
     "js-yaml": "^5.5.0",
     "markdown-it": "^15.0.3",
     "pdfjs-dist": "^6.4.299",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "sql.js": "^1.15.1"
+    "sql.js": "^1.15.2"
   }
 }
