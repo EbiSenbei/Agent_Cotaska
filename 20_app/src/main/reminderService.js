@@ -33,62 +33,60 @@ function formatDueTime(date) {
   return `${hh}:${mm}`;
 }
 
-function getReminderMinutesBefore() {
-  const settings = settingsProvider?.();
-  const value = Number(settings?.notification?.minutesBefore);
-  if (!Number.isFinite(value)) return 5;
-  return Math.max(0, Math.min(1440, Math.round(value)));
+function getNotificationSettings() {
+  const settings = settingsProvider?.()?.notification;
+  const value = Number(settings?.minutesBefore ?? 5);
+  return {
+    enabled: settings?.enabled !== false,
+    dueDateEnabled: settings?.dueDateEnabled !== false,
+    deadlineEnabled: settings?.deadlineEnabled === true,
+    minutesBefore: Number.isFinite(value) ? Math.max(0, Math.min(1440, Math.round(value))) : 5,
+  };
 }
 
-function shouldNotifyTask(task, now) {
-  if (!task || task.status === "done") return { notify: false };
-
-  const dueAt = parseDueDateTime(task.due_date);
-  if (!dueAt) return { notify: false };
-
-  const remindAt = new Date(dueAt.getTime() - getReminderMinutesBefore() * 60 * 1000);
-  const notify = now >= remindAt && now < dueAt;
-
-  return { notify, dueAt };
-}
-
-function createNotifyKey(task, dueAt) {
-  return `${task.id}::${dueAt.toISOString()}`;
+function createNotifyKey(task, field, dueAt) {
+  return `${task.id}::${field}::${dueAt.toISOString()}`;
 }
 
 function runCheck() {
-  if (!taskProvider) return;
-  if (!Notification.isSupported()) return;
-
+  if (!taskProvider || !Notification.isSupported()) return;
+  const settings = getNotificationSettings();
+  if (!settings.enabled) return;
   const now = new Date();
-  const tasks = Array.isArray(taskProvider()) ? taskProvider() : [];
+  const providedTasks = taskProvider();
+  const tasks = Array.isArray(providedTasks) ? providedTasks : [];
+  const fields = [
+    { field: "due_date", label: "日付", enabled: settings.dueDateEnabled },
+    { field: "deadline_date", label: "期限", enabled: settings.deadlineEnabled },
+  ];
+  const activeKeys = new Set();
 
   tasks.forEach((task) => {
-    const { notify, dueAt } = shouldNotifyTask(task, now);
-    if (!notify || !dueAt) return;
+    if (!task || task.status === "done" || task.progress_status === "完了" || Number(task.delete_flag) === 1) return;
+    fields.forEach(({ field, label, enabled }) => {
+      const dueAt = parseDueDateTime(task[field]);
+      if (!dueAt) return;
+      const key = createNotifyKey(task, field, dueAt);
+      activeKeys.add(key);
+      if (!enabled || notifiedKeys.has(key)) return;
+      const remindAt = dueAt.getTime() - settings.minutesBefore * 60 * 1000;
+      // 0分設定もポーリングで時刻到達を検出できるよう、1周期だけ受付ける。
+      const until = dueAt.getTime() + (settings.minutesBefore === 0 ? CHECK_INTERVAL_MS : 0);
+      if (now.getTime() < remindAt || now.getTime() >= until) return;
 
-    const key = createNotifyKey(task, dueAt);
-    if (notifiedKeys.has(key)) return;
-
-    notifiedKeys.add(key);
-
-    const notification = new Notification({
-      title: `まもなく日付: ${task.title || "(無題タスク)"}`,
-      body: `${formatDueTime(dueAt)} の${getReminderMinutesBefore()}分前です。`,
-      silent: false,
+      const notification = new Notification({
+        title: `${settings.minutesBefore === 0 ? "時刻到達" : "まもなく"}${label}: ${task.title || "(無題タスク)"}`,
+        body: settings.minutesBefore === 0
+          ? `${formatDueTime(dueAt)} になりました。`
+          : `${formatDueTime(dueAt)} の${settings.minutesBefore}分前です。`,
+        silent: false,
+      });
+      notification.show();
+      notifiedKeys.add(key);
     });
-    notification.show();
   });
 
   if (notifiedKeys.size > 10000) {
-    const activeKeys = new Set(
-      tasks
-        .map((task) => {
-          const dueAt = parseDueDateTime(task.due_date);
-          return dueAt ? createNotifyKey(task, dueAt) : null;
-        })
-        .filter(Boolean),
-    );
     notifiedKeys = new Set([...notifiedKeys].filter((key) => activeKeys.has(key)));
   }
 }

@@ -9102,6 +9102,45 @@ tasks:
       - T-0810
     due_date: '2026-10-24'
     updated_at: '2026-10-24T14:39:46.281Z'
+  - id: T-0825
+    title: 仕様変更：期限でアラームあり/なしを設定に追加
+    list: null
+    status: doing
+    priority: normal
+    sort_order: 794
+    tags: []
+    due_date: null
+    updated_at: '2026-10-28T06:50:10.052Z'
+  - id: T-0826
+    title: CHG-156 設計書へ事前通知の切替と期限通知を反映
+    list: null
+    status: done
+    priority: normal
+    sort_order: 795
+    tags:
+      - CHG-156
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T06:50:10.052Z'
+  - id: T-0827
+    title: CHG-156-01 通知設定と日付・期限通知を実装・検証
+    list: null
+    status: done
+    priority: normal
+    sort_order: 796
+    tags:
+      - CHG-156
+    due_date: '2026-10-28'
+    updated_at: '2026-10-28T06:50:10.052Z'
+  - id: T-0828
+    title: CHG-156 利用者による通知設定と動作の確認
+    list: null
+    status: todo
+    priority: normal
+    sort_order: 797
+    tags:
+      - CHG-156
+    due_date: null
+    updated_at: '2026-10-28T06:50:10.052Z'
 task_file_roots:
   - .
   - T-0001
@@ -9890,5 +9929,9 @@ task_file_roots:
   - T-0815
   - T-0816
   - T-0817
-next_task_id: 818
-last_updated: '2026-10-24T14:39:46.776Z'
+  - T-0825
+  - T-0826
+  - T-0827
+  - T-0828
+next_task_id: 829
+last_updated: '2026-10-28T06:50:10.591Z'

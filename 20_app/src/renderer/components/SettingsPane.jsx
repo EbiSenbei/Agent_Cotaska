@@ -26,6 +26,9 @@ const DEFAULT_SETTINGS = {
     completed: false,
   },
   notification: {
+    enabled: true,
+    dueDateEnabled: true,
+    deadlineEnabled: false,
     minutesBefore: 5,
   },
   detailTextSize: 14,
@@ -649,22 +652,45 @@ function SettingsPane({ focusRequest, onOpenGuide, onProjectNameSaved }) {
                     </td>
                   </tr>
                   <tr>
-                    <th>通知時間</th>
+                    <th>事前通知</th>
                     <td>
-                      <div className="settings-unit-field">
-                        <input
-                          className="settings-number-input"
-                          type="number"
-                          value={settings.notification.minutesBefore}
-                          min="0"
-                          max="1440"
-                          step="1"
-                          aria-label="通知時間"
-                          onChange={(e) => updateSettingState({ notification: { minutesBefore: e.target.value } })}
-                        />
-                        <span className="settings-unit-label">分</span>
-                      </div>
-                      <div className="settings-help-text">タスクの日時が近い場合の、事前通知の時間。</div>
+                      <select
+                        className="settings-select-input"
+                        value={String(settings.notification.enabled)}
+                        aria-label="事前通知"
+                        onChange={(e) => updateSettingState({ notification: { enabled: e.target.value === "true" } })}
+                      >
+                        <option value="true">あり</option>
+                        <option value="false">なし</option>
+                      </select>
+                      <fieldset className="settings-notification-fields" disabled={!settings.notification.enabled}>
+                        <div className="settings-unit-field settings-notification-time">
+                          <label htmlFor="notification-minutes">通知時間：</label>
+                          <input
+                            id="notification-minutes"
+                            className="settings-number-input"
+                            type="number"
+                            value={settings.notification.minutesBefore}
+                            min="0"
+                            max="1440"
+                            step="1"
+                            aria-label="通知時間"
+                            onChange={(e) => updateSettingState({ notification: { minutesBefore: e.target.value } })}
+                          />
+                          <span className="settings-unit-label">分前に通知</span>
+                        </div>
+                        <label className="settings-checkbox-row">
+                          <input type="checkbox" checked={settings.notification.dueDateEnabled}
+                            onChange={(e) => updateSettingState({ notification: { dueDateEnabled: e.target.checked } })} />
+                          日付で通知 {settings.notification.dueDateEnabled ? "ON" : "OFF"}
+                        </label>
+                        <label className="settings-checkbox-row">
+                          <input type="checkbox" checked={settings.notification.deadlineEnabled}
+                            onChange={(e) => updateSettingState({ notification: { deadlineEnabled: e.target.checked } })} />
+                          期限で通知 {settings.notification.deadlineEnabled ? "ON" : "OFF"}
+                        </label>
+                      </fieldset>
+                      <div className="settings-help-text">時刻が設定された日付・期限を通知します。0分は時刻到達時に通知します。</div>
                     </td>
                   </tr>
                   <tr>

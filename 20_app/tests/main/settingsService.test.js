@@ -131,3 +131,22 @@ describe("settingsService プロジェクト設定", () => {
     expect(fs.existsSync(path.join(settingsDir, "settings.yaml"))).toBe(true);
   });
 });
+
+
+test("CHG-156 旧通知設定の互換性と個別切替の保存・再読込", () => {
+  const root = tempRoot();
+  settingsService.configureDataDir(tempRoot());
+  projectContext.setCurrent(root, { projectId: "notification-test", name: "通知" });
+  fs.writeFileSync(path.join(root, "settings.yaml"), "notification:\n  minutesBefore: 15\n", "utf8");
+  expect(settingsService.getSettings().settings.notification).toEqual({
+    enabled: true, dueDateEnabled: true, deadlineEnabled: false, minutesBefore: 15,
+  });
+  settingsService.updateSettings({ notification: { enabled: false, dueDateEnabled: false, deadlineEnabled: true } });
+  expect(yaml.load(fs.readFileSync(path.join(root, "settings.yaml"), "utf8")).notification).toEqual({
+    enabled: false, dueDateEnabled: false, deadlineEnabled: true, minutesBefore: 15,
+  });
+  settingsService.updateSettings({ notification: { enabled: true } });
+  expect(settingsService.getSettings().settings.notification).toEqual({
+    enabled: true, dueDateEnabled: false, deadlineEnabled: true, minutesBefore: 15,
+  });
+});
