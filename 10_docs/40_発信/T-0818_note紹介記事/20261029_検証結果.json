@@ -1,0 +1,114 @@
+{
+  "verified_at": "2026-10-29T02:00:09.939Z",
+  "index_task_count": 844,
+  "source_task_count": 822,
+  "duplicate_ids": false,
+  "preexisting_index_mismatches": [],
+  "target_index_matches": true,
+  "index_changes": [
+    "T-0818.updated_at",
+    "last_updated",
+    "remove generated invalid attachment entries and attachment roots"
+  ],
+  "unrelated_tasks_unchanged": true,
+  "existing_site_download_sha256": "d06583e51ab7df1db5f7d3181977f5bf8dabf4368485037cd467046f0115daad",
+  "existing_site_change_preserved": true,
+  "materialChecks": [
+    {
+      "file": "01_紹介メイン_タスク管理とAIチャット.png",
+      "source": "C:\\WorkDevelop\\Git\\Agent_Cotaska\\Cotaska\\10_docs\\20_設計\\50_共通資料\\20_デザイン素材\\40_公開用画像\\01_紹介メイン_タスク管理とAIチャット.png",
+      "bytes": 526374,
+      "sha256": "039862e5e04e0246fc874b3d453f00c13a78bb2549812e9cddd920b36958437e",
+      "source_matches": true,
+      "manifest_matches": true
+    },
+    {
+      "file": "02_タスク管理_遅延今日完了と子タスク.png",
+      "source": "C:\\WorkDevelop\\Git\\Agent_Cotaska\\Cotaska\\10_docs\\20_設計\\50_共通資料\\20_デザイン素材\\40_公開用画像\\02_タスク管理_遅延今日完了と子タスク.png",
+      "bytes": 222456,
+      "sha256": "1e508f8e2f0594e3e4ccf19cfbccc7c29741af8ee69682a91e02224aa0f03675",
+      "source_matches": true,
+      "manifest_matches": true
+    },
+    {
+      "file": "03_AIチャット_依頼と対応結果.png",
+      "source": "C:\\WorkDevelop\\Git\\Agent_Cotaska\\Cotaska\\10_docs\\20_設計\\50_共通資料\\20_デザイン素材\\40_公開用画像\\03_AIチャット_依頼と対応結果.png",
+      "bytes": 216002,
+      "sha256": "a7c5bd0358b8b3af6167db126f8a1606e0f6145ff4ed4b86494a627f7dbee6c4",
+      "source_matches": true,
+      "manifest_matches": true
+    },
+    {
+      "file": "04_動画サムネイル_v3.jpg",
+      "source": "C:\\WorkDevelop\\Git\\Agent_Cotaska\\Cotaska\\10_docs\\20_設計\\50_共通資料\\20_デザイン素材\\40_公開用画像\\04_動画サムネイル_v3.jpg",
+      "bytes": 133070,
+      "sha256": "aa2aad6ae7906e842fd69872102c0d26d88601768442b181b7527317ddc7c51f",
+      "source_matches": true,
+      "manifest_matches": true
+    },
+    {
+      "file": "Cotaska_紹介動画_v3_NemoB_字幕.srt",
+      "source": "C:\\WorkDevelop\\Git\\Agent_Cotaska\\Cotaska\\10_docs\\20_設計\\50_共通資料\\20_デザイン素材\\30_紹介動画\\10_完成版\\v3\\Cotaska_紹介動画_v3_NemoB_字幕.srt",
+      "bytes": 1104,
+      "sha256": "bdc340c28506029092b8e2e73864694b24bf9a3ce433da554dd34ce541278427",
+      "source_matches": true,
+      "manifest_matches": null
+    },
+    {
+      "file": "Cotaska_紹介動画_モーショングラフィックス_v3_NemoB_60秒.mp4",
+      "source": "C:\\WorkDevelop\\Git\\Agent_Cotaska\\Cotaska\\10_docs\\20_設計\\50_共通資料\\20_デザイン素材\\30_紹介動画\\10_完成版\\v3\\Cotaska_紹介動画_モーショングラフィックス_v3_NemoB_60秒.mp4",
+      "bytes": 5035406,
+      "sha256": "e267ab9e5da857013603e0fff469258ff6b16d379578cbd40395d968197e1e5d",
+      "source_matches": true,
+      "manifest_matches": null
+    }
+  ],
+  "article_local_links_exist": [
+    "materials/01_紹介メイン_タスク管理とAIチャット.png",
+    "materials/02_タスク管理_遅延今日完了と子タスク.png",
+    "materials/03_AIチャット_依頼と対応結果.png",
+    "materials/04_動画サムネイル_v3.jpg"
+  ],
+  "task": {
+    "id": "T-0818",
+    "status": "todo",
+    "progress_status": "保留",
+    "completed_at": null
+  },
+  "public_pages_live_check": "not completed; official main HTML checked using GitHub connector",
+  "final_index_task_count": 819,
+  "full_bidirectional_index_matches": true,
+  "removed_generated_attachment_entries": [
+    "__INVALID__T-0294/attachments/Cotaska_Nemo_ナレーション試作結果.md",
+    "__INVALID__T-0294/attachments/Cotaska_紹介動画_v2_NemoB_制作結果.md",
+    "__INVALID__T-0294/attachments/Cotaska_紹介動画_v2_収録結果.md",
+    "__INVALID__T-0294/attachments/Cotaska_紹介動画_v3_NemoB_修正内容.md",
+    "__INVALID__T-0294/attachments/Cotaska_紹介動画_モーショングラフィックス_v1_制作結果.md",
+    "__INVALID__T-0294/attachments/Cotaska_紹介動画_モーショングラフィックス台本_v1.md",
+    "__INVALID__T-0294/attachments/Cotaska_紹介動画_台本_v2.md",
+    "__INVALID__T-0294/attachments/ロゴ_背景透過_白縁_編集記録.md",
+    "__INVALID__T-0294/attachments/操作動画_収録結果.md",
+    "__INVALID__T-0294/attachments/操作動画_撮影台本.md",
+    "__INVALID__T-0295/attachments/20261025_導線整備・検証.md",
+    "__INVALID__T-0295/attachments/20261025_追加検証と引継ぎ.md",
+    "__INVALID__T-0295/attachments/20261026_公式サイト公開結果.md",
+    "__INVALID__T-0295/attachments/20261026_最終表示検証と別環境への引継ぎ.md",
+    "__INVALID__T-0295/attachments/チャネル別リンク統一案.md",
+    "__INVALID__T-0295/attachments/チャネル開設準備セット.md",
+    "__INVALID__T-0295/attachments/新規Windows導入確認手順.md",
+    "__INVALID__T-0780/attachments/20261028_ソース調査結果.md",
+    "__INVALID__T-0820/attachments/20261026_SNS選定案.md",
+    "__INVALID__T-0832/attachments/20261028_ソース改善実装結果.md",
+    "__INVALID__T-0834/attachments/20261028_追加検証結果.md",
+    "__INVALID__T-0835/attachments/20261028_描画処理の追加計測.md",
+    "__INVALID__T-0846/attachments/20261028_AIチャット入力停止の修正検証.md"
+  ],
+  "final_location": "C:\\WorkDevelop\\Git\\Agent_Cotaska\\Cotaska\\10_docs\\40_発信\\T-0818_note紹介記事",
+  "process_detection_correction": "Cotaska/Electron name scan returned none; index watcher activity was subsequently observed",
+  "date_comparison": "Date-only source values normalized to YYYY-MM-DD; original index serialization preserved",
+  "final_index_changes": [
+    "T-0818.updated_at",
+    "last_updated"
+  ],
+  "final_index_valid_task_count": 819
+}
