@@ -201,11 +201,18 @@ function App() {
   // T-031: tasks:changed イベントリスナー登録（リアルタイム同期）
   useEffect(() => {
     let cancelled = false;
+    const applyProgress = (progress) => {
+      if (!progress) return;
+      setStartupProgress((current) => ({
+        ...progress,
+        percent: Math.max(current.percent, Number(progress.percent) || 0),
+      }));
+    };
     window.cotaskaAPI?.startup?.getProgress?.().then((progress) => {
-      if (!cancelled && progress) setStartupProgress(progress);
+      if (!cancelled) applyProgress(progress);
     });
     const removeStartupProgressListener = window.cotaskaAPI?.startup?.onProgress?.((progress) => {
-      if (progress) setStartupProgress(progress);
+      applyProgress(progress);
     });
     return () => {
       cancelled = true;

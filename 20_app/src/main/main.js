@@ -35,6 +35,7 @@ const packageInfo = require("../../package.json");
 const projectService = require("./projectService");
 const projectContext = require("./projectContext");
 const { formatWindowTitle } = require("./windowTitle");
+const { waitForRendererFirstLoad, watchRendererFirstLoad } = require("./rendererStartup");
 const { autoUpdater } = require("electron-updater");
 
 let mainWindow = null;
@@ -175,7 +176,7 @@ function publishStartupProgress(progress) {
   startupProgress = {
     ...startupProgress,
     ...progress,
-    percent: Math.max(0, Math.min(100, Number(progress?.percent ?? startupProgress.percent) || 0)),
+    percent: Math.max(startupProgress.percent, Math.min(100, Number(progress?.percent ?? startupProgress.percent) || 0)),
   };
 
   if (mainWindow && !mainWindow.isDestroyed()) {
@@ -2905,9 +2906,21 @@ function createWindow() {
   });
 
   let didShowWindow = false;
+  let rendererLoadFailed = false;
   win.setTitle(formatWindowTitle(settingsService.getSettings().settings.displayName));
+  win.webContents.on("did-start-loading", () => { rendererLoadFailed = false; });
 
-  win.webContents.on("did-fail-load", (_event, errorCode, errorDescription, validatedURL) => {
+  for (const eventName of ["did-start-loading", "did-stop-loading"]) {
+    win.webContents.on(eventName, () => appLogger.logInfo(`Renderer ${eventName}`, {
+      url: win.webContents.getURL(),
+    }));
+  }
+  for (const eventName of ["unresponsive", "responsive"]) {
+    win.on(eventName, () => appLogger.logWarning(`Window ${eventName}`));
+  }
+
+  win.webContents.on("did-fail-load", (_event, errorCode, errorDescription, validatedURL, isMainFrame) => {
+    if (isMainFrame !== false) rendererLoadFailed = true;
     appLogger.logError(
       `Renderer load failed: code=${errorCode}, desc=${errorDescription}, url=${validatedURL || "(empty)"}`
     );
@@ -2952,13 +2965,17 @@ function createWindow() {
   });
 
   win.webContents.on("did-finish-load", () => {
+    if (rendererLoadFailed) {
+      appLogger.logWarning("Renderer error page finished loading");
+      return;
+    }
     // renderer の固定 <title> が BrowserWindow の初期タイトルを上書きするため、
     // renderer の固定 title による上書き後、保存済みプロジェクト名を再設定する。
     win.setTitle(formatWindowTitle(settingsService.getSettings().settings.displayName));
     publishStartupProgress({
-      percent: 82,
-      label: "画面を読み込んでいます...",
-      detail: "renderer の初期表示を準備しています。",
+      percent: 38,
+      label: "画面を準備しました...",
+      detail: "タスクデータの準備へ進んでいます。",
     });
     appLogger.logWarning("Renderer did-finish-load", {
       url: win.webContents.getURL(),
@@ -3009,7 +3026,9 @@ function createWindow() {
       appLogger.logError(msg);
       dialog.showErrorBox("Cotaska 起動エラー", msg);
     }
-    win.loadFile(rendererPath);
+    const loadRenderer = () => win.loadFile(rendererPath);
+    watchRendererFirstLoad(win, loadRenderer, { logger: appLogger });
+    loadRenderer().catch((error) => appLogger.logError("Initial renderer load failed", error));
   }
 
   win.once("ready-to-show", () => {
@@ -3017,7 +3036,7 @@ function createWindow() {
     // setAlwaysOnTop で Windows フォアグラウンドロックを回避
     didShowWindow = true;
     publishStartupProgress({
-      percent: 88,
+      percent: 40,
       label: "画面を表示しています...",
       detail: "初回データ取得へ進んでいます。",
     });
@@ -3227,14 +3246,20 @@ app.whenReady().then(async () => {
     });
   }
 
-  // サービスを初期化
-  servicesReady = (projectContext.hasCurrent() ? initializeServicesAfterWindowReady() : Promise.resolve()).catch((err) => {
+  // 同期I/Oで初回ナビゲーションを止めないよう、先にrendererを読み込む。
+  mainWindow = createWindow();
+  logger.info("Main window created");
+  const startupWindow = mainWindow;
+  servicesReady = (projectContext.hasCurrent()
+    ? waitForRendererFirstLoad(startupWindow, { logger: appLogger }).then((reason) => {
+      if (reason === "closed" || reason === "no-window" || startupWindow.isDestroyed()) return;
+      return initializeServicesAfterWindowReady();
+    })
+    : Promise.resolve()).catch((err) => {
     logger.error("Services initialization failed", err);
     appLogger.logError("Services initialization failed", err);
     throw err;
   });
-  mainWindow = createWindow();
-  logger.info("Main window created");
 
   // 起動後の簡易自己診断: ウィンドウ状態と読み込みURLを遅延評価して記録する
   setTimeout(() => {

@@ -9518,6 +9518,39 @@ tasks:
       - 紹介動画
     due_date: '2026-10-29'
     updated_at: '2026-10-29T05:24:19.283Z'
+  - id: T-0858
+    title: BUG-20261119-01 調査・設計：起動時白画面の原因と初期化順序を整理する
+    list: 開発管理
+    status: todo
+    priority: high
+    sort_order: 858
+    tags:
+      - BUG-20261119-01
+      - 起動
+    due_date: null
+    updated_at: '2026-11-19T09:48:00.667Z'
+  - id: T-0859
+    title: BUG-20261119-01 実装・検証：初回画面読み込み待機と有限回再試行を実装する
+    list: 開発管理
+    status: todo
+    priority: high
+    sort_order: 859
+    tags:
+      - BUG-20261119-01
+      - 起動
+    due_date: null
+    updated_at: '2026-11-19T09:48:00.667Z'
+  - id: T-0860
+    title: BUG-20261119-01 ユーザー確認：冷えた状態での起動と主要機能を確認する
+    list: 開発管理
+    status: todo
+    priority: high
+    sort_order: 860
+    tags:
+      - BUG-20261119-01
+      - 起動
+    due_date: null
+    updated_at: '2026-11-19T09:48:00.667Z'
 task_file_roots:
   - .
   - T-0001
@@ -10343,5 +10376,8 @@ task_file_roots:
   - T-0852
   - T-0853
   - T-0857
-next_task_id: 858
-last_updated: "2026-10-29T07:16:16.111Z"
+  - T-0858
+  - T-0859
+  - T-0860
+next_task_id: 861
+last_updated: '2026-11-19T09:48:00.667Z'
