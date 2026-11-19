@@ -9562,7 +9562,7 @@ tasks:
       - 依存関係
       - v0.5.3
     due_date: null
-    updated_at: '2026-11-19T10:03:58.077Z'
+    updated_at: '2026-11-19T11:05:22.747Z'
   - id: T-0862
     title: CHG-159-01 新モデル・依存更新の設計と配布条件を更新する
     list: 開発管理
@@ -9614,7 +9614,7 @@ tasks:
   - id: T-0870
     title: Cotaska 0.5.3のリリースノート・再ビルド・GitHub公開
     list: 開発管理
-    status: todo
+    status: done
     priority: high
     sort_order: 870
     tags:
@@ -9622,8 +9622,8 @@ tasks:
       - v0.5.3
       - CHG-159
       - BUG-20261119-01
-    due_date: null
-    updated_at: '2026-11-19T10:55:43.860Z'
+    due_date: '2026-11-19'
+    updated_at: '2026-11-19T11:04:21.871Z'
 task_file_roots:
   - .
   - T-0001
@@ -10459,4 +10459,4 @@ task_file_roots:
   - T-0865
   - T-0870
 next_task_id: 871
-last_updated: '2026-11-19T10:55:44.387Z'
+last_updated: '2026-11-19T11:05:23.232Z'
