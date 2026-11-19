@@ -14,7 +14,7 @@ const {
 const SANDBOX_MODES = new Set(["read-only", "workspace-write", "danger-full-access"]);
 const PERFORMANCE_MODES = new Set(["standard", "speed"]);
 const REFERENCE_SEND_MODES = new Set(["always", "manual", "skip-in-speed"]);
-const DEFAULT_CODEX_MODEL = "gpt-5.6-terra";
+const DEFAULT_CODEX_MODEL = require("./aiReasoningCapabilities.json").codexDefaultModel;
 const activeRequests = new Map();
 const codexClientCache = new Map();
 const MAX_CACHED_RUN_EVENTS = 80;

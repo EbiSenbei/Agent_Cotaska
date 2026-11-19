@@ -4,6 +4,8 @@ import { CLAUDE_MODEL_OPTIONS, CODEX_MODEL_OPTIONS, withExistingModelOption } fr
 describe("withExistingModelOption", () => {
   it("既知モデルまたは自動設定では選択肢を増やさない", () => {
     expect(withExistingModelOption(CODEX_MODEL_OPTIONS, "")).toBe(CODEX_MODEL_OPTIONS);
+    expect(withExistingModelOption(CODEX_MODEL_OPTIONS, "gpt-6.2-sol")).toBe(CODEX_MODEL_OPTIONS);
+    expect(withExistingModelOption(CODEX_MODEL_OPTIONS, "gpt-6.2-astra")).toBe(CODEX_MODEL_OPTIONS);
     expect(withExistingModelOption(CODEX_MODEL_OPTIONS, "gpt-5.6-terra")).toBe(CODEX_MODEL_OPTIONS);
     expect(withExistingModelOption(CODEX_MODEL_OPTIONS, "gpt-6-astra")).toBe(CODEX_MODEL_OPTIONS);
     expect(withExistingModelOption(CODEX_MODEL_OPTIONS, "gpt-6.1-sol")).toBe(CODEX_MODEL_OPTIONS);

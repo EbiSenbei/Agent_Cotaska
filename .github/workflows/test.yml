@@ -12,6 +12,7 @@ jobs:
           node-version-file: 20_app/.nvmrc
           cache: npm
           cache-dependency-path: 20_app/package-lock.json
+      - run: npm install --global npm@11.21.3
       - run: npm ci
         working-directory: 20_app
       - run: npm test

@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    Node.js v24.22.1 を nvm-windows 経由でセットアップする
+    Node.js v24.22.3 を nvm-windows 経由でセットアップする
 .PARAMETER Proxy
     プロキシURL（例: http://proxygate2.nic.nec.co.jp:8080）
 .EXAMPLE
@@ -84,6 +84,12 @@ nvm use $NodeVersion
 $env:Path = "$nodeDir;$env:Path"
 & (Join-Path $nodeDir "node.exe") (Join-Path $appDir "scripts\verify-runtime.js")
 if ($LASTEXITCODE -ne 0) { throw "Node.js runtime validation failed." }
+
+# packageManagerで指定されたnpmに開発・CI環境を揃える。
+$package = Get-Content -LiteralPath (Join-Path $appDir "package.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+$npmVersion = $package.packageManager -replace '^npm@', ''
+& (Join-Path $nodeDir "npm.cmd") install --global "npm@$npmVersion"
+if ($LASTEXITCODE -ne 0) { throw "npm setup failed." }
 
 # --- 確認 ---
 $nodeVer = node -v 2>&1

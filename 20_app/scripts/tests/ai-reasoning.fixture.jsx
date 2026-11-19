@@ -73,7 +73,7 @@ async function run() {
   await wait(() => document.querySelector(".ai-thread-item"), "initial threads");
   document.querySelector(".ai-thread-item").click(); await delay();
   assert(trigger().textContent.includes("自動・速度優先"), "speed auto label");
-  assert(trigger().textContent.includes("自動（現在: GPT-5.6 Terra）：自動・速度優先"), "automatic model and reasoning are visible");
+  assert(trigger().textContent.includes("自動（現在: GPT-6.2 Sol）：自動・速度優先"), "automatic model and reasoning are visible");
   await open();
   assert(popup().contains(document.activeElement), "focus enters popup");
   await choose("高");
@@ -119,6 +119,14 @@ async function run() {
   assert(rect.left >= 0 && rect.right <= innerWidth && rect.top >= 0 && rect.bottom <= innerHeight, "popup inside viewport");
   document.querySelector("textarea").dispatchEvent(new PointerEvent("pointerdown", { bubbles: true })); await delay();
   assert(!popup(), "outside click closes");
+  for (const model of ["gpt-6.2-sol", "gpt-6.2-astra"]) {
+    await open(); await changeModel(model); await choose("高");
+    assert(aiChat.codex.model === model && aiChat.codex.reasoningEffort === "high", `${model} saves with explicit reasoning`);
+    const snapshot = captureExecutionSettings(aiChat);
+    assert(snapshot.model === model && snapshot.reasoningEffort === "high", `${model} preserved for queued execution`);
+    assert(popup().querySelector("select").value === model, `${model} remains selected`);
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })); await delay();
+  }
   await publish({ provider: "claude" }); await open();
   assert(trigger().textContent.includes("中"), "Claude has independent effort");
   assert(trigger().textContent.includes("Claude Opus（最新）：中"), "Claude model label follows provider");

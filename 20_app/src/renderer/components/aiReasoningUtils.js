@@ -4,7 +4,7 @@ export const REASONING_LEVELS = capabilities.levels;
 export function getReasoningLevels(provider, model, authMode = "local") {
   const id = String(model || "").trim();
   const supported = provider === "codex"
-    ? capabilities.codexModels.includes(id || "gpt-5.6-terra")
+    ? capabilities.codexModels.includes(id || capabilities.codexDefaultModel)
     : (authMode !== "bedrock" && capabilities.claudeLocalAliases.includes(id || "opus"))
       || new RegExp(capabilities.claudeModelPattern).test(id);
   return supported ? REASONING_LEVELS : [];

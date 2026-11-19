@@ -1,6 +1,15 @@
 const { supportedEfforts, normalizeEffort, resolveExecutionSettings, withRuntimeAuth } = require("../../src/main/aiReasoning");
 
 describe("CHG-154 reasoning execution policy", () => {
+  test.each(["gpt-6.2-sol", "gpt-6.2-astra"])("new model %s retains explicit effort and queued settings", (model) => {
+    expect(supportedEfforts("codex", model)).toEqual(["low", "medium", "high"]);
+    for (const reasoningEffort of ["low", "medium", "high"]) {
+      const executionSettings = { model, reasoningEffort, performanceMode: "standard" };
+      expect(resolveExecutionSettings({ codex: { model: "gpt-6.1-sol", reasoningEffort: "auto" } }, { executionSettings }, "codex"))
+        .toMatchObject({ model, reasoningEffort, sdkEffort: reasoningEffort });
+    }
+    expect(normalizeEffort("codex", model, "none")).toBe("auto");
+  });
   test("packaged UI uses effective Bedrock model support without mutating stored settings", () => {
     const saved = { settings: { aiChat: { claude: { authMode: "local", model: "opus", reasoningEffort: "high", bedrock: { modelId: "unknown" } } } } };
     expect(withRuntimeAuth(saved, false)).toBe(saved);

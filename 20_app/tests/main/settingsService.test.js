@@ -20,6 +20,17 @@ afterEach(() => {
 });
 
 describe("settingsService プロジェクト設定", () => {
+  test.each(["gpt-6.2-sol", "gpt-6.2-astra"])("新モデル%sの選択と思考量を保存・再読込できる", (model) => {
+    const root = tempRoot();
+    settingsService.configureDataDir(tempRoot());
+    projectContext.setCurrent(root, { projectId: "new-model-test", name: "new model" });
+    settingsService.updateSettings({ aiChat: { codex: { model, reasoningEffort: "high" } } });
+    expect(settingsService.getSettings().settings.aiChat.codex).toMatchObject({ model, reasoningEffort: "high" });
+    const saved = yaml.load(fs.readFileSync(path.join(root, "settings.yaml"), "utf8"));
+    expect(saved.aiChat.codex).toMatchObject({ model, reasoningEffort: "high" });
+    settingsService.updateSettings({ aiChat: { codex: { model: "gpt-6.1-sol" } } });
+    expect(settingsService.getSettings().settings.aiChat.codex).toMatchObject({ model: "gpt-6.1-sol", reasoningEffort: "high" });
+  });
   test("思考量をプロバイダー別に保持し、非対応モデル変更時は自動に戻す", () => {
     const root = tempRoot();
     settingsService.configureDataDir(tempRoot());

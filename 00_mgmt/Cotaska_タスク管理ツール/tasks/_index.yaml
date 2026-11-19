@@ -9551,6 +9551,66 @@ tasks:
       - 起動
     due_date: null
     updated_at: '2026-11-19T09:48:00.667Z'
+  - id: T-0861
+    title: CHG-159 Codex新モデル対応とCotaska 0.5.3への一式更新
+    list: 開発管理
+    status: todo
+    priority: high
+    sort_order: 861
+    tags:
+      - CHG-159
+      - 依存関係
+      - v0.5.3
+    due_date: null
+    updated_at: '2026-11-19T10:03:58.077Z'
+  - id: T-0862
+    title: CHG-159-01 新モデル・依存更新の設計と配布条件を更新する
+    list: 開発管理
+    status: done
+    priority: high
+    sort_order: 862
+    tags:
+      - CHG-159
+      - 依存関係
+      - v0.5.3
+    due_date: '2026-11-19'
+    updated_at: '2026-11-19T09:39:46.624Z'
+  - id: T-0863
+    title: CHG-159-02 GPT-6.2モデルと依存部品・製品版数を更新する
+    list: 開発管理
+    status: done
+    priority: high
+    sort_order: 863
+    tags:
+      - CHG-159
+      - 依存関係
+      - v0.5.3
+    due_date: '2026-11-19'
+    updated_at: '2026-11-19T09:53:13.291Z'
+  - id: T-0864
+    title: CHG-159-03 新モデル・監査・保存・ビルドを総合検証する
+    list: 開発管理
+    status: done
+    priority: high
+    sort_order: 864
+    tags:
+      - CHG-159
+      - 依存関係
+      - v0.5.3
+    due_date: '2026-11-19'
+    updated_at: '2026-11-19T09:53:13.291Z'
+  - id: T-0865
+    title: CHG-159-04 Cotaska 0.5.3の新モデルを利用者が確認する
+    list: 開発管理
+    status: todo
+    priority: high
+    sort_order: 865
+    tags:
+      - CHG-159
+      - 依存関係
+      - v0.5.3
+    due_date: null
+    updated_at: '2026-11-19T09:53:13.291Z'
 task_file_roots:
   - .
   - T-0001
@@ -10379,5 +10439,10 @@ task_file_roots:
   - T-0858
   - T-0859
   - T-0860
-next_task_id: 861
-last_updated: '2026-11-19T09:48:00.667Z'
+  - T-0861
+  - T-0862
+  - T-0863
+  - T-0864
+  - T-0865
+next_task_id: 866
+last_updated: '2026-11-19T10:03:58.577Z'
