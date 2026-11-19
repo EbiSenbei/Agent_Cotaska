@@ -9611,6 +9611,19 @@ tasks:
       - v0.5.3
     due_date: null
     updated_at: '2026-11-19T09:53:13.291Z'
+  - id: T-0870
+    title: Cotaska 0.5.3のリリースノート・再ビルド・GitHub公開
+    list: 開発管理
+    status: todo
+    priority: high
+    sort_order: 870
+    tags:
+      - リリース
+      - v0.5.3
+      - CHG-159
+      - BUG-20261119-01
+    due_date: null
+    updated_at: '2026-11-19T10:55:43.860Z'
 task_file_roots:
   - .
   - T-0001
@@ -10444,5 +10457,6 @@ task_file_roots:
   - T-0863
   - T-0864
   - T-0865
-next_task_id: 866
-last_updated: '2026-11-19T10:03:58.577Z'
+  - T-0870
+next_task_id: 871
+last_updated: '2026-11-19T10:55:44.387Z'
